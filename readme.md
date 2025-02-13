@@ -42,8 +42,6 @@ Pause Menu
 
 🏗️ Installation
 
-Download the latest Legend of Rey executable (.exe) from [your link].
-
 Run Legend_of_Rey.exe to start playing. No installation required!
 
 (Optional) Extract all files if packaged as a zip.
@@ -64,7 +62,7 @@ Download the latest version of Legend of Rey from [Itch.io / Game Jolt / Google 
 
 👨‍💻 Developer
 
-Created by: Arda Güner📧 Contact: ardaguner2000@gmail.com🌐 [Your website or GitHub]
+Created by: Arda Güner📧 Contact: ardaguner2000@gmail.com🌐 ardaguner.com
 
 📜 License
 
