@@ -1,11 +1,17 @@
 import pygame
 from settings import *
 from projectile import Projectile
+from pygame.mixer import Sound
+
+import pygame
+from settings import *
+from projectile import Projectile
+from pygame.mixer import Sound
 
 class Player:
     def __init__(self):
         self.x, self.y = 100, 100
-        self.width, self.height = 40, 40
+        self.width, self.height = 40, 60  # Oyuncu boyutuna uygun
         self.speed = 4
         self.health = 3  
         self.max_health = 3  
@@ -26,9 +32,16 @@ class Player:
         self.attack_sound = pygame.mixer.Sound("assets/attack.wav")
         self.hit_sound = pygame.mixer.Sound("assets/hit.wav")
         self.shoot_sound = pygame.mixer.Sound("assets/shoot.wav")  # 📌 Uzaktan saldırı sesi
+        self.walk_sound = Sound("assets/footstep.wav")
+        self.walk_sound.set_volume(0.5)
 
         # 📌 **Mermi Listesi**
         self.projectiles = []
+
+        # 📌 **Bacak Animasyonu**
+        self.leg_color = (200, 180, 150)  # Bacak için uygun renk
+        self.leg_offset = 0
+        self.leg_direction = 1  # Hareket yönü için
 
     def update(self, walls, enemies):
         """Oyuncunun hareketini ve saldırılarını günceller."""
@@ -62,6 +75,23 @@ class Player:
             if projectile.check_collision(enemies) or projectile.x < 0 or projectile.x > WIDTH:
                 self.projectiles.remove(projectile)  # 📌 Mermi çarpınca siliniyor!
 
+         # 📌 Bacak Animasyonu
+        self.leg_offset += self.leg_direction * 2
+        if self.leg_offset >= 8 or self.leg_offset <= -8:
+            self.leg_direction *= -1
+        if self.leg_offset > 8:
+            self.leg_offset = 8
+        elif self.leg_offset < -8:
+            self.leg_offset = -8
+        if abs(self.leg_offset) > 8:
+            self.leg_direction *= -1
+        else:
+            if not pygame.mixer.get_busy():
+                self.walk_sound.play()
+        if abs(self.leg_offset) > 8:
+            self.leg_direction *= -1
+            self.walk_sound.play()
+
     def collides(self, x, y, walls):
         """Oyuncunun duvarlara çarpmasını önler."""
         player_rect = pygame.Rect(x, y, self.width, self.height)
@@ -87,6 +117,12 @@ class Player:
         # 📌 Mermileri ekrana çiz
         for projectile in self.projectiles:
             projectile.draw(screen)
+
+        # 📌 **Bacakları Çiz**
+        pygame.draw.line(screen, self.leg_color, (self.x + 10, self.y + 45), (self.x + 10, self.y + 55 + self.leg_offset), 5)
+        pygame.draw.circle(screen, self.leg_color, (self.x + 10, self.y + 55 + self.leg_offset), 3)
+        pygame.draw.line(screen, self.leg_color, (self.x + 30, self.y + 45), (self.x + 30, self.y + 55 - self.leg_offset), 5)
+        pygame.draw.circle(screen, self.leg_color, (self.x + 30, self.y + 55 - self.leg_offset), 3)
 
     def attack(self, enemies):
         """Oyuncunun yakın saldırısını gerçekleştirir."""
@@ -136,3 +172,5 @@ class Player:
         global game_state
         print("💀 Game Over! Rey öldü!")
         game_state = "game_over"  
+
+    

@@ -1,14 +1,15 @@
 import pygame
 import sys
 import os
+import time
+import gc
+import settings
 from settings import *  
+from settings import update_sound_settings, show_settings  
 from player import Player
 from enemy import Enemy, Goblin, Spider, Skeleton
 from level import Level
-import time
-import gc  
-import settings  
-import how_to_play  
+from how_to_play import show_how_to_play
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)  
@@ -46,8 +47,7 @@ win_bg = load_image(END_SCREEN, PURPLE)
 
 # 🎵 **Müzik başlat**
 try:
-    background_music = pygame.mixer.Sound(get_resource_path("assets/background_music.wav"))
-    background_music.play(-1)
+    pygame.mixer.music.play(-1)
 except pygame.error:
     print("⚠️ Müzik yüklenemedi!")
 
@@ -141,28 +141,12 @@ how_to_play_button = pygame.Rect(button_x, 360, button_width, button_height)
 exit_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT - 100, 200, 50)  
 restart_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT - 200, 200, 50)  
 
-def draw_button(screen, rect, text, action=None):
-    mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
-    color = HOVER_COLOR if rect.collidepoint(mouse) else PURPLE
-
-    pygame.draw.rect(screen, color, rect, border_radius=10)
-
-    font = pygame.font.SysFont("Arial", 30)
-    text_surface = font.render(text, True, WHITE)
-    
-    text_x = rect.x + (rect.width - text_surface.get_width()) // 2
-    text_y = rect.y + (rect.height - text_surface.get_height()) // 2
-    screen.blit(text_surface, (text_x, text_y))
-
-    if rect.collidepoint(mouse) and click[0] == 1 and action:
-        pygame.time.delay(150)
-        action()
-
 # 🔄 **Oyun Döngüsü**
 running = True
 while running:
     gc.collect()  
+
+    update_sound_settings()  
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -178,15 +162,16 @@ while running:
         draw_scaled_background(menu_bg)
         font = pygame.font.SysFont("Arial", 50, bold=True)
 
-        draw_button(screen, start_button, "Start Game", start_game)
-        draw_button(screen, settings_button, "Settings", open_settings)
-        draw_button(screen, how_to_play_button, "How to Play", open_how_to_play)
+        draw_button(screen, button_x, 200, button_width, button_height, "Start Game", start_game)
+        draw_button(screen, button_x, 280, button_width, button_height, "Settings", open_settings)
+        draw_button(screen, button_x, 360, button_width, button_height, "How to Play", open_how_to_play)
 
     elif game_state == SETTINGS:
-        settings.show_settings(screen, back_to_menu)  
+        settings.show_settings(screen, back_to_menu) 
+        pygame.mixer.music.set_volume(settings.music_slider.get_value()) 
 
     elif game_state == HOW_TO_PLAY:
-        how_to_play.show_how_to_play(screen, back_to_menu)  
+        show_how_to_play(screen, back_to_menu)  
 
     elif game_state == GAME:
         draw_scaled_background(background)  
@@ -215,18 +200,18 @@ while running:
 
     elif game_state == GAME_OVER:
         draw_scaled_background(game_over_bg)
-        draw_button(screen, restart_button, "Restart", restart_game)
-        draw_button(screen, exit_button, "Exit", exit_game)
+        draw_button(screen, WIDTH // 2 - 100, HEIGHT - 200, 200, 50, "Restart", restart_game)
+        draw_button(screen, WIDTH // 2 - 100, HEIGHT - 100, 200, 50, "Exit", exit_game)
 
     elif game_state == WIN:
         draw_scaled_background(win_bg)
-        draw_button(screen, restart_button, "Restart", restart_game)
-        draw_button(screen, exit_button, "Exit", exit_game)
-
+        draw_button(screen, WIDTH // 2 - 100, HEIGHT - 200, 200, 50, "Restart", restart_game)
+        draw_button(screen, WIDTH // 2 - 100, HEIGHT - 100, 200, 50, "Exit", exit_game)
     pygame.display.flip()  
     clock.tick(60)  
 
-background_music.stop()
+
+pygame.mixer.music.stop()
 pygame.mixer.quit()
 pygame.quit()
 sys.exit()

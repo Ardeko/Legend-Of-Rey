@@ -1,10 +1,6 @@
 import pygame
 from settings import *
 
-# 📌 Renkler (Eğer settings.py içinde yoksa buraya ekle)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-
 class Enemy:
     def __init__(self, x, y, image_path):
         self.x, self.y = x, y
@@ -15,9 +11,13 @@ class Enemy:
         self.speed = 2  # Düşman hareket hızı
         self.attack_range = 50  # Saldırı menzili
         self.attack_timer = 0
-        self.health = 3  # 📌 Düşmanın canı
+        self.attack_cooldown = 60  # Saldırılar daha yavaş olacak
+        self.health = 3  # Düşman canı
 
-        # 🎵 **Ses Efektleri**
+        # **Saldırı Efektleri PNG'leri**
+        self.attack_effect = None  # Varsayılan olarak görünmez
+
+        # **Ses Efektleri**
         self.attack_sound = pygame.mixer.Sound("assets/enemy_attack.wav")
         self.hit_sound = pygame.mixer.Sound("assets/enemy_hit.wav")
 
@@ -25,7 +25,7 @@ class Enemy:
         if not self.alive:
             return
 
-        # 📌 Oyuncuya yaklaş
+        # Oyuncuya yaklaşma
         if abs(self.x - player.x) > self.attack_range:
             if self.x < player.x:
                 self.x += self.speed  
@@ -38,48 +38,63 @@ class Enemy:
                 self.y -= self.speed
         else:
             self.attack_timer += 1
-            if self.attack_timer >= 60:  # 📌 60 frame'de bir saldır
-                self.attack(player)
+            if self.attack_timer >= self.attack_cooldown:  # Daha yavaş saldırılar
+                self.attack(player, screen)
                 self.attack_timer = 0
 
-    def attack(self, player):
+    def attack(self, player, screen):
         if self.alive:
             self.attack_sound.play()
-            player.take_damage()  # 📌 Oyuncunun canını azalt
+            player.take_damage()  # Oyuncuya hasar ver
+            self.show_attack_effect(screen)
+
+    def show_attack_effect(self, screen):
+        self.attack_display_timer = 240  # Saldırı efekti daha uzun süre görünsün
+        """Saldırı efektini gösterir (Goblin: bıçak, Spider: ağ, Skeleton: kemik)"""
+        if self.attack_effect and self.attack_display_timer > 0:
+            self.attack_display_timer -= 1
+            screen.blit(self.attack_effect, (self.x + self.width // 2, self.y + self.height // 2))
 
     def draw(self, screen):
         if self.alive:
             screen.blit(self.image, (self.x, self.y))
 
     def take_damage(self):
-     if self.alive:
-        self.health -= 1
-        self.hit_sound.play()  # 📌 Düşman vurulunca ses çalsın
-        print(f"💥 {type(self).__name__} vuruldu! Kalan Can: {self.health}")
-        if self.health <= 0:
-            self.alive = False  # 📌 Düşman ölür
-            print(f"☠️ {type(self).__name__} öldü!")
+        if self.alive:
+            self.health -= 1
+            self.hit_sound.play()
+            if self.health <= 0:
+                self.alive = False
 
-class Spider(Enemy):
-    def __init__(self, x, y):
-        super().__init__(x, y, "assets/spider.png")
-
-    def attack(self, player):
-        super().attack(player)
-        print("🕷️ Spider ağ fırlattı!")
-
+# **Goblin Sınıfı**
 class Goblin(Enemy):
     def __init__(self, x, y):
         super().__init__(x, y, "assets/goblin.png")
+        self.attack_effect = pygame.image.load("assets/goblin_knife.png")  # **Bıçak PNG**
+        self.attack_effect = pygame.transform.scale(self.attack_effect, (50, 20))
 
-    def attack(self, player):
-        super().attack(player)
-        print("👹 Goblin yakından saldırdı!")
+    def attack(self, player, screen):
+        super().attack(player, screen)
+        print("👹 Goblin bıçakla saldırdı!")
 
+# **Spider Sınıfı (Ağ Fırlatma)**
+class Spider(Enemy):
+    def __init__(self, x, y):
+        super().__init__(x, y, "assets/spider.png")
+        self.attack_effect = pygame.image.load("assets/spider_web.png")  # **Ağ PNG**
+        self.attack_effect = pygame.transform.scale(self.attack_effect, (50, 50))
+
+    def attack(self, player, screen):
+        super().attack(player, screen)
+        print("🕷️ Spider ağ fırlattı!")
+
+# **Skeleton Sınıfı (Kemik Fırlatma)**
 class Skeleton(Enemy):
     def __init__(self, x, y):
         super().__init__(x, y, "assets/skeleton.png")
+        self.attack_effect = pygame.image.load("assets/bone_projectile.png")  # **Kemik PNG**
+        self.attack_effect = pygame.transform.scale(self.attack_effect, (40, 40))
 
-    def attack(self, player):
-        super().attack(player)
+    def attack(self, player, screen):
+        super().attack(player, screen)
         print("💀 Skeleton kemik fırlattı!")

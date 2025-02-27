@@ -12,19 +12,22 @@ HOVER_COLOR = (150, 50, 255)
 BROWN_YELLOW = (153, 101, 21)
 RED = (255, 0, 0)  
 
-
 WIDTH, HEIGHT = 800, 600
 
 # 📌 **SES DOSYALARINI YÜKLE**
 try:
-    background_music = pygame.mixer.Sound("assets/background_music.wav")
+    # 🎵 **Müzik dosyasını pygame.mixer.music ile yükle**
+    pygame.mixer.music.load("assets/background_music.wav")
+    pygame.mixer.music.set_volume(0.5)  # Varsayılan %50 ses seviyesi
+    pygame.mixer.music.play(-1)  # Sonsuz döngüde çal
+
+    # 🔊 **Ses efektlerini pygame.mixer.Sound ile yükle**
     attack_sound = pygame.mixer.Sound("assets/attack.wav")
     jump_sound = pygame.mixer.Sound("assets/jump.wav")
     shoot_sound = pygame.mixer.Sound("assets/shoot.wav")
-    walk_sound = pygame.mixer.Sound("assets/walk.wav")
+    walk_sound = pygame.mixer.Sound("assets/footstep.wav")
 
     # **Varsayılan ses seviyeleri**
-    background_music.set_volume(0.5)  # %50 ses
     attack_sound.set_volume(0.7)
     jump_sound.set_volume(0.7)
     shoot_sound.set_volume(0.7)
@@ -32,8 +35,11 @@ try:
 
 except pygame.error as e:
     print(f"Ses yükleme hatası: {e}")
-
-
+    pygame.mixer.music.stop()
+    attack_sound = None
+    jump_sound = None
+    shoot_sound = None
+    walk_sound = None
 
 # 📌 **SCROLL BAR (SES KONTROL) SINIFI**
 class ScrollBar:
@@ -65,62 +71,31 @@ class ScrollBar:
     def get_value(self):
         return self.value
 
+# 📌 **SES KAYDIRICILARINI GLOBAL OLARAK TANIMLA**
+music_slider = ScrollBar(WIDTH // 4, 250, 300, 20, value=pygame.mixer.music.get_volume() if pygame.mixer.get_init() else 0.5)
+sfx_slider = ScrollBar(WIDTH // 4, 350, 300, 20, value=attack_sound.get_volume() if attack_sound else 0.5)
 
 def draw_text(screen, text, x, y, size=36, color=WHITE):
     font = pygame.font.SysFont("Arial", size)
     text_surface = font.render(text, True, color)
     screen.blit(text_surface, (x, y))
 
-
-def draw_button(screen, x, y, width, height, text, action=None):  
-    mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
-    button_rect = pygame.Rect(x, y, width, height)
-    color = HOVER_COLOR if button_rect.collidepoint(mouse) else PURPLE
-
-    pygame.draw.rect(screen, color, button_rect, border_radius=10)
-    
-    font = pygame.font.SysFont("Arial", 30)
-    text_surface = font.render(text, True, WHITE)
-    
-    # **Metni butonun ortasına al**
-    text_x = x + (width - text_surface.get_width()) // 2
-    text_y = y + (height - text_surface.get_height()) // 2
-    screen.blit(text_surface, (text_x, text_y))
-
-    if button_rect.collidepoint(mouse) and click[0] == 1 and action:
-        pygame.time.delay(150)
-        action()
-
-
-
 def show_settings(screen, back_action):
+    global music_slider, sfx_slider  
+    
     screen.fill(DARK_BLUE)
-
-    draw_text(screen, "Settings", WIDTH // 3, 100, 50, WHITE)
-    draw_text(screen, "Müzik Ses Seviyesi", WIDTH // 4, 200, 30, WHITE)
-    draw_text(screen, "SFX Ses Seviyesi", WIDTH // 4, 300, 30, WHITE)
-
-    # 📌 **MÜZİK ve SFX Scroll Barları**
-    music_slider = ScrollBar(WIDTH // 4, 250, 300, 20, value=background_music.get_volume())
-    sfx_slider = ScrollBar(WIDTH // 4, 350, 300, 20, value=attack_sound.get_volume())
 
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
-            # **ScrollBar'ları güncelle**
+            
             music_slider.update(event)
             sfx_slider.update(event)
 
-            # **Ses seviyelerini ayarla**
-            background_music.set_volume(music_slider.get_value())
-            attack_sound.set_volume(sfx_slider.get_value())
-            jump_sound.set_volume(sfx_slider.get_value())
-            shoot_sound.set_volume(sfx_slider.get_value())
-            walk_sound.set_volume(sfx_slider.get_value())
+            # 📌 **Ses seviyelerini her hareket ettiğinde güncelle**
+            update_sound_settings()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = event.pos
@@ -129,11 +104,11 @@ def show_settings(screen, back_action):
                     pygame.time.delay(150)
                     back_action()
 
-        # 📌 **Scroll Barları ve Butonu Çiz**
         screen.fill(DARK_BLUE)
         draw_text(screen, "Settings", WIDTH // 3, 100, 50, WHITE)
         draw_text(screen, "Müzik Ses Seviyesi", WIDTH // 4, 200, 30, WHITE)
         draw_text(screen, "SFX Ses Seviyesi", WIDTH // 4, 300, 30, WHITE)
+
         music_slider.draw(screen)
         sfx_slider.draw(screen)
 
@@ -141,3 +116,40 @@ def show_settings(screen, back_action):
         draw_text(screen, "Back", WIDTH // 3 + 50, 410, 30, WHITE)
 
         pygame.display.flip()
+
+       
+def update_sound_settings():
+    volume = music_slider.get_value()
+    sfx_volume = sfx_slider.get_value()
+
+    pygame.mixer.music.set_volume(volume)  
+
+    
+    if attack_sound:
+        attack_sound.set_volume(sfx_volume)
+    if jump_sound:
+        jump_sound.set_volume(sfx_volume)
+    if shoot_sound:
+        shoot_sound.set_volume(sfx_volume)
+    if walk_sound:
+        walk_sound.set_volume(sfx_volume)
+
+    print(f"Music Volume: {volume}, SFX Volume: {sfx_volume}")  
+
+def draw_button(screen, x, y, width, height, text, action=None):
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+    color = HOVER_COLOR if pygame.Rect(x, y, width, height).collidepoint(mouse) else PURPLE
+
+    pygame.draw.rect(screen, color, (x, y, width, height), border_radius=10)
+
+    font = pygame.font.SysFont("Arial", 30)
+    text_surface = font.render(text, True, WHITE)
+    
+    text_x = x + (width - text_surface.get_width()) // 2
+    text_y = y + (height - text_surface.get_height()) // 2
+    screen.blit(text_surface, (text_x, text_y))
+
+    if pygame.Rect(x, y, width, height).collidepoint(mouse) and click[0] == 1 and action:
+        pygame.time.delay(150)
+        action()
