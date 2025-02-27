@@ -60,11 +60,11 @@ If Rey’s health reaches zero, the game is over.
 
 📥 Download
 
-Download the latest version of Legend of Rey from [Itch.io / Game Jolt / Google Drive].
+Download the latest version of Legend of Rey from https://ardeko.itch.io/legend-of-rey
 
 👨‍💻 Developer
 
-Created by: Arda Güner📧 Contact: ardaguner2000@gmail.com🌐 [Your website or GitHub]
+Created by: Arda Güner📧 Contact: ardaguner2000@gmail.com🌐 
 
 📜 License
 
