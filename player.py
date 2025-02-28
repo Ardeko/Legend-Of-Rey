@@ -61,9 +61,11 @@ class Player:
             y_delta += self.speed
         if x_delta != 0 and y_delta != 0:
             x_delta, y_delta = x_delta/math.sqrt(2), y_delta/math.sqrt(2)
+        new_x, new_y = new_x + x_delta, new_y + y_delta
         if not self.collides(new_x, new_y, walls):
             self.x, self.y = self.x + x_delta, self.y + y_delta
-            
+        if  self.collides(new_x, new_y, walls):
+            self.x, self.y = self.x - x_delta, self.y - y_delta
 
         # 📌 Saldırı süresi bittiğinde animasyonu kaldır
         if self.is_attacking:
