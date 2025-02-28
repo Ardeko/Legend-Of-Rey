@@ -7,7 +7,7 @@ import pygame
 from settings import *
 from projectile import Projectile
 from pygame.mixer import Sound
-
+import math
 class Player:
     def __init__(self):
         self.x, self.y = 100, 100
@@ -47,20 +47,23 @@ class Player:
         """Oyuncunun hareketini ve saldırılarını günceller."""
         keys = pygame.key.get_pressed()
         new_x, new_y = self.x, self.y
+        x_delta, y_delta = 0, 0
 
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            new_x -= self.speed
+            x_delta -= self.speed
             self.direction = "left"
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            new_x += self.speed
+            x_delta += self.speed
             self.direction = "right"
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            new_y -= self.speed
+            y_delta -= self.speed
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            new_y += self.speed
-
+            y_delta += self.speed
+        if x_delta != 0 and y_delta != 0:
+            x_delta, y_delta = x_delta/math.sqrt(2), y_delta/math.sqrt(2)
         if not self.collides(new_x, new_y, walls):
-            self.x, self.y = new_x, new_y
+            self.x, self.y = self.x + x_delta, self.y + y_delta
+            
 
         # 📌 Saldırı süresi bittiğinde animasyonu kaldır
         if self.is_attacking:
