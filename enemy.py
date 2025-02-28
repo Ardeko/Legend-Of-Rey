@@ -1,5 +1,6 @@
 import pygame
 from settings import *
+from util import wall_collision
 
 class Enemy:
     def __init__(self, x, y, image_path):
@@ -21,21 +22,22 @@ class Enemy:
         self.attack_sound = pygame.mixer.Sound("assets/enemy_attack.wav")
         self.hit_sound = pygame.mixer.Sound("assets/enemy_hit.wav")
 
-    def update(self, screen, player):
+    def update(self, screen, player, walls):
         if not self.alive:
             return
+            
 
         # Oyuncuya yaklaşma
         if abs(self.x - player.x) > self.attack_range:
-            if self.x < player.x:
-                self.x += self.speed  
+            if self.x < player.x and wall_collision(self, self.speed, 0, walls) == False:
+                wall_collision(self, self.speed, 0, walls)
             elif self.x > player.x:
-                self.x -= self.speed
+                wall_collision(self, -1*self.speed, 0, walls)
         if abs(self.y - player.y) > self.attack_range:
             if self.y < player.y:
-                self.y += self.speed
+                wall_collision(self, 0, self.speed, walls) 
             elif self.y > player.y:
-                self.y -= self.speed
+                wall_collision(self, 0, -1*self.speed, walls)
         else:
             self.attack_timer += 1
             if self.attack_timer >= self.attack_cooldown:  # Daha yavaş saldırılar
@@ -65,6 +67,15 @@ class Enemy:
             self.hit_sound.play()
             if self.health <= 0:
                 self.alive = False
+
+    def collides(self, x, y, walls):
+        """Oyuncunun duvarlara çarpmasını önler."""
+        player_rect = pygame.Rect(x, y, self.width, self.height)
+        for wall in walls:
+            if player_rect.colliderect(wall):
+                return True
+        return False
+
 
 # **Goblin Sınıfı**
 class Goblin(Enemy):

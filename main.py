@@ -186,7 +186,7 @@ while running:
             spike.draw(screen)
 
         for enemy in enemies:
-            enemy.update(screen, player)
+            enemy.update(screen, player, level.walls)
             enemy.draw(screen)
 
         screen.blit(door_image, (door_rect.x, door_rect.y))
