@@ -133,8 +133,7 @@ def update_sound_settings():
         shoot_sound.set_volume(sfx_volume)
     if walk_sound:
         walk_sound.set_volume(sfx_volume)
-
-    print(f"Music Volume: {volume}, SFX Volume: {sfx_volume}")  
+ 
 
 def draw_button(screen, x, y, width, height, text, action=None):
     mouse = pygame.mouse.get_pos()

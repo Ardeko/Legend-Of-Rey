@@ -10,6 +10,7 @@ from player import Player
 from enemy import Enemy, Goblin, Spider, Skeleton
 from level import Level
 from how_to_play import show_how_to_play
+from boss import Boss
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)  
@@ -60,7 +61,9 @@ SETTINGS = "settings"
 HOW_TO_PLAY = "how_to_play"
 game_state = MENU
 current_level = 1  
-player = None  
+player = None
+BOSS_FIGHT = "boss_fight"
+boss_level = None  
 
 # 📌 **Kapıyı Yükleme**
 try:
@@ -68,6 +71,11 @@ try:
 except pygame.error:
     door_image = pygame.Surface((50, 70))
     door_image.fill(BLACK)
+try:
+    boss_door_image = pygame.image.load(get_resource_path("assets/boss_door.png"))
+except pygame.error:
+    boss_door_image = pygame.Surface((50, 70))
+    boss_door_image.fill((255, 0, 0))
 
 # 📌 **Menüler**
 def start_game():
@@ -100,11 +108,18 @@ def restart_game():
 
 def next_level():
     global current_level, game_state
-    if current_level < 3:  
+    if current_level < 4:  
         current_level += 1  
         load_level(current_level)
     else:
-        game_state = WIN  
+        start_boss_fight() 
+
+def start_boss_fight():
+    global game_state, boss_level, player
+    boss_level = Boss(400, 300)
+    player = Player()
+    game_state = BOSS_FIGHT
+
 
 # 📌 **Seviyeleri Yükleme**
 def load_level(level_number):
@@ -197,6 +212,25 @@ while running:
         if player.health <= 0:  
             player.die()
             game_state = GAME_OVER  
+
+        if current_level == 4:
+            screen.blit(boss_door_image, (door_rect.x, door_rect.y))
+
+        if current_level == 4 and pygame.Rect(player.x, player.y, player.width, player.height).colliderect(door_rect):
+            start_boss_fight()
+
+        elif game_state == BOSS_FIGHT:
+            draw_scaled_background(background)
+
+    if boss_level is not None:
+        boss_level.update(player, player.projectiles)
+        boss_level.draw(screen)
+
+    player.update([], [])
+    player.draw(screen)
+
+    if boss_level is not None and boss_level.health <= 0:
+        game_state = WIN
 
     elif game_state == GAME_OVER:
         draw_scaled_background(game_over_bg)
