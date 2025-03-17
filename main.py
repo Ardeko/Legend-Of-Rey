@@ -135,6 +135,11 @@ def load_level(level_number):
     elif enemy_type == "Skeleton":
         enemies = [Skeleton(x, y) for x, y in enemy_positions]
 
+    """
+    FIX THIS
+
+    Add another elif for boss enemy check
+    """
     door_x, door_y = WIDTH - 80, HEIGHT // 2
     door_rect = pygame.Rect(door_x, door_y, 50, 70)
 
