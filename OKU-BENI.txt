@@ -1,0 +1,154 @@
+LEGEND OF REY — test sürümü
+Ardeko Studios · 02.09.2026
+
+═══════════════════════════════════════════════════════════════
+NASIL ÇALIŞTIRILIR
+═══════════════════════════════════════════════════════════════
+
+"Legend of Rey.exe" dosyasına çift tıkla. Kurulum yok.
+
+Windows "bilinmeyen yayıncı" uyarısı verirse: Daha fazla bilgi →
+Yine de çalıştır. (İmzalı değil, o kadar.)
+
+Arkada bir siyah konsol penceresi açılır — BU NORMAL. Oyun çökerse
+hata orada yazar; bir sorun görürsen o pencerenin ekran görüntüsünü
+al, bizim için en değerli şey o.
+
+Kayıtlar buraya gider:
+  %APPDATA%\LegendOfRey\
+
+Baştan başlamak istersen o klasörü sil.
+
+
+───────────────────────────────────────────────────────────────
+BİR BÖLÜME DOĞRUDAN ATLAMAK (test için)
+───────────────────────────────────────────────────────────────
+
+18 bölümü sırayla oynamak ~4 saat. Bir bölümü tek başına denemek
+istersen komut satırından bölüm adını ver:
+
+  "Legend of Rey.exe" bolum18
+
+Kullanılabilir adlar: bolum1 ... bolum18, ayrıca ara sahneler
+(bolum18-ad, bolum18-sessizlik, safak gibi). Yanlış bir ad
+yazarsan konsol geçerli olanların listesini basar.
+
+DİKKAT: Doğrudan atlayınca karakterin yetenekleri kayıttan gelir.
+Kayıt yoksa Rey kılıçsız başlayabilir — normal akışta böyle olmaz.
+Gerçek testi menüden "YENİ OYUN" ile yapmak lazım.
+
+
+═══════════════════════════════════════════════════════════════
+KONTROLLER
+═══════════════════════════════════════════════════════════════
+
+  Yön tuşları / A-D      yürü
+  Boşluk / W / Z         zıpla
+  J veya X               saldır
+  Shift / L / C          kaçınma (yuvarlanma)
+  E                      etkileşim (kol, sandık, NPC)
+                         + Bölüm 16'da: basılı tut → yoldaşı kaldır
+  Q / K (basılı tut)     Yankı — Rey'de görüş, Ardo'da iz sürme
+                         + Bölüm 18'de: basılı tut → sesi sustur
+  F                      Yankı'ya soru sor
+  G                      rezonans (Bölüm 8'den sonra)
+  U                      yoldaşa komut ("burada bekle")
+  Y                      karakter değiştir (Bölüm 17)
+  Tab                    envanter / silah değiştir
+  Aşağı (basılı tut)     Bölüm 12'de kafesin freni
+  ESC                    duraklat
+
+  F3                     hata ayıklama bilgisi (istersen aç)
+
+Gamepad **kapalı** geliyor. Kullanacaksan Ayarlar'dan aç.
+Tuşların hepsi Ayarlar → Tuşlar'dan değiştirilebilir.
+
+
+═══════════════════════════════════════════════════════════════
+NE KADARI HAZIR
+═══════════════════════════════════════════════════════════════
+
+★ 18 BÖLÜMÜN 18'İ OYNANABİLİR. Oyun baştan sona bitiyor: son
+  bölümden sonra kapanış sahnesi ve jenerik geliyor.
+
+Yeni gelenler (bu sürümde ilk kez):
+  B15 Sessizlik   — uyuyan sürü, koşarsan uyanırlar
+  B16 Sırt Sırta  — yoldaş kendi kalkmıyor, sen kaldırıyorsun
+  B17 İkili Kule  — iki karakter, Y ile geçiş, biri kapıyı tutar
+  B18 Son         — final. Yankı açıkken yaratık ölmüyor.
+
+
+═══════════════════════════════════════════════════════════════
+BİLDİĞİMİZ EKSİKLER — bunları yazmana gerek yok
+═══════════════════════════════════════════════════════════════
+
+• Ara sahnelerin arka planları kod ile çiziliyor, çizim değil.
+  Sade duruyorlar; farkındayız.
+
+• Sadece Rey, Ardo ve Cemo'nun portresi çizilmiş durumda. Öteki
+  karakterler kod üretimi.
+
+• Ses efektleri sentezle üretiliyor (dosya değil). Müzik gerçek.
+
+• Denge ayarları ham. "Şu düşman çok zor / çok kolay" demen
+  bizim için değerli ama bir hata değil.
+
+• Tam ekran her zaman BİRİNCİ monitörde açılıyor. İki ekranlıysan
+  ve oyun ikinci ekrandaysa tam ekranda birinciye atlar.
+
+• 2560x1440 gibi çözünürlüklerde kenarlarda ince siyah bant kalır.
+  Bu bilinçli: piksel sanatı tam sayı katlarda büyütülüyor, aksi
+  halde bulanıklaşırdı.
+
+
+═══════════════════════════════════════════════════════════════
+EN ÇOK NEYİ MERAK EDİYORUZ
+═══════════════════════════════════════════════════════════════
+
+1. DÖVÜŞ İYİ HİSSETTİRİYOR MU?
+   Vuruş "tok" mu? Kaçınma güvenilir mi? Bir düşmanı yenerken
+   "anladım" dediğin an oldu mu?
+
+2. NEREDE TAKILDIN?
+   Bir odada ne yapacağını bilemediysen tam olarak nerede ve ne
+   düşündüğünü yaz. En değerli geri bildirim bu.
+
+3. SON BÖLÜMDE NE OLDUĞUNU ANLADIN MI?  ★ yeni
+   Bölüm 18'de yaratık bir süre ölmüyor. Bunun sebebini anladın
+   mı, ne yapman gerektiğini nasıl çözdün? Kaç denemede?
+   Anlamadıysan bu bizim hatamız — nerede kaybolduğunu yaz.
+
+4. BÖLÜM 17'DE İKİ KARAKTERİ YÖNETMEK KARIŞTI MI?
+   Hangisini oynadığını kaybettiğin oldu mu?
+
+5. YANKI'YI (Q) KULLANDIN MI?
+   Ne sıklıkta? Neden? Bölüm 14'ten sonra davranışı değişiyor —
+   fark ettin mi, ne hissettin?
+
+6. HİKÂYE TAKİP EDİLEBİLİYOR MU?
+   Kimin kim olduğu, nereye gittiğin belli mi? Ara sahnelerde
+   sıkıldığın yer var mı?
+
+7. NEREDE BIRAKMAK İSTEDİN?
+   Oyunu kapatmak istediğin an hangisiydi? Bunu söylemekten
+   çekinme, en çok işimize yarayan cevap o.
+
+8. SON NASILDI?  ★ yeni
+   Kapanış sahnesi hak edilmiş hissettirdi mi? 18 bölümün
+   karşılığı gibi durdu mu, yoksa aceleye mi geldi?
+
+
+═══════════════════════════════════════════════════════════════
+BİR HATA BULURSAN
+═══════════════════════════════════════════════════════════════
+
+Şunları yaz:
+  - Hangi bölüm / oda
+  - Ne yapıyordun
+  - Ne bekliyordun, ne oldu
+  - Konsol penceresinde yazı varsa ekran görüntüsü
+
+Oyun donarsa ya da kapanırsa: konsol penceresi çok önemli,
+kapatmadan fotoğrafını çek.
+
+Teşekkürler.

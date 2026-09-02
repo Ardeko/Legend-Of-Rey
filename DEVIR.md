@@ -1140,6 +1140,27 @@ değil bir **hatırlatma** oluyorlar.
 
 Zincirleme: **B17 → B18 → Şafak → ana menü.**
 
+### Tester sürümü nasıl hazırlanır (02.09.2026)
+
+```
+python -m PyInstaller "Legend of Rey.spec" --noconfirm --clean
+cp OKU-BENI.txt dist/
+```
+
+İkinci satır **unutulmamalı**: `OKU-BENI.txt` tester'ın okuduğu tek
+belge ve PyInstaller onu kopyalamıyor. Bir süre yalnızca `dist/`
+içinde duruyordu — `dist/` gitignore'da olduğu için sürüm kontrolünde
+yoktu ve bir silmede kaybolacaktı. Artık kök dizinde tutuluyor,
+derlemeden sonra elle kopyalanıyor.
+
+`dist/` içinde exe **açık kalırsa** derleme `PermissionError` veriyor
+(Windows dosyayı kilitliyor). Önce süreci kapat:
+`Get-Process "Legend of Rey" | Stop-Process -Force`
+
+Exe **bölüm adı argümanı alıyor** — testte en çok işe yarayan şey:
+`"Legend of Rey.exe" bolum18`. Geçerli 51 ad `main.py` `SCENES`
+içinde; yanlış ad yazılınca liste basılıyor.
+
 ## 9. AÇIK KALANLAR
 
 Sırası gelmediği için değil, **gözden kaçmasın** diye:
