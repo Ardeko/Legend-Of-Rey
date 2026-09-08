@@ -155,7 +155,8 @@
     "ardo": "ARDO",
     "cemo": "CEMO",
     "echo": "…",
-    "jet": "JET"
+    "jet": "JET",
+    "kalachev": "KALACHEV"
   },
   "line": {
     "ch01_cemo_gift": "I made this for you... Maybe it'll make the darkness think twice.",
@@ -483,7 +484,18 @@
     "ch13_rey_wound": "He's bleeding. First time I've seen anything slow him.",
     "ch13_ardo_wound": "Get back! ... Listen to me, just once.",
     "ch15_echo_kalachev": "He isn't moving. He's standing among them, not moving.",
-    "ch15_echo_kalachev_wakes": "Now he moves? Now?"
+    "ch15_echo_kalachev_wakes": "Now he moves? Now?",
+    "ch18_rey_kalachev": "He came too. Everyone passes through this door.",
+    "ch18_ardo_kalachev": "Kalachev. I'll watch your back this time.",
+    "ch18_cemo_call": "Where are you? I'm here. Come and get me.",
+    "ch18_rey_stop": "Stop! That isn't him — STOP!",
+    "ch18_ardo_stop": "Kalachev, listen to me! Just once!",
+    "ch18_kalachev_last": "I'm here.",
+    "ch18_ally_after": "I'll bring him back! You stay there!",
+    "ch18_rey_alone": "The gate came down. This side is mine alone now.",
+    "ch18_ardo_alone": "Both of them shut outside. Only me left.",
+    "ch18_rey_lookback": "There's no one behind me. No one at all now.",
+    "ch18_ardo_lookback": "One second. ... It's nothing. Let's go."
   },
   "combat": {
     "counter": "COUNTER",

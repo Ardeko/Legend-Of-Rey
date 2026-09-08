@@ -97,6 +97,21 @@ WOUND_HEALTH = 30
 # yazarsa yara sessizce kaybolur ve hicbir test bunu goremez.
 WOUND_FLAG = "kalachev_wounded"
 
+# --- Olum (B18 faz 2) --------------------------------------------------------
+# `docs/kalachev.md` 6: *"Yaratik Cemo'nun sesiyle konusur. Kalachev o
+# sese dogru kosar. Olur."* ve 8: *"Olumu geri alinmayacak."*
+#
+# Bu yuzden `leave()` ile ayni sey DEGIL. Cekilme gecici bir yokluk,
+# olum kalici bir yokluk - ve ikisi ayni koda dusseydi biri gun gelir
+# otekinin yerine kullanilirdi. Govde yerde kaliyor (`gone` False):
+# ekrandan kaybolsaydi oyuncu "gitti mi, oldu mu" diye sorardi ve
+# faz 2'nin butun agirligi o belirsizlige akardi.
+DEATH_FLAG = "kalachev_dead"
+
+# Sese kosarken **normalden hizli.** Kacinilmazligin hizi var: bu
+# adam bir daha durmuyor ve oyuncu ona yetisemiyor.
+CHASE_SPEED = 1.55
+
 # Govdenin sol yaninda capraz bir yarik (sprite 48x40, govde y 18-27).
 # Kafada degil: kafa 7 piksel ve orada bir leke yuz olur, yara olmaz.
 # Facing -1 iken x aynalaniyor - yoksa yara adamla birlikte donmez,
@@ -146,6 +161,10 @@ class Kalachev(Actor):
         # kaydi okuyup buraya veriyor. "Her bolum bir satir eklesin"
         # bir hatanin sekli - bir bolum unutulur ve yara kaybolur.
         self.silent = silent
+        # Senaryolu kosu hedefi (B18). `None` disinda bir sey varsa
+        # dusman aramiyor: **bir emir degil**, tersine - emir
+        # almadigi icin gidiyor.
+        self.chase_x: float | None = None
         self.wounded = wounded
         if wounded:
             self.health = min(self.health, WOUND_HEALTH)
@@ -160,6 +179,34 @@ class Kalachev(Actor):
         if not self.leaving:
             return 1.0
         return max(0.0, self.fade / FADE_FRAMES)
+
+    def chase(self, x: float) -> None:
+        """Bir noktaya kosuyor ve hicbir seye bakmiyor (B18 faz 2).
+
+        Emir degil: `Companion.hold()` gibi oyuncunun verdigi bir
+        talimat olsaydi belgenin ikinci karari (§8: *"emir
+        alamayacak"*) cignenirdi. Bunu sahne yaziyor cunku sahnede
+        olan sey bu - adam bir cocuk sesi duyuyor ve gidiyor.
+        """
+        self.silent = False
+        self.chase_x = float(x)
+
+    def perish(self) -> None:
+        """**Gercekten oluyor.** Cekilme degil (`docs/kalachev.md` 8).
+
+        Govde yerde kaliyor: `gone` False, yani `PlayScene` onu
+        listeden temizlemiyor ve oyuncu faz 3 boyunca onu goruyor.
+        """
+        if self.dead:
+            return
+        self.chase_x = None
+        self.silent = False
+        self.leaving = False
+        self.health = 0
+        self.body.vx = 0.0
+        self.dead = True
+        self.animator.play("death")
+        self.scene.game.play_sound("hit_kill")
 
     def wound(self) -> None:
         """Senaryolu yara (B13). **Olum degil** - isaret.
@@ -214,6 +261,15 @@ class Kalachev(Actor):
 
     # --- Dongu --------------------------------------------------------------
     def update(self) -> None:
+        if self.dead:
+            # Govde yerde. Yer cekimi isliyor (bir cikintida olduyse
+            # dusmeli), baska hicbir sey islemiyor.
+            self.body.approach_vx(0.0, 0.5)
+            self.body.apply_gravity()
+            self.body.move(self.scene.tilemap)
+            self.animator.play("death")
+            self.animator.update()
+            return
         if self.leaving:
             self.fade -= 1
             self.body.approach_vx(0.0, 0.4)
@@ -240,6 +296,14 @@ class Kalachev(Actor):
         self._animate()
 
     def _think(self) -> None:
+        if self.chase_x is not None:
+            # **Dusman aramiyor.** Yolunun ustundeki her sey onemsiz;
+            # tek gordugu sey ilerideki sekil.
+            delta = self.chase_x - self.body.center_x
+            if abs(delta) > 2.0:
+                self.facing = 1 if delta > 0 else -1
+            self.body.approach_vx(self.facing * CHASE_SPEED, 0.35)
+            return
         if self.silent:
             # Duruyor ve **oyuncuya bakiyor.** Bakis bir tehdit degil
             # bir soru: sirtini donseydi dekor olurdu, bakinca oyuncu
@@ -300,6 +364,10 @@ class Kalachev(Actor):
 
     # --- Cizim --------------------------------------------------------------
     def _animate(self) -> None:
+        if self.chase_x is not None:
+            self.animator.play("run")
+            self.animator.update()
+            return
         if self.silent:
             self.animator.play("idle")
             self.animator.update()
@@ -351,4 +419,6 @@ class Kalachev(Actor):
                 f"kalan {self.stay_frames}  "
                 f"{'cekiliyor' if self.leaving else 'dovusuyor'}"
                 + ("  YARALI" if self.wounded else "")
-                + ("  SESSIZ" if self.silent else "")]
+                + ("  SESSIZ" if self.silent else "")
+                + ("  KOSUYOR" if self.chase_x is not None else "")
+                + ("  OLU" if self.dead else "")]

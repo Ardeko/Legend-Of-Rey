@@ -104,6 +104,11 @@ SPEAKER_COLOURS = {
     # degil - `palette.color` PaletteError firlatiyor. Ayni tuzaga
     # magara arka planinda "soot" ile de dusulmustu.)
     "jet": "ember_light",
+    # Kalachev - B18 faz 2'de **tek bir replik** soyluyor ve o replik
+    # son sozu. Renk "bone": otekilerin hicbiri gibi degil ve zaten
+    # yipranmis bir sey soyluyor. ("blood_bright" denendi - tehlike
+    # rengiyle karisiyordu, oysa konusan bir dusman degil.)
+    "kalachev": "bone",
 }
 
 # Ad etiketlerinin dil anahtarlari **acikca** yazili. f-string ile
@@ -116,6 +121,7 @@ SPEAKER_KEYS = {
     "cemo": "speaker.cemo",
     "echo": "speaker.echo",
     "jet": "speaker.jet",
+    "kalachev": "speaker.kalachev",
 }
 ECHO = "echo"
 

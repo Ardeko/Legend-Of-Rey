@@ -21,6 +21,26 @@ Susturmak (`[K]` basili tut) gorusu, hasari ve soru sormayi
 goturuyor. Belgenin "yardimsiz" kelimesi bir anlatim degil bir
 **oynanis**.
 
+## Uc faz ★ (`docs/kalachev.md` 6)
+
+    faz 1   Rey - yoldas - Kalachev      Cagiran dirilir. Dordunuz birlikte
+    faz 2   (dovus yok)                  Yaratik Cemo'nun sesiyle konusur.
+                                         Kalachev o sese kosar ve OLUR.
+                                         Yoldas onu cekmeye giderken kapi
+                                         iner - disarida kalir
+    faz 3   Rey - yalniz                 Sesi susturur, sessizlikte bitirir
+
+Belgenin en onemli cumlesi: **"Olumu, Rey'i yalniz birakan seyin ta
+kendisi oluyor."** Ilk surumde bolum `companion = None` ile basliyordu
+ve "yardimsiz" bir varsayimdi - dogru cumleyi soyluyor ama kimseden
+bir sey almiyordu. Simdi oyuncunun uc kisisi var ve ucu de aliniyor.
+Doruk keyfi olmaktan cikip **kazanilmis** oluyor.
+
+Faz 2 bir ara sahne DEGIL, arenada gecen senaryolu bir an: oyuncunun
+kamerasi, oyuncunun arenasi, oyuncunun elinden alinan kontrol. Kesip
+baska bir yuzeye gitseydik olay oyuncunun basina degil ekranin
+basina gelirdi.
+
 ## Bolum sonu, bolum sonu EKRANI degil
 
 Oteki on yedi bolum `ChapterEndScene` acip sayilari gosteriyordu.
@@ -38,7 +58,10 @@ import pygame
 from src.art import palette
 from src.config import TILE_SIZE
 from src.core.input import Action
-from src.entities.bosses.caller import Caller
+from src.core.juice import ImpactWeight
+from src.entities.bosses.caller import Caller, Lure
+from src.entities.companion import Companion, other_character
+from src.entities.kalachev import DEATH_FLAG as KALACHEV_DEATH_FLAG
 from src.scenes.play import PlayScene
 from src.systems.echo import EchoState
 from src.systems.silence import SilenceState
@@ -53,6 +76,41 @@ from src.world.tilemap import SOLID, TileMap
 
 # Susturma halkasinin yaricapi (piksel) - oyuncunun ustunde.
 RING_RADIUS = 13
+
+# --- Uc faz ------------------------------------------------------------------
+PHASE_TOGETHER = 1      # dorduniz birlikte
+PHASE_TAKEN = 2         # aliniyor - dovus yok
+PHASE_ALONE = 3         # yalniz
+
+# Faz 1'de kim nerede duruyor. Kalachev **onde**: on dort bolumdur
+# hep once o giriyor ve faz 2 tam olarak bunun bedeli.
+ALLY_OFFSET = 30.0
+KALACHEV_OFFSET = 56.0
+# Sahne bitirene kadar duruyor. `DEFAULT_STAY` (22 sn) burada sessizce
+# kaybolmasi demekti - finalde bir karakterin suresi dolmaz.
+KALACHEV_STAY = 60 * 60 * 9
+
+# Yem muhrun **disinda** beliriyor: yaratik onlari arenadan disari
+# cagiriyor, yani ayirmayi kendisi seciyor.
+#
+# 47. tile **olculdu**, secilmedi. Once 51 yazilmisti: yem oyuncudan
+# yalnizca 60 piksel otedeydi ve Kalachev "kosuyor" degil "iki adim
+# atiyor" gibi gorunuyordu - govdesi oyuncunun dibine dusuyordu.
+# 47'de mesafe 125 piksel: gercek bir kosu, ve kamera (yarim genislik
+# 240) hala hepsini goruyor.
+LURE_TILE = 47
+
+# --- Faz 2'nin kare cetveli --------------------------------------------------
+# Her adim bir oncekinin okunmasina yetecek kadar bekliyor. Sikistirmak
+# ucuza gelirdi: uc sey (ses, olum, kapi) ust uste binseydi oyuncu
+# hicbirini ayri ayri gormezdi.
+TAKEN_CALL = 0          # yaratik Cemo'nun sesiyle konusuyor, herkes DURUYOR
+TAKEN_GATE = 46         # muhur aciliyor
+TAKEN_RUN = 62          # Kalachev kosuyor - oyuncu bagiriyor
+TAKEN_DEATH = 200       # yeme varinca oluyor (bu kare yalnizca UST SINIR)
+TAKEN_ALLY = 226        # yoldas arkasindan kosuyor
+TAKEN_SLAM = 320        # kapi iniyor, yoldas disarida
+TAKEN_END = 392         # kontrol geri geliyor, susturma aciliyor
 
 
 class Chapter18Scene(PlayScene):
@@ -69,7 +127,13 @@ class Chapter18Scene(PlayScene):
         self.tilemap = TileMap(LEVEL.terrain_rows)
         spawn = LEVEL.first("player")
         self.player = self.make_player(spawn.x, spawn.feet_y)
-        self.companion = None       # Yalniz. Belgenin "yardimsiz"i.
+        # **Yoldas yaninda.** B17'yi ikisi birlikte bitirdi; buraya
+        # yalniz gelmesi bir sureklilik hatasiydi. Belgenin
+        # "yardimsiz"i artik basta verilen degil faz 2'de ALINAN bir
+        # sey (`docs/kalachev.md` 6).
+        self.companion_key = other_character(self.character)
+        self.companion = Companion(self, spawn.x - 26, spawn.feet_y,
+                                   self.companion_key)
 
         # Yanki bolum basinda **acik** - ve bu bilincli. Oyuncunun
         # birakacagi seyi once elinde tutmasi lazim.
@@ -87,6 +151,13 @@ class Chapter18Scene(PlayScene):
         self.finished = False
         self.silence_hinted = False
         self.calls = 0
+
+        # --- Uc faz -----------------------------------------------------
+        self.phase = PHASE_TOGETHER
+        self.taken_frames = 0       # faz 2'nin kendi sayaci
+        self.taken_step = 0         # cetvelde kacinci adim islendi
+        self.kalachev = None
+        self.gate_open = False
 
         self._enter_zone(self._zone_at(self.player.body.center_x))
 
@@ -144,6 +215,18 @@ class Chapter18Scene(PlayScene):
         if zone != self.zone:
             self._enter_zone(zone)
 
+        if self.companion is not None:
+            # `PlayScene` yoldasi guncellemiyor - her bolum kendi
+            # cagiriyor. B16'da bu satir unutulmustu ve yoldas donmus
+            # halde havada asili kalmisti.
+            self.companion.update()
+
+        if self.phase is PHASE_TAKEN:
+            # Faz 2 boyunca susturma, ipucu ve cikis kapali: bir sey
+            # aliniyor, oyuncu bir tusa basmiyor.
+            self._update_taken()
+            return
+
         self._update_silence()
         self._update_triggers()
         self._update_hints()
@@ -192,6 +275,7 @@ class Chapter18Scene(PlayScene):
         elif zone == "arena":
             self._spawn_boss()
             self._seal_arena()
+            self._summon_kalachev()
             self.scenes.push(cine.NameCinematic, character=self.character)
 
     # --- Boss ---------------------------------------------------------------
@@ -202,6 +286,27 @@ class Chapter18Scene(PlayScene):
         y = (CALLER_TILE[1] + 1) * TILE_SIZE
         self.boss = Caller(self, x, y)
         self.enemies.append(self.boss)
+
+    def _summon_kalachev(self) -> None:
+        """Faz 1: dorduncusu de geliyor (`docs/kalachev.md` 6).
+
+        **Onde duruyor** - oyuncunun ilerisinde, yaratiga daha yakin.
+        Konum bir karakter tarifi: on dort bolumdur hep once o giriyor.
+        Faz 2 bunun bedelini aliyor.
+        """
+        body = self.player.body
+        self.kalachev = self.summon_kalachev(
+            body.center_x + KALACHEV_OFFSET, body.feet[1],
+            stay=KALACHEV_STAY)
+
+    def on_kalachev_arrived(self, ally) -> None:
+        """Son kez geliyor - ve iki karakter icin farkli bir sey.
+
+        Rey icin bir takviye, Ardo icin eski bir dostun yine
+        cagrilmadan gelmesi (`docs/kalachev.md` 3).
+        """
+        self.juice.shake.add(ImpactWeight.FINISHER, (0.0, 1.0))
+        self.say_player("line.ch18_rey_kalachev", "line.ch18_ardo_kalachev")
 
     def _seal_arena(self) -> None:
         """Arena muhurleniyor - oyuncu ICERI alindiktan sonra.
@@ -220,21 +325,232 @@ class Chapter18Scene(PlayScene):
         for row in ARENA_SEAL_ROWS:
             self.tilemap.set_tile(ARENA_SEAL_COLUMN, row, SOLID)
         self.arena_sealed = True
+        self._pull_companion_in()
+
+    def _pull_companion_in(self) -> None:
+        """Yoldas da iceri aliniyor - **olculdu, tahmin edilmedi.**
+
+        Oyuncu arenaya girdiginde yoldas 37 tile geride kaliyordu
+        (tasma onu yavas yavas cekiyor, muhur ise aninda iniyor). Yani
+        faz 1'de "dorduniz birlikte" ekranda uc kisiydi ve faz 2'nin
+        "yoldas geride kaldi" ani, oyuncunun butun arena boyunca
+        gormedigi biri icin oynuyordu.
+
+        Oyuncunun kendisi de ayni sekilde iceri itiliyor
+        (`_seal_arena`); ayni gerekce, ayni cozum.
+        """
+        if self.companion is None:
+            return
+        edge = (ARENA_SEAL_COLUMN + 1) * TILE_SIZE
+        if self.companion.body.center_x >= edge:
+            return
+        # **Muhrun ICINE degil, IC TARAFINA.** Ilk deneme
+        # `center_x - ALLY_OFFSET` yaziyordu ve bu 855'e denk
+        # geliyordu - muhur sutunu 864..880, yani yoldas hala
+        # disarida (ve `free_spot_near` onu duvarin icine, 867'ye
+        # itiyordu). Olcum: oyuncu 885, kenar 880.
+        body = self.player.body
+        inside = max(edge + ALLY_OFFSET, body.center_x - ALLY_OFFSET)
+        x, y = self.free_spot_near(inside, body.feet[1],
+                                   self.companion.body)
+        self.companion.body.set_feet(x, y)
+        self.companion.release()
 
     def on_caller_kneel(self, boss) -> None:
         """Diz cokup **kalkacak**. Bu bir hata degil, bolumun tezi.
 
-        Ilk dizde susturma aciliyor: oyuncu sorunu gordu, artik
-        cozumu de gorebilir. Daha erken acmak karari anlamsizlastirir
-        (neyi biraktigini bilmez), daha gec acmak oyuncuyu bir dongude
-        birakirdi.
+        **Ilk diz artik faz 2'yi baslatiyor.** Sira onemli: oyuncu
+        once kazaniyor (dordu birlikte yaratigi dize getirdi), sonra
+        her sey aliniyor. Ters sirada - once kayip, sonra zafer -
+        kayip bir engel olurdu; bu sirada bir BEDEL oluyor.
+
+        Susturma faz 2'nin sonunda aciliyor (`_finish_taken`), cunku
+        "yardimsiz savas" teklifi ancak yardim gercekten gittikten
+        sonra bir anlam tasiyor.
         """
         self.game.hitstop(12)
         self.game.play_sound("echo_tier_up")
+        if self.phase == PHASE_TOGETHER:
+            self._begin_taken(boss)
+            return
         if not self.silence.unlocked:
-            self.silence.unlocked = True
-            from src.scenes import chapter18_cinematics as cine
-            self.scenes.push(cine.SilenceCinematic, character=self.character)
+            self._unlock_silence()
+
+    def _unlock_silence(self) -> None:
+        self.silence.unlocked = True
+        from src.scenes import chapter18_cinematics as cine
+        self.scenes.push(cine.SilenceCinematic, character=self.character)
+
+    # --- Faz 2: aliniyor - dovus yok ★ ---------------------------------------
+    def _begin_taken(self, boss) -> None:
+        """Yaratik diz cokmus haldeyken konusuyor.
+
+        Diz coktugu sure **uzatiliyor**: cetvel 340 kare, oysa
+        `CALLER_RISE_FRAMES` 96. Uzatilmasaydi yaratik sahnenin
+        ortasinda kalkip kontrolu kilitli bir oyuncuyu dovmeye
+        baslardi - ve o oyuncu bunu hakli olarak bir hata sayardi.
+        """
+        self.phase = PHASE_TAKEN
+        self.taken_frames = 0
+        self.taken_step = 0
+        boss.rise_frames = max(boss.rise_frames, TAKEN_END + 30)
+
+    def _update_taken(self) -> None:
+        """Faz 2'nin kare cetveli. Oyuncu izliyor, oynamiyor.
+
+        Kontrol her karede yeniden kilitleniyor: tek seferlik uzun
+        bir sayac verseydik cetvelin uzunlugunu iki yerde tutmus
+        olurduk ve biri degisince oteki sessizce yanlis kalirdi.
+        """
+        self.player.control_locked = 4
+        self.taken_frames += 1
+        frame = self.taken_frames
+
+        for step, (at, action) in enumerate(self._taken_script()):
+            if step >= self.taken_step and frame >= at:
+                self.taken_step = step + 1
+                action()
+
+        if self.kalachev is not None and self.kalachev.chase_x is not None:
+            self._check_kalachev_reached()
+
+    def _taken_script(self):
+        return (
+            (TAKEN_CALL, self._taken_voice),
+            (TAKEN_GATE, self._taken_open_gate),
+            (TAKEN_RUN, self._taken_run),
+            (TAKEN_DEATH, self._taken_death),
+            (TAKEN_ALLY, self._taken_ally_follows),
+            (TAKEN_SLAM, self._taken_slam),
+            (TAKEN_END, self._finish_taken),
+        )
+
+    def _lure_x(self) -> float:
+        return LURE_TILE * TILE_SIZE + TILE_SIZE * 0.5
+
+    def _taken_voice(self) -> None:
+        """**Cemo'nun sesi.** Sahnenin en sessiz ani.
+
+        Yem yaratigin kendi `lures` listesine giriyor - ayri bir liste
+        tutsaydik susturma aninda temizlenmezdi ve sustuktan sonra
+        ekranda bir cocuk kalirdi.
+        """
+        self.game.hitstop(16)
+        self.camera.linger(40)
+        self.game.play_sound("echo_answer_partial")
+        if self.boss is not None:
+            lure = Lure(self._lure_x(), self.player.body.feet[1])
+            # **Omru uzatiliyor.** `CALLER_LURE_FRAMES` 150 ve kosu
+            # 190 kare suruyor - ekranda kimse yokken kosan bir adam
+            # goruluyordu (olculdu, 150. karede yem sonmustu). Bu yem
+            # bir hamle degil bir SAHNE; sahnenin sonuna kadar duruyor.
+            lure.frames = TAKEN_DEATH + 40
+            self.boss.lures.append(lure)
+        # **Duruyor ve dinliyor.** B15'in sessiz kipinin ta kendisi -
+        # ayni durus, bambaska bir sebep. Iki isi birden goruyor:
+        # bir beat veriyor (herkes duruyor, ses geliyor) ve kosunun
+        # nereden basladigini sabitliyor. Olculmemis olsaydi Cagiran'a
+        # dogru ilerlemeye devam eder, kosuya 60 piksel daha uzaktan
+        # baslar ve yeme yetisemezdi.
+        if self.kalachev is not None:
+            self.kalachev.silent = True
+        self.say(Line("cemo", "line.ch18_cemo_call"))
+
+    def _taken_open_gate(self) -> None:
+        """Muhur aciliyor. **Yaratik onlari ayirmayi seciyor.**"""
+        from src.world.tilemap import EMPTY
+        for row in ARENA_SEAL_ROWS:
+            self.tilemap.set_tile(ARENA_SEAL_COLUMN, row, EMPTY)
+        self.gate_open = True
+        self.arena_sealed = False
+        # `rift_open` - muhrun kapanisi zaten `rift_close`.
+        # Yeni bir ad uydurmak "yazilmamis bir ozellik" olurdu.
+        self.game.play_sound("rift_open")
+        self.juice.shake.add(ImpactWeight.BOSS, (0.0, -1.0))
+
+    def _taken_run(self) -> None:
+        """Kosuyor. Oyuncu bagiriyor ve **duyulmuyor.**"""
+        if self.kalachev is not None:
+            self.kalachev.chase(self._lure_x())
+        self.say_player("line.ch18_rey_stop", "line.ch18_ardo_stop")
+
+    def _check_kalachev_reached(self) -> None:
+        """Yere varinca oluyor - cetveldeki kareyi beklemeden.
+
+        `TAKEN_DEATH` bir **ust sinir**: bir yere takilirsa sahne yine
+        de ilerlesin, yoksa faz 2 hic bitmez ve bolum kilitlenir.
+        """
+        if abs(self.kalachev.body.center_x - self._lure_x()) > 10.0:
+            return
+        self._taken_death()
+        self.taken_step = max(self.taken_step, 4)
+
+    def _taken_death(self) -> None:
+        """**Oluyor.** Ve son sozu bir cevap.
+
+        "Buradayim" - beklemeyi hic ogrenmemis adam
+        (`docs/kalachev.md` 4) ilk ve son kez bir cagriya cevap
+        veriyor. Yaratik herkese kaybettigini gosteriyor; Rey
+        direniyor, o direnmiyor.
+        """
+        ally = self.kalachev
+        if ally is None or ally.dead:
+            return
+        self.say(Line("kalachev", "line.ch18_kalachev_last"))
+        ally.perish()
+        self.game.hitstop(20)
+        self.camera.linger(50)
+        self.juice.explosion(ally.body.center_x, ally.body.center_y,
+                             ImpactWeight.BOSS)
+        self.decals.splatter(ally.body.center_x, ally.body.bottom, amount=14)
+        if self.boss is not None:
+            self.boss.lures.clear()
+
+    def _taken_ally_follows(self) -> None:
+        """Yoldas onu cekmeye gidiyor - **kimse durduramiyor.**"""
+        if self.companion is None:
+            return
+        self.companion.hold(self._lure_x())
+        self.say(Line(self.companion_key, "line.ch18_ally_after"))
+
+    def _taken_slam(self) -> None:
+        """Kapi iniyor. Yoldas disarida kaliyor.
+
+        Yoldas sahneden **cikariliyor**, duvarin arkasinda
+        birakilmiyor: arenanin disinda duran ama hala guncellenen bir
+        Companion kamera oraya donerse gorunurdu ve "geride kaldi"
+        yerine "orada bekliyor" gibi okunurdu.
+        """
+        for row in ARENA_SEAL_ROWS:
+            self.tilemap.set_tile(ARENA_SEAL_COLUMN, row, SOLID)
+        self.gate_open = False
+        self.arena_sealed = True
+        # Kayboluşu bir **olayla** ortuluyor: toz, sarsinti, inen
+        # duvar. Ciplak bir silinme ekranda bir hata gibi okunurdu.
+        # Bu kareye kadar 94 kare kosmus oluyor, yani zaten kenarda.
+        if self.companion is not None:
+            self.particles.burst(self.companion.body.center_x,
+                                 self.companion.body.center_y, 14,
+                                 path="dust")
+        self.companion = None
+        self.game.play_sound("rift_close")
+        self.juice.shake.add(ImpactWeight.BOSS, (0.0, 1.0))
+        self.camera.linger(30)
+
+    def _finish_taken(self) -> None:
+        """Kontrol geri geliyor - ve elinde hicbir sey yok.
+
+        Susturma tam **burada** aciliyor. "Yardimsiz savas" teklifi
+        ancak yardim gittikten sonra bir teklif; oncesinde bir
+        secenekti.
+        """
+        self.phase = PHASE_ALONE
+        self.player.control_locked = 0
+        if self.save_data is not None:
+            self.save_data.flags[KALACHEV_DEATH_FLAG] = True
+        self.say_player("line.ch18_rey_alone", "line.ch18_ardo_alone")
+        if not self.silence.unlocked:
+            self._unlock_silence()
 
     def on_caller_rise(self, boss) -> None:
         self.game.play_sound("echo_open")
@@ -302,6 +618,9 @@ class Chapter18Scene(PlayScene):
             gesture_key=str(flags.get("ch16_gesture") or "nod"),
             tidy=bool(flags.get("ch17_tidy")),
             clean=self.boss is not None and self.boss.rises <= CLEAN_RISES,
+            # `docs/kalachev.md` 7: kapanistaki bakis yalnizca o
+            # gercekten olduyse bir anlam tasiyor.
+            kalachev=bool(flags.get(KALACHEV_DEATH_FLAG)),
         )
 
     # --- Cizim --------------------------------------------------------------
@@ -309,6 +628,11 @@ class Chapter18Scene(PlayScene):
         cave_backdrop.draw(surface, offset, self.frames)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
+        # Yoldasi **sahne ciziyor** - `PlayScene` yalnizca `allies`
+        # listesini ciziyor, `companion`i degil. Kalachev o listede,
+        # yoldas degil.
+        if self.companion is not None:
+            self.companion.draw(surface, offset)
         self._draw_false_cemo(surface, offset)
         self._draw_cemo(surface, offset)
         self._draw_silence_ring(surface, offset)
@@ -333,19 +657,42 @@ class Chapter18Scene(PlayScene):
         surface.blit(body, (x + wobble, y))
 
     def _draw_cemo(self, surface: pygame.Surface, offset) -> None:
-        """**Gercek** Cemo - boss olunce goruluyor.
+        """**Gercek** Cemo - arenaya girildigi andan beri sahnede.
+
+        `docs/kalachev.md` 6: *"Cemo sahnede - kafeste, savasmiyor."*
+        ve 8: *"Cemo final dovusunde savasmayacak. Kacirilmis bir
+        cocugun kurtarilma hikayesini onu dovusturerek zayiflatmayiz."*
+
+        Ilk surumde yalnizca boss olunce ciziliyordu ve dovus boyunca
+        ekranda **yoktu** - yani oyuncu ne icin dovustugunu
+        gormuyordu. Simdi orada, parmaklarin arkasinda, hicbir sey
+        yapmadan; parmakliklar boss olunce kalkiyor.
 
         Yem gibi titremiyor, yari saydam degil. Fark ilk bakista
         okunuyor ve bu bilincli: oyuncu on sekiz bolumdur bu ani
         bekliyor, "acaba bu da mi yalan" diye sormamali.
         """
-        if not self.boss_defeated:
+        if "arena" not in self.entered_zones:
             return
         ox, oy = offset
         x = CEMO_TILE[0] * TILE_SIZE - ox
         y = (CEMO_TILE[1] + 1) * TILE_SIZE - 26 - oy
         surface.fill(palette.color("flesh"), (x + 3, y, 8, 8))
         surface.fill(palette.color("violet_dark"), (x + 2, y + 8, 10, 18))
+        if not self.boss_defeated:
+            self._draw_cage(surface, x, y)
+
+    def _draw_cage(self, surface: pygame.Surface, x: int, y: int) -> None:
+        """Parmakliklar. **Sallanmiyor, parlamiyor** - bir bulmaca degil.
+
+        Oyuncunun onunla yapabilecegi hicbir sey yok; bir etkilesim
+        gibi gorunmemeli. Duz dikey cizgiler, tek renk.
+        """
+        tone = palette.color("stone_darkest")
+        for step in range(5):
+            surface.fill(tone, (x - 2 + step * 4, y - 8, 1, 36))
+        surface.fill(tone, (x - 2, y - 8, 17, 1))
+        surface.fill(tone, (x - 2, y + 27, 17, 1))
 
     def _draw_silence_ring(self, surface: pygame.Surface, offset) -> None:
         """Susturma ilerlemesi - oyuncunun ustunde bir halka.

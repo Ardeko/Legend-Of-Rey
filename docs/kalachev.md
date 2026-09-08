@@ -125,10 +125,11 @@ Sekiz maddenin **yedisi ekranda**; kalan tek madde **B18**.
 | B12 | `world/rooms/chapter12.py` | yedinci iz, `kind="pair"`, ayrı renk |
 | B13 | `chapter13.py` `_seal_arena()` + `on_boss_phase()` | mühür inerken girer, faz 1'de yaralanır |
 | B15 | `chapter15.py` `_update_kalachev()` | sürünün arasında, `silent=True` |
-| B18 | — | ⬜ üç fazlı final, ölümü |
+| B18 | `chapter18.py` `_summon_kalachev()` + `_update_taken()` | üç faz; faz 2'de ölür |
+| Kapanış | `ending.py` `"bakis"` paneli | Ardo dönüp bakar, kimse yoktur |
 
-**İki mekanik karaktere ait, bölüme değil** — yani B18 hiçbir şey
-yazmadan ikisini de devralır:
+**Sekizi de yazıldı (08.09.2026).** Üç mekanik karaktere ait,
+bölüme değil — B18 üçünü de hiçbir şey yazmadan devraldı:
 
 * **Yara** (`wounded`) — `_blit_wound()` sprite'a 7 piksel işliyor,
   yön değişince aynalanıyor. Kalıcılığı `SaveData.flags`'te
@@ -136,7 +137,33 @@ yazmadan ikisini de devralır:
   `PlayScene.summon_kalachev`. "Her bölüm bir satır eklesin" bir
   hatanın şekli: bir bölüm unutulur ve yara sessizce kaybolur.
 * **Sessizlik** (`silent`) — durur, bakar, vurmaz, süre saati işlemez.
-  Sürü uyanınca kendiliğinden biter.
+  Sürü uyanınca kendiliğinden biter. B18 faz 2'de aynı kip başka bir
+  anlam taşıyor: çocuğun sesi gelince **durup dinliyor.**
+* **Ölüm** (`perish`, `chase`) — `leave()` ile aynı şey değil ve
+  bilerek ayrı: çekilme geçici bir yokluk, ölüm kalıcı. Gövde yerde
+  kalıyor (`gone` False), yani "gitti mi, öldü mü" sorusu hiç
+  sorulmuyor.
+
+### 6.1 Finalin uygulaması (08.09.2026)
+
+    faz 1   arena mühürlenirken üçü de içeride (yoldaş da içeri alınır)
+    faz 2   ilk diz çöküşte başlar — 392 karelik senaryolu bir an
+    faz 3   `PHASE_ALONE`; susturma tam burada açılır
+
+Faz 2 bir **ara sahne değil**: oyuncunun arenasında, oyuncunun
+kamerasıyla, kontrolü kilitli olarak geçiyor. Kesip başka bir yüzeye
+gitseydik olay oyuncunun başına değil ekranın başına gelirdi.
+
+Cetvel ölçüldü, tahmin edilmedi: yem 47. tile'da (51'de denendi —
+125 değil 60 piksellik bir "koşu" çıkıyordu ve gövde oyuncunun dibine
+düşüyordu), yemin ömrü koşudan uzun (150 karelik varsayılan ömür
+koşunun ortasında sönüyordu), yaratık cetvel boyunca diz çökük
+tutuluyor (`CALLER_RISE_FRAMES` 96, cetvel 392 — uzatılmasaydı
+kontrolü kilitli oyuncuyu dövmeye başlardı).
+
+**Susturma faz 2'nin sonunda açılıyor**, ilk diz çöküşte değil.
+`docs/yapi.md`'nin "yardımsız savaşır" cümlesi böylece bir varsayım
+olmaktan çıkıp bir sonuç oluyor.
 
 ---
 

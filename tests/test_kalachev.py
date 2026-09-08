@@ -498,6 +498,57 @@ def main() -> int:
           in _inspect.getsource(_PS.summon_kalachev),
           "yara KAYITTAN okunuyor - her bolum ayri satir yazmiyor")
 
+    # B18: uc faz, olum, ve olumun GERI ALINMAMASI.
+    from src.entities.kalachev import CHASE_SPEED, DEATH_FLAG, SPEED
+    from src.scenes.chapter18 import (
+        LURE_TILE, PHASE_ALONE, TAKEN_DEATH, TAKEN_END, TAKEN_RUN,
+        Chapter18Scene,
+    )
+    from src.world.rooms.chapter18 import ARENA_SEAL_COLUMN
+    src18 = _inspect.getsource(Chapter18Scene)
+    check("_taken_death" in src18 and "perish()" in src18,
+          "B18: faz 2'de GERCEKTEN oluyor - `perish`, `leave` degil")
+    check("wound" not in _inspect.getsource(Chapter18Scene._taken_death),
+          "olum bir yara degil")
+    check(TAKEN_RUN < TAKEN_DEATH < TAKEN_END,
+          "cetvel sirali: kosu -> olum -> fazin sonu")
+    check(CHASE_SPEED > SPEED,
+          "sese kosarken normalden HIZLI - kacinilmazligin hizi var",
+          f"{CHASE_SPEED} > {SPEED}")
+
+    # Olumu geri alinmiyor (`docs/kalachev.md` 8): govde sahnede
+    # kaliyor ve `gone` olmuyor, yani `PlayScene` onu silmiyor.
+    dead_scene = fresh()
+    doomed = dead_scene.summon_kalachev(120.0, 120.0)
+    doomed.perish()
+    check(doomed.dead and not doomed.gone,
+          "olu govde sahnede KALIYOR - 'gitti mi, oldu mu' sorusu yok")
+    for _ in range(200):
+        doomed.update()
+    check(doomed.dead and not doomed.leaving,
+          "200 kare sonra da olu - dirilmiyor, cekilmiyor")
+
+    # Kapanistaki bakis (belge 7) yalnizca olum kayda yazildiysa var.
+    from src.scenes.ending import DawnCinematic
+    end_src = _inspect.getsource(DawnCinematic)
+    check('"bakis"' in end_src,
+          "B18 kapanis: 'bakis' paneli var - Ardo donup bakiyor")
+    check("if p.name != \"bakis\" or self.kalachev" in end_src,
+          "ve YALNIZCA o olduyse - olmamis bir seye uzulmuyor")
+    check("kalachev" not in end_src.split('"bakis"')[1][:400]
+          .replace("self.kalachev", ""),
+          "panelde Kalachev CIZILMIYOR - gorunmesi baska, dirilmesi baska")
+    # Sabit **adiyla** araniyor, degeriyle degil: sahne onu
+    # `KALACHEV_DEATH_FLAG` diye ithal ediyor ve "kalachev_dead"
+    # dizesi kaynakta hic gecmiyor. Dize arayan bir kontrol burada
+    # yanlis alarm veriyordu.
+    check("KALACHEV_DEATH_FLAG" in src18 and DEATH_FLAG == "kalachev_dead",
+          "olum kayda yaziliyor - kapanis onu okuyor")
+    check(LURE_TILE < ARENA_SEAL_COLUMN,
+          "yem muhrun DISINDA - yaratik onlari disari cagiriyor",
+          f"{LURE_TILE} < {ARENA_SEAL_COLUMN}")
+    check(PHASE_ALONE == 3, "faz 3 son faz")
+
     game.shutdown()
 
 

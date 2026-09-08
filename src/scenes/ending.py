@@ -33,6 +33,24 @@ fark ediliyor. "Rey'in kafasi ilk kez sessiz" cumlesi bir replikle
 degil, on sekiz bolumdur ekranin kenarinda duran bir karartmanin
 kalkmasiyla soyleniyor.
 
+## Donup bakmak ★ (`docs/kalachev.md` 7)
+
+Kalachev B18 faz 2'de oldu ve **geri gelmiyor.** Ama korku katmaninin
+hayalet sistemi (`docs/korku.md` 5.3) yalnizca Yanki acikken goruyor -
+ve Rey Yanki'yi susturdu.
+
+    Rey arkasina bakar. Hicbir sey yoktur.
+    Ardo arkasina bakar ve **bir an durur.**
+
+Oyuncu Kalachev'i goremiyor. Ardo goruyor mu, o da belli degil - ve
+belirsizlik bilincli: bir siluet cizseydik olum geri alinmis olurdu
+(belgenin 8. bolumu: *"gorunmesi baska, dirilmesi baska"*). Ekranda
+hicbir sey yok; olan tek sey bir duraklama.
+
+Rey Yanki'yi susturarak Cemo'yu kurtardi ve ayni hareketle oluleri
+gorme yetenegini de kaybetti. **Sessizligin bedeli bu.** Onu
+goremiyor olmasi, gercekten gittiginin kaniti.
+
 ## Jenerik
 
 Ayri bir sahne degil, kapanisin devami: paneller bitince isim listesi
@@ -88,6 +106,14 @@ class DawnCinematic(StagedScene):
             Cue("player", face=1),
             Cue("ally", face=-1),
         )),
+        # **Donup bakma.** Ikisi de karanliga bakiyor; Ardo olan
+        # duruyor. Panel uzun (78 kare) cunku olan sey bir hareket
+        # degil bir DURAKLAMA - kisa olsaydi bir gecis sanilirdi.
+        Panel(78, "bakis", cues=(
+            Cue("player", state="idle", face=-1),
+            Cue("ally", state="idle", face=-1),
+            Cue("cemo", state="idle", face=1),
+        )),
         Panel(60, "sessiz", closeup="player", fade_in=14),
         # Jenerik uzun ve tus beklemiyor: on dort satirin ekranin
         # altindan ustune suzulmesi ~850 kare (14 saniye). `CLAUDE.md`
@@ -98,6 +124,7 @@ class DawnCinematic(StagedScene):
     def on_enter(self, character: str = "rey", ghost: bool = False,
                  lifted: bool = False, gesture_key: str = "nod",
                  tidy: bool = False, clean: bool = False,
+                 kalachev: bool = False,
                  **kwargs: object) -> None:
         """Dort bayrak **cagirandan** geliyor.
 
@@ -112,6 +139,7 @@ class DawnCinematic(StagedScene):
         self.gesture_key = gesture_key  # B16: hangi jest
         self.tidy = tidy                # B17: az gecisle cozdu
         self.clean = clean              # B18: az diriltmeyle bitirdi
+        self.kalachev = kalachev        # B18: faz 2'de oldu
 
         ally_x = REY_X + ALLY_DISTANCE.get(gesture_key,
                                            ALLY_DISTANCE["nod"])
@@ -143,20 +171,43 @@ class DawnCinematic(StagedScene):
         light = ("line.ch18_ardo_dawn" if ardo else "line.ch18_rey_dawn")
         three = ("line.ch18_ardo_three" if ardo else "line.ch18_rey_three")
         quiet = ("line.ch18_ardo_quiet" if ardo else "line.ch18_rey_quiet")
+        # Bakis repligi **karaktere gore bambaska bir sey.** Rey bir
+        # yoklugu bildiriyor ("kimse yok"), Ardo bir duraklamayi
+        # yasiyor ("bir saniye... yok bir sey"). Ayni panelde iki
+        # farkli hikaye - `docs/kalachev.md` 3'un tam olarak istedigi.
+        back = ("line.ch18_ardo_lookback" if ardo
+                else "line.ch18_rey_lookback")
         beats = {"kolye": Line(self.character, light),
                  "uclu": Line(self.character, three),
+                 "bakis": Line(self.character, back),
                  "sessiz": Line(self.character, quiet)}
         self.panels = tuple(
             Panel(p.frames, p.name, line=beats[p.name], cues=p.cues,
                   fade_in=p.fade_in, fade_out=p.fade_out, closeup=p.closeup,
                   wait_for_input=p.wait_for_input)
             if p.name in beats else p
-            for p in self.panels)
+            for p in self.panels
+            # Bakis paneli yalnizca **Kalachev gercekten olduyse**
+            # var. Bayraksiz bir oturumda (dogrudan sahne acilisi,
+            # test) "arkamda kimse yok" cumlesi kimseden bahsetmezdi
+            # ve sahne olmamis bir seye uzulmus olurdu.
+            if p.name != "bakis" or self.kalachev)
 
     def on_stage_panel(self, panel: Panel) -> None:
         if panel.name == "kolye":
             self.game.play_sound("necklace_warm")
             self.burst(CEMO_X, GROUND_Y - 30, "echo", count=12)
+        elif panel.name == "bakis":
+            # **Parcacik yok, yeni ses yok.** Her panelde bir sey
+            # oluyordu; burada olmuyor ve yoklugu fark ediliyor.
+            # Muzik de kisiliyor: karanliga bakan iki kisi, ve hicbir
+            # sey.
+            self.game.music.duck(0.6)
+        elif panel.name == "sessiz":
+            # Kisilma **geri aliniyor** - kalici olsaydi jenerik de
+            # bogurdu ve "Raze" (on sekiz bolumde ilk kez calan parca)
+            # duyulmadan biterdi.
+            self.game.music.duck(0.0)
 
     def update_cinematic(self) -> None:
         super().update_cinematic()

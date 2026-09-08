@@ -20,10 +20,10 @@ Son güncelleme: **08.09.2026** (korku katmanı, kayıt hatası, uzaktan dövü�
 `main` dalı güncel ve push'lu. **48 test paketi yeşil.** Çalışma alanı
 temiz. Devam etmek için: `git pull`, sonra aşağıdaki listeden bir madde.
 
-### 0.1 Yarım kalan tek iş: KALACHEV — sırada YALNIZCA B18
+### 0.1 KALACHEV — BİTTİ (08.09.2026)
 
-`docs/kalachev.md` **onaylandı ve bağlayıcı.** Belgenin §9'undaki 7
-maddelik sıradan **altısı bitti**:
+`docs/kalachev.md` **onaylandı, bağlayıcı ve tamamı uygulandı.**
+Belgenin §9'undaki 7 maddenin 7'si:
 
 | | İş | Durum |
 |---|---|---|
@@ -31,20 +31,19 @@ maddelik sıradan **altısı bitti**:
 | 2 | Agresif AI (`Kalachev`) | ✅ `src/entities/kalachev.py` |
 | 3 | **B5 ilk görüş + B10 belirme** | ✅ |
 | 4 | **Rey ve Ardo için AYRI diyalog hatları** | ✅ her belirmede |
-| 5 | **B18 üç fazlı final + ölüm sahnesi** | ⬜ **kalan tek iş** |
+| 5 | **B18 üç fazlı final + ölüm sahnesi** | ✅ `chapter18.py` |
 | 6 | B4'ün kampı: iskelet artık **yoldaşının** | ✅ |
-| 7 | Kapanışta Ardo'nun dönüp bakması | ⬜ küçük |
+| 7 | Kapanışta Ardo'nun dönüp bakması | ✅ `ending.py` `"bakis"` |
 
-§5 yerleştirme tablosunun sekiz maddesinden **yedisi ekranda**
-(08.09.2026): B4 kamp · B5 ilk görüş · B6 tanışma · B10 tuzak ·
-B12 iki kişinin izi · B13 yara · B15 sessizlik. Kalan: **B18.**
+§5 yerleştirme tablosunun **sekizi de ekranda**: B4 kamp · B5 ilk
+görüş · B6 tanışma · B10 tuzak · B12 iki kişinin izi · B13 yara ·
+B15 sessizlik · B18 ölüm — artı kapanıştaki bakış.
 
-**Belgenin kendi önerisi hâlâ geçerli:** B18'i yazmadan önce
-B5→B15'i **oyna.** O belge onun ölümüne yatırım yapıyor ve yatırım
-ancak oyuncu onu izlemekten hoşlanırsa geri döner. B18 mevcut finalin
-gerçek bir yeniden yazımı — ucuz değil.
+**Sıradaki iş kod değil, OYNAMAK.** Belgenin kendi ölçüsü: bu karakter
+ekranda doğru hissettiriyor mu? Testler mekaniği ölçüyor, ritmi
+ölçmüyor.
 
-**İki mekanik yeni ve karaktere ait, bölüme değil:**
+**Üç mekanik karaktere ait, bölüme değil:**
 
 * `Kalachev.wounded` — B13'te Zindancı onu faz 1'de yakalıyor. Yara
   sprite'a işleniyor (`_blit_wound`, 7 piksel, yönle aynalanıyor) ve
@@ -53,7 +52,19 @@ gerçek bir yeniden yazımı — ucuz değil.
   yazmadan yaralı bir Kalachev alıyor.
 * `Kalachev.silent` — B15'te uyuyan sürünün arasında duruyor,
   konuşmuyor, vurmuyor, kimseyi uyandırmıyor (hayalet ödülü sağlam).
-  Oyuncu sürüyü uyandırırsa sessizlik biter ve dövüşe girer.
+  Oyuncu sürüyü uyandırırsa sessizlik biter ve dövüşe girer. B18'de
+  aynı kip "durup dinliyor" anlamına geliyor.
+* `Kalachev.perish()` / `chase(x)` — B18 faz 2. Ölüm `leave()`den
+  **ayrı** tutuldu: çekilme geçici, ölüm kalıcı, ve ikisi aynı koda
+  düşseydi biri gün gelir ötekinin yerine kullanılırdı. Gövde yerde
+  kalıyor.
+
+**B18'in üç fazı** (`docs/kalachev.md` §6.1): arena mühürlenirken
+dördü birlikte → ilk diz çöküşte 392 karelik senaryolu bir an
+(Cemo'nun sesi, koşu, ölüm, kapının inişi) → yalnız. Susturma o
+anın **sonunda** açılıyor, yani "yardımsız savaşır" artık verilen
+değil alınan bir şey. Faz 2 bir ara sahne değil: oyuncunun arenasında,
+kontrolü kilitli geçiyor.
 
 `PlayScene.summon_kalachev(x, feet_y, stay=…, silent=…)` bölüm başına
 bir kez çalışıyor; `on_kalachev_arrived(ally)` ve
@@ -1390,7 +1401,11 @@ Bunlar eksik değil, **karar**. Yeniden açılmasın diye gerekçeleriyle:
 paralelde yürüyen Kalachev/korku hattını görmüyordu; merge sonrası
 eksik kaldı.
 
-7. **Kalachev'in yerleştirmesinde YALNIZCA B18 kaldı.**
+7. ~~Kalachev'in yerleştirmesi yarım~~ — **kapandı (08.09.2026).**
+   Sekiz maddenin sekizi de yazıldı; son ikisi B18'in üç fazlı finali
+   ve kapanıştaki bakış. Ayrıntı §0.1.
+
+   *Eski hâli:* **Yalnızca B18 kaldı.**
    08.09.2026'da yedi madde yazıldı: B4 (kamp anlamı), B5 (ilk
    görüş), B6 (tanışma — Ardo'nun kurtarılma anı), B10 (tuzağı
    kırar), B12 (yedinci iz — "iki çift ayak izi"), B13 (Zindancı

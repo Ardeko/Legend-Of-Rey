@@ -77,7 +77,10 @@ from src.config import (  # noqa: E402
 )
 from src.core.game import Game  # noqa: E402
 from src.scenes import chapter18_cinematics as cine  # noqa: E402
-from src.scenes.chapter18 import Chapter18Scene  # noqa: E402
+from src.scenes.chapter18 import (
+    PHASE_ALONE, PHASE_TAKEN, PHASE_TOGETHER, TAKEN_END,
+    Chapter18Scene,
+)
 from src.scenes.ending import ALLY_DISTANCE, DawnCinematic  # noqa: E402
 from src.systems.save import SaveData, write_save  # noqa: E402
 from src.world.rooms.chapter18 import (  # noqa: E402
@@ -132,6 +135,13 @@ def walk_to_arena(game, scene) -> None:
 
 
 def hit_boss(game, scene, damage: int = 40) -> None:
+    # **Faz 2 vurularak gecilmiyor** (`docs/kalachev.md` 6): kontrol
+    # kilitli, dovus yok, sahne kendi cetveliyle isliyor. Vurmaya
+    # devam etseydik dongu 120 kez bosa doner ve "susturma acilmadi"
+    # derdi - oysa acilmasi gereken yer fazin SONU.
+    if scene.phase == PHASE_TAKEN:
+        step(game, scene, 40)
+        return
     scene.hitboxes.spawn(Hitbox(
         rect=scene.boss.body.rect.copy(), owner=scene.player,
         targets=Team.ENEMY, damage=damage, active_frames=2, knockback=0.0))
@@ -207,14 +217,24 @@ def test_both_death_paths_are_refused() -> None:
         check(not boss.dead, "`die()` geri cevrildi")
         check(boss.health >= 1, "can tabanda", str(boss.health))
         check(boss.rises == before + 1, "dirilis sayildi")
-        check(scene.silence.unlocked,
-              "ve SAHNE KANCASI calisti - susturma acildi")
+        # Ilk diz artik **faz 2'yi** basliyor (susturma onun sonunda
+        # aciliyor). Olculen sey degismedi: `die()` sahne kancasini
+        # cagiriyor mu.
+        check(scene.phase == PHASE_TAKEN,
+              "ve SAHNE KANCASI calisti - faz 2 basladi",
+              str(scene.phase))
     finally:
         game.quit()
 
 
 def test_silence_unlocks_on_first_kneel() -> None:
-    """Susturma **ilk diz cokuste** aciliyor, once degil."""
+    """Susturma **ilk diz cokusun ardindan** aciliyor, once degil.
+
+    Ilk diz once faz 2'yi baslatiyor (Kalachev'in olumu, yoldasin
+    disarida kalmasi); susturma o fazin sonunda aciliyor. Sira
+    bilincli: "yardimsiz savas" teklifi ancak yardim gittikten sonra
+    bir teklif.
+    """
     print("\n--- susturma zamanlamasi ---")
     game = Game()
     try:
@@ -227,7 +247,9 @@ def test_silence_unlocks_on_first_kneel() -> None:
             hit_boss(game, scene)
             if scene.silence.unlocked:
                 break
-        check(scene.silence.unlocked, "ilk diz cokuste acildi")
+        check(scene.silence.unlocked, "ilk diz cokusun ARDINDAN acildi")
+        check(scene.phase == PHASE_ALONE,
+              "cunku faz 2 bitti - artik yalniz", str(scene.phase))
         check(scene.boss.rises >= 1, "cunku diz cokmustu")
     finally:
         game.quit()
@@ -489,10 +511,101 @@ def test_chapter_shape() -> None:
     check(not enemies, "haritada dusman YOK - tek dusman Cagiran, sahne koyuyor")
 
 
+# --- Uc faz (docs/kalachev.md 6) ★ -------------------------------------------
+def test_three_phases() -> None:
+    """Belgenin finali: **dorduniz -> aliniyor -> yalniz.**
+
+    Olculen sey bir anlati degil bir zincir: her fazin bir oncekinden
+    ne aldigi. Faz 2 senaryolu ve kacinilmaz oldugu icin uctan uca
+    calistirilabiliyor - oyuncunun becerisine bagli bir yeri yok.
+    """
+    print()
+    print("--- uc faz ---")
+    from src.entities.kalachev import DEATH_FLAG
+    game = Game()
+    try:
+        scene = start(game)
+        # FAZ 1: dorduniz birlikte.
+        check(scene.phase == PHASE_TOGETHER, "faz 1 ile basliyor")
+        check(scene.companion is not None,
+              "yoldas YANINDA - B17'yi ikisi bitirdi")
+        walk_to_arena(game, scene)
+        check(scene.kalachev is not None, "arenada Kalachev de var")
+        check(scene.kalachev in scene.allies, "muttefik listesinde")
+        ahead = scene.kalachev.body.center_x > scene.player.body.center_x
+        check(ahead, "oyuncunun ONUNDE duruyor - hep once o girer")
+        check(not scene.boss_defeated, "Cemo kafeste, dovus basliyor")
+
+        # FAZ 2: ilk diz her seyi aliyor.
+        boss = scene.boss
+        boss.rise_frames = 0
+        boss.health = 0
+        boss.die()
+        check(scene.phase == PHASE_TAKEN, "ilk diz faz 2'yi baslatti")
+        check(boss.rise_frames > TAKEN_END,
+              "yaratik cetvel boyunca diz cokuk KALIYOR",
+              str(boss.rise_frames))
+
+        saw_lure = False
+        saw_gate = False
+        for _ in range(TAKEN_END + 30):
+            scene.update()
+            saw_lure = saw_lure or bool(boss.lures)
+            saw_gate = saw_gate or scene.gate_open
+        check(saw_lure, "Cemo'nun sesi bir YEM olarak belirdi")
+        check(saw_gate, "muhur acildi - yaratik onlari AYIRDI")
+        check(scene.kalachev.dead, "Kalachev OLDU")
+        check(not scene.kalachev.gone,
+              "govdesi sahnede kaliyor - 'gitti mi, oldu mu' sorusu yok")
+        check(scene.companion is None, "yoldas disarida kaldi")
+        check(scene.arena_sealed, "kapi tekrar indi")
+        check(scene.save_data.flags.get(DEATH_FLAG),
+              "olum KAYDA yazildi - kapanistaki bakis buna bagli")
+
+        # FAZ 3: yalniz, ve susturma ancak SIMDI acildi.
+        check(scene.phase == PHASE_ALONE, "faz 3 - yalniz")
+        check(scene.silence.unlocked,
+              "susturma ancak yardim gittikten SONRA acildi")
+        check(scene.player.control_locked == 0, "kontrol geri geldi")
+    finally:
+        game.quit()
+
+
+def test_phase_two_takes_no_skill() -> None:
+    """Faz 2 **kacinilmaz.** Oyuncu hicbir sey yapmasa da bitiyor.
+
+    Bir kacis yolu olsaydi iyi oynayan oyuncu Kalachev'i kurtarabilir
+    sanirdi ve olum bir ceza gibi okunurdu - oysa bir BEDEL.
+    """
+    print()
+    print("--- faz 2 kacinilmaz ---")
+    game = Game()
+    try:
+        scene = start(game)
+        walk_to_arena(game, scene)
+        boss = scene.boss
+        boss.rise_frames = 0
+        boss.health = 0
+        boss.die()
+        locked = 0
+        for _ in range(TAKEN_END):
+            scene.update()
+            if scene.player.control_locked > 0:
+                locked += 1
+        check(locked > TAKEN_END - 10,
+              "kontrol butun faz boyunca kilitli", f"{locked}/{TAKEN_END}")
+        scene.update()
+        check(scene.phase == PHASE_ALONE, "faz kendiliginden bitti")
+    finally:
+        game.quit()
+
+
 def main() -> int:
     test_caller_cannot_die_while_echo_is_open()
     test_player_and_boss_share_the_arena()
     test_both_death_paths_are_refused()
+    test_three_phases()
+    test_phase_two_takes_no_skill()
     test_silence_unlocks_on_first_kneel()
     test_silencing_works_and_costs()
     test_silence_is_irreversible()
