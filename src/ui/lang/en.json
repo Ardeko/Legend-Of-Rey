@@ -460,7 +460,8 @@
     "ch18_ardo_quiet": "Quiet. Quiet for her too, now.",
     "ch04_echo_seed": "Did it think twice?",
     "ch09_echo_seed": "I made this for you.",
-    "ch13_echo_seed": "Rey?"
+    "ch13_echo_seed": "Rey?",
+    "echo_alone_voice": "Only I am left now. You chose me."
   },
   "combat": {
     "counter": "COUNTER",

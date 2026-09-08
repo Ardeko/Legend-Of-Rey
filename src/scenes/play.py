@@ -32,7 +32,7 @@ from src.core.juice import ImpactEvent, ImpactWeight, Juice
 from src.core.scene import Scene
 from src.entities.character_stats import ARDO, REY
 from src.entities.player import Player
-from src.systems import abilities
+from src.systems import abilities, loyalty
 from src.systems.compass import Compass
 from src.systems.echo import Answer, EchoState
 from src.systems.tracking import BLOOD, SCORCH, TraceField, TrackingState
@@ -40,7 +40,9 @@ from src.systems.save import read_save
 from src.ui import echo_view, tracking_view
 from src.ui.chapter_card import ChapterCard
 from src.systems.breath import Breath
-from src.ui.dialogue import Dialogue, Line
+from src.systems.lies import LieLedger
+from src.systems.phantom import Phantom
+from src.ui.dialogue import ECHO, Dialogue, Line
 from src.ui import text
 from src.ui.hud import HUD
 from src.ui.i18n import t
@@ -170,6 +172,16 @@ class PlayScene(Scene):
         # Sahne kurulumundan ONCE: `setup()` icinde bir sey nefesi
         # sifirlamak isteyebilir.
         self.breath = Breath()
+
+        # Yalan defteri (docs/korku.md 4.1). **Katman 1** - kapatilamaz,
+        # cunku Yanki'nin yalani bir korku efekti degil ana mekanik.
+        # Bolume ozel degil: `ask()` her bolumde yalan soyleyebiliyor.
+        self.lies = LieLedger()
+
+        # Hayalet parilti (docs/korku.md 4.4) - Yanki Gorusu'nun yalani.
+        # Ayni zamanda yalan defterinin **kaniti**: bolume ozel kod
+        # istemeyen tek curutme yolu.
+        self.phantom = Phantom()
 
         self.setup()
 
@@ -674,6 +686,9 @@ class PlayScene(Scene):
         self._update_necklace_audio()
         self.dialogue.update(self.game)
         self.breath.update(self.game, self)
+        self.lies.update()
+        self.phantom.update(self.game, self)
+        self._watch_intimacy()
         if self.card is not None:
             self.card.update()
         if self.ambience is not None:
@@ -814,13 +829,61 @@ class PlayScene(Scene):
         chosen = ardo_key if (self.character == "ardo" and ardo_key) else key
         self.say(Line(self.character, chosen), **kwargs)
 
+    def _watch_intimacy(self) -> None:
+        """Yanki ilk kez **tekil** konusuyor (docs/korku.md 4.3).
+
+        Sadakat esigi gecildiginde bir kez. Ardo'da hic - onun Yanki'si
+        yok. Kayit bayragi tekrari engelliyor: bu bir uslup degil, bir
+        **kayma**; iki kez olursa kayma olmaktan cikar.
+
+        Suren bir konusmanin ustune binmiyor - ani kendi basina kalmali.
+        """
+        if self.echo is None or self.save_data is None:
+            return
+        if loyalty.spoke_alone(self.save_data):
+            return
+        if not loyalty.intimate(self.save_data):
+            return
+        if not self.dialogue.done:
+            return
+        loyalty.mark_spoke_alone(self.save_data)
+        self.say(Line(ECHO, "line.echo_alone_voice"))
+
+    def catch_lie(self) -> bool:
+        """Oyuncu bir yalani curuttu (docs/korku.md 4.1).
+
+        Bolumler bunu, Yanki'nin gosterdigi seyin **yanlis oldugunun
+        kanitlandigi** anlarda cagiriyor: kolye tersini gosteriyor,
+        gosterilen gizli gecit duz duvar cikiyor, isaretlenen dusman
+        zaten olu.
+
+        Yakalandiysa Yanki susuyor - ne aciklama ne ozur. Ozur dileyen
+        bir ses karakter olur; konuyu degistiren bir ses tehdit kalir.
+        """
+        if self.echo is None or not self.lies.catch():
+            return False
+        self.game.play_sound("lie_caught", bus="volume_echo")
+        # Suren repligi de kes: yakalanan ses cumlesini bitirmiyor.
+        if not self.dialogue.done and self.dialogue.current is not None:
+            if self.dialogue.current.speaker == ECHO:
+                self.dialogue.stop()
+        return True
+
     def say(self, *lines, auto_advance: bool = False) -> None:
         """Replik dizisi baslatir. `lines` `Line` nesneleri.
+
+        **Yanki susturulmussa Yanki repligi yutuluyor** (docs/korku.md
+        4.1): yalani yakalanan ses uc saniye konusmuyor. Diger
+        konusmacilar etkilenmiyor - susan Yanki, sahne degil.
 
         `auto_advance=True` yalnizca bir sahne-zamanlayicisiyla yarisan
         (orn. Bolum 1'in prolog beat'leri) dizilerde kullanilir - normal
         kesif/dovus repligi oyuncu onaylayana kadar ekranda kalir.
         """
+        if self.lies.silenced:
+            lines = tuple(line for line in lines if line.speaker != ECHO)
+            if not lines:
+                return
         self.dialogue.start(tuple(lines), auto_advance=auto_advance)
 
     # --- Yanki --------------------------------------------------------------
@@ -845,6 +908,14 @@ class PlayScene(Scene):
         }.get(answer)
         if answer_sound:
             self.game.play_sound(answer_sound, bus="volume_echo")
+
+        # Yalan **deftere geciyor** (docs/korku.md 4.1). Bir donem
+        # yalan soyleniyor ama hicbir yerde tutulmuyordu; oyuncu yanlis
+        # yere gidip "ben yanlis anladim" diyordu, yani Yanki'nin yalani
+        # oyuncunun kendi hatasi gibi okunuyordu. Artik curutulebilir.
+        if answer is Answer.LIE:
+            self.lies.record(self.player.body.feet,
+                             direction=self.compass.direction_from(self.player))
 
     def _update_echo_audio(self) -> None:
         """Yanki acilirken/kapanirken kenar tespiti - `EchoState` kendisi
@@ -907,6 +978,7 @@ class PlayScene(Scene):
             echo_view.draw_dim(surface, self.echo)
             echo_view.draw_reveal(surface, offset, self.echo, self.player,
                                   self.enemies, self.breakables)
+            echo_view.draw_phantom(surface, offset, self.echo, self.phantom)
             echo_view.draw_answer(surface, offset, self.echo, self.player)
 
         # Iz Surme ayni yerde ama **karartma yok**: Yanki'nin bedeli

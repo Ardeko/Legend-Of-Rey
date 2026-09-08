@@ -460,7 +460,8 @@
     "ch18_ardo_quiet": "Sessiz. Onun için de sessiz artık.",
     "ch04_echo_seed": "İki kez düşündü mü?",
     "ch09_echo_seed": "Bunu senin için yaptım.",
-    "ch13_echo_seed": "Rey?"
+    "ch13_echo_seed": "Rey?",
+    "echo_alone_voice": "Artık yalnızca ben kaldım. Sen beni seçtin."
   },
   "combat": {
     "counter": "KARŞI VURUŞ",

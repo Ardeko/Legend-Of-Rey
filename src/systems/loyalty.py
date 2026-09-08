@@ -43,6 +43,23 @@ START = 0
 
 SETTINGS_KEY = "echo_loyalty"
 
+# Yanki'nin **tekil** konustugu esik (docs/korku.md 4.3).
+#
+# Yanki kendinden oyun boyunca cogul soz eder - "biz", "bizi",
+# "gozlerimizi sana odunc veriyoruz". Bir koro. Oyuncu bunu fark bile
+# etmez cunku bastan oyle. Sadakat bu esigi gecince Yanki BIR KEZ tekil
+# konusuyor: koro bir kisiye donusuyor ve o kisi seni taniyor.
+#
+# 3 secildi cunku `band()` de "trusting" icin ayni esigi kullaniyor -
+# iki farkli sayi olsaydi "guveniyor" ile "yakinlasti" ayrisir ve
+# ikisinin ayni sey olmasi tam olarak istenen sey.
+INTIMACY_THRESHOLD = 3
+
+# Tekil replik soylendi mi? Kayitta tutuluyor - bolumler arasi tasinmali
+# ve **bir kez** olmali. Tekrarlanirsa bir uslup olur; bir kez olursa
+# bir kayma.
+SPOKE_ALONE_KEY = "echo_spoke_alone"
+
 
 def read(save_data) -> int:
     """Kayittaki sadakat. Kayit yoksa notr."""
@@ -76,6 +93,23 @@ def ignored(save_data, weight: int = 1) -> int:
 def trusts(save_data) -> bool:
     """B14'un soracagi soru: bu oyuncu Yanki'ya guveniyor mu?"""
     return read(save_data) > 0
+
+
+def intimate(save_data) -> bool:
+    """Yanki tekil konusacak kadar yakinlasti mi? (docs/korku.md 4.3)"""
+    return read(save_data) >= INTIMACY_THRESHOLD
+
+
+def spoke_alone(save_data) -> bool:
+    """Tekil replik daha once soylendi mi?"""
+    if save_data is None:
+        return False
+    return bool(save_data.flags.get(SPOKE_ALONE_KEY, False))
+
+
+def mark_spoke_alone(save_data) -> None:
+    if save_data is not None:
+        save_data.flags[SPOKE_ALONE_KEY] = True
 
 
 def band(save_data) -> str:

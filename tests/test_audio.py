@@ -72,9 +72,11 @@ PLANNED: frozenset[str] = frozenset({
     # `breath_in`, `breath_out` ve `heartbeat` BAGLANDI (systems/breath.py);
     # asagidakiler sirasini bekliyor. Her biri hangi maddede baglanacagi
     # yaziyor - listeden cikmayan bir ses, yazilmamis bir ozelliktir.
+    # `lie_caught` (4.1) ve `phantom_fade` (4.4) BAGLANDI - listeden
+    # cikti. Bir ses baglaninca buradan silinmezse test "listede ama
+    # kullaniliyor" diye kiriliyor; kasitli olarak boyle, cunku eski bir
+    # PLANNED girdisi "bu hic yazilmadi" yalanini soyluyor.
     "breath_sharp",      # 6.1 jumpscare - Rey'in irkilmesi
-    "lie_caught",        # 4.1 yalan defteri
-    "phantom_fade",      # 4.4 Yanki Gorusu'nun yalani
     "watcher_notice",    # 5.2 Izleyen
     "watcher_strike",    # 6.1 jumpscare
     "ghost_seen",        # 5.3 zindan hatirliyor

@@ -343,6 +343,129 @@ def main() -> int:
               f"hush {game.music_hush:.2f}")
         game.settings.set("horror", horror.FULL)
 
+    # --- 9. Yalan defteri (Katman 1 - kapanmaz) ---------------------------
+    # `docs/korku.md` 4.1: `LIE_CHANCE` oyunun basindan beri calisiyordu
+    # ama oyun yalani HATIRLAMIYORDU, dolayisiyla oyuncu asla
+    # ogrenemiyordu - Yanki'nin yalani oyuncunun kendi hatasi gibi
+    # okunuyordu. Mekanigin tam tersine calismasi bundan ibarettir.
+    print("\n--- yalan defteri ---")
+    from src.systems.lies import SILENCE_FRAMES, LieLedger
+    from src.ui.dialogue import ECHO as ECHO_SPEAKER
+    from src.ui.dialogue import Line
+
+    ledger = LieLedger()
+    check(not ledger.catch(),
+          "yalan yokken 'yakaladim' demiyor - her yanlis sey yalan degil")
+    ledger.record((100.0, 50.0), direction=1)
+    check(len(ledger.pending) == 1, "yalan deftere gecti")
+    check(ledger.catch(), "bekleyen yalan yakalandi")
+    check(ledger.silenced, "yakalaninca Yanki susuyor")
+    check(not ledger.pending, "yakalanan yalan bekleyenlerden cikti")
+    check(not ledger.catch(), "ayni yalan iki kez yakalanmiyor")
+    for _ in range(SILENCE_FRAMES):
+        ledger.update()
+    check(not ledger.silenced, f"sessizlik {SILENCE_FRAMES} karede bitiyor")
+
+    # Susan Yanki gercekten konusmuyor mu - ama sahne konusuyor mu?
+    game.settings.set("horror", horror.FULL)
+    scene = fresh()
+    scene.lies.record(scene.player.body.feet, direction=1)
+    scene.catch_lie()
+    check(scene.lies.silenced, "sahne uzerinden yakalama calisiyor")
+    scene.say(Line(ECHO_SPEAKER, "line.ch04_echo_seed"))
+    check(scene.dialogue.done, "susturulmus Yanki repligi YUTULUYOR")
+    scene.say(Line("rey", "line.ch18_rey_voice"))
+    check(not scene.dialogue.done,
+          "diger konusmacilar etkilenmiyor - susan Yanki, sahne degil")
+    scene.dialogue.stop()
+
+    # --- 10. Hayalet parilti (Katman 2) -----------------------------------
+    # `docs/korku.md` 4.4: Yanki'nin SOZU yalan soyluyordu ama GORUSU
+    # hic soylemedi. Oyuncu sesine guvenmiyor, gozune guveniyordu.
+    print("\n--- hayalet parilti ---")
+    from src.config import ECHO_TIER_CLEAR, ECHO_TIER_MURKY, ECHO_TIER_SILENT
+    from src.systems.phantom import NOTICE_RANGE, Phantom
+
+    scene = fresh()
+
+    def hold_echo() -> None:
+        """Yanki'yi acik tut. `active` bir property: `strength`e bakiyor,
+        o da `update(holding=True)` ile yuruyor - elle atanamaz."""
+        scene.echo.update(True)
+
+    scene.echo.tier = ECHO_TIER_CLEAR
+    ph = Phantom(seed=7)
+    for _ in range(4000):
+        hold_echo()
+        ph.update(game, scene)
+    check(scene.echo.active, "test kurulumu: Yanki gercekten acik",
+          f"strength {scene.echo.strength:.2f}")
+    check(not ph.active, "BERRAK kademede hayalet DOGMUYOR - dogru soyluyor")
+
+    scene.echo.tier = ECHO_TIER_SILENT
+    for _ in range(4000):
+        hold_echo()
+        ph.update(game, scene)
+    check(not ph.active, "SESSIZ kademede hayalet yok - gorus zaten yok")
+
+    scene.echo.tier = ECHO_TIER_MURKY
+    spawned = False
+    for _ in range(20000):
+        hold_echo()
+        ph.update(game, scene)
+        if ph.active:
+            spawned = True
+            break
+    check(spawned, "BULANIK kademede hayalet doguyor")
+    check(scene.lies.pending, "hayalet deftere YALAN olarak yazildi",
+          f"{len(scene.lies.pending)} bekleyen")
+
+    # Yaklas: sonmeli ve yalan yakalanmali.
+    before = scene.lies.caught_count
+    scene.player.body.set_feet(ph.x, ph.y + NOTICE_RANGE * 0.5)
+    for _ in range(40):
+        hold_echo()
+        ph.update(game, scene)
+    check(not ph.active, "yaklasinca hayalet sondu")
+    check(scene.lies.caught_count > before,
+          "yanina gidip hicbir sey bulmamak yalani KANITLIYOR",
+          f"{before} -> {scene.lies.caught_count}")
+
+    # Ayar kapaliyken hic dogmamali.
+    game.settings.set("horror", horror.OFF)
+    ph2 = Phantom(seed=7)
+    for _ in range(20000):
+        hold_echo()
+        ph2.update(game, scene)
+    check(not ph2.active, "korku KAPALI iken hayalet dogmuyor")
+    game.settings.set("horror", horror.FULL)
+
+    # --- 11. Yanki tekil konusuyor (Katman 1) -----------------------------
+    # `docs/korku.md` 4.3. Ilk tasarim "Yanki ismini hic soylemez"
+    # diyordu ve YANLISTI: prologun ilk repligi zaten "Bizi duyabiliyor
+    # musun, Rey?" diyor. Var olan metinle celisen mekanik kurulamaz -
+    # ayni replikteki "biz" daha iyi bir sey saklıyordu.
+    print("\n--- Yanki tekil konusuyor ---")
+    from src.systems import loyalty
+
+    scene = fresh()
+    scene.save_data.flags.pop(loyalty.SPOKE_ALONE_KEY, None)
+    scene.save_data.flags[loyalty.SETTINGS_KEY] = 0
+    scene.dialogue.stop()
+    scene._watch_intimacy()
+    check(scene.dialogue.done, "sadakat dusukken tekil replik YOK")
+
+    scene.save_data.flags[loyalty.SETTINGS_KEY] = loyalty.INTIMACY_THRESHOLD
+    scene._watch_intimacy()
+    check("line.echo_alone_voice" in spoken(scene),
+          "esik gecilince Yanki tekil konusuyor", str(spoken(scene)))
+    check(loyalty.spoke_alone(scene.save_data), "kayit bayragi kondu")
+
+    scene.dialogue.stop()
+    scene._watch_intimacy()
+    check(scene.dialogue.done,
+          "BIR KEZ - tekrarlanirsa uslup olur, bir kez olursa kayma")
+
     game.shutdown()
 
     print("\n=== SONUC ===")

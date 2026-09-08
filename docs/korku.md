@@ -133,18 +133,34 @@ bu doğru oran: korku, geriye dönüp bakınca büyür.
 **Maliyet:** Sıfır kod. Yalnızca `docs/diyaloglar.md`'ye üç replik ve
 mevcut sahnelere birer `say()` çağrısı.
 
-### 4.3 İsminle Seslenme ★★
+### 4.3 "Biz" Bir Gün "Ben" Olur ★★
 
-Yankı, Rey'e oyunun başında **hiç ismiyle seslenmez**. `loyalty` sayacı
-eşiği geçtiğinde — yani oyuncu ona güvenmeye başladığında — ilk kez
-"Rey" der.
+> **Bu madde uygulanırken değişti (08.09.2026).** Önce "Yankı, Rey'e
+> oyunun başında hiç ismiyle seslenmez" yazıyordu. Yanlıştı: prologun
+> **ilk repliği** `line.prologue_echo_1` zaten *"Bizi duyabiliyor musun,
+> **Rey**?"* diyor. Var olan metinle çelişen bir mekanik kurulamaz.
+>
+> Ama aynı replik daha iyi bir şey saklıyordu: **"biz".**
 
-Yakınlık, tehdidin kendisi olur. Ve mekanik olarak dürüst: **ne kadar
-güvenirsen o kadar içeri girer.**
+Yankı kendinden oyun boyunca **çoğul** söz eder — *biz*, *bizi*,
+*gözlerimizi sana ödünç veriyoruz*. Bir koro. Oyuncu bunu fark bile
+etmez, çünkü baştan öyledir.
 
-**Bağlanacağı yer:** `systems/loyalty.py` zaten sayıyor, B10/B11 zaten
-okuyor. Yalnızca replik seçimi sayaca bakacak.
-**Maliyet:** Çok küçük.
+`loyalty` sayacı eşiği geçtiğinde — yani oyuncu ona güvenmeye
+başladığında — Yankı bir kez, **tek bir replikte, tekil konuşur.**
+
+Koro bir kişiye dönüşür. Ve o kişi seni tanıyor.
+
+Yakınlık tehdidin kendisi olur, ve mekanik olarak dürüst: **ne kadar
+güvenirsen o kadar içeri girer.** B14'te "aşağıdaki şeyin sesi" olduğu
+söylendiğinde, oyuncu o tekil sesin kime ait olduğunu zaten duymuştur.
+
+**Bir kez.** Tekrarlanırsa bir üslup olur; bir kez olursa bir kayma.
+
+**Bağlanacağı yer:** `systems/loyalty.py` zaten sayıyor ve B10/B11 zaten
+okuyor; eşik oraya eklendi (`INTIMACY_THRESHOLD`). Kayıt bayrağı
+tekrarı engelliyor.
+**Maliyet:** Çok küçük — tek replik, tek eşik.
 
 ### 4.4 Yankı Görüşü Yalan Söyler ★★
 
