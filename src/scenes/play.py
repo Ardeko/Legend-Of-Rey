@@ -159,6 +159,9 @@ class PlayScene(Scene):
         # Bolum basi karti - alt sinif `chapter_number`/`chapter_name_key`
         # verirse gosterilir. Ara sahne DEGIL, bindirme: oynanisi
         # durdurmuyor, oyuncu ilk kareden itibaren yuruyebilir.
+        # Mekanik tanitim karti (src/ui/mechanic_card.py). Ayni anda
+        # tek kart: iki mekanik ust uste tanitilirsa ikisi de kaybolur.
+        self.mechanic_card = None
         self.card = (ChapterCard(self.chapter_number, self.chapter_name_key)
                      if self.chapter_number else None)
         self.ambience = (Ambience(self.ambience_preset)
@@ -305,7 +308,8 @@ class PlayScene(Scene):
         choices = owned(self.save_data)
         if weapons.DAGGER not in choices and weapons.AXE not in choices:
             return
-        self.hint_once("hint_inventory", "hint.inventory", Action.NEXT_TAB)
+        self.hint_once("hint_inventory", "hint.inventory", Action.NEXT_TAB,
+                       icon="inventory")
 
     def _sync_abilities(self) -> None:
         """Yetenek sayisi degistiyse kayda yaz.
@@ -718,6 +722,10 @@ class PlayScene(Scene):
             ghost.update(self.game, self)
         if self.card is not None:
             self.card.update()
+        if self.mechanic_card is not None:
+            self.mechanic_card.update()
+            if self.mechanic_card.done:
+                self.mechanic_card = None
         if self.ambience is not None:
             self.ambience.update(self.camera.offset)
         if self.water is not None:
@@ -791,7 +799,7 @@ class PlayScene(Scene):
 
     # --- Ipuclari -----------------------------------------------------------
     def hint_once(self, flag: str, message_key: str, action: Action,
-                  frames: int = 210) -> None:
+                  frames: int = 210, icon: str = "") -> None:
         """Bir tusu **bir kez** ogretir ve kayda isaretler.
 
         Arda (30.08.2026): *"Tab ile envanter acacagimi ve U ile komut
@@ -812,9 +820,29 @@ class PlayScene(Scene):
         data.flags[flag] = True
         from src.systems import bindings as binds
         table = binds.read(self.game.settings)
-        self.show_toast(t(message_key,
-                          key=binds.labels_for(table, action)),
-                        frames=frames)
+        label = binds.labels_for(table, action)
+
+        if icon:
+            # **Yeni bir MEKANIK ise kart aciliyor** (docs: Arda,
+            # 08.09.2026 - "yeni mekanik acilan her bolum icin guzel
+            # grafiklerle ve belirgin UX UI ile ipuclari").
+            #
+            # Bildirim, "14 COMBO" ile ayni yerde ve ayni bicimde
+            # cikiyordu: oyunun "bu senin yeni yetenegin" demesiyle bir
+            # combo sayaci gorsel olarak ayni seydi. Kart farki BICIMLE
+            # kuruyor - ortada, cerceveli, ikonlu, tus kapakli.
+            #
+            # Ikonu olmayan ipuclari (bir kolu cek, freni tut) bildirim
+            # olarak kaliyor: onlar yeni bir mekanik degil, o odaya ait
+            # bir talimat.
+            from src.ui.mechanic_card import MechanicCard, title_for
+            self.mechanic_card = MechanicCard(
+                title_key=title_for(message_key), body_key=message_key,
+                icon=icon, key_label=label)
+            self.game.play_sound("ui_confirm", bus="volume_sfx")
+            return
+
+        self.show_toast(t(message_key, key=label), frames=frames)
 
     # --- Yoldas komutu ------------------------------------------------------
     def _update_companion_order(self) -> None:
@@ -828,7 +856,7 @@ class PlayScene(Scene):
             return
         # Yoldas ilk kez yanindayken komutu ogret.
         self.hint_once("hint_companion", "hint.companion_wait",
-                       Action.COMPANION_WAIT)
+                       Action.COMPANION_WAIT, icon="companion")
         if not self.game.input.pressed(Action.COMPANION_WAIT):
             return
         if companion.hold_x is None:
@@ -1058,6 +1086,8 @@ class PlayScene(Scene):
         # adi her zeminde okunmali, ama Yanki acikken o da bulanir.
         if self.card is not None:
             self.card.draw(surface)
+        if self.mechanic_card is not None:
+            self.mechanic_card.draw(surface)
         self._draw_boss_bar(surface)
         self.draw_overlay(surface)
 

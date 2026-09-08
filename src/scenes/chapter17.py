@@ -196,7 +196,8 @@ class Chapter17Scene(PlayScene):
         if self.switch_hinted or self.duo.switches > 0:
             return
         self.switch_hinted = True
-        self.hint_once("hint_switch", "hint.switch", Action.SWITCH)
+        self.hint_once("hint_switch", "hint.switch", Action.SWITCH,
+                       icon="switch")
 
     def _update_triggers(self) -> None:
         for spot in LEVEL.of("trigger"):

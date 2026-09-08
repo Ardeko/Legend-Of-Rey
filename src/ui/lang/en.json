@@ -698,7 +698,15 @@
     "chime": "[{key}] resonance — ring a distant bell",
     "rescue": "Hold [{key}] — lift them up",
     "switch": "[{key}] switch to the other",
-    "silence": "Hold [{key}] — silence the voice"
+    "silence": "Hold [{key}] — silence the voice",
+    "bell": "{key} to send your voice — ring the bell",
+    "bell_title": "RING THE BELL",
+    "resonance_title": "ECHO RESONANCE",
+    "boost_title": "CLIMB TOGETHER",
+    "switch_title": "SWITCH CHARACTER",
+    "companion_wait_title": "COMPANION ORDER",
+    "inventory_title": "INVENTORY",
+    "rescue_title": "LIFT"
   },
   "chapter08": {
     "first_crystal": "Crystal shattered — sound is a weapon",

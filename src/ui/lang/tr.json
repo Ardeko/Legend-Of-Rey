@@ -698,7 +698,15 @@
     "chime": "[{key}] rezonans — uzaktaki çanı çal",
     "rescue": "[{key}] basılı tut — onu kaldır",
     "switch": "[{key}] öteki karaktere geç",
-    "silence": "[{key}] basılı tut — sesi sustur"
+    "silence": "[{key}] basılı tut — sesi sustur",
+    "bell": "{key} ile sesini gonder — çanı çal",
+    "bell_title": "ÇANI ÇAL",
+    "resonance_title": "YANKI REZONANSI",
+    "boost_title": "BİRLİKTE TIRMANIŞ",
+    "switch_title": "KARAKTER DEĞİŞTİR",
+    "companion_wait_title": "YOLDAŞA KOMUT",
+    "inventory_title": "ENVANTER",
+    "rescue_title": "KALDIR"
   },
   "chapter08": {
     "first_crystal": "Kristal kırıldı — ses bir silah",

@@ -208,7 +208,7 @@ class Chapter08Scene(PlayScene):
                 and self.room_frames > resonance.HINT_FRAMES):
             self.hinted = True
             self.hint_once("hint_resonance", "hint.resonance",
-                           Action.RESONATE)
+                           Action.RESONATE, icon="resonance")
 
     def _on_pulse(self) -> None:
         """Darbe cikti - ses **oyuncudan** cikiyor, gorulsun ve duyulsun.
