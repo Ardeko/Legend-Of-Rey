@@ -25,6 +25,35 @@ from pathlib import Path
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
+# **Oyuncunun kaydina DOKUNMA.** (08.09.2026)
+#
+# Sahneler `read_save()` ile kaydi yukluyor ve `_sync_abilities()` gibi
+# yerler `write_save()` ile geri yaziyor - yani bu paketi calistirmak
+# Arda'nin gercek ilerlemesini siliyordu. 55 altin ve secilmis balta
+# boyle kayboldu; yedek dosyasi da ustune yazildigi icin
+# kurtarilamadi.
+#
+# Bir test, oyuncunun verisine asla dokunmamali. Kayit dizini her
+# calistirmada gecici bir klasore aliniyor.
+import tempfile  # noqa: E402
+
+os.environ["LORE_SAVE_DIR"] = tempfile.mkdtemp(prefix="lore_test_")
+
+# Klasore **varsayilan bir kayit** tohumlaniyor. Bos birakilsaydi
+# `read_save()` None donerdi ve sahnelerin `save_data`si None olurdu -
+# oysa testler gercek bir kaydin varligina gore yazilmis (bayrak
+# okuyor, bolum numarasi yaziyor). Amac oyuncunun dosyasindan
+# kurtulmak, testlerin davranisini degistirmek degil.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.systems.save import SaveData as _SaveData  # noqa: E402
+from src.systems.save import write_save as _write_save  # noqa: E402
+
+_write_save(_SaveData())
+
+# Ayrica bu paket kendi sectigi silahi DISKE yaziyor ve sonraki sahne
+# onu geri okuyor - "Bolum 1'e yumrukla baslanir" kontrolunden once
+# kayit temizleniyor (asagida).
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -160,6 +189,18 @@ def main() -> int:
     # Bolum 1'de yumrukla baslamasi gereken Rey kilicla baslar ve o
     # bolumun anlati ani ("kilici buluyor") cope giderdi.
     print("\n--- Bolum 1 bozulmuyor ---")
+    # **Kaydi temizle.** Bu paketin daha onceki bolumu bir silah SECIYOR
+    # ve secim artik diske yaziliyor (08.09.2026 - bir donem yalnizca
+    # bellekte kaliyordu ve oyuncu kararini kaybediyordu). Yani sahne
+    # kurulurken o secim geri okunuyor ve Rey Bolum 1'e baltayla
+    # basliyordu; test hakli olarak kirildi.
+    #
+    # Olculmek istenen sey BOS bir kayitla Bolum 1. Temizlik testin
+    # kendi kurdugu durumu kaldiriyor, davranisi degistirmiyor.
+    from src.systems.save import backup_path, save_path
+    save_path().unlink(missing_ok=True)
+    backup_path().unlink(missing_ok=True)
+
     fresh = SaveData()
     check(fresh.weapon == weapons.SWORD,
           "kaydin varsayilani hala 'sword'", fresh.weapon)

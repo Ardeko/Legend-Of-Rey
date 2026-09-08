@@ -31,12 +31,41 @@ from pathlib import Path
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
+# **Oyuncunun kaydina DOKUNMA.** (08.09.2026)
+#
+# Sahneler `read_save()` ile kaydi yukluyor ve `_sync_abilities()` gibi
+# yerler `write_save()` ile geri yaziyor - yani bu paketi calistirmak
+# Arda'nin gercek ilerlemesini siliyordu. 55 altin ve secilmis balta
+# boyle kayboldu; yedek dosyasi da ustune yazildigi icin
+# kurtarilamadi.
+#
+# Bir test, oyuncunun verisine asla dokunmamali. Kayit dizini her
+# calistirmada gecici bir klasore aliniyor.
+import tempfile  # noqa: E402
+
+os.environ["LORE_SAVE_DIR"] = tempfile.mkdtemp(prefix="lore_test_")
+
+# Klasore **varsayilan bir kayit** tohumlaniyor. Bos birakilsaydi
+# `read_save()` None donerdi ve sahnelerin `save_data`si None olurdu -
+# oysa testler gercek bir kaydin varligina gore yazilmis (bayrak
+# okuyor, bolum numarasi yaziyor). Amac oyuncunun dosyasindan
+# kurtulmak, testlerin davranisini degistirmek degil.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.systems.save import SaveData as _SaveData  # noqa: E402
+from src.systems.save import write_save as _write_save  # noqa: E402
+
+_write_save(_SaveData())
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 # Sesleri okumak icin oyunu acmaya gerek yok - kaynak taraniyor.
-SFX_FILES = ("sfx.py", "sfx_combat.py", "sfx_enemies.py", "sfx_ui.py",
-             "sfx_world.py")
+# **Yeni bir `sfx_*.py` eklenince buraya da eklenmeli.** Eklenmezse
+# oradaki sesler "kayitli degil" sayilir ve onlari cagiran kod
+# "uydurma ad" diye yakalanir - `sfx_horror.py` eklenirken tam olarak
+# bu oldu.
+SFX_FILES = ("sfx.py", "sfx_combat.py", "sfx_enemies.py", "sfx_horror.py",
+             "sfx_ui.py", "sfx_world.py")
 
 # Kayitli ama henuz cagrilmayan sesler - **bilerek** bekliyorlar.
 # Ses paketi bolumlerden once yazildi (`assets/audio/SES-LISTESI.md`),
@@ -64,6 +93,18 @@ PLANNED: frozenset[str] = frozenset({
     "intro_hum", "journey_cellar", "journey_night", "journey_wind",
     "shambler_attack",
     "shambler_idle", "step_gravel",
+    # --- Korku katmani (docs/korku.md) - fazlar halinde baglaniyor ---
+    # `breath_in`, `breath_out` ve `heartbeat` BAGLANDI (systems/breath.py);
+    # asagidakiler sirasini bekliyor. Her biri hangi maddede baglanacagi
+    # yaziyor - listeden cikmayan bir ses, yazilmamis bir ozelliktir.
+    # `lie_caught` (4.1) ve `phantom_fade` (4.4) BAGLANDI - listeden
+    # cikti. Bir ses baglaninca buradan silinmezse test "listede ama
+    # kullaniliyor" diye kiriliyor; kasitli olarak boyle, cunku eski bir
+    # PLANNED girdisi "bu hic yazilmadi" yalanini soyluyor.
+    # `watcher_notice` (5.2) ve `ghost_seen` (5.3) de BAGLANDI.
+    "breath_sharp",      # 6.1 jumpscare - Rey'in irkilmesi
+    "watcher_strike",    # 6.1 jumpscare
+    "room_changed",      # 5.5 zindan degisiyor
 })
 # `necklace_warm` ve `necklace_conflict` 30.08.2026'da listeden CIKTI:
 # Bolum 13'un ara sahneleri ikisini de caliyor (kafes goruldugunde

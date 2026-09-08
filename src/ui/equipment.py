@@ -38,6 +38,7 @@ import pygame
 
 from src.art import palette
 from src.combat import weapons
+from src.systems import consumables
 from src.config import INTERNAL_HEIGHT, INTERNAL_WIDTH
 from src.core.input import Action
 from src.core.scene import Scene
@@ -150,6 +151,11 @@ class EquipmentScene(Scene):
             self._move(-1)
         elif inp.pressed(Action.DOWN):
             self._move(1)
+        elif inp.pressed(Action.LEFT) or inp.pressed(Action.RIGHT):
+            # Yukari/asagi silahi seciyor, **sag/sol** sarf malzemesini:
+            # iki liste ayni tuslari paylassaydi hangisinin secildigi
+            # belirsiz olurdu.
+            self._cycle_consumable()
         elif inp.pressed(Action.CONFIRM):
             self._equip()
 
@@ -172,6 +178,16 @@ class EquipmentScene(Scene):
             return
         if self.save_data is not None:
             self.save_data.weapon = key
+            # **Diske yaz.** Bir donem yalnizca bellekte tutuluyordu:
+            # oyuncu silahini degistirip oynamaya devam ediyor, oyunu
+            # kapatinca degisiklik yok oluyordu. `write_save` yalnizca
+            # yeni oyunda, olumde ve duraklat menusunun "ANA MENU"sunde
+            # cagriliyordu - yani silah degisimi ancak oyuncu hemen
+            # ardindan menuye donerse kayda geciyordu.
+            # (Arda, 08.09.2026: *"hancer balta falan hafizada
+            # kalmiyor"*.)
+            from src.systems.save import write_save
+            write_save(self.save_data)
         if self.player is not None:
             self.player.equip_weapon(key)
         self.game.play_sound("ui_confirm")
@@ -224,6 +240,59 @@ class EquipmentScene(Scene):
             text.draw(surface, _stats(key), rect.x + 10,
                       rect.y + 17, palette.color("stone"))
 
-        hint_y = LIST_TOP + len(self.items) * ROW_HEIGHT + 10
-        text.draw(surface, t("equipment.hint"), INTERNAL_WIDTH // 2, hint_y,
+        rows = len(self.items) + len(consumables.carried(self.save_data))
+        self._draw_consumables(surface, left)
+
+        # Alt ipucu en sonda ve listenin ALTINDA: sarf bolmesi
+        # eklenince sabit konum listenin uzerine biniyordu.
+        hint_y = LIST_TOP + rows * ROW_HEIGHT + 22
+        text.draw(surface, t("equipment.hint"), INTERNAL_WIDTH // 2,
+                  min(hint_y, INTERNAL_HEIGHT - 12),
                   palette.color("stone_light"), align="center")
+
+    def _draw_consumables(self, surface: pygame.Surface, left: int) -> None:
+        """Sarf malzemeleri - silahlarin ALTINDA, ayri baslikla.
+
+        Ayni listeye karistirilmadi: silah kusanilan bir sey, sarf
+        malzemesi tukenen bir sey. Ayni listede yan yana durunca oyuncu
+        "okla mi dovusecegim" diye okuyor - oysa ok kilicin yerine
+        gecmiyor, kilicin ulasamadigi yeri vuruyor.
+
+        **Hicbiri yoksa baslik da cizilmiyor** (`CLAUDE.md` 9, asamali
+        aciga cikarma): Bolum 3'ten once satin alinacak bir sey yok ve
+        oyuncunun bos bir bolme gormesi gereksiz.
+        """
+        have = consumables.carried(self.save_data)
+        if not have:
+            return
+        y = LIST_TOP + len(self.items) * ROW_HEIGHT + 6
+        text.draw(surface, t("equipment.ammo_heading"), left + 2, y,
+                  palette.role("ui_text_dim"))
+        chosen = consumables.selected(self.save_data)
+        y += 13
+        for key in have:
+            item = consumables.get(key)
+            if item is None:
+                continue
+            on = key == chosen
+            colour = palette.color("gold" if on else "stone_light")
+            mark = "▸ " if on else "  "
+            amount = consumables.count(self.save_data, key)
+            text.draw(surface, f"{mark}{t(item.label_key)}  x{amount}",
+                      left + 2, y, colour)
+            y += 12
+
+    def _cycle_consumable(self) -> None:
+        """Secili malzemeyi degistir. Elde tek cesit varsa reddediyor.
+
+        Reddedilen bir giris sessizce gecmiyor - `_equip` ile ayni
+        gerekce.
+        """
+        if len(consumables.carried(self.save_data)) < 2:
+            self.game.play_sound("ui_deny")
+            return
+        consumables.select_next(self.save_data)
+        self.game.play_sound("ui_tick")
+        from src.systems.save import write_save
+        if self.save_data is not None:
+            write_save(self.save_data)

@@ -72,6 +72,7 @@ class Chapter17Scene(PlayScene):
     chapter_name_key = "chapter.twintower"
     postfx_grade = "descent"
     ambience_preset = "dust"
+    dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
     music_context = "sad"
 
     def setup(self) -> None:
@@ -195,7 +196,8 @@ class Chapter17Scene(PlayScene):
         if self.switch_hinted or self.duo.switches > 0:
             return
         self.switch_hinted = True
-        self.hint_once("hint_switch", "hint.switch", Action.SWITCH)
+        self.hint_once("hint_switch", "hint.switch", Action.SWITCH,
+                       icon="switch")
 
     def _update_triggers(self) -> None:
         for spot in LEVEL.of("trigger"):
@@ -271,6 +273,7 @@ class Chapter17Scene(PlayScene):
         from src.scenes.chapter18 import Chapter18Scene
         self.scenes.push(
             ChapterEndScene, result=result,
+                         save_data=self.save_data,
             on_continue=lambda: self.scenes.set_root(
                 Chapter18Scene, character=self.character))
 

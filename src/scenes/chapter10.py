@@ -40,6 +40,7 @@ from src.art import palette
 from src.config import TILE_SIZE
 from src.core.juice import ImpactWeight
 from src.scenes.play import PlayScene
+from src.systems.false_silence import FalseSilence, Stretch
 from src.systems import loyalty
 from src.ui.chapter_end import ChapterEndScene, ChapterResult
 from src.ui.i18n import t
@@ -75,6 +76,7 @@ class Chapter10Scene(PlayScene):
     chapter_name_key = "chapter.parting"
     postfx_grade = "descent"
     ambience_preset = "dust"
+    dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
 
     def setup(self) -> None:
         self.tilemap = TileMap(LEVEL.terrain_rows)
@@ -103,6 +105,15 @@ class Chapter10Scene(PlayScene):
         self.trap_creak = 0
         self.trap_sprung = False
         self.lesson_played = False
+
+        # Yanlis sessizlik (docs/korku.md 5.4). Bu koridorda
+        # HICBIR SEY olmuyor ve olmamasi isin kendisi:
+        # catal odasinin girisi - en yakin dusman 49'da kaldi, sonraki 71'de; arada 22 tile bos koridor var.
+        # Oyuncu sessizligi bir alarm sanmayi ogrendi; burada o
+        # alarm bos caliyor. B14'te ayni sessizligin ardindan
+        # jumpscare geliyor, B15'te ise sessizlik hic gelmiyor
+        # ama olay oluyor - ucu birlikte sinyali bozuyor.
+        self.false_silence = FalseSilence(Stretch(55, 68))
 
         self._enter_room(self._room_at(self.player.body.center_x))
 
@@ -149,6 +160,7 @@ class Chapter10Scene(PlayScene):
 
     # --- Dongu --------------------------------------------------------------
     def update_scene(self) -> None:
+        self.false_silence.update(self.game, self)
         self.frames += 1
         self.room_frames += 1
         room = self._room_at(self.player.body.center_x)
@@ -309,6 +321,7 @@ class Chapter10Scene(PlayScene):
             self.scenes.set_root(Chapter11Scene, character=character)
 
         self.scenes.push(ChapterEndScene, result=result,
+                         save_data=self.save_data,
                          on_continue=_continue)
 
     # --- Cizim --------------------------------------------------------------

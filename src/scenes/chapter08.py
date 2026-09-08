@@ -208,7 +208,7 @@ class Chapter08Scene(PlayScene):
                 and self.room_frames > resonance.HINT_FRAMES):
             self.hinted = True
             self.hint_once("hint_resonance", "hint.resonance",
-                           Action.RESONATE)
+                           Action.RESONATE, icon="resonance")
 
     def _on_pulse(self) -> None:
         """Darbe cikti - ses **oyuncudan** cikiyor, gorulsun ve duyulsun.
@@ -315,6 +315,7 @@ class Chapter08Scene(PlayScene):
             self.scenes.set_root(Chapter09Scene, character=character)
 
         self.scenes.push(ChapterEndScene, result=result,
+                         save_data=self.save_data,
                          on_continue=_continue)
 
     # --- Kancalar -----------------------------------------------------------

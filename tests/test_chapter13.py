@@ -36,6 +36,31 @@ from pathlib import Path
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
+# **Oyuncunun kaydina DOKUNMA.** (08.09.2026)
+#
+# Sahneler `read_save()` ile kaydi yukluyor ve `_sync_abilities()` gibi
+# yerler `write_save()` ile geri yaziyor - yani bu paketi calistirmak
+# Arda'nin gercek ilerlemesini siliyordu. 55 altin ve secilmis balta
+# boyle kayboldu; yedek dosyasi da ustune yazildigi icin
+# kurtarilamadi.
+#
+# Bir test, oyuncunun verisine asla dokunmamali. Kayit dizini her
+# calistirmada gecici bir klasore aliniyor.
+import tempfile  # noqa: E402
+
+os.environ["LORE_SAVE_DIR"] = tempfile.mkdtemp(prefix="lore_test_")
+
+# Klasore **varsayilan bir kayit** tohumlaniyor. Bos birakilsaydi
+# `read_save()` None donerdi ve sahnelerin `save_data`si None olurdu -
+# oysa testler gercek bir kaydin varligina gore yazilmis (bayrak
+# okuyor, bolum numarasi yaziyor). Amac oyuncunun dosyasindan
+# kurtulmak, testlerin davranisini degistirmek degil.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.systems.save import SaveData as _SaveData  # noqa: E402
+from src.systems.save import write_save as _write_save  # noqa: E402
+
+_write_save(_SaveData())
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -424,6 +449,42 @@ def test_arena_and_exit() -> None:
         game.quit()
 
 
+def test_seal_does_not_embed_player() -> None:
+    """Muhur govdenin ustune binince oyuncu duvarda kalmamali.
+
+    Eski esik `center_x > (start+4)*TILE` idi. 10 piksellik kutu
+    sutunun 5 pikselinde kaliyordu; `Body.move` gomulmeyi cozmez.
+    """
+    print("\n--- muhur gommez ---")
+    game = Game()
+    try:
+        scene = start(game)
+        start_tile, _ = scene._room_span("zindan")
+        feet_y = FLOOR_TOP * TILE_SIZE
+        # Gövde merkeze gore sutunun ICINDE: sol kenar muhurde.
+        overlap_x = (start_tile + 4) * TILE_SIZE - 3
+        scene.player.body.set_feet(overlap_x, feet_y)
+        scene._enter_room("zindan")
+        scene._seal_arena()
+        check(scene.tilemap.solid_overlap(scene.player.body.rect),
+              "test onkosulu: muhur govdeye bindi")
+        scene._eject_from_solids()
+        check(not scene.tilemap.solid_overlap(scene.player.body.rect),
+              "oyuncu duvardan cikarildi")
+        check(scene.player.body.x >= (start_tile + 4) * TILE_SIZE,
+              "arena ICINE itildi, kilitlenmedi",
+              f"x={scene.player.body.x:.1f}")
+
+        # Olum sonrasi: kontrol noktasi giristeyse muhur yine biner.
+        scene.player.body.set_feet((start_tile + 3) * TILE_SIZE + 8, feet_y)
+        scene.after_restart("zindan")
+        scene._eject_from_solids()
+        check(not scene.tilemap.solid_overlap(scene.player.body.rect),
+              "yeniden denemede de duvarda kalmadi")
+    finally:
+        game.quit()
+
+
 def test_after_restart_respawns_boss() -> None:
     """Arenada olen oyuncu BOS bir arenada uyanmamali (`DEVIR.md` B6)."""
     print("\n--- olumden sonra arena ---")
@@ -508,6 +569,7 @@ def main() -> int:
     test_gaoler_call_and_snuff()
     test_brazier_lit_by_sword()
     test_arena_and_exit()
+    test_seal_does_not_embed_player()
     test_after_restart_respawns_boss()
     test_cinematics()
     test_chapter_shape()

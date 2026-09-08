@@ -61,6 +61,16 @@ class Hitbox:
     # Duvara girince yok olsun mu. `HitboxManager` tilemap'i biliyorsa
     # uyguluyor; bilmiyorsa alan sessizce yok sayiliyor.
     stop_on_solid: bool = False
+    # **Yercekimi** - mermi yay cizsin diye. Bomba icin eklendi
+    # (`src/systems/consumables.py`): ok duz ucuyor (0.0), bomba
+    # atiliyor. Ayri bir "firlatilan nesne" sinifi yazmak yerine tek
+    # alan: bir bomba zaten hareket eden bir hasar hacmi, tek eksigi
+    # dusmesiydi.
+    gravity: float = 0.0
+    # Kutu tukenince cagriliyor - **bombanin patlamasi bu.** Carpma
+    # ani degil TUKENME ani, cunku bomba duvara carpinca da yere
+    # dusunce de patlamali; ikisi de burada bitiyor.
+    on_expire: object = None
 
     frames_alive: int = 0
     already_hit: set = field(default_factory=set)
@@ -74,6 +84,9 @@ class Hitbox:
         if self.frames_alive >= self.active_frames:
             self.expired = True
         vx, vy = self.velocity
+        if self.gravity:
+            vy += self.gravity
+            self.velocity = (vx, vy)
         if vx or vy:
             # Konum **tam sayiya yuvarlanmadan** birikiyor olsaydi
             # `pygame.Rect` her karede tabana yuvarlar ve yavas bir
@@ -154,6 +167,14 @@ class HitboxManager:
                 self._resolve_against(box, entities)
                 if box.expired and not box.pierce:
                     break
+        # **Tukenen kutunun kancasi burada cagriliyor**, `Hitbox.update`
+        # icinde degil: kutu duvara carparak da, hedefe degerek de, suresi
+        # dolarak da tukenebiliyor ve ucu de bu satira geliyor. Kancayi
+        # uc ayri yere koymak birini unutmak demekti.
+        for box in self.boxes:
+            if box.expired and box.on_expire is not None:
+                hook, box.on_expire = box.on_expire, None
+                hook(box)
         self.boxes = [b for b in self.boxes if not b.expired]
 
     def _resolve_against(self, box: Hitbox, entities: list) -> None:

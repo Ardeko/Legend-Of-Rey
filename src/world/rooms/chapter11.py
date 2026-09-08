@@ -71,6 +71,19 @@ def stamp(rows: list[list[str]], x: int, y: int, char: str) -> None:
     rows[y][x] = char
 
 
+def ledge(rows: list[list[str]], x0: int, x1: int, y: int) -> None:
+    """Tek yonlu cikinti (`=`). Isin katilardan gecer, ziplama durur.
+
+    Yuksek aynalar (ogrenme y=6, salon A y=5) zeminden 8-9 tile
+    yukarida. Ziplama zarfi 3 tile ve Bolum 10'dan beri yoldas yok,
+    yani firlatma da yok - merdiven sart. `=` secildi cunku `#`
+    isini keserdi (`beam.trace` `is_solid` soruyor, platform kati
+    degil).
+    """
+    for x in range(x0, x1 + 1):
+        rows[y][x] = "="
+
+
 def block(rows: list[list[str]], x0: int, x1: int, y0: int, y1: int) -> None:
     for y in range(y0, y1 + 1):
         for x in range(x0, x1 + 1):
@@ -106,6 +119,10 @@ ROOM_1 = finish(_r1)
 _ROOM2_WIDTH = 22
 _r2 = _room(_ROOM2_WIDTH)
 stamp(_r2, 15, 13, "g")
+# Zemin 14 -> 11 -> 8. Ayna satir 6'da; 8'in ustunde durunca
+# `MIRROR_REACH` icine giriyor.
+ledge(_r2, 8, 14, 11)
+ledge(_r2, 9, 13, 8)
 ROOM_2 = finish(_r2)
 
 TEACH_EMITTER = (2, 6)
@@ -118,6 +135,11 @@ _r3 = _room(_ROOM3_WIDTH, ceiling=2)
 stamp(_r3, 15, 13, "g")
 stamp(_r3, 20, 13, "g")
 stamp(_r3, 26, 13, "m")      # Mizrakli: bulmacayi baski altinda coz
+# Yuksek ayna A (10, 5). Merdiven SOLDA: yatay isin satir 5'te,
+# dikey isin sutun 10'da - ikisi de `=` oldugu icin kesilmiyor,
+# ama merdiveni isinin altina yigmamak okunurluk icin daha iyi.
+ledge(_r3, 4, 11, 11)
+ledge(_r3, 6, 11, 8)
 ROOM_3 = finish(_r3)
 
 HALL_EMITTER = (2, 5)

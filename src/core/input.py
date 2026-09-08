@@ -48,6 +48,14 @@ class Action(Enum):
     # tutar biri gecer."* Ayri bir tus cunku B17'de iki karakter de
     # OYNANABILIR; `COMPANION_WAIT` yapay zeka yoldasa emir veriyor,
     # bu ise kimin oynandigini degistiriyor - ikisi ayni sey degil.
+    # Secili sarf malzemesini firlat (ok / bomba).
+    #
+    # **Tek tus, secili malzeme.** Iki ayri tus (ok icin bir, bomba icin
+    # bir) `Action` listesinden bir seyi cikarmak demekti - standart bir
+    # kolun sekiz dugmesi de dolu. Ayrica tasarim olarak da dogru:
+    # oyuncu "hangisini atacagim" kararini dovusun ORTASINDA degil
+    # oncesinde veriyor.
+    THROW = auto()
     SWITCH = auto()
     PAUSE = auto()
     CONFIRM = auto()
@@ -77,6 +85,7 @@ DEFAULT_KEYBOARD: dict[Action, tuple[int, ...]] = {
     Action.COMPANION_WAIT: (pygame.K_u,),
     # Arda "F bosta mi?" diye sordu - degil, `ECHO_ASK` onu kullaniyor.
     # Y bos ve WASD'den uzak degil.
+    Action.THROW: (pygame.K_r,),
     Action.SWITCH: (pygame.K_y,),
     Action.RESONATE: (pygame.K_g,),
     Action.PAUSE: (pygame.K_ESCAPE,),

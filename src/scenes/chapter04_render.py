@@ -34,7 +34,8 @@ from src.art.glow import radial_glow
 from src.config import (
     INTERNAL_WIDTH, JOURNAL_PAGE_FRAMES, TILE_SIZE,
 )
-from src.ui import balloon
+from src.ui import balloon, text
+from src.ui.i18n import t
 from src.ui.widgets import panel
 
 # --- Piktogram sozlugu ------------------------------------------------------
@@ -337,6 +338,70 @@ def draw_journal_panel(scene, surface: pygame.Surface) -> None:
     _draw_page_dots(scene, layer, rect)
 
     layer.set_alpha(int(255 * alpha))
+    surface.blit(layer, rect.topleft)
+
+
+def draw_memory_panel(scene, surface: pygame.Surface) -> None:
+    """Iskeletin sahibi - **Yanki acikken** beliren yuz.
+
+    Gunluk kelimesiz kalmali (`docs/yapi.md` B4), o yuzden bu adamin
+    adi oraya yazilamazdi. Ama Yanki zaten gizli olani gosteriyor ve
+    bir olunun kim oldugunu gostermesi tam da onun isi.
+
+    Panel gunlugunkinden **farkli duruyor**: cercevesiz, kenarlari
+    sonuk, hafifce suzuluyor. Gunluk bir nesne, bu bir hatira - ikisi
+    ayni bicimde cizilseydi oyuncu ikincisini de "okunacak bir sey"
+    sanirdi.
+
+    Ad kazinmis gibi ciziliyor: gunlukteki kelimesizlik kurali metni
+    yasakliyor ama **duvara kazinmis bir isaret** bu oyunun dilinde
+    zaten var (`docs/korku.md`: "duvarda kazinmis isaret").
+    """
+    alpha = max(0.0, min(1.0, getattr(scene, "memory_alpha", 0.0)))
+    if alpha <= 0.02:
+        return
+    from src.art import portrait as portrait_art
+
+    bust = portrait_art.portrait("kalachev")
+    if bust is None:
+        return
+
+    width = bust.get_width() + 20
+    height = bust.get_height() + 22
+    rect = pygame.Rect(INTERNAL_WIDTH // 2 - width // 2, PANEL_TOP - 8,
+                       width, height)
+    drift = int(round(math.sin(scene.game.frame * 0.04) * 1.5))
+    rect.y += drift
+
+    layer = pygame.Surface(rect.size, pygame.SRCALPHA)
+    # **Cerceve YOK - alfasi disari dogru sonen bir hale.**
+    #
+    # Iki deneme gerekti ve ikisini de ekran goruntusu yakaladi:
+    # 1. Duz dikdortgen dolgu -> ekranda tam olarak bir KUTU. Oysa amac
+    #    bunun bir nesne degil bir hatira gibi okunmasi.
+    # 2. `radial_glow` -> o yuzey **toplama harmani** (BLEND_RGB_ADD)
+    #    icin uretiliyor; normal blit'te karanlik pikselleri siyah
+    #    boyuyor ve panel siyah bir dikdortgene donuyor.
+    #
+    # Dogrusu alfayi kendimiz azaltmak: ic ice halkalar, disa dogru
+    # saydamlasan.
+    colour = palette.color("violet")
+    cx, cy = rect.width // 2, rect.height // 2
+    steps = 10
+    for i in range(steps, 0, -1):
+        ratio = i / steps
+        radius = int(max(rect.width, rect.height) * 0.55 * ratio)
+        alpha = int(60 * (1.0 - ratio) ** 1.4)
+        if alpha <= 0:
+            continue
+        pygame.draw.circle(layer, (*colour, alpha), (cx, cy), radius)
+    layer.blit(bust, (10, 6))
+
+    name = t("line.kalachev_name")
+    text.draw(layer, name, rect.width // 2, rect.height - 13,
+              color=palette.color("bone"), align="center")
+
+    layer.set_alpha(int(235 * alpha))
     surface.blit(layer, rect.topleft)
 
 

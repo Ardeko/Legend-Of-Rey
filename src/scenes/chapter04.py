@@ -45,6 +45,7 @@ from src.core.input import Action
 from src.core.juice import ImpactWeight
 from src.scenes import chapter04_render as render
 from src.scenes.play import PlayScene
+from src.systems.false_silence import FalseSilence, Stretch
 from src.ui.chapter_end import ChapterEndScene, ChapterResult
 from src.ui.dialogue import Line
 from src.ui.i18n import t
@@ -52,7 +53,7 @@ from src.world import cave_backdrop
 from src.world.pickups import Chest
 from src.world.rooms.chapter04 import (
     CHAPTER4_CHEST_GOLD, FIRE_TILE, HALF_MAP_TILE, JOURNAL_TILE, LEVEL,
-    NECKLACE_TILE, ROOM_STARTS, SECRETS_TOTAL, TORCHES,
+    NECKLACE_TILE, ROOM_STARTS, SECRETS_TOTAL, SKELETON_TILE, TORCHES,
 )
 from src.world.tilemap import TileMap
 
@@ -62,6 +63,10 @@ from src.world.tilemap import TileMap
 # sorulabilsin diye duruyorlar.
 FLAG_RESTED = "ch04_rested"
 FLAG_HALF_MAP = "ch04_half_map"
+
+# Iskeletin basinda Yanki acilinca yuzun belirdigi mesafe ve sonme suresi.
+MEMORY_RANGE = 34.0
+MEMORY_FADE_FRAMES = 26
 FLAG_NECKLACE = "ch04_necklace_turned"
 
 
@@ -111,6 +116,12 @@ class Chapter04Scene(PlayScene):
         self.journal_frames = 0
         self.journal_seen = False
 
+        # Kalachev'in yuzu (docs: Arda 08.09.2026). Iskeletin basinda
+        # Yanki acilinca beliriyor - Yanki zaten "gizli olani gosteren"
+        # sey, yeni bir mekanik gerekmedi.
+        self.memory_alpha = 0.0
+        self.memory_seen = False
+
         # Yarim harita
         self.map_taken = False
 
@@ -124,6 +135,15 @@ class Chapter04Scene(PlayScene):
         self.earned_gold = 0
         self.frames = 0
         self.finished = False
+
+        # Yanlis sessizlik (docs/korku.md 5.4). Bu koridorda
+        # HICBIR SEY olmuyor ve olmamasi isin kendisi:
+        # kirik_merdiven odasinin bos orta kismi - bu bolumde hic dusman yok, orasi zaten tamamen sakin.
+        # Oyuncu sessizligi bir alarm sanmayi ogrendi; burada o
+        # alarm bos caliyor. B14'te ayni sessizligin ardindan
+        # jumpscare geliyor, B15'te ise sessizlik hic gelmiyor
+        # ama olay oluyor - ucu birlikte sinyali bozuyor.
+        self.false_silence = FalseSilence(Stretch(60, 78))
 
         self._enter_room(self._room_at(self.player.body.center_x))
 
@@ -183,6 +203,7 @@ class Chapter04Scene(PlayScene):
 
     # --- Dongu ------------------------------------------------------------------
     def update_scene(self) -> None:
+        self.false_silence.update(self.game, self)
         self.frames += 1
         self.room_frames += 1
 
@@ -192,6 +213,7 @@ class Chapter04Scene(PlayScene):
 
         self._update_camp()
         self._update_journal()
+        self._update_memory()
         self._update_half_map()
         self._update_necklace()
         self._update_chests()
@@ -295,6 +317,43 @@ class Chapter04Scene(PlayScene):
             self.journal_frames = 0
             self.journal_page = 0
 
+    def _update_memory(self) -> None:
+        """Iskeletin basinda **Yanki acilinca** olen adamin yuzu beliriyor.
+
+        Bu adamin adi Kalachev ve oyunun tamaminda uc kez geciyor:
+        Bolum 2'nin gizli odasindaki iskelet, buradaki kamp, ve
+        Bolum 12'de baskasinin cizdigi isaretler - ucu de ayni kisi ve
+        adi bugune kadar hic konmamisti.
+
+        ## Neden Yanki'ya bagli
+
+        Gunluk **kelimesiz** (`docs/yapi.md` B4) ve oyle kalmali; oraya
+        bir isim yazmak o kurali bozardi. Ama Yanki zaten "gizli olani
+        gosteren" mekanik - bir olunun kim oldugunu gostermesi tam da
+        onun isi. Yeni bir sistem gerekmedi, var olanin uzerine bindi.
+
+        **Ardo'da iz surme.** Onun Yanki'si yok; ayni bilgiyi izden
+        okuyor (`docs/derinlestirme.md` 2.4 ile ayni ayrim).
+        """
+        near = self._near(SKELETON_TILE, MEMORY_RANGE)
+        reading = False
+        if near:
+            if self.echo is not None:
+                reading = self.echo.active
+            elif self.tracking is not None:
+                reading = self.tracking.active
+
+        step = 1.0 / MEMORY_FADE_FRAMES
+        if reading:
+            self.memory_alpha = min(1.0, self.memory_alpha + step)
+            if not self.memory_seen and self.memory_alpha >= 0.6:
+                self.memory_seen = True
+                self.camera.linger(30)
+                self.say(self._voice("line.ch04_echo_name",
+                                     "line.ch04_ardo_name"))
+        else:
+            self.memory_alpha = max(0.0, self.memory_alpha - step)
+
     # --- Yarim harita -------------------------------------------------------------
     def _update_half_map(self) -> None:
         if self.map_taken or not self._near(HALF_MAP_TILE,
@@ -308,6 +367,25 @@ class Chapter04Scene(PlayScene):
         self._voice("line.ch04_echo_map", "line.ch04_ardo_map")
 
     # --- Kolye ani ------------------------------------------------------------------
+    def _seed_line(self) -> None:
+        """Cemo'nun sozcuklerinin **ilk parcasi** (docs/korku.md 11.1).
+
+        Cemo B1'de kolyeyi verirken sunu diyor:
+
+            "Bunu senin icin yaptim... Belki karanlik sana yaklasirken
+             iki kez dusunur."
+
+        Rey tam o kolyeyi cevirirken Yanki soruyor: *"Iki kez dusundu
+        mu?"* Cemo'yu hatirlamayan oyuncu icin anlamsiz bir soru;
+        hatirlayan icin ilk catlak.
+
+        **Yalnizca Rey'de.** Ardo'nun Yanki'si yok ve tohumun tamami
+        B18'de Rey'in hikayesinde patliyor.
+        """
+        if self.echo is None:
+            return
+        self.say(Line("echo", "line.ch04_echo_seed"))
+
     def _update_necklace(self) -> None:
         """Rey kolyeyi ilk kez cevirir. Kelimesiz, kesintisiz.
 
@@ -324,6 +402,7 @@ class Chapter04Scene(PlayScene):
                     and not self._necklace_restored):
                 self._necklace_restored = True
                 self._necklace_reward()
+                self._seed_line()
             if self.necklace_frames >= NECKLACE_MOMENT_FRAMES:
                 self.necklace_active = False
                 self.necklace_done = True
@@ -428,6 +507,7 @@ class Chapter04Scene(PlayScene):
             self.scenes.set_root(Chapter05Scene, character=character)
 
         self.scenes.push(ChapterEndScene, result=result,
+                         save_data=self.save_data,
                          on_continue=_continue)
 
     # --- Cizim ------------------------------------------------------------------------------
@@ -444,6 +524,7 @@ class Chapter04Scene(PlayScene):
 
     def draw_overlay(self, surface: pygame.Surface) -> None:
         render.draw_journal_panel(self, surface)
+        render.draw_memory_panel(self, surface)
 
     def debug_lines(self) -> list[str]:
         return super().debug_lines() + [

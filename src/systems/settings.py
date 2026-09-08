@@ -98,6 +98,13 @@ DISPLAY_OPTIONS: tuple[Option | Slider, ...] = (
            note_key="settings.postfx_note"),
     Option("ui_scale", "settings.ui_scale", (1, 2),
            ("settings.ui_scale_normal", "settings.ui_scale_large")),
+    # Fotosensitivite. Korku ayarindan **bagimsiz** tutuluyor: korkuyu
+    # seven ama fotosensitif epilepsisi olan oyuncu, guvende olmak icin
+    # butun katmani kapatmak zorunda kalmasin (docs/korku.md 8).
+    # Parlama atlanir, OLAY atlanmaz.
+    Option("flash_limit", "settings.flash_limit", (False, True),
+           ("common.off", "common.on"),
+           note_key="settings.flash_limit_note"),
     Slider("brightness", "settings.brightness", default=1.0,
            note_key="settings.brightness_note"),
 )
@@ -129,6 +136,13 @@ GAMEPLAY_OPTIONS: tuple[Option | Slider, ...] = (
            note_key="settings.auto_combo_note"),
     Option("damage_numbers", "settings.damage_numbers", (False, True),
            ("common.off", "common.on")),
+    # Korku katmani (docs/korku.md). **Katman 1 asla kapanmaz** - Yanki'nin
+    # yalan soylemesi bir korku efekti degil, oyunun ana mekanigi.
+    # Kapanan Katman 2 (atmosfer) ve Katman 3 (sok).
+    Option("horror", "settings.horror", ("full", "reduced", "off"),
+           ("settings.horror_full", "settings.horror_reduced",
+            "settings.horror_off"),
+           note_key="settings.horror_note"),
     Option("rumble", "settings.rumble", (True, False),
            ("common.on", "common.off")),
     # **Gamepad varsayilan KAPALI** ve bu bir tercih degil bir zorunluluk.

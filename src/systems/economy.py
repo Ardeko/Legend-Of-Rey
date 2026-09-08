@@ -21,6 +21,16 @@ class TradeOffer:
     key: str            # save.flags icinde tekil satin alma bayragi
     cost: int
     label_key: str       # dil anahtari
+    # **Tekrar alinabilir mi?** Sonmez Fitil bir kez alinir (tekil);
+    # ok ve bomba sarf malzemesi, bitince tekrar alinir.
+    #
+    # Bir donem butun teklifler tekildi ve `already_bought` her seyi
+    # engelliyordu - sarf malzemesi eklenince o varsayim kirildi.
+    repeatable: bool = False
+    # Tekrarlanabilir tekliflerde: hangi malzemeden kac adet
+    # (`src/systems/consumables.py`).
+    item: str = ""
+    amount: int = 1
 
 
 def can_afford(save_data, cost: int) -> bool:
@@ -36,7 +46,12 @@ def spend(save_data, cost: int) -> bool:
 
 
 def already_bought(save_data, offer: TradeOffer) -> bool:
-    """Tekil satin alimlar icin (Sonmez Fitil gibi) - iki kez alinamaz."""
+    """Tekil satin alimlar icin (Sonmez Fitil gibi) - iki kez alinamaz.
+
+    Tekrarlanabilir teklifler **asla** "zaten alindi" demiyor.
+    """
+    if offer.repeatable:
+        return False
     return bool(save_data is not None and save_data.flags.get(offer.key))
 
 

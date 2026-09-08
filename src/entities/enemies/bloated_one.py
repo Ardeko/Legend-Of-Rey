@@ -35,6 +35,10 @@ from src.config import TILE_SIZE
 from src.entities.boss import Boss
 from src.entities.enemy import EnemyState
 
+# Hasar degerleri 08.09.2026'da dusuruldu (config.py'nin BOSS DENGESI
+# notuyla ayni kosuda). Gercek boss'lar yumusayinca bu mini-boss
+# oyunun EN SERT vuranI kalmisti - oysa oyuncunun ilk boss deneyimi
+# bu ve en affedici olmasi gereken de bu.
 SCALE = 1.6                      # Buyutulmus Suruklenen
 
 # Hamle siralari - **sabit**, ogrenilebilir.
@@ -45,13 +49,13 @@ SWEEP_TELL = 18                  # docs/bolum-02.md: 18 kare
 SWEEP_ACTIVE = 6
 SWEEP_RECOVER = 26
 SWEEP_REACH = 34
-SWEEP_DAMAGE = 14
+SWEEP_DAMAGE = 12
 
 SLAM_TELL = 22
 SLAM_RISE = 14                   # Havada gecirdigi kare
 SLAM_ACTIVE = 5
 SLAM_RECOVER = 30
-SLAM_DAMAGE = 16
+SLAM_DAMAGE = 14
 SHOCKWAVE_REACH = 58
 SHOCKWAVE_HEIGHT = 10            # Alcak: **ziplayarak** gecilir
 

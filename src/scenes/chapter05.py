@@ -74,6 +74,7 @@ class Chapter05Scene(PlayScene):
     music_context = "explore"
     postfx_grade = "descent"
     ambience_preset = "dust"
+    dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
 
     def setup(self) -> None:
         self.tilemap = TileMap(LEVEL.terrain_rows)
@@ -138,6 +139,10 @@ class Chapter05Scene(PlayScene):
                     self.enemies.append(_load(path)(self, spot.x, spot.feet_y))
 
     def _narrate_room(self, name: str) -> None:
+        # Izleyen (docs/korku.md 5.2). Ilk gorulus. Vana odasinin uzak ucu - oyuncu vanayla ugrasirken
+        # arka planda duruyor ve donunce hala orada.
+        if name == "vana_odasi":
+            self.spawn_watcher(55, 13, retreats=True)
         if name == "esik":
             self._voice("line.ch05_echo_enter", "line.ch05_ardo_enter")
         elif name == "vana_odasi":
@@ -286,6 +291,7 @@ class Chapter05Scene(PlayScene):
             self.scenes.set_root(Chapter06Scene, character=character)
 
         self.scenes.push(ChapterEndScene, result=result,
+                         save_data=self.save_data,
                          on_continue=_continue)
 
     # --- Cizim --------------------------------------------------------------

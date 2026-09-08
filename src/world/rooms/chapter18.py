@@ -110,6 +110,10 @@ ZONE_STARTS = (
 )
 
 # Arena muhru - Cagiran cikinca kapanan sutun. B6'dan beri ayni desen.
+#
+# Tetikleyici yerel sutun 2'de, muhur 4'te. Tetiklenince duvar
+# oyuncunun ONUNE inmesin diye `chapter18._seal_arena` once govdeyi
+# sutunun sagina aliyor; yoksa oyuncu ile boss ayri odalarda kaliyor.
 ARENA_SEAL_COLUMN = _ZONE1_WIDTH + _ZONE2_WIDTH + 4
 ARENA_SEAL_ROWS = tuple(range(CEILING, FLOOR_TOP))
 

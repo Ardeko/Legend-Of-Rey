@@ -88,6 +88,7 @@ class Chapter02Scene(PlayScene):
     chapter_name_key = "chapter.first_descent"
     postfx_grade = "descent"   # src/art/postfx.py
     ambience_preset = "dust"
+    dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
 
     def setup(self) -> None:
         self.tilemap = TileMap(LEVEL.terrain_rows)
@@ -499,7 +500,8 @@ class Chapter02Scene(PlayScene):
             from src.scenes.chapter03_cinematics import DescentCinematic
             self.scenes.set_root(DescentCinematic, character=character)
 
-        self.scenes.push(ChapterEndScene, result=result, on_continue=_continue)
+        self.scenes.push(ChapterEndScene, result=result,
+                         save_data=self.save_data, on_continue=_continue)
 
     # --- Kancalar -----------------------------------------------------------
     def on_player_died(self, player) -> None:
@@ -517,8 +519,14 @@ class Chapter02Scene(PlayScene):
             self.show_toast(t("chapter02.secret_found"), frames=200)
             # Gizli odadaki bulgu Yanki'ya ozel bir sezgi degil - iskeleti
             # Ardo da goruyor. Ayni metin, farkli agiz.
+            # Ikinci replik **adi vermiyor** - iskeletin sahibi Bolum
+            # 4'te taniniyor (Kalachev). Burada yalnizca "biri gelmis"
+            # deniyor; ad B4'te dusunce oyuncu geriye donup bu iskeleti
+            # hatirliyor. Tersi sirada olsaydi ad bir bilgi olurdu, bir
+            # **taninma** degil.
             if self.has_echo:
-                self.say(Line("echo", "line.ch02_echo_secret"))
+                self.say(Line("echo", "line.ch02_echo_secret"),
+                         Line("echo", "line.ch02_echo_bones"))
             else:
                 self.say_player("line.ch02_ardo_secret")
             return

@@ -41,10 +41,14 @@ from typing import Callable
 
 import numpy as np
 
-from src.audio import sfx_combat, sfx_enemies, sfx_ui, sfx_world
+from src.audio import (
+    sfx_combat, sfx_enemies, sfx_horror, sfx_ui, sfx_world,
+)
 
 SFX: dict[str, Callable[[], np.ndarray]] = {
     **sfx_combat.SFX, **sfx_world.SFX, **sfx_enemies.SFX, **sfx_ui.SFX,
+    # Korku katmani (docs/korku.md) - nefes, Izleyen, jumpscare.
+    **sfx_horror.SFX,
 }
 
 # SES-LISTESI'ndeki 12 ★ satirla birebir ayni (dogrulamasi tests/test_audio.py).

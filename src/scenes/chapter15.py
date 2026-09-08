@@ -80,6 +80,7 @@ class Chapter15Scene(PlayScene):
     chapter_name_key = "chapter.silence"
     postfx_grade = "descent"
     ambience_preset = "dust"
+    dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
     # Gizlilik bolumu kendi havasini istiyor: dovus parcasi burada
     # yanlis soz soylerdi. `docs/ekonomi-uretim.md` zorlugu 4 veriyor.
     music_context = "sad"
@@ -382,6 +383,7 @@ class Chapter15Scene(PlayScene):
         from src.scenes.chapter16 import Chapter16Scene
         self.scenes.push(
             ChapterEndScene, result=result,
+                         save_data=self.save_data,
             on_continue=lambda: self.scenes.set_root(
                 Chapter16Scene, character=self.character))
 

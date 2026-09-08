@@ -74,13 +74,27 @@ class _Chapter13Cinematic(StagedScene):
             return Line("ardo", ardo_key)
         return Line("echo", echo_key)
 
-    def _write(self, beats: dict[str, Line]) -> None:
-        self.panels = tuple(
-            Panel(p.frames, p.name, line=beats[p.name], cues=p.cues,
-                  fade_in=p.fade_in, fade_out=p.fade_out, closeup=p.closeup,
-                  shake=p.shake, wait_for_input=p.wait_for_input)
-            if p.name in beats else p
-            for p in self.panels)
+    def _write(self, beats: dict) -> None:
+        """Panolara replik yazar.
+
+        Bir pano **birden fazla** replik alabiliyor: deger `Line` yerine
+        `Line` demeti verilirse sirayla oynatiliyor. Bolum 13'un "gorus"
+        panosu bunu kullaniyor - Cemo "Rey?" diyor ve Yanki ayni kelimeyi
+        tekrarliyor (docs/korku.md 11.1).
+        """
+        def build(panel):
+            value = beats[panel.name]
+            multi = isinstance(value, tuple)
+            return Panel(
+                panel.frames, panel.name,
+                line=None if multi else value,
+                lines=value if multi else (),
+                cues=panel.cues, fade_in=panel.fade_in,
+                fade_out=panel.fade_out, closeup=panel.closeup,
+                shake=panel.shake, wait_for_input=panel.wait_for_input)
+
+        self.panels = tuple(build(p) if p.name in beats else p
+                            for p in self.panels)
 
     def on_finished(self) -> None:
         self.scenes.pop()
@@ -156,7 +170,17 @@ class CageCinematic(_Chapter13Cinematic):
                                      else "bone"), peak=0.22)
         self.game.music.hold("sad", 900)
         self._write({
-            "gorus": Line("cemo", "line.ch13_cemo_sees"),
+            # Cemo "Rey?" diyor. Rey oynuyorsa **Yanki ayni kelimeyi
+            # tekrarliyor** - Cemo'nun sozcuklerinin ucuncu ve son
+            # parcasi (docs/korku.md 11.1). Ayni anda degil bir beat
+            # sonra: bir yankinin yaptigi tam olarak bu, ve taklit
+            # oldugu boyle okunuyor.
+            #
+            # Ardo'da tek replik kaliyor - onun Yanki'si yok.
+            "gorus": ((Line("cemo", "line.ch13_cemo_sees"),
+                       Line("echo", "line.ch13_echo_seed"))
+                      if character != "ardo"
+                      else Line("cemo", "line.ch13_cemo_sees")),
             "kosu": Line(character, "line.ch13_rey_reach"
                          if character != "ardo" else "line.ch13_ardo_reach"),
             "bos": self.voice("line.ch13_echo_cage", "line.ch13_trace_cage"),

@@ -128,7 +128,14 @@
     "gamepad_note": "Off starts instantly. Turning it on scans for pads; can be slow.",
     "gamepad_scanning": "Looking for a controller...",
     "tab_controls": "Controls",
-    "controls_binding": "[▴▾] move   [◂▸] column   [Enter] bind   [Esc] close"
+    "controls_binding": "[▴▾] move   [◂▸] column   [Enter] bind   [Esc] close",
+    "horror": "Horror layer",
+    "horror_full": "Full",
+    "horror_reduced": "Reduced",
+    "horror_off": "Off",
+    "horror_note": "Reduced: shocks stay, sudden sound goes. Off: story same.",
+    "flash_limit": "Flash limit",
+    "flash_limit_note": "Removes sudden flashes. Events still happen."
   },
   "ability": {
     "sword": "SWORD  ·  attack with J",
@@ -147,7 +154,8 @@
     "rey": "REY",
     "ardo": "ARDO",
     "cemo": "CEMO",
-    "echo": "…"
+    "echo": "…",
+    "jet": "JET"
   },
   "line": {
     "ch01_cemo_gift": "I made this for you... Maybe it'll make the darkness think twice.",
@@ -155,7 +163,6 @@
     "ch01_echo_first": "Wake up... The dark is already awake.",
     "ch01_echo_rift": "Something below is waiting for you...",
     "ch01_echo_alone": "You want them back... don't you?",
-    "ch01_echo_sword": "Take it. Even the dark knows steel.",
     "ch01_echo_wall": "Do you feel it? The veil is thin here.",
     "ch02_echo_wall": "Listen... Something is still breathing beneath the stone.",
     "ch02_echo_secret": "Someone searched for this secret before you... then their voice went silent.",
@@ -448,7 +455,25 @@
     "ch18_rey_three": "The three of us. Upward.",
     "ch18_ardo_three": "The way out is there. We can walk.",
     "ch18_rey_quiet": "There's nothing in my head. For the first time.",
-    "ch18_ardo_quiet": "Quiet. Quiet for her too, now."
+    "ch18_ardo_quiet": "Quiet. Quiet for her too, now.",
+    "ch04_echo_seed": "Did it think twice?",
+    "ch09_echo_seed": "I made this for you.",
+    "ch13_echo_seed": "Rey?",
+    "echo_alone_voice": "Only I am left now. You chose me.",
+    "kalachev_name": "E. KALACHEV",
+    "ch04_echo_name": "Kalachev. He carved his own name into the wall.",
+    "ch04_ardo_name": "Kalachev. We will see this name further down.",
+    "ch02_echo_bones": "Someone came before you. You will learn his name later.",
+    "ch01_jet_offer": "Take this. Do not stay out tonight.",
+    "ch01_rey_jet": "Why give it to me? No one even comes near.",
+    "ch01_jet_offer_ardo": "On the road again? Take this.",
+    "ch01_ardo_jet": "You have not changed either.",
+    "ch01_jet_name": "Know what my friend Berke back home called me? Emre.",
+    "ch01_rey_name": "But everyone calls you Jet.",
+    "ch01_jet_name2": "Others give you a nickname. Your name is said by someone who knows you.",
+    "ch01_ardo_name": "So you still think of Berke.",
+    "ch01_jet_leave": "Look after yourself. I am heading east.",
+    "ch01_echo_sword_given": "He gave you something. Do not forget it."
   },
   "combat": {
     "counter": "COUNTER",
@@ -528,7 +553,8 @@
     "pocket_open": "A hidden passage opened",
     "trade_title": "THE CANDLE KEEPER",
     "trade_owned": "owned",
-    "trade_exit": "[Esc] leave   [Enter] buy"
+    "trade_exit": "[Esc] leave   [Enter] buy",
+    "bought_item": "{name} bought — you have {count}"
   },
   "chapter04": {
     "gold_found": "{count} gold",
@@ -539,7 +565,9 @@
   "trade": {
     "torch": "Torch",
     "wick": "Eternal Wick",
-    "candle": "Guardian Candle"
+    "candle": "Guardian Candle",
+    "arrows": "Three Arrows",
+    "bomb": "Bomb"
   },
   "boss": {
     "bloated_one": "THE BLOATED ONE",
@@ -640,7 +668,8 @@
     "heading": "EQUIPMENT",
     "equipped": "equipped",
     "hint": "[▴▾] select   [Enter] equip   [Esc] back",
-    "stat_line": "{hits} hits · {damage} dmg · {frames} frames · knockback {knockback}"
+    "stat_line": "{hits} hits · {damage} dmg · {frames} frames · knockback {knockback}",
+    "ammo_heading": "CONSUMABLES"
   },
   "chapter07": {
     "order_hint": "Your shoulders won't fit — signal to them",
@@ -685,7 +714,17 @@
     "chime": "[{key}] resonance — ring a distant bell",
     "rescue": "Hold [{key}] — lift them up",
     "switch": "[{key}] switch to the other",
-    "silence": "Hold [{key}] — silence the voice"
+    "silence": "Hold [{key}] — silence the voice",
+    "bell": "{key} to send your voice — ring the bell",
+    "bell_title": "RING THE BELL",
+    "resonance_title": "ECHO RESONANCE",
+    "boost_title": "CLIMB TOGETHER",
+    "switch_title": "SWITCH CHARACTER",
+    "companion_wait_title": "COMPANION ORDER",
+    "inventory_title": "INVENTORY",
+    "rescue_title": "LIFT",
+    "throw": "{key} to throw the selected item",
+    "throw_title": "RANGED COMBAT"
   },
   "chapter08": {
     "first_crystal": "Crystal shattered — sound is a weapon",
@@ -743,5 +782,11 @@
     "path_lifted": "You pulled them back up.",
     "path_tidy": "You solved the tower without hesitating.",
     "path_clean": "You let the voice go early."
+  },
+  "item": {
+    "arrow": "Arrow",
+    "arrow_desc": "Fast, flies straight. Single target.",
+    "bomb": "Bomb",
+    "bomb_desc": "Arcs, blows up on landing. Area damage."
   }
 }

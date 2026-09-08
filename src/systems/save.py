@@ -34,8 +34,28 @@ SETTINGS_NAME = "settings.json"
 APP_FOLDER = "LegendOfRey"
 
 
+# Kayit dizinini disaridan ezme yolu. **Testler icin var.**
+#
+# 08.09.2026: test paketi oyuncunun GERCEK kaydini eziyordu. Sahneler
+# `read_save()` ile kaydi yukluyor, `_sync_abilities()` gibi yerler
+# `write_save()` ile geri yaziyor - yani `python tests/test_chapter01.py`
+# calistirmak Arda'nin ilerlemesini siliyordu (55 altin ve secilmis
+# balta boyle kayboldu, yedek dosyasi da ustune yazildigi icin
+# kurtarilamadi).
+#
+# Testin oyuncunun verisine dokunmasi bir ayrinti degil, bir veri kaybi
+# hatasi. Ortam degiskeni her testin basinda gecici bir klasore
+# ayarlaniyor (`tests/*.py`).
+SAVE_DIR_ENV = "LORE_SAVE_DIR"
+
+
 def user_data_dir() -> Path:
     """Yazilabilir kullanici veri dizini."""
+    override = os.environ.get(SAVE_DIR_ENV)
+    if override:
+        path = Path(override) / APP_FOLDER
+        path.mkdir(parents=True, exist_ok=True)
+        return path
     if sys.platform == "win32":
         base = Path(os.environ.get("APPDATA",
                                    Path.home() / "AppData" / "Roaming"))
@@ -98,6 +118,10 @@ class SaveData:
     owned_weapons: list[str] = field(default_factory=list)
     armor: str = "light"
     charms: list[str] = field(default_factory=list)
+    # Sarf malzemeleri: {"arrow": 3, "bomb": 1}. `flags`ta DEGIL - orasi
+    # bir "olan/olmayan" sozlugu ve sayilar orada tutulsa her okuma bir
+    # tip donusumu olurdu (`src/systems/consumables.py`).
+    consumables: dict[str, int] = field(default_factory=dict)
 
     # Yetenek agaci (src/systems/skilltree.py). Yeteneklerle **ayni**
     # gerekceyle liste: yeni dugum eklemek kayit surumunu degistirmiyor,

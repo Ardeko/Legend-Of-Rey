@@ -27,6 +27,31 @@ from pathlib import Path
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
+# **Oyuncunun kaydina DOKUNMA.** (08.09.2026)
+#
+# Sahneler `read_save()` ile kaydi yukluyor ve `_sync_abilities()` gibi
+# yerler `write_save()` ile geri yaziyor - yani bu paketi calistirmak
+# Arda'nin gercek ilerlemesini siliyordu. 55 altin ve secilmis balta
+# boyle kayboldu; yedek dosyasi da ustune yazildigi icin
+# kurtarilamadi.
+#
+# Bir test, oyuncunun verisine asla dokunmamali. Kayit dizini her
+# calistirmada gecici bir klasore aliniyor.
+import tempfile  # noqa: E402
+
+os.environ["LORE_SAVE_DIR"] = tempfile.mkdtemp(prefix="lore_test_")
+
+# Klasore **varsayilan bir kayit** tohumlaniyor. Bos birakilsaydi
+# `read_save()` None donerdi ve sahnelerin `save_data`si None olurdu -
+# oysa testler gercek bir kaydin varligina gore yazilmis (bayrak
+# okuyor, bolum numarasi yaziyor). Amac oyuncunun dosyasindan
+# kurtulmak, testlerin davranisini degistirmek degil.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.systems.save import SaveData as _SaveData  # noqa: E402
+from src.systems.save import write_save as _write_save  # noqa: E402
+
+_write_save(_SaveData())
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -46,7 +71,7 @@ from src.world.rooms.chapter11 import (  # noqa: E402
     HALL_DOOR_ROWS, HALL_DOOR_TILE, HALL_EMITTER_TILE, HALL_MIRROR_TILES,
     HALL_RECEIVER_TILE, LEVEL, LIE_INDEX, ROOM_STARTS,
 )
-from src.world.tilemap import TileMap  # noqa: E402
+from src.world.tilemap import PLATFORM, SOLID, TileMap  # noqa: E402
 
 failures: list[str] = []
 
@@ -224,7 +249,59 @@ def test_shadow() -> None:
         game.shutdown()
 
 
-# --- 6. Bolum sonu -----------------------------------------------------------
+# --- 6. Yuksek aynalar ziplanabilir ------------------------------------------
+def test_high_mirrors_reachable() -> None:
+    """Yuksek aynalar bir cikintidan cevrilmeli.
+
+    Firlatma B9'da, yoldas B10'da gidiyor. Cikinti yoksa oyuncu
+    'daha yukari ziplamam lazim' sanip takiliyor - yumusak kilit
+    degil, eksik geometri.
+    """
+    from src.scenes.chapter11 import MIRROR_REACH
+
+    game = Game()
+    try:
+        scene = start(game)
+        need = (
+            ("ogrenme", scene.teach_mirror),
+            ("salon A", scene.hall_mirrors[0]),
+            ("salon C", scene.hall_mirrors[2]),
+        )
+        body_half = scene.player.body.height * 0.5
+        for label, mirror in need:
+            mx = mirror.tile_x * TILE_SIZE + TILE_SIZE // 2
+            my = mirror.tile_y * TILE_SIZE + TILE_SIZE // 2
+            found = False
+            for ty in range(scene.tilemap.height):
+                for tx in range(scene.tilemap.width):
+                    if scene.tilemap.at(tx, ty) not in (SOLID, PLATFORM):
+                        continue
+                    if ty > 0 and scene.tilemap.is_solid(tx, ty - 1):
+                        continue
+                    cx = tx * TILE_SIZE + TILE_SIZE // 2
+                    cy = ty * TILE_SIZE - body_half
+                    if (abs(cx - mx) <= MIRROR_REACH
+                            and abs(cy - my) <= MIRROR_REACH):
+                        found = True
+                        break
+                if found:
+                    break
+            check(found, f"{label} durularak cevriliyor",
+                  f"({mirror.tile_x},{mirror.tile_y})")
+
+        for mirror, (_x, _y, _s, correct) in zip(scene.hall_mirrors,
+                                                 HALL_MIRROR_TILES):
+            mirror.kind = correct
+        scene._trace_beams()
+        blocked = [tile for tile in scene.paths[1].tiles
+                   if scene.tilemap.is_solid(*tile)]
+        check(not blocked, "dogru isin kati tile'da durmuyor", str(blocked))
+        check(scene.solved, "merdiven varken bulmaca hala cozuluyor")
+    finally:
+        game.shutdown()
+
+
+# --- 7. Bolum sonu -----------------------------------------------------------
 def test_chapter_end() -> None:
     print("\n--- bolum sonu ---")
     game = Game()
@@ -248,6 +325,7 @@ def main() -> int:
     test_puzzle()
     test_lie()
     test_shadow()
+    test_high_mirrors_reachable()
     test_chapter_end()
 
     print("\n=== SONUC ===")

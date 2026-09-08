@@ -95,6 +95,37 @@ def draw_reveal(surface: pygame.Surface, offset: tuple[int, int],
         _draw_crack(surface, wall, ox, oy, echo)
 
 
+def draw_phantom(surface: pygame.Surface, offset: tuple[int, int],
+                 echo, phantom) -> None:
+    """Orada olmayan sey (docs/korku.md 4.4).
+
+    Gercek bir aciga cikarma gibi ciziliyor - **ayirt edilebilir
+    olsaydi mekanik olurdu.** Tek fark yaklasinca sonmesi; oyuncu bunu
+    ancak yanina gidince ogreniyor.
+
+    `draw_reveal` ile ayni renkte ve ayni parlaklikta: uc kanal da mor
+    (ses, vinyet, aciga cikan sey). Hayalet o aileye ait gorunmeli.
+    """
+    if not phantom.active or not echo.active:
+        return
+    ox, oy = offset
+    alpha = phantom.alpha
+    if alpha <= 0.0:
+        return
+
+    x = int(phantom.x) - ox
+    y = int(phantom.y) - oy
+    colour = palette.color("violet_bright")
+    # Govde: gercek siluetlerle ayni olcude kucuk bir dikdortgen.
+    width = max(1, int(6 * alpha))
+    height = max(1, int(14 * alpha))
+    glow = radial_glow(int(16 * alpha) or 1, colour, peak=0.42 * alpha)
+    surface.blit(glow, (x - glow.get_width() // 2,
+                        y - glow.get_height() // 2),
+                 special_flags=pygame.BLEND_RGB_ADD)
+    surface.fill(colour, (x - width // 2, y - height // 2, width, height))
+
+
 def _draw_silhouette(surface, enemy, ox: int, oy: int, fade: float,
                      echo) -> None:
     """Dusmanin siluetı - duvar ardindan gorunur."""

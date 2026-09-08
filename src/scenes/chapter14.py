@@ -66,6 +66,7 @@ class Chapter14Scene(PlayScene):
     chapter_name_key = "chapter.source"
     postfx_grade = "descent"
     ambience_preset = "dust"
+    dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
 
     def setup(self) -> None:
         self.tilemap = TileMap(LEVEL.terrain_rows)
@@ -134,6 +135,11 @@ class Chapter14Scene(PlayScene):
 
     def _narrate_room(self, name: str) -> None:
         """Anahtarlar **duz dize** - f-string ile kurulani test goremiyor."""
+        # Izleyen (docs/korku.md 5.2). **CEKILMIYOR.** Kural burada kiriliyor: on bolumdur yaklasinca
+        # cekilen sey artik durup bakiyor - cunku artik saklanmasina
+        # gerek yok (docs/korku.md 5.2).
+        if name == "bolunen":
+            self.spawn_watcher(110, 13, retreats=False)
         if name == "sessiz":
             self.say_player("line.ch14_rey_empty", "line.ch14_ardo_empty")
         elif name == "ters":
@@ -223,7 +229,8 @@ class Chapter14Scene(PlayScene):
             return
         if not self.arena_sealed and self.room == "arena":
             start, _ = self._room_span("arena")
-            if self.player.body.center_x > (start + 4) * TILE_SIZE:
+            # Bolum 13 ile ayni: esik sol kenar, merkez degil.
+            if self.player.body.x >= (start + 4) * TILE_SIZE:
                 self._seal_arena()
         if self.boss.dead:
             self._on_boss_defeated()
@@ -318,6 +325,7 @@ class Chapter14Scene(PlayScene):
         from src.scenes.chapter15 import Chapter15Scene
         self.scenes.push(
             ChapterEndScene, result=result,
+                         save_data=self.save_data,
             on_continue=lambda: self.scenes.set_root(
                 Chapter15Scene, character=self.character))
 

@@ -277,7 +277,8 @@ class Chapter16Scene(PlayScene):
                 and self.rescue.count < HINT_AFTER
                 and not self.rescue_hinted):
             self.rescue_hinted = True
-            self.hint_once("hint_rescue", "hint.rescue", Action.INTERACT)
+            self.hint_once("hint_rescue", "hint.rescue", Action.INTERACT,
+                           icon="boost")
 
     def _update_triggers(self) -> None:
         for spot in LEVEL.of("trigger"):
@@ -384,6 +385,7 @@ class Chapter16Scene(PlayScene):
         from src.scenes.chapter17 import Chapter17Scene
         self.scenes.push(
             ChapterEndScene, result=result,
+                         save_data=self.save_data,
             on_continue=lambda: self.scenes.set_root(
                 Chapter17Scene, character=self.character))
 

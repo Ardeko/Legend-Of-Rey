@@ -1,0 +1,604 @@
+"""Korku katmani dogrulamasi - `docs/korku.md`.
+
+Korku, yanlis uygulandiginda oyunu ucuzlatan tek duygu. Belgedeki
+kurallar bu yuzden bagalyici ve bu yuzden burada olculuyor:
+
+  * **Katman 1 asla kapanmaz** - Yanki'nin yalani bir korku efekti
+    degil, oyunun ana mekanigi. Ayar onu kapatabilseydi B10, B14 ve
+    B18 anlamsizlasirdi.
+  * **Katman 2 ve 3 tamamen kapanir** - "korku kapali" diyen oyuncu on
+    yedi bolumde rahat, birinde irkilirse ayar yalan soylemis olur.
+  * **Azaltilmis seviye sok anlarini KORUR**, yalnizca ani sesi kisar.
+  * Nefes **surekli degil**: uc kosuldan biri saglanmadan hic duyulmaz.
+    Nefesin baslamasi sinyalin kendisi.
+  * Fotosensitivite ayari **olayi degil sunumu** degistirir.
+
+Calistir:
+    python tests/test_horror.py
+"""
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
+
+# **Oyuncunun kaydina DOKUNMA.** (08.09.2026)
+#
+# Sahneler `read_save()` ile kaydi yukluyor ve `_sync_abilities()` gibi
+# yerler `write_save()` ile geri yaziyor - yani bu paketi calistirmak
+# Arda'nin gercek ilerlemesini siliyordu. 55 altin ve secilmis balta
+# boyle kayboldu; yedek dosyasi da ustune yazildigi icin
+# kurtarilamadi.
+#
+# Bir test, oyuncunun verisine asla dokunmamali. Kayit dizini her
+# calistirmada gecici bir klasore aliniyor.
+import tempfile  # noqa: E402
+
+os.environ["LORE_SAVE_DIR"] = tempfile.mkdtemp(prefix="lore_test_")
+
+# Klasore **varsayilan bir kayit** tohumlaniyor. Bos birakilsaydi
+# `read_save()` None donerdi ve sahnelerin `save_data`si None olurdu -
+# oysa testler gercek bir kaydin varligina gore yazilmis (bayrak
+# okuyor, bolum numarasi yaziyor). Amac oyuncunun dosyasindan
+# kurtulmak, testlerin davranisini degistirmek degil.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.systems.save import SaveData as _SaveData  # noqa: E402
+from src.systems.save import write_save as _write_save  # noqa: E402
+
+_write_save(_SaveData())
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+import pygame  # noqa: E402
+
+# `pygame.init()` DEGIL - joystick taramasi bu makinede 40 saniye
+# suruyor (bkz. src/core/game.py). Oyun da tam olarak bu yolu izliyor.
+pygame.display.init()
+pygame.font.init()
+pygame.display.set_mode((64, 64))
+
+from src.audio import sfx  # noqa: E402
+from src.core.game import Game  # noqa: E402
+from src.scenes.chapter02 import Chapter02Scene  # noqa: E402
+from src.systems import breath as breath_mod  # noqa: E402
+from src.systems import horror  # noqa: E402
+
+failures: list[str] = []
+played: list[str] = []
+
+
+def check(condition: bool, label: str, detail: str = "") -> None:
+    print(("OK " if condition else "!! ") + label
+          + (f"  ({detail})" if detail else ""))
+    if not condition:
+        failures.append(label)
+
+
+def main() -> int:
+    game = Game()
+    # Ayarlar diske YAZILMASIN - oyuncunun gercek dosyasi bozulmasin.
+    game.settings.save = lambda *a, **k: None       # type: ignore[method-assign]
+    real_play = game.play_sound
+    game.play_sound = lambda name, **kw: (          # type: ignore[method-assign]
+        played.append(name), real_play(name, **kw))
+
+    def fresh() -> Chapter02Scene:
+        """Temiz sahne: dusmansiz, tam canli, ilk odada.
+
+        Dusmanlar temizleniyor cunku itilme `body.vx`'i sifirdan
+        cikariyor ve "hareketsizlik" hic birikmiyor. Ilk surumde butun
+        senaryolar tek sahnede kosuyordu ve tam bu yuzden yanlis sonuc
+        verdi - kod dogruydu, test yanlisti.
+        """
+        game.scenes.set_root(Chapter02Scene, transition=False,
+                             character="rey")
+        game.scenes._flush()
+        scene = game.scenes.current
+        scene.enemies.clear()
+        played.clear()
+        return scene
+
+    def run(scene, frames: int, walk: bool = False) -> None:
+        for _ in range(frames):
+            if walk:
+                scene.player.body.vx = 1.5
+            game.input.begin_frame()
+            game.input.end_frame()
+            scene.update()
+            scene.enemies.clear()
+
+    def breaths() -> int:
+        return sum(1 for n in played if n.startswith("breath"))
+
+    # --- 1. Sesler uretiliyor ve genlik tavanina uyuyor --------------------
+    # Butun korku sesleri 0.55 tepe genligini asmamali - jumpscare dahil.
+    # Ani ses bir tasarim araci, kulaga zarar verme araci degil.
+    print("--- sesler ---")
+    import numpy as np
+    horror_keys = ("breath_in", "breath_out", "breath_sharp", "heartbeat",
+                   "lie_caught", "phantom_fade", "watcher_notice",
+                   "watcher_strike", "ghost_seen", "room_changed")
+    for key in horror_keys:
+        check(key in sfx.SFX, f"{key} kayitli")
+    loudest = 0.0
+    for key in horror_keys:
+        peak = float(np.abs(sfx.SFX[key]()).max())
+        loudest = max(loudest, peak)
+    check(loudest <= 0.5501, "hicbir korku sesi 0.55 tepeyi asmiyor",
+          f"en yuksek {loudest:.3f}")
+
+    # --- 2. Nefes SUREKLI degil -------------------------------------------
+    print("\n--- nefes: susmasi ---")
+    scene = fresh()
+    run(scene, 240, walk=True)
+    check(breaths() == 0, "saglikli ve yuruyen oyuncu nefes ALMIYOR",
+          f"{breaths()} nefes")
+
+    # --- 3. Karanlikta hareketsiz -----------------------------------------
+    print("\n--- nefes: karanlikta hareketsiz ---")
+    scene = fresh()
+    check(scene.dark_ambient, "B2 karanlik isaretli (docs/korku.md 5.1)")
+    run(scene, 60)
+    check(breaths() == 0,
+          f"esik ({breath_mod.STILL_FRAMES} kare) dolmadan nefes yok")
+    run(scene, 260)
+    check(breaths() > 0, "hareketsiz kalinca nefes basladi",
+          f"{breaths()} nefes / 320 kare")
+
+    order = [n for n in played if n in ("breath_in", "breath_out")]
+    check(len(order) >= 3 and all(order[i] != order[i + 1]
+                                  for i in range(len(order) - 1)),
+          "alis ve verisi DONUSUMLU - tek ses tekrari degil",
+          " ".join(order[:6]))
+
+    print("\n--- nefes: hareket edince susuyor ---")
+    scene = fresh()
+    run(scene, 260)
+    during = breaths()
+    played.clear()
+    run(scene, 260, walk=True)
+    check(during > 0 and breaths() == 0, "hareket baslayinca nefes kesiliyor",
+          f"dururken {during}, yururken {breaths()}")
+
+    # --- 4. Diger iki tetikleyici -----------------------------------------
+    print("\n--- nefes: can ve Yanki ---")
+    scene = fresh()
+    scene.player.health = int(scene.player.max_health * 0.2)
+    run(scene, 240, walk=True)
+    check(breaths() > 0, "can %25 altinda YURURKEN de nefes var",
+          f"{breaths()} nefes")
+
+    scene = fresh()
+    scene.player.health = max(1, int(scene.player.max_health * 0.08))
+    run(scene, 300)
+    check(played.count("heartbeat") > 0, "can %12 altinda kalp atisi",
+          f"{played.count('heartbeat')} atis")
+
+    scene = fresh()
+    scene.echo_forced = 400        # B2'nin anlatim kancasi sesi acik tutar
+    run(scene, 240, walk=True)
+    check(breaths() > 0, "Yanki acikken yururken bile nefes var",
+          f"{breaths()} nefes")
+
+    # --- 5. Ayar kapisi ----------------------------------------------------
+    print("\n--- ayar kapisi ---")
+    game.settings.set("horror", horror.OFF)
+    check(not horror.atmosphere(game.settings), "KAPALI: Katman 2 kapali")
+    check(not horror.shock(game.settings), "KAPALI: Katman 3 kapali")
+    scene = fresh()
+    scene.player.health = 3
+    run(scene, 400)
+    check(breaths() == 0 and played.count("heartbeat") == 0,
+          "KAPALI iken hicbir nefes/kalp sesi yok", f"{len(played)} ses")
+
+    game.settings.set("horror", horror.REDUCED)
+    check(horror.shock(game.settings),
+          "AZALTILMIS: sok anlari KORUNUYOR - yalnizca ani ses kisiliyor")
+    check(not horror.loud(game.settings), "AZALTILMIS: ani ses kapali")
+    check(horror.loudness(game.settings) == horror.REDUCED_LOUDNESS,
+          "AZALTILMIS: genlik carpani uygulaniyor",
+          str(horror.loudness(game.settings)))
+    scene = fresh()
+    run(scene, 320)
+    check(breaths() > 0, "AZALTILMIS seviyede nefes duruyor",
+          f"{breaths()} nefes")
+
+    game.settings.set("horror", horror.FULL)
+    check(horror.loudness(game.settings) == 1.0, "TAM: genlik tam")
+
+    # Ayar yoksa **tam korku** - eksik ayar yuzunden bir ogenin sessizce
+    # kaybolmasi, fazladan calismasindan cok daha zor bulunur.
+    check(horror.level(None) == horror.FULL, "ayarsiz cagri tam korkuya duser")
+    check(horror.atmosphere(None) and horror.shock(None),
+          "ayarsiz cagri katmanlari acik birakiyor")
+
+    # --- 6. Fotosensitivite ------------------------------------------------
+    print("\n--- fotosensitivite ---")
+    game.settings.set("flash_limit", False)
+    check(horror.flash_allowed(game.settings), "varsayilan: parlama serbest")
+    game.settings.set("flash_limit", True)
+    check(not horror.flash_allowed(game.settings),
+          "sinir acikken parlama cizilmiyor")
+    check(horror.shock(game.settings),
+          "parlama siniri OLAYI durdurmuyor - yalnizca sunumu degistiriyor")
+    game.settings.set("flash_limit", False)
+
+    # --- 7. Cemo'nun sozcukleri (Katman 1 - ASLA kapanmaz) ----------------
+    # `docs/korku.md` 11.1: B1'deki replik uc parcaya bolunup B4, B9,
+    # B13'e ekiliyor ve B18'de butun olarak patliyor. Bir twist ancak
+    # tohumu ekilmisse is gorur.
+    print("\n--- Cemo'nun sozcukleri ---")
+    game.settings.set("horror", horror.OFF)      # Katman 1 kapanmamali
+
+    def spoken(scene) -> list[str]:
+        return [line.key for line in scene.dialogue.lines]
+
+    # B4 - Rey kolyeyi cevirirken
+    from src.scenes.chapter04 import Chapter04Scene
+    game.scenes.set_root(Chapter04Scene, transition=False, character="rey")
+    game.scenes._flush()
+    ch04 = game.scenes.current
+    ch04._seed_line()
+    check("line.ch04_echo_seed" in spoken(ch04),
+          "B4: tohum 1/3 soyleniyor (korku KAPALI iken bile)",
+          str(spoken(ch04)))
+
+    game.scenes.set_root(Chapter04Scene, transition=False, character="ardo")
+    game.scenes._flush()
+    ch04a = game.scenes.current
+    ch04a._seed_line()
+    check("line.ch04_echo_seed" not in spoken(ch04a),
+          "B4: Ardo'da tohum YOK - onun Yanki'si yok")
+
+    # B9 - yanlis can
+    from src.scenes.chapter09 import Chapter09Scene
+    game.scenes.set_root(Chapter09Scene, transition=False, character="rey")
+    game.scenes._flush()
+    ch09 = game.scenes.current
+    ch09._wrong_order()
+    check("line.ch09_echo_seed" in spoken(ch09),
+          "B9: tohum 2/3 yanlis canda soyleniyor", str(spoken(ch09)))
+    ch09.dialogue.stop()
+    ch09._wrong_order()
+    check("line.ch09_echo_seed" not in spoken(ch09),
+          "B9: ikinci yanlista TEKRARLANMIYOR - ayni numara iki kez yok")
+
+    # B13 - Cemo "Rey?" der, Yanki tekrarlar
+    from src.scenes.chapter13_cinematics import CageCinematic
+    game.scenes.set_root(CageCinematic, transition=False, character="rey")
+    game.scenes._flush()
+    cage = game.scenes.current
+    gorus = next(p for p in cage.panels if p.name == "gorus")
+    keys = [line.key for line in (gorus.lines or ((gorus.line,) if gorus.line
+                                                  else ()))]
+    check(keys == ["line.ch13_cemo_sees", "line.ch13_echo_seed"],
+          "B13: Cemo soyler, Yanki BIR BEAT SONRA tekrarlar", str(keys))
+
+    game.scenes.set_root(CageCinematic, transition=False, character="ardo")
+    game.scenes._flush()
+    cage_a = game.scenes.current
+    gorus_a = next(p for p in cage_a.panels if p.name == "gorus")
+    check(gorus_a.line is not None and not gorus_a.lines,
+          "B13: Ardo'da tek replik - tekrar yok")
+
+    # B18 - tohum patliyor. **B1'in anahtarinin ta kendisi** olmali:
+    # ayri bir anahtar acilsaydi ikisi ayrisirdi (Ingilizce cevirisi
+    # ilk denemede ayristi bile) ve tohum taninmaz olurdu.
+    from src.scenes.chapter18 import Chapter18Scene
+    game.scenes.set_root(Chapter18Scene, transition=False, character="rey")
+    game.scenes._flush()
+    ch18 = game.scenes.current
+    ch18._narrate_zone("ses")
+    keys18 = spoken(ch18)
+    check("line.ch01_cemo_gift" in keys18,
+          "B18: yaratik Cemo'nun B1 repligini soyluyor", str(keys18))
+    check(keys18.index("line.ch01_cemo_gift") == 0,
+          "B18: once yaratik konusuyor, sonra Rey - oyuncu once TANIMALI")
+
+    import json
+    with open(ROOT / "src/ui/lang/tr.json", encoding="utf-8") as handle:
+        table = json.load(handle)["line"]
+    check("ch18_cemo_false" not in table,
+          "B18 kendi kopyasini TUTMUYOR - ayrisma imkansiz")
+
+    # --- 8. Yanlis sessizlik (Katman 2) ------------------------------------
+    # `docs/korku.md` 5.4: oyun sessizligi bir ALARM olarak ogretiyor
+    # (gizli oda, boss). Bu araliklar o bilgiyi bozuyor - muzik
+    # kesiliyor ve hicbir sey olmuyor.
+    #
+    # "Hicbir sey olmamasi" isin kendisi: bir kez bile "aslinda bir sey
+    # oluyordu" dersek numara olur ve oyuncu bir daha yutmaz. Bu yuzden
+    # araliklarin BOS oldugu da olculuyor.
+    print("\n--- yanlis sessizlik ---")
+    game.settings.set("horror", horror.FULL)
+    from src.config import TILE_SIZE
+    from src.scenes.chapter10 import Chapter10Scene
+    from src.world.rooms import chapter04 as rooms04
+    from src.world.rooms import chapter10 as rooms10
+
+    for label, scene_cls, rooms in (("B4", Chapter04Scene, rooms04),
+                                    ("B10", Chapter10Scene, rooms10)):
+        game.scenes.set_root(scene_cls, transition=False, character="rey")
+        game.scenes._flush()
+        scene = game.scenes.current
+        stretch = scene.false_silence.stretches[0]
+
+        # Aralik gercekten bos mu? Dusman, sandik, tetikleyici olmamali.
+        intruders = [p.kind for p in rooms.LEVEL.placements
+                     if stretch.start <= p.tile_x < stretch.end
+                     and p.kind not in ("player", "exit")]
+        check(not intruders, f"{label}: sessizlik araliginda HICBIR SEY yok",
+              str(intruders) if intruders else f"tile {stretch.start}-{stretch.end}")
+
+        # Icine girince muzik kesiliyor mu?
+        middle = (stretch.start + stretch.end) // 2
+        scene.player.body.set_feet(middle * TILE_SIZE + TILE_SIZE * 0.5,
+                                   scene.player.body.bottom)
+        game.music_hush = 0.0
+        for _ in range(40):
+            game.music_hush = 0.0
+            scene.false_silence.update(game, scene)
+        check(game.music_hush > 0.6, f"{label}: aralikta muzik kesiliyor",
+              f"hush {game.music_hush:.2f}")
+
+        # Cikinca geri geliyor mu?
+        outside = max(0, stretch.start - 6)
+        scene.player.body.set_feet(outside * TILE_SIZE + TILE_SIZE * 0.5,
+                                   scene.player.body.bottom)
+        for _ in range(120):
+            game.music_hush = 0.0
+            scene.false_silence.update(game, scene)
+        check(game.music_hush < 0.05, f"{label}: aralik disinda muzik donuyor",
+              f"hush {game.music_hush:.2f}")
+
+        # Ayar kapaliyken hic calismamali.
+        game.settings.set("horror", horror.OFF)
+        scene.false_silence.hush = 0.0
+        scene.player.body.set_feet(middle * TILE_SIZE + TILE_SIZE * 0.5,
+                                   scene.player.body.bottom)
+        for _ in range(60):
+            game.music_hush = 0.0
+            scene.false_silence.update(game, scene)
+        check(game.music_hush == 0.0,
+              f"{label}: korku KAPALI iken sessizlik yok",
+              f"hush {game.music_hush:.2f}")
+        game.settings.set("horror", horror.FULL)
+
+    # --- 9. Yalan defteri (Katman 1 - kapanmaz) ---------------------------
+    # `docs/korku.md` 4.1: `LIE_CHANCE` oyunun basindan beri calisiyordu
+    # ama oyun yalani HATIRLAMIYORDU, dolayisiyla oyuncu asla
+    # ogrenemiyordu - Yanki'nin yalani oyuncunun kendi hatasi gibi
+    # okunuyordu. Mekanigin tam tersine calismasi bundan ibarettir.
+    print("\n--- yalan defteri ---")
+    from src.systems.lies import SILENCE_FRAMES, LieLedger
+    from src.ui.dialogue import ECHO as ECHO_SPEAKER
+    from src.ui.dialogue import Line
+
+    ledger = LieLedger()
+    check(not ledger.catch(),
+          "yalan yokken 'yakaladim' demiyor - her yanlis sey yalan degil")
+    ledger.record((100.0, 50.0), direction=1)
+    check(len(ledger.pending) == 1, "yalan deftere gecti")
+    check(ledger.catch(), "bekleyen yalan yakalandi")
+    check(ledger.silenced, "yakalaninca Yanki susuyor")
+    check(not ledger.pending, "yakalanan yalan bekleyenlerden cikti")
+    check(not ledger.catch(), "ayni yalan iki kez yakalanmiyor")
+    for _ in range(SILENCE_FRAMES):
+        ledger.update()
+    check(not ledger.silenced, f"sessizlik {SILENCE_FRAMES} karede bitiyor")
+
+    # Susan Yanki gercekten konusmuyor mu - ama sahne konusuyor mu?
+    game.settings.set("horror", horror.FULL)
+    scene = fresh()
+    scene.lies.record(scene.player.body.feet, direction=1)
+    scene.catch_lie()
+    check(scene.lies.silenced, "sahne uzerinden yakalama calisiyor")
+    scene.say(Line(ECHO_SPEAKER, "line.ch04_echo_seed"))
+    check(scene.dialogue.done, "susturulmus Yanki repligi YUTULUYOR")
+    scene.say(Line("rey", "line.ch18_rey_voice"))
+    check(not scene.dialogue.done,
+          "diger konusmacilar etkilenmiyor - susan Yanki, sahne degil")
+    scene.dialogue.stop()
+
+    # --- 10. Hayalet parilti (Katman 2) -----------------------------------
+    # `docs/korku.md` 4.4: Yanki'nin SOZU yalan soyluyordu ama GORUSU
+    # hic soylemedi. Oyuncu sesine guvenmiyor, gozune guveniyordu.
+    print("\n--- hayalet parilti ---")
+    from src.config import ECHO_TIER_CLEAR, ECHO_TIER_MURKY, ECHO_TIER_SILENT
+    from src.systems.phantom import NOTICE_RANGE, Phantom
+
+    scene = fresh()
+
+    def hold_echo() -> None:
+        """Yanki'yi acik tut. `active` bir property: `strength`e bakiyor,
+        o da `update(holding=True)` ile yuruyor - elle atanamaz."""
+        scene.echo.update(True)
+
+    scene.echo.tier = ECHO_TIER_CLEAR
+    ph = Phantom(seed=7)
+    for _ in range(4000):
+        hold_echo()
+        ph.update(game, scene)
+    check(scene.echo.active, "test kurulumu: Yanki gercekten acik",
+          f"strength {scene.echo.strength:.2f}")
+    check(not ph.active, "BERRAK kademede hayalet DOGMUYOR - dogru soyluyor")
+
+    scene.echo.tier = ECHO_TIER_SILENT
+    for _ in range(4000):
+        hold_echo()
+        ph.update(game, scene)
+    check(not ph.active, "SESSIZ kademede hayalet yok - gorus zaten yok")
+
+    scene.echo.tier = ECHO_TIER_MURKY
+    spawned = False
+    for _ in range(20000):
+        hold_echo()
+        ph.update(game, scene)
+        if ph.active:
+            spawned = True
+            break
+    check(spawned, "BULANIK kademede hayalet doguyor")
+    check(scene.lies.pending, "hayalet deftere YALAN olarak yazildi",
+          f"{len(scene.lies.pending)} bekleyen")
+
+    # Yaklas: sonmeli ve yalan yakalanmali.
+    before = scene.lies.caught_count
+    scene.player.body.set_feet(ph.x, ph.y + NOTICE_RANGE * 0.5)
+    for _ in range(40):
+        hold_echo()
+        ph.update(game, scene)
+    check(not ph.active, "yaklasinca hayalet sondu")
+    check(scene.lies.caught_count > before,
+          "yanina gidip hicbir sey bulmamak yalani KANITLIYOR",
+          f"{before} -> {scene.lies.caught_count}")
+
+    # Ayar kapaliyken hic dogmamali.
+    game.settings.set("horror", horror.OFF)
+    ph2 = Phantom(seed=7)
+    for _ in range(20000):
+        hold_echo()
+        ph2.update(game, scene)
+    check(not ph2.active, "korku KAPALI iken hayalet dogmuyor")
+    game.settings.set("horror", horror.FULL)
+
+    # --- 11. Yanki tekil konusuyor (Katman 1) -----------------------------
+    # `docs/korku.md` 4.3. Ilk tasarim "Yanki ismini hic soylemez"
+    # diyordu ve YANLISTI: prologun ilk repligi zaten "Bizi duyabiliyor
+    # musun, Rey?" diyor. Var olan metinle celisen mekanik kurulamaz -
+    # ayni replikteki "biz" daha iyi bir sey saklıyordu.
+    print("\n--- Yanki tekil konusuyor ---")
+    from src.systems import loyalty
+
+    scene = fresh()
+    # Kayit dizini izole (dosyanin basi) - yani gercek bir kayit YOK ve
+    # `save_data` None geliyor. Sadakat bir KAYIT degeri oldugu icin
+    # test kendi kaydini kuruyor.
+    if scene.save_data is None:
+        from src.systems.save import SaveData
+        scene.save_data = SaveData()
+    scene.save_data.flags.pop(loyalty.SPOKE_ALONE_KEY, None)
+    scene.save_data.flags[loyalty.SETTINGS_KEY] = 0
+    scene.dialogue.stop()
+    scene._watch_intimacy()
+    check(scene.dialogue.done, "sadakat dusukken tekil replik YOK")
+
+    scene.save_data.flags[loyalty.SETTINGS_KEY] = loyalty.INTIMACY_THRESHOLD
+    scene._watch_intimacy()
+    check("line.echo_alone_voice" in spoken(scene),
+          "esik gecilince Yanki tekil konusuyor", str(spoken(scene)))
+    check(loyalty.spoke_alone(scene.save_data), "kayit bayragi kondu")
+
+    scene.dialogue.stop()
+    scene._watch_intimacy()
+    check(scene.dialogue.done,
+          "BIR KEZ - tekrarlanirsa uslup olur, bir kez olursa kayma")
+
+    # --- 12. Izleyen (Katman 2) --------------------------------------------
+    # `docs/korku.md` 5.2. Uc bolum boyunca TEK bir sey ogretiliyor:
+    # bu sey sana yaklasmaz. Oyuncu bunu ogrenmeden B14'un jumpscare'i
+    # ucuz olur - orada kirilan sey ani hareket degil, bir KURAL.
+    print("\n--- Izleyen ---")
+    from src.entities.watcher import RETREAT_RANGE, Watcher
+
+    game.settings.set("horror", horror.FULL)
+    scene = fresh()
+    scene.spawn_watcher(40, 13)
+    check(len(scene.watchers) == 1, "Izleyen olusturuldu")
+    scene.spawn_watcher(60, 13)
+    check(len(scene.watchers) == 1,
+          "BOLUM BASINA BIR TANE - ikincisi ilkini ucuzlatirdi")
+
+    watcher = scene.watchers[0]
+    check(watcher not in scene.enemies,
+          "`enemies` listesine GIRMIYOR - dovusun parcasi degil")
+
+    # Yaklas: cekilmeli.
+    start_x = watcher.x
+    scene.player.body.set_feet(watcher.x - RETREAT_RANGE * 0.5,
+                               watcher.feet_y)
+    for _ in range(60):
+        watcher.update(game, scene)
+    check(watcher.x > start_x or watcher.state == "leaving",
+          "yaklasinca GERI CEKILIYOR",
+          f"{start_x:.0f} -> {watcher.x:.0f} ({watcher.state})")
+
+    # Israr et: ulasilamamali.
+    for _ in range(600):
+        scene.player.body.set_feet(watcher.x - 10.0, watcher.feet_y)
+        watcher.update(game, scene)
+    check(watcher.gone or watcher.state == "leaving",
+          "israrla yaklasilinca siliniyor - ASLA ulasilamiyor",
+          watcher.state)
+
+    # Gozler daima oyuncuda - govde nereye donuk olursa olsun.
+    scene = fresh()
+    scene.spawn_watcher(40, 13)
+    w2 = scene.watchers[0]
+    scene.player.body.set_feet(w2.x - 200.0, w2.feet_y)
+    w2.update(game, scene)
+    left_facing = w2.facing
+    scene.player.body.set_feet(w2.x + 200.0, w2.feet_y)
+    w2.update(game, scene)
+    check(left_facing != w2.facing, "gozler daima oyuncuya donuyor",
+          f"{left_facing} -> {w2.facing}")
+
+    # B14: CEKILMIYOR. Kural burada kiriliyor.
+    stubborn = Watcher(300.0, 200.0, retreats=False)
+    stubborn.state = "watching"
+    scene.player.body.set_feet(stubborn.x - 20.0, stubborn.feet_y)
+    home = stubborn.x
+    for _ in range(200):
+        stubborn.update(game, scene)
+    check(stubborn.x == home and not stubborn.gone,
+          "B14 varyanti CEKILMIYOR - durup bakiyor", f"x={stubborn.x:.0f}")
+
+    # Ayar kapaliyken hic olusturulmuyor.
+    game.settings.set("horror", horror.OFF)
+    scene = fresh()
+    scene.spawn_watcher(40, 13)
+    check(not scene.watchers, "korku KAPALI iken Izleyen olusturulmuyor")
+    game.settings.set("horror", horror.FULL)
+
+    # Silueti gercekten ayrisiyor mu? (CLAUDE.md 6 - siluet testi)
+    import numpy as np
+    from src.art.animator import Animator
+
+    def silhouette(name: str) -> tuple[int, int]:
+        anim = Animator(name)
+        anim.play("idle")
+        anim.update()
+        alpha = pygame.surfarray.array_alpha(anim.render(1))
+        cols, rows = np.nonzero(alpha)
+        return (int(rows.max() - rows.min() + 1),
+                int(cols.max() - cols.min() + 1))
+
+    w_h, w_w = silhouette("watcher")
+    check(w_h <= 32, "CLAUDE.md 6: sprite yuksekligi 32 pikseli asmiyor",
+          f"{w_h}px")
+    ratios = {n: silhouette(n)[0] / silhouette(n)[1]
+              for n in ("watcher", "shambler", "climber", "bloated", "rey")}
+    check(ratios["watcher"] == max(ratios.values()),
+          "silueti oyundaki EN DIKEY sey - hicbir dusmana benzemiyor",
+          "  ".join(f"{k} {v:.2f}" for k, v in sorted(
+              ratios.items(), key=lambda kv: -kv[1])))
+    check(ratios["watcher"] > max(v for k, v in ratios.items()
+                                  if k != "watcher") * 1.5,
+          "ayrisma belirgin - en yakinindan %50'den fazla dikey")
+
+    game.shutdown()
+
+    print("\n=== SONUC ===")
+    if failures:
+        print(f"{len(failures)} BASARISIZ:")
+        for item in failures:
+            print(f"  - {item}")
+        return 1
+    print("Korku katmani belgedeki kurallara uyuyor.")
+    return 0
+
+
+raise SystemExit(main())

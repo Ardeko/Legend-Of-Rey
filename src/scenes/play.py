@@ -18,7 +18,7 @@ from src.art import palette
 from src.art.ambience import Ambience
 from src.art.particles import ParticleField
 from src.combat.attack_token import AttackTokenManager
-from src.combat.hitbox import HitboxManager, Team
+from src.combat.hitbox import Hitbox, HitboxManager, Team
 from src.config import (
     SENSE_BETRAYAL_DELAY, SENSE_BETRAYAL_RANGE,
     COMBO_THRESHOLD_HIGH, COMBO_THRESHOLD_MID, DEATH_SCREEN_DELAY,
@@ -32,14 +32,17 @@ from src.core.juice import ImpactEvent, ImpactWeight, Juice
 from src.core.scene import Scene
 from src.entities.character_stats import ARDO, REY
 from src.entities.player import Player
-from src.systems import abilities
+from src.systems import abilities, consumables, horror, loyalty
 from src.systems.compass import Compass
 from src.systems.echo import Answer, EchoState
 from src.systems.tracking import BLOOD, SCORCH, TraceField, TrackingState
 from src.systems.save import read_save
 from src.ui import echo_view, tracking_view
 from src.ui.chapter_card import ChapterCard
-from src.ui.dialogue import Dialogue, Line
+from src.systems.breath import Breath
+from src.systems.lies import LieLedger
+from src.systems.phantom import Phantom
+from src.ui.dialogue import ECHO, Dialogue, Line
 from src.ui import text
 from src.ui.hud import HUD
 from src.ui.i18n import t
@@ -75,6 +78,18 @@ class PlayScene(Scene):
     # `particles` olaylar icin (vurus/olum), bu SUREKLI olan sey - oda
     # hicbir sey olmasa bile yasiyor gorunsun.
     ambience_preset: str = ""
+
+    # Rey burada **karanlikta ve yalniz** mi? (docs/korku.md 5.1)
+    #
+    # Nefes sisteminin ucuncu tetikleyicisi: karanlikta hareketsiz
+    # durmak. Bolum 3'un gercek isik sistemi (`self.light`) varken bu
+    # bayrak kullanilmiyor - orada karanlik olculuyor, varsayilmiyor.
+    #
+    # Ardo'nun yaninda oldugu bolumlerde **kasitli olarak False**:
+    # `docs/korku.md` 7'nin yerlesim tablosu B6/B7/B16'yi bos birakiyor
+    # cunku korkunun ise yaramasi icin nefes alinan yerler gerekiyor.
+    # Yaninda biri varken korkmuyorsun.
+    dark_ambient: bool = False
 
     def setup(self) -> None:
         """Alt sinif sahneyi burada kurar.
@@ -144,6 +159,9 @@ class PlayScene(Scene):
         # Bolum basi karti - alt sinif `chapter_number`/`chapter_name_key`
         # verirse gosterilir. Ara sahne DEGIL, bindirme: oynanisi
         # durdurmuyor, oyuncu ilk kareden itibaren yuruyebilir.
+        # Mekanik tanitim karti (src/ui/mechanic_card.py). Ayni anda
+        # tek kart: iki mekanik ust uste tanitilirsa ikisi de kaybolur.
+        self.mechanic_card = None
         self.card = (ChapterCard(self.chapter_number, self.chapter_name_key)
                      if self.chapter_number else None)
         self.ambience = (Ambience(self.ambience_preset)
@@ -152,6 +170,42 @@ class PlayScene(Scene):
         # `self.echo` ile ayni desen: yoksa `None` ve kod her yerde
         # "su var mi?" diye dallanmiyor.
         self.water = None
+
+        # Nefes (docs/korku.md 5.1). Katman 2; ayardan kapatilabiliyor.
+        # Sahne kurulumundan ONCE: `setup()` icinde bir sey nefesi
+        # sifirlamak isteyebilir.
+        self.breath = Breath()
+
+        # Yalan defteri (docs/korku.md 4.1). **Katman 1** - kapatilamaz,
+        # cunku Yanki'nin yalani bir korku efekti degil ana mekanik.
+        # Bolume ozel degil: `ask()` her bolumde yalan soyleyebiliyor.
+        self.lies = LieLedger()
+
+        # Hayalet parilti (docs/korku.md 4.4) - Yanki Gorusu'nun yalani.
+        # Ayni zamanda yalan defterinin **kaniti**: bolume ozel kod
+        # istemeyen tek curutme yolu.
+        self.phantom = Phantom()
+
+        # Izleyenler (docs/korku.md 5.2). **`enemies` listesine girmiyor**:
+        # oraya girseydi Yanki Gorusu onlari dusman gibi isaretler,
+        # saldiri hakki sistemi hak ayirir, "oda temizlendi" sayimlari
+        # onlari beklerdi. Izleyen dovusun parcasi degil.
+        self.watchers: list = []
+
+        # Hayaletler (docs/korku.md 5.3). Oldugun yerde kalir, YALNIZCA
+        # Yanki acikken gorunur. `restart()` bunlari sahne yeniden
+        # kurulurken tasiyor - yoksa her olum hafizayi silerdi ve
+        # "zindan hatirliyor" fikri hic yasanmazdi.
+        self.ghosts: list = []
+
+        # Kalachev (docs/kalachev.md). **`Companion` DEGIL** ve
+        # `enemies` listesinde de degil: kendi listesinde duruyor
+        # cunku ne yoldas ne dusman - belirip giden bir olay.
+        self.allies: list = []
+
+        # Temizlenmis odaya donunce bir sey degismis olmali - bolum
+        # basina BIR kez (docs/korku.md 5.5).
+        self._room_changed_done = False
 
         self.setup()
 
@@ -259,7 +313,8 @@ class PlayScene(Scene):
         choices = owned(self.save_data)
         if weapons.DAGGER not in choices and weapons.AXE not in choices:
             return
-        self.hint_once("hint_inventory", "hint.inventory", Action.NEXT_TAB)
+        self.hint_once("hint_inventory", "hint.inventory", Action.NEXT_TAB,
+                       icon="inventory")
 
     def _sync_abilities(self) -> None:
         """Yetenek sayisi degistiyse kayda yaz.
@@ -401,8 +456,14 @@ class PlayScene(Scene):
         room = self.checkpoint_room
         entered = set(getattr(self, "entered_rooms", ())) if room else set()
         x, y = self.checkpoint_x, self.checkpoint_y
+        # Hayaletler olumu **atlatmali** - `on_enter` sahneyi bastan
+        # kuruyor ve listeyi bosaltiyor. "Zindan hatirliyor" fikrinin
+        # tamami buna bagli: her olum hafizayi silseydi hicbir hayalet
+        # ikinci kez gorulmezdi (docs/korku.md 5.3).
+        ghosts = list(getattr(self, "ghosts", ()))
 
         self.on_enter(character=self.character)
+        self.ghosts = ghosts
 
         if not room:
             return
@@ -628,6 +689,9 @@ class PlayScene(Scene):
         self.enemies = [e for e in self.enemies if not e.remove]
 
         self.hitboxes.update({
+            # Muttefikler oyuncu takiminda: dusman saldirilari onlara
+            # da degiyor. Degmeseydi Kalachev dokunulmaz olurdu ve
+            # "bu adam boyle giderse olecek" hissi hic kurulmazdi.
             Team.ENEMY: self.enemies,
             Team.PLAYER: [self.player],
         })
@@ -643,6 +707,7 @@ class PlayScene(Scene):
         self._update_traces()
         self._update_betrayal()
         self._update_dialogue_hint()
+        self._update_throw()
         if self.echo is not None:
             self.echo.update(self.echo_held())
             self._update_echo_audio()
@@ -655,8 +720,24 @@ class PlayScene(Scene):
         self.compass.update(self.player)
         self._update_necklace_audio()
         self.dialogue.update(self.game)
+        self.breath.update(self.game, self)
+        self.lies.update()
+        self.phantom.update(self.game, self)
+        self._watch_intimacy()
+        for watcher in self.watchers:
+            watcher.update(self.game, self)
+        self.watchers = [w for w in self.watchers if not w.gone]
+        for ghost in self.ghosts:
+            ghost.update(self.game, self)
+        for ally in self.allies:
+            ally.update()
+        self.allies = [a for a in self.allies if not a.gone]
         if self.card is not None:
             self.card.update()
+        if self.mechanic_card is not None:
+            self.mechanic_card.update()
+            if self.mechanic_card.done:
+                self.mechanic_card = None
         if self.ambience is not None:
             self.ambience.update(self.camera.offset)
         if self.water is not None:
@@ -667,9 +748,17 @@ class PlayScene(Scene):
                            for r in self.tilemap.breakable_rects()]
 
         self.hud.update(self.player, self.gold, self.echo_tier)
+        # Cephane gostergesi HUD'da saklanmiyor, her karede veriliyor:
+        # tek kaynak kayit, HUD yalnizca ciziyor.
+        chosen = consumables.selected(self.save_data)
+        self.hud.set_ammo(chosen, consumables.count(self.save_data, chosen))
         if self.toast_frames > 0:
             self.toast_frames -= 1
         self.update_scene()
+        # Sahne bu karede duvar cikarmis olabilir (arena muhuru).
+        # `Body.move` mevcut gomulmeyi cozmez, yalnizca yeni girisi
+        # keser - oyuncu bir tile'lik sutunda kalici sikisir.
+        self._eject_from_solids()
 
     def _update_water(self) -> None:
         """Suyun seviyesini surer ve butun aktorlere etkisini uygular.
@@ -726,7 +815,7 @@ class PlayScene(Scene):
 
     # --- Ipuclari -----------------------------------------------------------
     def hint_once(self, flag: str, message_key: str, action: Action,
-                  frames: int = 210) -> None:
+                  frames: int = 210, icon: str = "") -> None:
         """Bir tusu **bir kez** ogretir ve kayda isaretler.
 
         Arda (30.08.2026): *"Tab ile envanter acacagimi ve U ile komut
@@ -747,9 +836,29 @@ class PlayScene(Scene):
         data.flags[flag] = True
         from src.systems import bindings as binds
         table = binds.read(self.game.settings)
-        self.show_toast(t(message_key,
-                          key=binds.labels_for(table, action)),
-                        frames=frames)
+        label = binds.labels_for(table, action)
+
+        if icon:
+            # **Yeni bir MEKANIK ise kart aciliyor** (docs: Arda,
+            # 08.09.2026 - "yeni mekanik acilan her bolum icin guzel
+            # grafiklerle ve belirgin UX UI ile ipuclari").
+            #
+            # Bildirim, "14 COMBO" ile ayni yerde ve ayni bicimde
+            # cikiyordu: oyunun "bu senin yeni yetenegin" demesiyle bir
+            # combo sayaci gorsel olarak ayni seydi. Kart farki BICIMLE
+            # kuruyor - ortada, cerceveli, ikonlu, tus kapakli.
+            #
+            # Ikonu olmayan ipuclari (bir kolu cek, freni tut) bildirim
+            # olarak kaliyor: onlar yeni bir mekanik degil, o odaya ait
+            # bir talimat.
+            from src.ui.mechanic_card import MechanicCard, title_for
+            self.mechanic_card = MechanicCard(
+                title_key=title_for(message_key), body_key=message_key,
+                icon=icon, key_label=label)
+            self.game.play_sound("ui_confirm", bus="volume_sfx")
+            return
+
+        self.show_toast(t(message_key, key=label), frames=frames)
 
     # --- Yoldas komutu ------------------------------------------------------
     def _update_companion_order(self) -> None:
@@ -763,7 +872,7 @@ class PlayScene(Scene):
             return
         # Yoldas ilk kez yanindayken komutu ogret.
         self.hint_once("hint_companion", "hint.companion_wait",
-                       Action.COMPANION_WAIT)
+                       Action.COMPANION_WAIT, icon="companion")
         if not self.game.input.pressed(Action.COMPANION_WAIT):
             return
         if companion.hold_x is None:
@@ -795,13 +904,173 @@ class PlayScene(Scene):
         chosen = ardo_key if (self.character == "ardo" and ardo_key) else key
         self.say(Line(self.character, chosen), **kwargs)
 
+    def _watch_intimacy(self) -> None:
+        """Yanki ilk kez **tekil** konusuyor (docs/korku.md 4.3).
+
+        Sadakat esigi gecildiginde bir kez. Ardo'da hic - onun Yanki'si
+        yok. Kayit bayragi tekrari engelliyor: bu bir uslup degil, bir
+        **kayma**; iki kez olursa kayma olmaktan cikar.
+
+        Suren bir konusmanin ustune binmiyor - ani kendi basina kalmali.
+        """
+        if self.echo is None or self.save_data is None:
+            return
+        if loyalty.spoke_alone(self.save_data):
+            return
+        if not loyalty.intimate(self.save_data):
+            return
+        if not self.dialogue.done:
+            return
+        loyalty.mark_spoke_alone(self.save_data)
+        self.say(Line(ECHO, "line.echo_alone_voice"))
+
+    def summon_kalachev(self, x: float, feet_y: float,
+                        stay: int = 0) -> object | None:
+        """Kalachev'i sahneye sokar (`docs/kalachev.md`).
+
+        **Bolum basina bir kez.** Iki kez belirse bir olay olmaktan
+        cikip bir doku olurdu - belgenin 5. bolumu yedi bolumu kasitli
+        olarak bos birakiyor, ayni gerekce.
+        """
+        if self.allies:
+            return None
+        from src.entities.kalachev import DEFAULT_STAY, Kalachev
+        ally = Kalachev(self, x, feet_y, stay=stay or DEFAULT_STAY)
+        self.allies.append(ally)
+        self.on_kalachev_arrived(ally)
+        return ally
+
+    def on_kalachev_arrived(self, ally) -> None:
+        """Alt sinif tepki verebilir - replik, kamera, ses."""
+
+    def spawn_watcher(self, tile_x: int, tile_y: int,
+                      retreats: bool = True) -> None:
+        """Bir Izleyen koy (docs/korku.md 5.2).
+
+        **Bolum basina en fazla bir kez.** Ikinci bir Izleyen ilkini
+        ucuzlatir: "bu sey ara sira cikiyor" bir olay degil bir doku
+        olur. Ayrica korku katmani kapaliysa hic olusturulmuyor.
+        """
+        from src.config import TILE_SIZE
+        from src.entities.watcher import Watcher
+        if self.watchers or not horror.atmosphere(self.game.settings):
+            return
+        self.watchers.append(Watcher(
+            tile_x * TILE_SIZE + TILE_SIZE * 0.5,
+            (tile_y + 1) * TILE_SIZE,
+            retreats=retreats))
+
+    # --- Uzaktan dovus ------------------------------------------------------
+    def _update_throw(self) -> None:
+        """Secili sarf malzemesini firlat (`src/systems/consumables.py`).
+
+        Oyuncu **mesgulken atamiyor**: zincirin ortasinda ok firlatmak
+        combo penceresini kirar ve iki sistem birbirini yer. Kacinma
+        sirasinda da yok - kacinma bir kacis, bir saldiri firsati degil.
+        """
+        if self.save_data is None:
+            return
+        if not self.game.input.pressed(Action.THROW):
+            return
+        if self.player.dead or self.player.busy or self.player.control_locked:
+            return
+        key = consumables.selected(self.save_data)
+        if not key:
+            # Elde bir sey yoksa **sessizce gecmiyoruz**: reddedilen bir
+            # giris oyuncuya "tus mu calismadi" dedirtir.
+            self.game.play_sound("ui_deny")
+            return
+        if not consumables.spend(self.save_data, key):
+            return
+        self.throw(key)
+
+    def throw(self, key: str) -> None:
+        """Bir mermi uretir. Sayac zaten dusuruldu."""
+        item = consumables.get(key)
+        if item is None:
+            return
+        body = self.player.body
+        facing = self.player.facing or 1
+        rect = pygame.Rect(int(body.center_x + facing * 6),
+                           int(body.center_y - 4), 6, 6)
+        box = Hitbox(
+            rect=rect, owner=self.player, targets=Team.ENEMY | Team.BREAKABLE,
+            damage=item.damage, active_frames=item.life,
+            knockback=1.8, poise_damage=1,
+            velocity=(facing * item.speed, item.lift),
+            gravity=item.gravity,
+            stop_on_solid=True,
+            # Bomba **carpinca yok olmuyor**: hasari sifir, isi patlamak.
+            pierce=item.blast > 0,
+        )
+        if item.blast > 0:
+            box.on_expire = self._explode
+        self.hitboxes.spawn(box)
+        self.game.play_sound("swing_light")
+        self.on_thrown(key, item)
+
+    def _explode(self, box) -> None:
+        """Bomba tukendi - **radyal** patlama (docs/derinlestirme.md 1.2).
+
+        Yeni bir hitbox aciliyor: genis, delici, tek kare. Delici olmasi
+        sart - `pierce=False` olsaydi ilk dusmanda tukenir ve alan
+        hasari diye bir sey kalmazdi (ayni tuzaga Sismek'te dusulmustu).
+        """
+        item = consumables.get(consumables.BOMB)
+        if item is None:
+            return
+        centre = box.rect.center
+        blast = pygame.Rect(0, 0, item.blast * 2, item.blast * 2)
+        blast.center = centre
+        self.hitboxes.spawn(Hitbox(
+            rect=blast, owner=self.player, targets=Team.ENEMY | Team.BREAKABLE,
+            damage=item.blast_damage, active_frames=4,
+            knockback=3.4, knockback_up=1.6, poise_damage=3, pierce=True,
+        ))
+        from src.core.juice import ImpactWeight
+        self.juice.explosion(centre[0], centre[1], ImpactWeight.FINISHER)
+        self.particles.burst(centre[0], centre[1], 20, path="spark",
+                             speed=(1.2, 3.4))
+        self.decals.scorch(centre[0], centre[1])
+
+    def on_thrown(self, key: str, item) -> None:
+        """Alt sinif tepki verebilir. Taban: ipucu bir kez gosteriliyor."""
+
+    def catch_lie(self) -> bool:
+        """Oyuncu bir yalani curuttu (docs/korku.md 4.1).
+
+        Bolumler bunu, Yanki'nin gosterdigi seyin **yanlis oldugunun
+        kanitlandigi** anlarda cagiriyor: kolye tersini gosteriyor,
+        gosterilen gizli gecit duz duvar cikiyor, isaretlenen dusman
+        zaten olu.
+
+        Yakalandiysa Yanki susuyor - ne aciklama ne ozur. Ozur dileyen
+        bir ses karakter olur; konuyu degistiren bir ses tehdit kalir.
+        """
+        if self.echo is None or not self.lies.catch():
+            return False
+        self.game.play_sound("lie_caught", bus="volume_echo")
+        # Suren repligi de kes: yakalanan ses cumlesini bitirmiyor.
+        if not self.dialogue.done and self.dialogue.current is not None:
+            if self.dialogue.current.speaker == ECHO:
+                self.dialogue.stop()
+        return True
+
     def say(self, *lines, auto_advance: bool = False) -> None:
         """Replik dizisi baslatir. `lines` `Line` nesneleri.
+
+        **Yanki susturulmussa Yanki repligi yutuluyor** (docs/korku.md
+        4.1): yalani yakalanan ses uc saniye konusmuyor. Diger
+        konusmacilar etkilenmiyor - susan Yanki, sahne degil.
 
         `auto_advance=True` yalnizca bir sahne-zamanlayicisiyla yarisan
         (orn. Bolum 1'in prolog beat'leri) dizilerde kullanilir - normal
         kesif/dovus repligi oyuncu onaylayana kadar ekranda kalir.
         """
+        if self.lies.silenced:
+            lines = tuple(line for line in lines if line.speaker != ECHO)
+            if not lines:
+                return
         self.dialogue.start(tuple(lines), auto_advance=auto_advance)
 
     # --- Yanki --------------------------------------------------------------
@@ -826,6 +1095,14 @@ class PlayScene(Scene):
         }.get(answer)
         if answer_sound:
             self.game.play_sound(answer_sound, bus="volume_echo")
+
+        # Yalan **deftere geciyor** (docs/korku.md 4.1). Bir donem
+        # yalan soyleniyor ama hicbir yerde tutulmuyordu; oyuncu yanlis
+        # yere gidip "ben yanlis anladim" diyordu, yani Yanki'nin yalani
+        # oyuncunun kendi hatasi gibi okunuyordu. Artik curutulebilir.
+        if answer is Answer.LIE:
+            self.lies.record(self.player.body.feet,
+                             direction=self.compass.direction_from(self.player))
 
     def _update_echo_audio(self) -> None:
         """Yanki acilirken/kapanirken kenar tespiti - `EchoState` kendisi
@@ -874,6 +1151,15 @@ class PlayScene(Scene):
         if self.water is not None:
             from src.world import water as water_draw
             water_draw.draw(surface, offset, self.water)
+        # Izleyen oyuncudan ONCE ciziliyor: hep uzakta, hep arkada.
+        # One cizilseydi oyuncunun onune gecerdi ve "yaklasti" gibi
+        # okunurdu - oysa hicbir zaman yaklasmiyor.
+        for watcher in self.watchers:
+            watcher.draw(surface, offset)
+        for ghost in self.ghosts:
+            ghost.draw(surface, offset)
+        for ally in self.allies:
+            ally.draw(surface, offset)
         self.draw_foreground(surface, offset)
         # Atmosfer aktorlerin ONUNDE: toz "odanin icinde" degil "kamerayla
         # oyuncu arasinda" olmali, yoksa zemin dokusu sanilir. Yanki
@@ -888,6 +1174,7 @@ class PlayScene(Scene):
             echo_view.draw_dim(surface, self.echo)
             echo_view.draw_reveal(surface, offset, self.echo, self.player,
                                   self.enemies, self.breakables)
+            echo_view.draw_phantom(surface, offset, self.echo, self.phantom)
             echo_view.draw_answer(surface, offset, self.echo, self.player)
 
         # Iz Surme ayni yerde ama **karartma yok**: Yanki'nin bedeli
@@ -912,6 +1199,8 @@ class PlayScene(Scene):
         # adi her zeminde okunmali, ama Yanki acikken o da bulanir.
         if self.card is not None:
             self.card.draw(surface)
+        if self.mechanic_card is not None:
+            self.mechanic_card.draw(surface)
         self._draw_boss_bar(surface)
         self.draw_overlay(surface)
 
@@ -953,8 +1242,9 @@ class PlayScene(Scene):
         kurtarmiyor.
 
         Once istenen yer, sonra iki yana artan mesafeler deneniyor.
-        Hicbiri olmazsa oyuncunun tam ustu (orasi kesin bos, oyuncu
-        orada duruyor).
+        Hicbiri olmazsa en kisa kaydirma (`_nudge_clear_feet`);
+        oyuncunun kendi konumu yedek DEGIL - o da duvardaysa
+        sikisma kalici olur.
         """
         probe = body.rect.copy()
         for dx in (0, -14, 14, -28, 28, -44, 44, -60, 60):
@@ -962,7 +1252,37 @@ class PlayScene(Scene):
             probe.y = int(y - probe.height)
             if not self.tilemap.solid_overlap(probe):
                 return (x + dx, y)
-        return (self.player.body.center_x, self.player.body.feet[1])
+        return self._nudge_clear_feet(body)
+
+    def _eject_from_solids(self) -> None:
+        """Duvarin icinde kalan oyuncuyu en kisa yoldan cikarir.
+
+        Arena muhuru (`set_tile(..., SOLID)`) govdenin ustune binebilir:
+        esik merkeze bakinca 10 piksellik kutu sutunun 5 pikselinde
+        kaliyor. `Body.move` bunu cozmez. `docs/derinlestirme.md`:
+        *"Hicbir odada oyuncu kalici olarak sikismasin."*
+        """
+        if self.player.dead or self.player.body.ignore_solids:
+            return
+        if not self.tilemap.solid_overlap(self.player.body.rect):
+            return
+        x, y = self._nudge_clear_feet(self.player.body)
+        self.player.body.set_feet(x, y)
+        self.player.body.vx = 0.0
+
+    def _nudge_clear_feet(self, body) -> tuple[float, float]:
+        """En kisa yatay kaydirma. Es mesafede saga (arena ici) oncelik."""
+        y = body.feet[1]
+        probe = body.rect.copy()
+        probe.y = int(y - probe.height)
+        half = probe.width * 0.5
+        for dist in range(1, TILE_SIZE * 4):
+            for sign in (1, -1):
+                nx = body.center_x + sign * dist
+                probe.x = int(nx - half)
+                if not self.tilemap.solid_overlap(probe):
+                    return (nx, y)
+        return (body.center_x, y)
 
     # --- Game feel kancalari ------------------------------------------------
     def on_hit(self, box, target, result, direction) -> None:
@@ -1184,6 +1504,23 @@ class PlayScene(Scene):
             self.on_echo_tier_changed(self.echo.tier, gained=False)
         self.game.play_sound("player_death")
         self.death_frames = DEATH_SCREEN_DELAY
+        self._leave_ghost(player)
+
+    def _leave_ghost(self, player) -> None:
+        """Oldugun yerde bir hayalet kalir (docs/korku.md 5.3).
+
+        Ust uste ayni yerde olen oyuncu hayalet YIGMASIN: yakindaki bir
+        hayalet varsa yenisi konmuyor. On tane ust uste duran mor leke
+        bir anlam degil bir hata gibi okunur.
+        """
+        if not horror.atmosphere(self.game.settings):
+            return
+        from src.entities.ghost import Ghost
+        fx, fy = player.body.feet
+        for existing in self.ghosts:
+            if abs(existing.x - fx) < 20.0 and abs(existing.feet_y - fy) < 24.0:
+                return
+        self.ghosts.append(Ghost(fx, fy))
 
     def _open_death_screen(self) -> None:
         """Olum ekranini acar.

@@ -42,6 +42,7 @@ from src.art import palette
 from src.config import TILE_SIZE
 from src.core.input import Action
 from src.core.juice import ImpactWeight
+from src.ui.dialogue import Line
 from src.entities.companion import Companion, other_character
 from src.scenes.play import PlayScene
 from src.systems import boost, resonance
@@ -62,6 +63,11 @@ from src.world.tilemap import EMPTY, SOLID, TileMap
 CATCHUP_DISTANCE = TILE_SIZE * 7
 # Yetisme gecikmesi - aninda olsaydi isinlanma goze batardi.
 CATCHUP_FRAMES = 70
+
+# Cana bu kadar yaklasinca rezonans hatirlatiliyor (piksel). Genis
+# tutuldu - 5 tile: oyuncu cani GORDUGU anda ipucunu almali, dibine
+# gelmesini beklememeli.
+BELL_HINT_RANGE = 80.0
 
 
 class Chapter09Scene(PlayScene):
@@ -155,6 +161,7 @@ class Chapter09Scene(PlayScene):
         self._update_boost()
         self._update_catchup()
         self._update_resonance()
+        self._update_bell_hint()
         self._update_bells()
         self._update_chests()
         self._update_top_hint()
@@ -186,7 +193,8 @@ class Chapter09Scene(PlayScene):
             self.trust_played = True
             from src.scenes.chapter09_cinematics import TrustCinematic
             self.scenes.push(TrustCinematic, character=self.character)
-        self.hint_once("hint_boost", "hint.boost", Action.INTERACT)
+        self.hint_once("hint_boost", "hint.boost", Action.INTERACT,
+                       icon="boost")
 
     def _on_boost(self) -> None:
         """Firlatmanin **hissi** - `CLAUDE.md` 7'nin uclu senkronu."""
@@ -218,6 +226,37 @@ class Chapter09Scene(PlayScene):
         self.particles.burst(x, y - 8, 8, path="dust", speed=(0.3, 1.2))
 
     # --- Rezonans ve canlar -------------------------------------------------
+    def _update_bell_hint(self) -> None:
+        """Ilk cana yaklasinca **rezonansi hatirlat.**
+
+        Arda, canli oynanis (08.09.2026): *"can kulesi bolumunde
+        kullanici ne yapmasi gerektigini asla anlamiyor."* Hakliydi ve
+        sebep tek bir eksiklikti: bu bolumde rezonans icin HICBIR
+        ipucu yoktu.
+
+        Rezonans Bolum 8'de ogreniliyor - ama orada bir **an**, burada
+        bir **bulmaca**. Aradaki bolumde oyuncu tusu bir kez kullanip
+        unutuyor; kuleye gelince elinde yalnizca firlatma kaliyor, uc
+        kez yukari cikiyor, kapali kapiyla karsilasiyor ve yapacak bir
+        sey olmadigini saniyor.
+
+        Ipucu **cana yaklasinca** cikiyor, bolume girince degil: o an
+        oyuncunun onunde cevabin kendisi duruyor, yani ipucu bir
+        talimat degil bir baglanti kuruyor.
+        """
+        if self.solved:
+            return
+        for bell in self.bells:
+            if bell.triggered:
+                continue
+            distance = math.hypot(
+                bell.rect.centerx - self.player.body.center_x,
+                bell.rect.centery - self.player.body.center_y)
+            if distance <= BELL_HINT_RANGE:
+                self.hint_once("hint_bell", "hint.bell", Action.RESONATE,
+                               icon="resonance")
+                return
+
     def _update_resonance(self) -> None:
         self.resonance.update()
         if not self.resonance.unlocked:
@@ -234,7 +273,6 @@ class Chapter09Scene(PlayScene):
         Anahtarlar **duz dize** - f-string ile kurulani
         `tests/test_lang.py` goremiyor.
         """
-        from src.ui.dialogue import Line
         if self.character == "ardo":
             return Line("ardo", ardo_key)
         return Line("echo", echo_key)
@@ -303,6 +341,15 @@ class Chapter09Scene(PlayScene):
         if not self.wrong_hinted:
             self.wrong_hinted = True
             self.show_toast(t("chapter09.wrong_order"), frames=200)
+            # Cemo'nun sozcuklerinin ikinci parcasi (docs/korku.md 11.1).
+            # Yanki teselli eder gibi konusuyor ve **Cemo'nun acilis
+            # sozcuklerini** kullaniyor: "Bunu senin icin yaptim."
+            # Cemo bunu kolye icin demisti; Yanki bulmaca icin diyor.
+            # Sozcukler ayni, kaynak degil.
+            #
+            # Yalnizca Rey'de: Ardo'nun Yanki'si yok.
+            if self.echo is not None:
+                self.say(Line("echo", "line.ch09_echo_seed"))
 
     def _solve(self) -> None:
         self.solved = True
@@ -362,6 +409,7 @@ class Chapter09Scene(PlayScene):
             self.scenes.set_root(Chapter10Scene, character=character)
 
         self.scenes.push(ChapterEndScene, result=result,
+                         save_data=self.save_data,
                          on_continue=_continue)
 
     # --- Kancalar -----------------------------------------------------------

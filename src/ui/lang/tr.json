@@ -128,7 +128,14 @@
     "gamepad_note": "Kapalıyken açılış anında. Açarken kol taraması uzun sürebilir.",
     "gamepad_scanning": "Oyun kolu aranıyor...",
     "tab_controls": "Tuşlar",
-    "controls_binding": "[▴▾] gez   [◂▸] sütun   [Enter] ata   [Esc] kapat"
+    "controls_binding": "[▴▾] gez   [◂▸] sütun   [Enter] ata   [Esc] kapat",
+    "horror": "Korku katmanı",
+    "horror_full": "Tam",
+    "horror_reduced": "Azaltılmış",
+    "horror_off": "Kapalı",
+    "horror_note": "Azaltılmış: şok kalır, ani ses gider. Kapalı: hikâye aynı.",
+    "flash_limit": "Parlama sınırı",
+    "flash_limit_note": "Ani parlamayı kaldırır. Olaylar aynen yaşanır."
   },
   "ability": {
     "sword": "KILIÇ  ·  J ile saldır",
@@ -147,7 +154,8 @@
     "rey": "REY",
     "ardo": "ARDO",
     "cemo": "CEMO",
-    "echo": "…"
+    "echo": "…",
+    "jet": "JET"
   },
   "line": {
     "ch01_cemo_gift": "Bunu senin için yaptım... Belki karanlık sana yaklaşırken iki kez düşünür.",
@@ -155,7 +163,6 @@
     "ch01_echo_first": "Uyan... Karanlık çoktan uyandı.",
     "ch01_echo_rift": "Aşağıda bir şey seni çağırıyor.",
     "ch01_echo_alone": "Onu geri istiyorsun... değil mi?",
-    "ch01_echo_sword": "Al onu. Karanlık çeliği de tanır.",
     "ch01_echo_wall": "Gördün mü? Burada perde inceliyor.",
     "ch02_echo_wall": "Dinle... Taşın altında hâlâ bir şey nefes alıyor.",
     "ch02_echo_secret": "Senden önce biri de bu sırrı aradı... sonra sesi kesildi.",
@@ -448,7 +455,25 @@
     "ch18_rey_three": "Üçümüz. Yukarı.",
     "ch18_ardo_three": "Çıkış orada. Yürüyebiliyoruz.",
     "ch18_rey_quiet": "Kafamda hiçbir şey yok. İlk kez.",
-    "ch18_ardo_quiet": "Sessiz. Onun için de sessiz artık."
+    "ch18_ardo_quiet": "Sessiz. Onun için de sessiz artık.",
+    "ch04_echo_seed": "İki kez düşündü mü?",
+    "ch09_echo_seed": "Bunu senin için yaptım.",
+    "ch13_echo_seed": "Rey?",
+    "echo_alone_voice": "Artık yalnızca ben kaldım. Sen beni seçtin.",
+    "kalachev_name": "E. KALACHEV",
+    "ch04_echo_name": "Kalachev. Adını duvara kendi kazımış.",
+    "ch04_ardo_name": "Kalachev. Bu adı aşağıda da göreceğiz.",
+    "ch02_echo_bones": "Senden önce biri gelmiş. Adını sonra öğreneceksin.",
+    "ch01_jet_offer": "Bunu al. Bu gece dışarıda kalma.",
+    "ch01_rey_jet": "Neden bana veriyorsun? Kimse yaklaşmıyor bile.",
+    "ch01_jet_offer_ardo": "Yine mi yola çıkıyorsun? Al şunu.",
+    "ch01_ardo_jet": "Sen de hiç değişmemişsin.",
+    "ch01_jet_name": "Bana köyümde arkadaşım Berke ne derdi biliyor musun? Emre.",
+    "ch01_rey_name": "Ama herkes sana Jet diyor.",
+    "ch01_jet_name2": "Takma adı başkaları verir. Adını, seni tanıyan söyler.",
+    "ch01_ardo_name": "Berke'yi hâlâ anıyorsun demek.",
+    "ch01_jet_leave": "Kendine iyi bak. Ben doğuya gidiyorum.",
+    "ch01_echo_sword_given": "Sana bir şey verdi. Bunu unutma."
   },
   "combat": {
     "counter": "KARŞI VURUŞ",
@@ -528,7 +553,8 @@
     "pocket_open": "Gizli bir geçit açıldı",
     "trade_title": "MUM BEKÇİSİ",
     "trade_owned": "alındı",
-    "trade_exit": "[Esc] çık   [Enter] al"
+    "trade_exit": "[Esc] çık   [Enter] al",
+    "bought_item": "{name} alındı — elinde {count}"
   },
   "chapter04": {
     "gold_found": "{count} altın",
@@ -539,7 +565,9 @@
   "trade": {
     "torch": "Meşale",
     "wick": "Sönmez Fitil",
-    "candle": "Koruyucu Mum"
+    "candle": "Koruyucu Mum",
+    "arrows": "Üç Ok",
+    "bomb": "Bomba"
   },
   "boss": {
     "bloated_one": "ŞİŞMİŞ OLAN",
@@ -640,7 +668,8 @@
     "heading": "EKİPMAN",
     "equipped": "kuşanılı",
     "hint": "[▴▾] seç   [Enter] kuşan   [Esc] geri",
-    "stat_line": "{hits} vuruş · {damage} hasar · {frames} kare · itiş {knockback}"
+    "stat_line": "{hits} vuruş · {damage} hasar · {frames} kare · itiş {knockback}",
+    "ammo_heading": "SARF MALZEMESİ"
   },
   "chapter07": {
     "order_hint": "Omuzların sığmıyor — ona işaret et",
@@ -685,7 +714,17 @@
     "chime": "[{key}] rezonans — uzaktaki çanı çal",
     "rescue": "[{key}] basılı tut — onu kaldır",
     "switch": "[{key}] öteki karaktere geç",
-    "silence": "[{key}] basılı tut — sesi sustur"
+    "silence": "[{key}] basılı tut — sesi sustur",
+    "bell": "{key} ile sesini gonder — çanı çal",
+    "bell_title": "ÇANI ÇAL",
+    "resonance_title": "YANKI REZONANSI",
+    "boost_title": "BİRLİKTE TIRMANIŞ",
+    "switch_title": "KARAKTER DEĞİŞTİR",
+    "companion_wait_title": "YOLDAŞA KOMUT",
+    "inventory_title": "ENVANTER",
+    "rescue_title": "KALDIR",
+    "throw": "{key} ile seçili malzemeyi fırlat",
+    "throw_title": "UZAKTAN DÖVÜŞ"
   },
   "chapter08": {
     "first_crystal": "Kristal kırıldı — ses bir silah",
@@ -743,5 +782,11 @@
     "path_lifted": "Onu yerden kaldırdın.",
     "path_tidy": "Kuleyi tereddütsüz çözdün.",
     "path_clean": "Sesi erken bıraktın."
+  },
+  "item": {
+    "arrow": "Ok",
+    "arrow_desc": "Hızlı, düz uçar. Tek hedef.",
+    "bomb": "Bomba",
+    "bomb_desc": "Yay çizer, yerde patlar. Alan hasarı."
   }
 }

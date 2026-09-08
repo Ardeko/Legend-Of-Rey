@@ -36,6 +36,31 @@ from pathlib import Path
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
+# **Oyuncunun kaydina DOKUNMA.** (08.09.2026)
+#
+# Sahneler `read_save()` ile kaydi yukluyor ve `_sync_abilities()` gibi
+# yerler `write_save()` ile geri yaziyor - yani bu paketi calistirmak
+# Arda'nin gercek ilerlemesini siliyordu. 55 altin ve secilmis balta
+# boyle kayboldu; yedek dosyasi da ustune yazildigi icin
+# kurtarilamadi.
+#
+# Bir test, oyuncunun verisine asla dokunmamali. Kayit dizini her
+# calistirmada gecici bir klasore aliniyor.
+import tempfile  # noqa: E402
+
+os.environ["LORE_SAVE_DIR"] = tempfile.mkdtemp(prefix="lore_test_")
+
+# Klasore **varsayilan bir kayit** tohumlaniyor. Bos birakilsaydi
+# `read_save()` None donerdi ve sahnelerin `save_data`si None olurdu -
+# oysa testler gercek bir kaydin varligina gore yazilmis (bayrak
+# okuyor, bolum numarasi yaziyor). Amac oyuncunun dosyasindan
+# kurtulmak, testlerin davranisini degistirmek degil.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.systems.save import SaveData as _SaveData  # noqa: E402
+from src.systems.save import write_save as _write_save  # noqa: E402
+
+_write_save(_SaveData())
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -55,7 +80,9 @@ from src.scenes import chapter18_cinematics as cine  # noqa: E402
 from src.scenes.chapter18 import Chapter18Scene  # noqa: E402
 from src.scenes.ending import ALLY_DISTANCE, DawnCinematic  # noqa: E402
 from src.systems.save import SaveData, write_save  # noqa: E402
-from src.world.rooms.chapter18 import LEVEL, ZONE_STARTS  # noqa: E402
+from src.world.rooms.chapter18 import (  # noqa: E402
+    ARENA_SEAL_COLUMN, FLOOR_TOP, LEVEL, ZONE_STARTS,
+)
 
 failures: list[str] = []
 
@@ -131,6 +158,30 @@ def test_caller_cannot_die_while_echo_is_open() -> None:
               "120 vurusa ragmen OLMEDI", f"can {scene.boss.health}")
         check(scene.boss.rises > 0, "diz cokup kalkti",
               f"{scene.boss.rises} kez")
+    finally:
+        game.quit()
+
+
+def test_player_and_boss_share_the_arena() -> None:
+    """Tetikleyici muhurun gerisinde olsa da oyuncu iceri alinmali.
+
+    Canli oynanis: Cagiran sagda, oyuncu solda, ortada bir sutun.
+    """
+    print("\n--- ayni oda ---")
+    game = Game()
+    try:
+        scene = start(game)
+        trigger = next(s for s in LEVEL.of("trigger")
+                       if s.tile_x >= ZONE_STARTS[2][1])
+        scene.player.body.set_feet(trigger.x, FLOOR_TOP * TILE_SIZE)
+        scene._fire_trigger(trigger.tile_x)
+        edge = (ARENA_SEAL_COLUMN + 1) * TILE_SIZE
+        check(scene.arena_sealed, "muhur indi")
+        check(scene.player.body.x >= edge, "oyuncu muhurun saginda",
+              f"x={scene.player.body.x:.0f} edge={edge}")
+        check(scene.boss.body.center_x >= edge, "boss ayni tarafta")
+        check(not scene.tilemap.solid_overlap(scene.player.body.rect),
+              "oyuncu duvara gomulmedi")
     finally:
         game.quit()
 
@@ -440,6 +491,7 @@ def test_chapter_shape() -> None:
 
 def main() -> int:
     test_caller_cannot_die_while_echo_is_open()
+    test_player_and_boss_share_the_arena()
     test_both_death_paths_are_refused()
     test_silence_unlocks_on_first_kneel()
     test_silencing_works_and_costs()
