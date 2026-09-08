@@ -96,6 +96,14 @@ SPEAKER_COLOURS = {
     "ardo": "stone_light",
     "cemo": "gold",
     "echo": "violet_bright",
+    # Jet - Bolum 1'de kilici veren arkadas. Sicak ama Cemo'nun
+    # altinindan AYRI: ikisi ayni bolumde konusuyor ve etiket rengi
+    # kimin konustugunu okumadan soylemeli.
+    #
+    # ("brass" denendi ve patladi: o bir GOLGE ZINCIRI, palet rengi
+    # degil - `palette.color` PaletteError firlatiyor. Ayni tuzaga
+    # magara arka planinda "soot" ile de dusulmustu.)
+    "jet": "ember_light",
 }
 
 # Ad etiketlerinin dil anahtarlari **acikca** yazili. f-string ile
@@ -107,6 +115,7 @@ SPEAKER_KEYS = {
     "ardo": "speaker.ardo",
     "cemo": "speaker.cemo",
     "echo": "speaker.echo",
+    "jet": "speaker.jet",
 }
 ECHO = "echo"
 

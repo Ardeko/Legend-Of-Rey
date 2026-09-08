@@ -405,6 +405,32 @@ class Chapter01Scene(PlayScene):
         for spot in LEVEL.of("shambler"):
             self.enemies.append(Shambler(self, spot.x, spot.feet_y))
 
+    def _meet_jet(self) -> None:
+        """Kilici **Jet veriyor** - yerden alinmiyor.
+
+        Arda, 08.09.2026: *"oyunun basinda kilici veren kisi Jet isimli
+        bir karakter olsun."*
+
+        Sira degismedi ve degismemeli: kilic hala yaratiklardan ONCE
+        ama Rey'in silahsiz yurudugu bir bolumden SONRA geliyor.
+        Tasarim notu hakliydi - once ihtiyac hissettiriliyor, sonra
+        veriliyor. Degisen tek sey kilici KIMIN verdigi.
+
+        Yerden alinan bir kilic bir **kaynak**; uzatilan bir kilic bir
+        **karar**: birisi koyun "Lanetli" dedigi kiza silah vermeyi
+        secti. Sahnenin tamami bunun uzerine kurulu
+        (`src/scenes/chapter01_cinematics.py`).
+        """
+        self.sword_pos = None
+        if not self.player.grant(abilities.SWORD):
+            return
+        self.on_ability_gained(abilities.SWORD)
+        from src.scenes.chapter01_cinematics import SwordCinematic
+        self.scenes.push(SwordCinematic, character=self.character)
+        # Yanki sahneden SONRA konusuyor - sinematik kapaninca ekranda
+        # kalan tek ses o oluyor.
+        self.say(Line("echo", "line.ch01_echo_sword_given"))
+
     def _watch_player(self) -> None:
         if abs(self.player.body.vx) > 0.2:
             self.moved = True
@@ -412,10 +438,7 @@ class Chapter01Scene(PlayScene):
         if (self.sword_pos is not None
                 and abs(self.player.body.center_x - self.sword_pos[0]) < 12
                 and abs(self.player.body.center_y - self.sword_pos[1]) < 20):
-            self.sword_pos = None
-            if self.player.grant(abilities.SWORD):
-                self.on_ability_gained(abilities.SWORD)
-                self.say(Line("echo", "line.ch01_echo_sword"))
+            self._meet_jet()
         if self.player.chain.busy:
             self.attacked = True
 

@@ -696,6 +696,35 @@ VILLAGER_SPEC = CharSpec(
 )
 
 
+# Jet - kilici veren arkadas (Bolum 1). Hem Rey'in hem Ardo'nun dostu.
+#
+# Koylu iskeletinden turuyor ama **ondan ayrilmali**: koyde bir suru
+# koylu var ve Jet bir kez gorunup gidiyor, o tek gorunuste taninmali.
+# Uc fark yetiyor:
+#
+#   omuz cantasi (shoulder_pads)  yolcu - burada yasamiyor, geciyor
+#   kisa kilic (weapon)           veren adam silahli, verdigi bir yedek
+#   acik kas egimi (brow_tilt +1) koyde Rey'e ters bakmayan tek yuz
+#
+# Sonuncusu en onemlisi: `brow_tilt` tek sayiyla ifade degistiriyor
+# (CLAUDE.md 6) ve Jet'in butun anlami bu - koy ona "Lanetli" derken
+# Jet ona kilic veriyor.
+JET_SPEC = CharSpec(
+    name="jet",
+    cell_width=44, cell_height=40, foot_y=34,
+    # 32 piksel siniri (CLAUDE.md 6). Ilk surum 34'tu ve testi asiyordu.
+    head_radius=3.3, torso_height=6.4, torso_width=5.8,
+    thigh=4.6, shin=4.6, upper_arm=3.8, fore_arm=3.8,
+    limb_width=2.4, shoulder_width=5.4,
+    skin="skin_tan", hair="hair_dark", cloth="cloth_blue",
+    cloth_dark="shadow", armor="leather", accent="brass",
+    shoulder_pads=True, shoulder_chain="leather",
+    hem=4.0, hem_length=3.0,
+    brow_tilt=1,                 # Acik, sempatik - koyde tek dost yuz
+    weapon="sword",
+)
+
+
 # --- BOSS 2: Zindanci (Bolum 13) --------------------------------------------
 # `docs/asset-listesi.md`: *"2 - Zindanci | B13 | 64x80"* - oyunun en
 # buyuk sprite'i. Curumus Olan 64x56'ydi; buyume kasitli, cunku ikisi
@@ -815,6 +844,8 @@ CHARACTERS: dict[str, CharSpec] = {
     "ardo_axe": ARDO_AXE_SPEC,
     "cemo": CEMO_SPEC,
     "villager": VILLAGER_SPEC,
+    # Jet - Bolum 1'de kilici veren arkadas.
+    "jet": JET_SPEC,
     # Katman 1 - Curuyenler (B1-B6)
     "shambler": SHAMBLER_SPEC,
     "climber": CLIMBER_SPEC,

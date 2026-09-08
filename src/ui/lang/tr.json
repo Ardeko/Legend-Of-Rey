@@ -156,7 +156,8 @@
     "rey": "REY",
     "ardo": "ARDO",
     "cemo": "CEMO",
-    "echo": "…"
+    "echo": "…",
+    "jet": "JET"
   },
   "line": {
     "ch01_cemo_gift": "Bunu senin için yaptım... Belki karanlık sana yaklaşırken iki kez düşünür.",
@@ -164,7 +165,6 @@
     "ch01_echo_first": "Uyan... Karanlık çoktan uyandı.",
     "ch01_echo_rift": "Aşağıda bir şey seni çağırıyor.",
     "ch01_echo_alone": "Onu geri istiyorsun... değil mi?",
-    "ch01_echo_sword": "Al onu. Karanlık çeliği de tanır.",
     "ch01_echo_wall": "Gördün mü? Burada perde inceliyor.",
     "ch02_echo_wall": "Dinle... Taşın altında hâlâ bir şey nefes alıyor.",
     "ch02_echo_secret": "Senden önce biri de bu sırrı aradı... sonra sesi kesildi.",
@@ -465,7 +465,17 @@
     "kalachev_name": "E. KALACHEV",
     "ch04_echo_name": "Kalachev. Adını duvara kendi kazımış.",
     "ch04_ardo_name": "Kalachev. Bu adı aşağıda da göreceğiz.",
-    "ch02_echo_bones": "Senden önce biri gelmiş. Adını sonra öğreneceksin."
+    "ch02_echo_bones": "Senden önce biri gelmiş. Adını sonra öğreneceksin.",
+    "ch01_jet_offer": "Bunu al. Bu gece dışarıda kalma.",
+    "ch01_rey_jet": "Neden bana veriyorsun? Kimse yaklaşmıyor bile.",
+    "ch01_jet_offer_ardo": "Yine mi yola çıkıyorsun? Al şunu.",
+    "ch01_ardo_jet": "Sen de hiç değişmemişsin.",
+    "ch01_jet_name": "Bana köyümde arkadaşım Berke ne derdi biliyor musun? Emre.",
+    "ch01_rey_name": "Ama herkes sana Jet diyor.",
+    "ch01_jet_name2": "Takma adı başkaları verir. Adını, seni tanıyan söyler.",
+    "ch01_ardo_name": "Berke'yi hâlâ anıyorsun demek.",
+    "ch01_jet_leave": "Kendine iyi bak. Ben doğuya gidiyorum.",
+    "ch01_echo_sword_given": "Sana bir şey verdi. Bunu unutma."
   },
   "combat": {
     "counter": "KARŞI VURUŞ",

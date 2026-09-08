@@ -156,7 +156,8 @@
     "rey": "REY",
     "ardo": "ARDO",
     "cemo": "CEMO",
-    "echo": "…"
+    "echo": "…",
+    "jet": "JET"
   },
   "line": {
     "ch01_cemo_gift": "I made this for you... Maybe it'll make the darkness think twice.",
@@ -164,7 +165,6 @@
     "ch01_echo_first": "Wake up... The dark is already awake.",
     "ch01_echo_rift": "Something below is waiting for you...",
     "ch01_echo_alone": "You want them back... don't you?",
-    "ch01_echo_sword": "Take it. Even the dark knows steel.",
     "ch01_echo_wall": "Do you feel it? The veil is thin here.",
     "ch02_echo_wall": "Listen... Something is still breathing beneath the stone.",
     "ch02_echo_secret": "Someone searched for this secret before you... then their voice went silent.",
@@ -465,7 +465,17 @@
     "kalachev_name": "E. KALACHEV",
     "ch04_echo_name": "Kalachev. He carved his own name into the wall.",
     "ch04_ardo_name": "Kalachev. We will see this name further down.",
-    "ch02_echo_bones": "Someone came before you. You will learn his name later."
+    "ch02_echo_bones": "Someone came before you. You will learn his name later.",
+    "ch01_jet_offer": "Take this. Do not stay out tonight.",
+    "ch01_rey_jet": "Why give it to me? No one even comes near.",
+    "ch01_jet_offer_ardo": "On the road again? Take this.",
+    "ch01_ardo_jet": "You have not changed either.",
+    "ch01_jet_name": "Know what my friend Berke back home called me? Emre.",
+    "ch01_rey_name": "But everyone calls you Jet.",
+    "ch01_jet_name2": "Others give you a nickname. Your name is said by someone who knows you.",
+    "ch01_ardo_name": "So you still think of Berke.",
+    "ch01_jet_leave": "Look after yourself. I am heading east.",
+    "ch01_echo_sword_given": "He gave you something. Do not forget it."
   },
   "combat": {
     "counter": "COUNTER",
