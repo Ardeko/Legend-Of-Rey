@@ -7,7 +7,7 @@ Okuma sırası: **1) `CLAUDE.md`** (bağlayıcı kurallar — anayasa) → **2) 
 dosya** (nerede kaldık) → 3) gerekirse `docs/` altındaki ilgili tasarım
 belgesi.
 
-Son güncelleme: **08.09.2026** (korku katmanı, kayıt hatası, uzaktan dövüş, Jet, Kalachev) · Ardeko Studios · Arda Güner
+Son güncelleme: **08.09.2026** (korku katmanı, kayıt hatası, uzaktan dövüş, Jet, **Kalachev bitti — B18 üç fazlı final dahil**) · Ardeko Studios · Arda Güner
 
 > `GOREVLER.md` **silindi** (23.08.2026, Arda'nın isteği: "bir devir.md
 > olsun diğerlerini sil kafa karıştırmasın"). İçindeki canlı bilgi bu
@@ -17,8 +17,16 @@ Son güncelleme: **08.09.2026** (korku katmanı, kayıt hatası, uzaktan dövü�
 
 ## 0. SIRADA NE VAR — **YENİ OTURUM ÖNCE BURAYI OKU**
 
-`main` dalı güncel ve push'lu. **48 test paketi yeşil.** Çalışma alanı
-temiz. Devam etmek için: `git pull`, sonra aşağıdaki listeden bir madde.
+**48 test paketi yeşil.** Çalışma alanı temiz.
+
+> **`git push` bu ortamda çalışmıyor** (kimlik doğrulama yok) — commit'ler
+> yerelde birikiyor, bkz. §10. `git log origin/main..main --oneline`
+> ile kaç tanesi beklediği görülür.
+
+**Kod tarafında planlanmış iş kalmadı.** `docs/kalachev.md` ve
+`docs/korku.md`'nin tamamı uygulandı; §9'da gerçekten açık iki madde
+var ve ikisi de kod değil: biri bir pygame-ce sınırı (madde 9),
+öteki **baştan sona oynanış testi** (madde 10) — kalan en değerli iş.
 
 ### 0.1 KALACHEV — BİTTİ (08.09.2026)
 

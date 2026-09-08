@@ -26,7 +26,7 @@ Kafasının içindeki sesler yüzünden lanetli sayılan Rey, kaçırılan karde
 | `docs/dovus-sistemi.md` | Dövüş, combo, game feel, kare değerleri |
 | `docs/ekonomi-uretim.md` | Altın, zorluk eğrisi, üretim aşamaları |
 | **`docs/korku.md`** ★ | **Korku katmanı — üç katman, 11 madde, erişilebilirlik. 08.09.2026'da eklendi** |
-| **`docs/kalachev.md`** ★ | **Kalachev — önceki maceracı. Sprite/AI yazıldı, yerleştirme sürüyor** |
+| **`docs/kalachev.md`** ★ | **Kalachev — önceki maceracı. Tamamı uygulandı (08.09.2026): sekiz bölüm + finalde ölümü** |
 | `docs/diyaloglar.md` | Replik metinleri ve yerleşimleri |
 | `docs/menu-ui.md` | Ana menü, karakter seçimi, ayarlar, HUD, UX prensipleri |
 | `docs/derinlestirme.md` | Araştırma temelli ekler — ileri game feel, yenilikçi mekanikler, erişilebilirlik, Pygame performans |
