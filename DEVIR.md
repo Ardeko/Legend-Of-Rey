@@ -510,6 +510,49 @@ Hepsi gerçek hataydı, çoğu testle yakalandı.
     Uzun metni Write aracıyla yaz, kısa yamaları Python betiğiyle uygula.
     `\n` kaçışları iki kez yorumlanıp gerçek satır sonuna dönüşebiliyor.
 
+25. **★ TEST OYUNCUNUN VERİSİNE DOKUNMAMALI.** Sahneler `read_save()`
+    ile gerçek kaydı yüklüyor ve bazı yerler geri yazıyordu; test paketi
+    Arda'nın ilerlemesini **iki kez sildi** (55 altın + seçilmiş balta
+    gitti, yedek de aynı koşuda ezildi). Artık `save.py` `LORE_SAVE_DIR`
+    okuyor ve her test başında geçici klasöre geçiyor. **Yeni test
+    dosyasına o bloğu kopyala.** Doğrulaması: tam süit sonrası
+    `save.json`'ın SHA256'sı değişmemeli.
+
+26. **Bellekte doğru görünen şey diskte yanlış olabilir.** `write_save`
+    yalnızca üç yerde çağrılıyordu; bölüm bitirme, silah seçimi ve
+    ekipman değişimi hiç yazılmıyordu. Oyun oturum boyunca doğru
+    davrandığı için elle oynayarak fark edilmesi en zor hata sınıfı.
+    `tests/test_persistence.py` her karar noktasından sonra **dosyayı
+    tekrar okuyup** bakıyor — belleğe değil.
+
+27. **Palet rengi ile gölge zinciri ayrı şeyler ve karıştırması kolay.**
+    Bugün üç kez patladı: `soot` ve `brass` renk beklenen yerde
+    (ikisi de zincir adı), `earth_dark` zincir beklenen yerde (renk
+    adı). Renkler `tools/palette.json` → `colors`, zincirler →
+    `shade_chains`.
+
+28. **f-string ile kurulan dil anahtarını `test_lang.py` göremiyor** ve
+    "ölü anahtar" sayıyor. Bugün **beşinci** kez düşüldü (mekanik
+    kartının başlıkları). Anahtarlar her yerde **düz dize** yazılır;
+    gerekirse `mechanic_card.TITLES` gibi bir harita kurulur.
+
+29. **`radial_glow` toplama harmanı (`BLEND_RGB_ADD`) için üretiliyor.**
+    Normal blit'te karanlık piksellerini siyah boyuyor — Kalachev'in
+    hatıra paneli siyah bir dikdörtgene döndü. Yumuşak hale isteniyorsa
+    alfayı elle azalt (iç içe halkalar).
+
+30. **Bir sistemin "sahne çağırır" diye yazılması onu çağrılmış
+    yapmıyor.** `Boss.draw_health_bar` aylarca oradaydı, hiçbir sahne
+    çağırmıyordu — boss dövüşleri barsız oynanıyordu ve bu ancak ekran
+    görüntüsüne bakınca görüldü. Aynı sınıf: `tileset.py`, `music_hush`.
+
+31. **★ Ekran görüntüsü, ölçümün yakalayamadığını yakalıyor.** Bugün
+    altı hata yalnızca *bakarak* bulundu: mağara arka planı şehir
+    silueti gibi okunuyordu, meşaleler havada asılıydı, mekanik kartının
+    metni taşıyordu, `{key}` ham çıkıyordu, Kalachev Rey'den hafif
+    okunuyordu, kıyafeti ten renginden ayrışmıyordu. Hiçbiri testle
+    yakalanamazdı. **"Çalışıyor" demeden önce BAK.**
+
 ---
 
 ## 7. 23.08.2026 GRAFİK KIYASLAMASI — ÖLÇÜLDÜ
