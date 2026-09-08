@@ -195,6 +195,75 @@ def main() -> int:
         check(view.x >= 0 and view.y >= 0,
               f"{width}x{height} -> gorunum ekranin icinde")
 
+    # --- 6. Coklu monitor: tam ekran OYUNCUNUN ekraninda acilmali -----------
+    # Arda 08.09.2026: *"tam ekrana alip pencereliye gectigimizde sorun
+    # yasiyorum arada."* O "arada" pencerenin hangi ekranda oldugundan
+    # baska hicbir seye bagli degildi: tam ekran kosulsuz (0, 0)'a, yani
+    # daima BIRINCIL monitore aciliyordu. Iki ekranli masaustunde ikinci
+    # ekranda oynayan oyuncu F11'e basinca oyun diger ekrana firliyordu.
+    #
+    # Yerlesim **sanal**: gercek ikinci monitor gerektirmiyor. Hatanin
+    # ilk kez uretilmesi gercek donanim istemisti; bir daha istemesin.
+    print("\n--- coklu monitor ---")
+    from src.core import display as disp
+    from src.core.game import largest_scale, scale_fits, window_origin
+
+    left = disp.Monitor(pygame.Rect(-1920, 0, 1920, 1080),
+                        pygame.Rect(-1920, 0, 1920, 1032))
+    main = disp.Monitor(pygame.Rect(0, 0, 1920, 1080),
+                        pygame.Rect(0, 0, 1920, 1032), primary=True)
+    right = disp.Monitor(pygame.Rect(1920, 0, 1920, 1080),
+                         pygame.Rect(1920, 0, 1920, 1032))
+    layout = [left, main, right]
+
+    check(disp.pick(layout, (2100, 200)).bounds.x == 1920,
+          "sagdaki ekrandaki nokta o ekrani seciyor")
+    check(disp.pick(layout, (-800, 400)).bounds.x == -1920,
+          "NEGATIF koordinatli ekran da seciliyor")
+    check(disp.pick(layout, (500, 500)).bounds.x == 0,
+          "birincil ekrandaki nokta birincili seciyor")
+    check(disp.pick(layout, (99999, 99999)).primary,
+          "hicbir ekranda olmayan nokta birincile dusuyor - "
+          "gorunmeyen ekrana acmaktansa yanlis ama gorunur ekrana")
+    check(disp.pick([], (0, 0)) is not None,
+          "ekran listesi bos kalirsa da bir ekran donuyor")
+
+    check(window_origin((1920, 1080), True, right) == (1920, 0),
+          "tam ekran SAGDAKI ekranin kosesine aciliyor",
+          str(window_origin((1920, 1080), True, right)))
+    check(window_origin((1920, 1080), True, left) == (-1920, 0),
+          "tam ekran SOLDAKI ekranda da dogru",
+          str(window_origin((1920, 1080), True, left)))
+
+    # Pencereli kip ayni ekranda kalmali - tam ekrandan cikinca oyuncu
+    # baslangictaki ekranina donmeli.
+    origin = window_origin((1440, 810), False, right)
+    check(origin[0] >= 1920, "pencereli kip ayni ekranda kaliyor", str(origin))
+    check(origin[1] + 810 <= right.work.bottom,
+          "pencerenin alti CALISMA alaninin icinde - gorev cubugu haric",
+          f"alt kenar {origin[1] + 810} <= {right.work.bottom}")
+
+    # --- 7. Elle secilen olcek de ekrana sigmali ----------------------------
+    # `scale = configured or self._best_scale()` yaziyordu: otomatik olcek
+    # ekrana sigmayi gozetiyor, ELLE secilen atlıyordu. 1920x1080 ekranda
+    # 4x secen oyuncunun penceresi 1920x1080 oluyor ve 1032'lik calisma
+    # alanina sigmiyordu - alt kismi gorev cubugunun altinda kaliyordu.
+    print("\n--- olcek calisma alanina sigmali ---")
+    check(scale_fits(3, main), "1080p ekranda 3x siğiyor")
+    check(not scale_fits(4, main),
+          "1080p ekranda 4x SIGMIYOR (1080 > 1032 - cerceve)")
+    check(largest_scale(main) == 3, "en buyuk guvenli olcek 3x",
+          f"{largest_scale(main)}x")
+
+    tall = disp.Monitor(pygame.Rect(0, 0, 3840, 2160),
+                        pygame.Rect(0, 0, 3840, 2112), primary=True)
+    check(largest_scale(tall) == 7, "4K ekranda 7x seciliyor",
+          f"{largest_scale(tall)}x")
+    small = disp.Monitor(pygame.Rect(0, 0, 800, 600),
+                         pygame.Rect(0, 0, 800, 560), primary=True)
+    check(largest_scale(small) >= 1, "kucuk ekranda da bir olcek bulunuyor",
+          f"{largest_scale(small)}x")
+
     game.shutdown()
 
     print("\n=== SONUC ===")

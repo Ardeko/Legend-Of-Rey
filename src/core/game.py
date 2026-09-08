@@ -24,6 +24,7 @@ from src.audio.mixer import AudioMixer
 from src.config import (
     FPS, INTERNAL_HEIGHT, INTERNAL_WIDTH, MAX_CATCHUP_FRAMES,
 )
+from src.core import display
 from src.core.input import Action, InputManager
 from src.core.scene import SceneManager
 from src.systems.settings import Settings
@@ -32,7 +33,12 @@ from src.ui import cursor, i18n
 WINDOW_TITLE = "Legend of Rey"
 MIN_SCALE = 1
 MAX_SCALE = 8
-SCALE_SCREEN_MARGIN = 80        # Pencere modunda ekran kenarina birakilan pay
+# Baslik cubugu + kenarlik payi. `set_mode` **ic alani** kuruyor; pencere
+# cercevesi onun disinda kalip pencereyi asagi itiyor. Bir donem
+# `SCALE_SCREEN_MARGIN = 80` diye kaba bir pay vardi ve gorev cubugunu
+# hesaba katmiyordu - artik gercek calisma alani soruluyor
+# (`src/core/display.py`), bu sabit yalnizca cerceveyi karsiliyor.
+WINDOW_CHROME_HEIGHT = 40
 
 
 def viewport_for(width: int, height: int) -> tuple[int, pygame.Rect]:
@@ -52,8 +58,8 @@ def viewport_for(width: int, height: int) -> tuple[int, pygame.Rect]:
                               view_w, view_h)
 
 
-def window_origin(size: tuple[int, int],
-                  fullscreen: bool) -> tuple[int, int]:
+def window_origin(size: tuple[int, int], fullscreen: bool,
+                  monitor: display.Monitor | None = None) -> tuple[int, int]:
     """Pencerenin masaustundeki sol ust kosesi.
 
     `set_mode` var olan bir pencereyi **tasimiyor** - yalnizca yeniden
@@ -64,26 +70,27 @@ def window_origin(size: tuple[int, int],
         -> solda 560, ustte 315 piksel masaustu goruluyor
         -> sag alt kose ekran disinda kaliyor
 
-    **Tam ekran BIRINCIL ekranda aciliyor.** Windows'ta sanal masaustu
-    koordinatlarinda birincil ekranin sol ust kosesi daima (0, 0), ve
-    `desktop_size()` zaten birincil ekranin boyutunu donuyor - ikisi
-    ayni ekrani anlatmali, yoksa yanlis olculerde bir pencere kurulur.
-    (pygame-ce 2.5.8 pencerenin HANGI ekranda oldugunu sormanin bir
-    yolunu vermiyor: `get_desktop_sizes` yalnizca boyut doner ve
-    `set_mode(display=...)` bu SDL/Windows bileskesinde pencereyi
-    tasimiyor - olculdu.)
+    **Oyuncunun uzerinde oldugu ekranda kaliniyor.** Bir donem tam ekran
+    kosulsuz (0, 0)'a gidiyordu - yani daima birincil monitore. Iki
+    ekranli bir masaustunde bu, ikinci ekranda oynayan oyuncuyu F11'e
+    basinca **diger ekrana firlatiyordu** (olculdu, `src/core/display.py`
+    baslik notu). Ekran secimi artik `display.current()`'in isi; burasi
+    yalnizca o ekranin icine yerlestiriyor.
 
-    Pencereli kipte **ortalaniyor**: tam ekrandan cikinca pencere
-    (0, 0)'da kalirdi, yani sol ust koseye yapisik.
+    Pencereli kipte ekranin **calisma alanina** gore ortalaniyor -
+    gorev cubugunun kapladigi yer haric. Tam alana gore ortalasaydik
+    pencerenin alti gorev cubugunun altinda kalirdi.
     """
+    screen = monitor or display.current(size)
     if fullscreen:
-        return (0, 0)
-    screen_w, screen_h = desktop_size()
-    return (max(0, (screen_w - size[0]) // 2),
-            max(0, (screen_h - size[1]) // 2))
+        return screen.bounds.topleft
+    area = screen.work
+    return (area.x + max(0, (area.width - size[0]) // 2),
+            area.y + max(0, (area.height - size[1]) // 2))
 
 
-def place_window(size: tuple[int, int], fullscreen: bool) -> None:
+def place_window(size: tuple[int, int], fullscreen: bool,
+                 monitor: display.Monitor | None = None) -> None:
     """Pencereyi `window_origin`'in soyledigi yere koyar.
 
     Konum hesabi ayri tutuldu ki pencere acmadan dogrulanabilsin
@@ -94,9 +101,29 @@ def place_window(size: tuple[int, int], fullscreen: bool) -> None:
         return
     try:
         # Tek **dizi** aliyor, iki ayri sayi degil.
-        move(window_origin(size, fullscreen))
+        move(window_origin(size, fullscreen, monitor))
     except pygame.error:
         pass
+
+
+def scale_fits(scale: int, monitor: display.Monitor) -> bool:
+    """`scale` katindaki pencere bu ekranin calisma alanina siğiyor mu?
+
+    Yukseklikte ayrica `WINDOW_CHROME_HEIGHT` dusuluyor: `set_mode`
+    **ic alani** kuruyor, baslik cubugu ve kenarlik onun disinda kalip
+    pencereyi asagi itiyor.
+    """
+    area = monitor.work
+    return (INTERNAL_WIDTH * scale <= area.width
+            and INTERNAL_HEIGHT * scale <= area.height - WINDOW_CHROME_HEIGHT)
+
+
+def largest_scale(monitor: display.Monitor) -> int:
+    """Bu ekrana siğan en buyuk tam sayi olcek."""
+    for scale in range(MAX_SCALE, MIN_SCALE, -1):
+        if scale_fits(scale, monitor):
+            return scale
+    return MIN_SCALE
 
 
 def desktop_size() -> tuple[int, int]:
@@ -231,8 +258,8 @@ class Game:
         pygame.mouse.set_visible(False)
 
     # --- Pencere ------------------------------------------------------------
-    def _best_scale(self) -> int:
-        """Pencere modunda masaustune sigan en buyuk tam sayi olcek.
+    def _best_scale(self, monitor: display.Monitor) -> int:
+        """Pencere modunda bu ekrana sigan en buyuk tam sayi olcek.
 
         **`pygame.display.Info()` KULLANILMAZ.** O cagri bir pencere
         acildiktan sonra masaustunu degil **o anki kipi** doner - yani
@@ -244,13 +271,11 @@ class Game:
         Arda bunu canli oynanista buldu (29.08.2026): ayari degistirince
         pencere kuculuyor ve arayuz kirpiliyordu.
 
-        `get_desktop_sizes()` gercek masaustunu veriyor ve kipten
-        etkilenmiyor.
+        Olcut artik **o ekranin calisma alani**: masaustunun tamami
+        degil. 1920x1080 bir ekranda gorev cubugu 48 piksel aliyor ve
+        pencereye kalan 1032 - 4x (1080 piksel) sigmiyor.
         """
-        width, height = desktop_size()
-        available_h = height - SCALE_SCREEN_MARGIN
-        scale = min(width // INTERNAL_WIDTH, available_h // INTERNAL_HEIGHT)
-        return max(MIN_SCALE, min(scale, MAX_SCALE))
+        return largest_scale(monitor)
 
     def _create_window(self) -> None:
         """Pencereyi kurar.
@@ -274,6 +299,12 @@ class Game:
         Arda 02.09.2026: *"tam ekran pencereli ekran ayari duzgun
         calismiyor."*
         """
+        # **Ekran secimi `set_mode`'dan ONCE.** `set_mode` pencereyi
+        # tasiyabiliyor; sonra sorarsak zaten tasinmis olani ogrenir ve
+        # tam ekrani yanlis monitore acariz. Iki ekranli masaustunde
+        # bulunan hatanin tam olarak bu sirasi vardi.
+        monitor = display.current()
+
         fullscreen = bool(self.settings.get("fullscreen", False))
         if fullscreen:
             # **Kenarliksiz pencere, gercek tam ekran DEGIL.**
@@ -288,11 +319,21 @@ class Game:
             # veriyor ama mod degisimi YOK: gecis aninda, alt-tab
             # calisiyor, surucu kilitlenmesi riski ortadan kalkiyor.
             flags = pygame.NOFRAME
-            size = desktop_size()
+            # Masaustunun degil, **oyuncunun uzerinde oldugu ekranin**
+            # boyutu. `desktop_size()` daima birincil ekrani doner.
+            size = monitor.bounds.size
         else:
             flags = pygame.RESIZABLE
             configured = int(self.settings.get("scale") or 0)
-            scale = configured or self._best_scale()
+            scale = configured or self._best_scale(monitor)
+            # **Elle secilen olcek de siniri asamaz.** Bir donem yalnizca
+            # otomatik olcek ekrana sigmayi gozetiyordu (`configured or
+            # _best_scale()`), yani ayarlardan 4x secen oyuncunun
+            # penceresi 1920x1080 oluyor ve 1920x1032'lik calisma alanina
+            # sigmiyordu: altta gorev cubugu, ustte baslik cubugu -
+            # ekranin alt kismi kirpiliyordu.
+            if not scale_fits(scale, monitor):
+                scale = self._best_scale(monitor)
             size = (INTERNAL_WIDTH * scale, INTERNAL_HEIGHT * scale)
 
         # **vsync YALNIZCA ilk pencerede isteniyor.**
@@ -323,7 +364,9 @@ class Game:
             self.screen = pygame.display.set_mode(size, flags)
 
         pygame.display.set_caption(WINDOW_TITLE)
-        place_window(size, fullscreen)
+        # Ayni `monitor` nesnesi: yeniden sormak, `set_mode` pencereyi
+        # tasidiysa baska bir ekrani secmek demek olurdu.
+        place_window(size, fullscreen, monitor)
 
         # **Onbellekleri at.** Uretilen her yuzey `convert()` gormus ve
         # donusum O ANKI ekranin piksel bicimine gore yapilmis; ekran
