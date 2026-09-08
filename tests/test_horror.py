@@ -25,6 +25,31 @@ from pathlib import Path
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
+# **Oyuncunun kaydina DOKUNMA.** (08.09.2026)
+#
+# Sahneler `read_save()` ile kaydi yukluyor ve `_sync_abilities()` gibi
+# yerler `write_save()` ile geri yaziyor - yani bu paketi calistirmak
+# Arda'nin gercek ilerlemesini siliyordu. 55 altin ve secilmis balta
+# boyle kayboldu; yedek dosyasi da ustune yazildigi icin
+# kurtarilamadi.
+#
+# Bir test, oyuncunun verisine asla dokunmamali. Kayit dizini her
+# calistirmada gecici bir klasore aliniyor.
+import tempfile  # noqa: E402
+
+os.environ["LORE_SAVE_DIR"] = tempfile.mkdtemp(prefix="lore_test_")
+
+# Klasore **varsayilan bir kayit** tohumlaniyor. Bos birakilsaydi
+# `read_save()` None donerdi ve sahnelerin `save_data`si None olurdu -
+# oysa testler gercek bir kaydin varligina gore yazilmis (bayrak
+# okuyor, bolum numarasi yaziyor). Amac oyuncunun dosyasindan
+# kurtulmak, testlerin davranisini degistirmek degil.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.systems.save import SaveData as _SaveData  # noqa: E402
+from src.systems.save import write_save as _write_save  # noqa: E402
+
+_write_save(_SaveData())
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -449,6 +474,12 @@ def main() -> int:
     from src.systems import loyalty
 
     scene = fresh()
+    # Kayit dizini izole (dosyanin basi) - yani gercek bir kayit YOK ve
+    # `save_data` None geliyor. Sadakat bir KAYIT degeri oldugu icin
+    # test kendi kaydini kuruyor.
+    if scene.save_data is None:
+        from src.systems.save import SaveData
+        scene.save_data = SaveData()
     scene.save_data.flags.pop(loyalty.SPOKE_ALONE_KEY, None)
     scene.save_data.flags[loyalty.SETTINGS_KEY] = 0
     scene.dialogue.stop()
