@@ -11,8 +11,23 @@ yuklenirse yarim gigabayt. `mixer.music` diskten akitiyor ve ayni anda
 tek parca calmasi zaten istedigimiz sey.
 
 Bedeli: gercek capraz gecis yok (tek akis var). Yerine `fadeout` +
-`fade_ms` ile temiz bir sonup-acilma - oyun icinde fark edilmiyor cunku
-gecisler zaten oda/dovus sinirlarinda oluyor.
+`fade_ms` ile temiz bir sonup-acilma.
+
+**Bu bir donem yalnizca YAZIYORDU.** Kod `fadeout()`u hic cagirmiyordu:
+`play()` dogrudan `load()` ediyor, o da calan parcayi ANINDA kesiyordu.
+Yani her gecis "sert kesme + yumusak acilma" idi ve kesme tarafi
+duyuluyordu (Arda, 08.09.2026: *"muzikler degisirken yumusak gecis
+olsun"*).
+
+Simdi gecis iki asamali ve `update()` yurutuyor:
+
+    1. Baglam degisti  -> calan parca `fadeout` ile soner, yenisi
+                          `_pending` olarak bekler
+    2. Akis bosaldi    -> yeni parca yuklenir ve `fade_ms` ile acilir
+
+Aradaki bosluk bilincli olarak kisa (`SWITCH_OUT_MS`): tek akista
+gercek capraz gecis mumkun degil, ama 550 ms'lik bir sonme "kesildi"
+gibi degil "gecti" gibi duyuluyor.
 
 ## Baglam -> parca
 
@@ -65,6 +80,12 @@ FADE_IN_MS = 900
 FADE_OUT_MS = 1400
 COMBAT_FADE_IN_MS = 350
 
+# Baglam degisirken calan parcanin sonme suresi. `FADE_OUT_MS` (1400)
+# **bilerek kullanilmiyor**: o, muzigi tamamen durdurmak icin ve bir
+# gecis icin cok uzun - oyuncu bir bucuk saniye sessizlikte kalirdi.
+# 550 ms "kesildi" gibi degil "gecti" gibi duyuluyor.
+SWITCH_OUT_MS = 550
+
 # Dovus muzigi son dusman uyanikligini yitirdikten sonra bu kadar kare
 # daha calar. Olmasaydi tek bir dusmanin gozden kaybolmasi muzigi
 # kesip acar ve "titrer".
@@ -85,6 +106,10 @@ class MusicDirector:
         self.locked_frames = 0
         self.available = MUSIC_DIR.is_dir()
         self._failed: set[str] = set()
+        # Sonmeyi bekleyen gecis: (baglam, acilis suresi). Bos dize =
+        # bekleyen yok. Iki asamali gecisin tamami bu iki alanda.
+        self._pending = ""
+        self._pending_fade: int | None = None
 
     # --- Denetim ------------------------------------------------------------
     def play(self, context: str, *, fade_ms: int | None = None) -> None:
@@ -95,25 +120,61 @@ class MusicDirector:
         """
         if context == self.context or self.locked_frames > 0:
             return
+        if not self._playable(context):
+            return
+
+        # **Zaten bir parca caliyorsa once onu SONDUR.** Dogrudan
+        # `load()` etmek calani aninda kesiyordu; gecisin sert tarafi
+        # tam olarak buydu.
+        self.context = context
+        fade_in = FADE_IN_MS if fade_ms is None else fade_ms
+        if self._busy():
+            self._pending = context
+            self._pending_fade = fade_in
+            # Sonme, acilistan uzun olmamali: dovus 350 ms'de aciliyorsa
+            # cikis da hizli olmali, yoksa tehlike gecikmeli geliyor.
+            self._fadeout(min(SWITCH_OUT_MS, max(120, fade_in)))
+            return
+        self._start(context, fade_in)
+
+    # --- Ic yardimcilar -----------------------------------------------------
+    def _playable(self, context: str) -> bool:
+        """Bu baglamin dosyasi var mi? Yoksa bir daha denenmiyor."""
         name = TRACKS.get(context)
         if name is None or name in self._failed:
-            return
-        path = MUSIC_DIR / name
-        if not path.is_file():
+            return False
+        if not (MUSIC_DIR / name).is_file():
             self._failed.add(name)
-            return
+            return False
+        return True
+
+    def _busy(self) -> bool:
         try:
-            pygame.mixer.music.load(str(path))
+            return bool(pygame.mixer.music.get_busy())
+        except pygame.error:
+            return False
+
+    def _fadeout(self, ms: int) -> None:
+        try:
+            pygame.mixer.music.fadeout(ms)
+        except pygame.error:
+            pass
+
+    def _start(self, context: str, fade_in: int) -> bool:
+        """Parcayi gercekten yukleyip baslatir."""
+        name = TRACKS.get(context)
+        if name is None:
+            return False
+        try:
+            pygame.mixer.music.load(str(MUSIC_DIR / name))
             pygame.mixer.music.set_volume(self._volume())
-            pygame.mixer.music.play(
-                loops=-1,
-                fade_ms=FADE_IN_MS if fade_ms is None else fade_ms)
+            pygame.mixer.music.play(loops=-1, fade_ms=fade_in)
         except pygame.error:
             # Bir parca acilamazsa oyun **durmaz**: sessiz devam eder ve
             # bir daha denenmez. Muzik bir sus payi, bir zorunluluk degil.
             self._failed.add(name)
-            return
-        self.context = context
+            return False
+        return True
 
     def hold(self, context: str, frames: int, *,
              fade_ms: int | None = None) -> None:
@@ -128,6 +189,10 @@ class MusicDirector:
         self.locked_frames = max(0, frames)
 
     def stop(self, fade_ms: int = FADE_OUT_MS) -> None:
+        # Bekleyen gecis de iptal: durdurulan muzik bir kare sonra
+        # kendiliginden geri gelmemeli.
+        self._pending = ""
+        self._pending_fade = None
         if not self.context:
             return
         try:
@@ -141,9 +206,25 @@ class MusicDirector:
         self.hush = max(0.0, min(1.0, amount))
 
     def update(self) -> None:
-        """Her kare hacmi tazeler - ayar ve `hush` degisebilir."""
+        """Her kare hacmi tazeler - ayar ve `hush` degisebilir.
+
+        Bekleyen bir gecis varsa **akis bosalinca** yeni parcayi
+        baslatiyor. Gecisin ikinci asamasi burasi; `play()` yalnizca
+        sonmeyi baslatiyor.
+        """
         if self.locked_frames > 0:
             self.locked_frames -= 1
+
+        if self._pending and not self._busy():
+            context = self._pending
+            fade_in = self._pending_fade or FADE_IN_MS
+            self._pending = ""
+            self._pending_fade = None
+            # Baglam bu arada tekrar degistiyse bekleyeni CALMA: oyuncu
+            # dovusten kacip geri girdiyse eski hedef artik yanlis.
+            if context == self.context:
+                self._start(context, fade_in)
+
         if not self.context:
             return
         try:
