@@ -558,6 +558,78 @@ def test_chapter_shape() -> None:
     check(not teachers, "ogretme odasinda dusman yok", str(len(teachers)))
 
 
+# --- 8. Kalachev (docs/kalachev.md 5) ----------------------------------------
+def test_kalachev_dives_in_and_is_wounded() -> None:
+    """*"Zindanci dovusune dalar. Yaralanir ve bu gorunur kalir."*
+
+    Uc sey olculuyor: (1) muhur inerken giriyor, (2) faz 1'de
+    yaralaniyor ve **cekiliyor** - dovusun kalani oyuncunun,
+    (3) yara KAYDA yaziliyor, yani B15 ve B18 onu yarali goruyor.
+    """
+    print()
+    print("--- Kalachev arenaya daliyor ---")
+    from src.entities.kalachev import WOUND_FLAG, WOUND_HEALTH
+    game = Game()
+    try:
+        scene = start(game)
+        scene._enter_room("zindan")
+        scene._seal_arena()
+        check(len(scene.allies) == 1, "muhur inerken iceri suzuluyor",
+              str(len(scene.allies)))
+        ally = scene.allies[0]
+        check(not ally.wounded, "yarasiz geliyor")
+        check(not ally.leaving, "hemen cekilmiyor")
+
+        boss = scene.boss
+        # Faz 0 boyunca kaliyor: dovusun acilisi ikisinin.
+        boss.health = int(boss.max_health * 0.8)
+        boss._check_phase()
+        check(boss.phase == 0 and not ally.wounded,
+              "faz 0'da yara YOK - once beraber dovusuyorlar")
+
+        boss.health = int(boss.max_health * 0.6)
+        boss._check_phase()
+        check(boss.phase == 1, "boss faz 1'e gecti", str(boss.phase))
+        check(ally.wounded, "faz 1: Zindanci onu yakaliyor")
+        check(ally.health <= WOUND_HEALTH, "yara canini KIRPIYOR",
+              f"{ally.health} <= {WOUND_HEALTH}")
+        check(ally.leaving, "yarali cekiliyor - kalani oyuncunun")
+        check(not getattr(ally, "dead", False),
+              "OLMUYOR - olumu B18'e ait")
+        check(scene.save_data.flags.get(WOUND_FLAG),
+              "yara KAYDA yazildi - B15 ve B18 gorecek")
+
+        # Ikinci kez tetiklenmiyor: faz 2'de yeni bir yara yok.
+        boss.health = int(boss.max_health * 0.3)
+        boss._check_phase()
+        check(boss.phase == 2, "boss faz 2'ye gecti", str(boss.phase))
+    finally:
+        game.quit()
+
+
+def test_wounded_kalachev_does_not_return() -> None:
+    """Arenada olup yeniden baslayan oyuncu onu tekrar gormemeli.
+
+    `after_restart` muhru yeniden induruyor ve muhur onu cagiriyor -
+    yani yara olmus, adam gitmis, ve oyuncu oldugu icin geri gelmis
+    olurdu. Ayni sahne ikinci kez oynanirsa bir olay olmaktan cikar.
+    """
+    print()
+    print("--- yaralandiktan sonra geri gelmiyor ---")
+    from src.entities.kalachev import WOUND_FLAG
+    game = Game()
+    try:
+        scene = start(game)
+        scene.save_data.flags[WOUND_FLAG] = True
+        scene.setup()
+        scene.after_restart("zindan")
+        check(scene.arena_sealed, "muhur yine indi")
+        check(not scene.allies, "ama Kalachev GELMIYOR",
+              str(len(scene.allies)))
+    finally:
+        game.quit()
+
+
 def main() -> int:
     test_gate_mechanics()
     test_every_gate_is_beatable()
@@ -572,6 +644,8 @@ def main() -> int:
     test_seal_does_not_embed_player()
     test_after_restart_respawns_boss()
     test_cinematics()
+    test_kalachev_dives_in_and_is_wounded()
+    test_wounded_kalachev_does_not_return()
     test_chapter_shape()
 
     print("\n=== SONUC ===")

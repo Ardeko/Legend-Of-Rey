@@ -70,7 +70,7 @@ class Mark:
     # replik "olu" diye raporlandi.
     key: str
     ardo_key: str
-    kind: str = "mark"          # mark | cache | camp | figure
+    kind: str = "mark"   # mark | cache | camp | figure | pair
     found: bool = False
 
     @property

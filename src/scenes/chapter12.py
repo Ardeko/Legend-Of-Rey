@@ -360,8 +360,12 @@ class Chapter12Scene(PlayScene):
         x = int(self.rig.center_x + mark.side * TILE_SIZE * 3.2) - ox
         y = int(mark.y) - oy
         if mark.found:
-            tone = palette.color("gold" if mark.kind == "figure"
-                                 else "ember_light")
+            # "pair" ayri bir ton: oteki izler **Ardo'nun**, bu ikisinin.
+            # Ayni renkte cizilseydi oyuncu farki gormeden gecerdi.
+            tone = palette.color(
+                "gold" if mark.kind == "figure"
+                else "bone" if mark.kind == "pair"
+                else "ember_light")
         else:
             # Okunmadan once soluk ama **gorulebilir**. Ilk degerler
             # (0.35 tabanli) ekranda neredeyse yoktu - oyuncu

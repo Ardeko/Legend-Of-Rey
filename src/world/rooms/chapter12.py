@@ -179,6 +179,15 @@ MARKS = (
     (14, -1, "line.ch12_mark_arrow", "line.ch12_mark_arrow_ardo", "mark"),
     (21, +1, "line.ch12_mark_cache", "line.ch12_mark_cache_ardo", "cache"),
     (29, -1, "line.ch12_mark_camp", "line.ch12_mark_camp_ardo", "camp"),
+    # ★ **Iki kisinin izi** (`docs/kalachev.md` 5: "Ardo'nun izlerini
+    # surerken Kalachev'in izleri de var - ikisi burada birlikte
+    # yurumus"). Kampin hemen ustunde ve bilerek: iki kisinin birlikte
+    # yurudugu en cok bir kamp yerinde okunur.
+    #
+    # Bolumun tezini bozmuyor, DERINLESTIRIYOR: B12 "yoklukta
+    # birakilmis izler" bolumu ve burada Ardo'nun yalniz olmadigi
+    # ortaya cikiyor. Rey icin yeni bir bilgi, Ardo icin bir hatira.
+    (33, +1, "line.ch12_mark_pair", "line.ch12_mark_pair_ardo", "pair"),
     (37, +1, "line.ch12_mark_count", "line.ch12_mark_count_ardo", "mark"),
     (45, -1, "line.ch12_mark_pencil", "line.ch12_mark_pencil_ardo", "camp"),
     # ★ Bolumun tepesi. `docs/yapi.md`: *"duvara kazinmis kucuk bir

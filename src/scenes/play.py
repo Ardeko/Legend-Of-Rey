@@ -31,6 +31,7 @@ from src.core.input import Action
 from src.core.juice import ImpactEvent, ImpactWeight, Juice
 from src.core.scene import Scene
 from src.entities.character_stats import ARDO, REY
+from src.entities.kalachev import WOUND_FLAG as KALACHEV_WOUND_FLAG
 from src.entities.player import Player
 from src.systems import abilities, consumables, horror, loyalty
 from src.systems.compass import Compass
@@ -971,7 +972,7 @@ class PlayScene(Scene):
         self.say(Line(ECHO, "line.echo_alone_voice"))
 
     def summon_kalachev(self, x: float, feet_y: float,
-                        stay: int = 0) -> object | None:
+                        stay: int = 0, silent: bool = False) -> object | None:
         """Kalachev'i sahneye sokar (`docs/kalachev.md`).
 
         **Bolum basina bir kez.** Iki kez belirse bir olay olmaktan
@@ -981,13 +982,33 @@ class PlayScene(Scene):
         if self.allies:
             return None
         from src.entities.kalachev import DEFAULT_STAY, Kalachev
-        ally = Kalachev(self, x, feet_y, stay=stay or DEFAULT_STAY)
+        # **Yara kayittan geliyor** (`docs/kalachev.md` 5, B13). Tek
+        # yerde okunuyor: B15 ve B18 hicbir sey yazmadan yarali bir
+        # Kalachev aliyor. Bayrak kaydi olmayan bir oturumda (test,
+        # dogrudan sahne acilisi) yalnizca yarasiz beliriyor.
+        hurt = bool(self.save_data
+                    and self.save_data.flags.get(KALACHEV_WOUND_FLAG))
+        ally = Kalachev(self, x, feet_y, stay=stay or DEFAULT_STAY,
+                        wounded=hurt, silent=silent)
         self.allies.append(ally)
         self.on_kalachev_arrived(ally)
         return ally
 
     def on_kalachev_arrived(self, ally) -> None:
         """Alt sinif tepki verebilir - replik, kamera, ses."""
+
+    def wound_kalachev(self, ally) -> bool:
+        """Senaryolu yarayi isle **ve kayda yaz** (B13).
+
+        Kayit yazmasi burada, sahnede degil: yaranin gorunur kalmasi
+        (`docs/kalachev.md` 5) bolumun degil karakterin ozelligi.
+        """
+        if ally is None or ally.wounded:
+            return False
+        ally.wound()
+        if self.save_data is not None:
+            self.save_data.flags[KALACHEV_WOUND_FLAG] = True
+        return True
 
     def spawn_watcher(self, tile_x: int, tile_y: int,
                       retreats: bool = True) -> None:

@@ -473,7 +473,17 @@
     "ch01_jet_name2": "Takma adı başkaları verir. Adını, seni tanıyan söyler.",
     "ch01_ardo_name": "Berke'yi hâlâ anıyorsun demek.",
     "ch01_jet_leave": "Kendine iyi bak. Ben doğuya gidiyorum.",
-    "ch01_echo_sword_given": "Sana bir şey verdi. Bunu unutma."
+    "ch01_echo_sword_given": "Sana bir şey verdi. Bunu unutma.",
+    "ch06_rey_kalachev": "Onu tanıyorsun. — Bu adam senin için gelmedi.",
+    "ch06_ardo_kalachev": "Sen hâlâ buralarda mısın?",
+    "ch12_mark_pair": "İki çift ayak izi. Burada yalnız değilmiş.",
+    "ch12_mark_pair_ardo": "Kalachev. Buraya kadar birlikte inmiştik.",
+    "ch13_rey_kalachev": "Kapı iniyordu. O altından geçti.",
+    "ch13_ardo_kalachev": "Kalachev! Hep kapanan kapıdan girersin.",
+    "ch13_rey_wound": "Kanıyor. İlk kez onu yavaşlatan bir şey gördüm.",
+    "ch13_ardo_wound": "Çekil oradan! ... Bir kez olsun dinle beni.",
+    "ch15_echo_kalachev": "Kıpırdamıyor. Aralarında duruyor ve kıpırdamıyor.",
+    "ch15_echo_kalachev_wakes": "Şimdi mi hareket ediyor? Şimdi mi?"
   },
   "combat": {
     "counter": "KARŞI VURUŞ",

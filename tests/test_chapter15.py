@@ -509,6 +509,83 @@ def test_cinematic() -> None:
         game.quit()
 
 
+# --- Kalachev: sessiz (docs/kalachev.md 5) -----------------------------------
+def test_kalachev_is_silent() -> None:
+    """*"Uyuyan surunun arasinda. Konusmuyor - konusamaz."*
+
+    Sessizligin bedeli olculuyor: bir muttefik ekleyip bolumun tek
+    vaadini (yuruyerek gecilebilir + hayalet odulu) bozmadigimizi
+    kanitliyor. Kalachev bagirsaydi ya da kesseydi, oyuncunun
+    kusursuz kacisi ONUN yuzunden bozulurdu - ve oyun bunu oyuncuya
+    yaptirmis gibi gorunurdu.
+    """
+    print()
+    print("--- Kalachev surunun arasinda, sessiz ---")
+    game = Game()
+    try:
+        scene = start(game)
+        # Acilis repligi (`uyku` odasi) kapatiliyor - olculen sey
+        # Kalachev'in konusup konusmadigi.
+        scene.dialogue.stop()
+        scene._enter_room("suru")
+        check(len(scene.allies) == 1, "suru odasinda beliriyor",
+              str(len(scene.allies)))
+        ally = scene.allies[0]
+        check(ally.silent, "SESSIZ geldi")
+        check(not scene.dialogue.active,
+              "gelisinde REPLIK YOK - konusamaz")
+
+        # Konum: uyuyanlarin arasinda mi, kenarda mi.
+        sleepers = sorted(e.body.center_x for e in scene.enemies
+                          if e.asleep and abs(e.body.center_x
+                                              - ally.body.center_x) < 400)
+        check(any(x < ally.body.center_x for x in sleepers)
+              and any(x > ally.body.center_x for x in sleepers),
+              "iki yaninda da uyuyan var - ARALARINDA duruyor")
+
+        # 240 kare: durup bakiyor, kimseyi uyandirmiyor, vurmuyor.
+        before = scene.wakes
+        boxes = 0
+        for _ in range(240):
+            scene.update()
+            boxes += sum(1 for b in scene.hitboxes.boxes if b.owner is ally)
+        check(scene.wakes == before, "kimseyi UYANDIRMIYOR",
+              f"{before} -> {scene.wakes}")
+        check(boxes == 0, "hic vurmuyor - hayalet odulu duruyor")
+        check(abs(ally.body.vx) < 0.2, "yerinden KIPIRDAMIYOR",
+              f"{ally.body.vx:.2f}")
+        check(scene.ghost, "bolum hala hayalet olarak gecilebilir")
+
+        # Suru uyaninca sessizligin bir anlami kalmiyor.
+        awake = next(e for e in scene.enemies if e.asleep)
+        awake.asleep = False
+        awake.aware = True
+        scene.update()
+        check(not ally.silent, "suru uyaninca sessizlik BITIYOR")
+        check(scene.kalachev_woke, "sahne bunu isaretledi")
+    finally:
+        game.quit()
+
+
+def test_kalachev_does_not_follow() -> None:
+    """Oda gecilince gidiyor - `Companion` degil (`docs/kalachev.md` 2)."""
+    print()
+    print("--- odayi gecince kaliyor mu ---")
+    game = Game()
+    try:
+        scene = start(game)
+        scene._enter_room("suru")
+        ally = scene.allies[0]
+        scene._enter_room("damla")
+        scene.room = "damla"
+        scene.player.body.set_feet(ally.body.center_x + 200,
+                                   scene.player.body.feet[1])
+        scene.update()
+        check(ally.leaving, "oda gecildi - cekiliyor")
+    finally:
+        game.quit()
+
+
 def main() -> int:
     test_walk_is_silent()
     test_running_wakes()
@@ -524,6 +601,8 @@ def main() -> int:
     test_chime_is_reusable()
     test_drip_rings_itself()
     test_chapter_shape()
+    test_kalachev_is_silent()
+    test_kalachev_does_not_follow()
     test_cinematic()
 
     print("\n=== SONUC ===")

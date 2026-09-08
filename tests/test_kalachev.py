@@ -449,6 +449,55 @@ def main() -> int:
     check("box.owner in self.allies" in _inspect.getsource(_PS.on_hit),
           "muttefik kesim sayaci BAGLI - `kills` bir donem hic artmiyordu")
 
+    # B6: tanisma. Ardo dusuyor, ucunu biciyor - Kalachev de orada.
+    from src.scenes.chapter06 import Chapter06Scene
+    src06 = _inspect.getsource(Chapter06Scene)
+    check("summon_kalachev" in src06 and "_rescue" in src06,
+          "B6: kurtarma aninda beliriyor - tanisma sahnesi")
+
+    # B12: Ardo'nun izlerinin yaninda ONUN izleri de var.
+    from src.world.rooms.chapter12 import MARKS
+    kinds = [m[4] for m in MARKS]
+    check("pair" in kinds, "B12: 'iki kisinin izi' isareti haritada",
+          str(kinds))
+    check(kinds.count("pair") == 1,
+          "B12: bir tane - ikincisi bir olayi bir dokuya cevirirdi")
+
+    # B13: yara GORUNUR kaliyor - ve bunu ekranda kanitliyoruz.
+    from src.entities.kalachev import WOUND_FLAG, Kalachev as _K
+    from src.art.animator import Animator as _An
+    from src.art import palette as _pal
+
+    def _shot(facing: int, wounded: bool):
+        anim = _An("kalachev"); anim.play("idle"); anim.update()
+        image = anim.render(facing).copy()
+        if wounded:
+            fake = type("F", (), {"facing": facing, "wounded": True})()
+            _K._blit_wound(fake, image)
+        return image
+
+    clean, hurt = _shot(1, False), _shot(1, True)
+    size = clean.get_size()
+    changed = [(x, y) for y in range(size[1]) for x in range(size[0])
+               if clean.get_at((x, y)) != hurt.get_at((x, y))]
+    check(len(changed) >= 5, "B13: yara EKRANDA - sprite degisiyor",
+          f"{len(changed)} piksel")
+    bloods = {_pal.color("blood_bright"), _pal.color("blood_dark")}
+    check(all(hurt.get_at(pos)[:3] in bloods for pos in changed),
+          "yara kan renginde - palet disi renk yok")
+    check(all(clean.get_at(pos)[3] > 0 for pos in changed),
+          "yara GOVDENIN uzerinde - havada leke yok")
+
+    mirrored = _shot(-1, True)
+    left = [(x, y) for y in range(size[1]) for x in range(size[0])
+            if _shot(-1, False).get_at((x, y)) != mirrored.get_at((x, y))]
+    check({(size[0] - 1 - x, y) for x, y in left} == set(changed),
+          "yon degisince yara da AYNALANIYOR - adamla birlikte donuyor")
+
+    check("KALACHEV_WOUND_FLAG"
+          in _inspect.getsource(_PS.summon_kalachev),
+          "yara KAYITTAN okunuyor - her bolum ayri satir yazmiyor")
+
     game.shutdown()
 
 

@@ -79,6 +79,45 @@ SIGHT = 260.0
 DEFAULT_STAY = 60 * 22
 FADE_FRAMES = 40
 
+# --- Yara (B13) --------------------------------------------------------------
+# `docs/kalachev.md` 5: *"B13: Zindanci dovusune dalar. Yaralanir ve bu
+# **gorunur kalir**."*
+#
+# Yaranin isi ANLATMAK: B18'de olecek adamin oldurulebilir oldugunu,
+# sozle degil govdesiyle soyluyor. O yuzden bir sayi degil bir PIKSEL -
+# oyuncu her belisinde goruyor.
+#
+# Yara sonrasi birakilan can. Sifir degil: `take_damage` cani 1'in
+# altina indirmiyor ve 1 canla dolasan bir Kalachev bir sonraki
+# vurusta cekilirdi. Yara bir "artik daha kirilgan" durumu, bir olum
+# sayaci degil.
+WOUND_HEALTH = 30
+
+# Yaranin kayittaki adi. **Tek yerde** duruyor: bir sahne yanlis
+# yazarsa yara sessizce kaybolur ve hicbir test bunu goremez.
+WOUND_FLAG = "kalachev_wounded"
+
+# Govdenin sol yaninda capraz bir yarik (sprite 48x40, govde y 18-27).
+# Kafada degil: kafa 7 piksel ve orada bir leke yuz olur, yara olmaz.
+# Facing -1 iken x aynalaniyor - yoksa yara adamla birlikte donmez,
+# ekranin ayni yaninda kalir ve bir cizim hatasi gibi okunur.
+WOUND_PIXELS = ((21, 19), (21, 20), (20, 21), (20, 22), (19, 23))
+WOUND_EDGE = ((22, 20), (21, 22), (19, 24))
+
+# --- Sessizlik (B15) ---------------------------------------------------------
+# `docs/kalachev.md` 5: *"Uyuyan surunun arasinda. Konusmuyor -
+# konusamaz, cunku ses suruyu uyandirir. Ilk kez **sessiz** ve bu onu
+# yanlis gosteriyor."*
+#
+# Sessiz Kalachev bir "pasif mod" degil, karakterin tersine cevrilmesi:
+# on dort bolumdur belirip kesen adam ilk kez **duruyor.** Oyuncu
+# uyuyanlarin arasinda kipirdamadan duran birini goruyor ve dogal soru
+# soruluyor - bu adam hangi tarafta?
+#
+# Sessizlik **oyuncu bozunca bitiyor** (`silent = False`, bkz.
+# `Chapter15Scene._update_kalachev`): suru uyandiginda saklanacak bir
+# sey kalmaz. Cevap o an veriliyor ve sozle degil.
+
 
 class Kalachev(Actor):
     """Belirir, keser, gider. Emir alinmaz."""
@@ -90,7 +129,8 @@ class Kalachev(Actor):
     poise = POISE
 
     def __init__(self, scene, x: float, y: float,
-                 stay: int = DEFAULT_STAY) -> None:
+                 stay: int = DEFAULT_STAY, wounded: bool = False,
+                 silent: bool = False) -> None:
         super().__init__(scene, x, y)
         self.animator = Animator("kalachev")
         self.sprite_foot_y = CHARACTERS["kalachev"].foot_y
@@ -101,6 +141,14 @@ class Kalachev(Actor):
         self.leaving = False
         self.kills = 0
         self._target = None
+        # **Bolum degil, KAYIT tasiyor.** Sahneler tek tek
+        # "yarali miydi" diye sormuyor: `PlayScene.summon_kalachev`
+        # kaydi okuyup buraya veriyor. "Her bolum bir satir eklesin"
+        # bir hatanin sekli - bir bolum unutulur ve yara kaybolur.
+        self.silent = silent
+        self.wounded = wounded
+        if wounded:
+            self.health = min(self.health, WOUND_HEALTH)
 
     # --- Durum --------------------------------------------------------------
     @property
@@ -112,6 +160,22 @@ class Kalachev(Actor):
         if not self.leaving:
             return 1.0
         return max(0.0, self.fade / FADE_FRAMES)
+
+    def wound(self) -> None:
+        """Senaryolu yara (B13). **Olum degil** - isaret.
+
+        Kendi basina cekilmiyor: cekilme kararini sahne veriyor.
+        Yara ile ayrilis ayni sey degil - B18'de yarali ve **kalan**
+        bir Kalachev gerekiyor.
+        """
+        if self.wounded:
+            return
+        self.wounded = True
+        self.health = min(self.health, WOUND_HEALTH)
+        self.flash.trigger(14)
+        # Kayitli bir ses; yeni bir ad uydurmak "yazilmamis bir
+        # ozellik" olurdu (`tests/test_audio.py`).
+        self.scene.game.play_sound("hit_heavy")
 
     def leave(self) -> None:
         """Cekilme. **Olmuyor** - olumu senaryolu ve B18'e ait."""
@@ -157,10 +221,14 @@ class Kalachev(Actor):
             self.animator.update()
             return
 
-        self.stay_frames -= 1
-        if self.stay_frames <= 0:
-            self.leave()
-            return
+        # **Sessizken sayac islemiyor.** Suresi dolup sisip gitmesi
+        # onu bir olay yapardi; oysa B15'te bir dekor gibi duruyor ve
+        # gitme karari sahnenin (oyuncu odayi gecince).
+        if not self.silent:
+            self.stay_frames -= 1
+            if self.stay_frames <= 0:
+                self.leave()
+                return
 
         if self.attack_frames > 0:
             self.attack_frames -= 1
@@ -172,6 +240,17 @@ class Kalachev(Actor):
         self._animate()
 
     def _think(self) -> None:
+        if self.silent:
+            # Duruyor ve **oyuncuya bakiyor.** Bakis bir tehdit degil
+            # bir soru: sirtini donseydi dekor olurdu, bakinca oyuncu
+            # onunla ilgilendigini biliyor ve karar veremiyor.
+            self.body.approach_vx(0.0, 0.5)
+            player = getattr(self.scene, "player", None)
+            if player is not None:
+                delta = player.body.center_x - self.body.center_x
+                if abs(delta) > 4.0:
+                    self.facing = 1 if delta > 0 else -1
+            return
         target = self._pick_target()
         self._target = target
         if target is None:
@@ -221,6 +300,10 @@ class Kalachev(Actor):
 
     # --- Cizim --------------------------------------------------------------
     def _animate(self) -> None:
+        if self.silent:
+            self.animator.play("idle")
+            self.animator.update()
+            return
         if self.swing_frames > 0:
             self.animator.play("attack1")
         elif abs(self.body.vx) > 0.1:
@@ -235,13 +318,37 @@ class Kalachev(Actor):
             return
         ox, oy = offset
         alpha = self.alpha
-        if alpha < 1.0:
+        if alpha < 1.0 or self.wounded:
             image = image.copy()
+        if self.wounded:
+            self._blit_wound(image)
+        if alpha < 1.0:
             image.set_alpha(int(255 * alpha))
         surface.blit(image, (int(self.body.center_x - image.get_width() * 0.5) - ox,
                              int(self.body.bottom - self.sprite_foot_y) - oy))
 
+    def _blit_wound(self, image: pygame.Surface) -> None:
+        """Yarayi sprite'in uzerine isliyor - yeni kare cizmeden.
+
+        Animator'un butun kareleri (idle/run/attack1) ayni govde
+        oraninda oldugu icin sabit piksel listesi her karede ayni yere
+        dusuyor. Kare basina ayri yara cizmek 12 kare demekti; okunur
+        farki yok, maliyeti var.
+        """
+        from src.art import palette
+        width = image.get_width()
+        deep = palette.color("blood_bright")
+        edge = palette.color("blood_dark")
+        for pixels, tone in ((WOUND_EDGE, edge), (WOUND_PIXELS, deep)):
+            for x, y in pixels:
+                px = x if self.facing >= 0 else width - 1 - x
+                if image.get_at((px, y))[3] == 0:
+                    continue        # govdenin disina tasma
+                image.set_at((px, y), tone)
+
     def debug_lines(self) -> list[str]:
         return [f"kalachev can {self.health}/{self.max_health}  "
                 f"kalan {self.stay_frames}  "
-                f"{'cekiliyor' if self.leaving else 'dovusuyor'}"]
+                f"{'cekiliyor' if self.leaving else 'dovusuyor'}"
+                + ("  YARALI" if self.wounded else "")
+                + ("  SESSIZ" if self.silent else "")]

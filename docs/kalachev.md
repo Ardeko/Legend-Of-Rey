@@ -112,6 +112,32 @@ bölümlerde dahil olması ve finalde ölmesi."*
 B7, B8, B9, B11, B14, B16, B17 **kasıtlı olarak boş**: her bölümde
 görünen bir karakter bir olay değil, bir dekor olur.
 
+### 5.1 Uygulama durumu (08.09.2026)
+
+Sekiz maddenin **yedisi ekranda**; kalan tek madde **B18**.
+
+| B | Nerede | Anahtar |
+|---|---|---|
+| B4 | `src/scenes/chapter04*.py` | panel "kampın sahibi" der, iskelet yoldaşınındır |
+| B5 | `chapter05.py` `_update_sighting()` | `SIGHTING_*` — çıkıntıda, oyuncu 13 tile içindeyken |
+| B6 | `chapter06.py` `_rescue()` | kurtarma anında belirir |
+| B10 | `chapter10.py` `_break_trap()` | tuzağı o kırar, oyuncu düşmez |
+| B12 | `world/rooms/chapter12.py` | yedinci iz, `kind="pair"`, ayrı renk |
+| B13 | `chapter13.py` `_seal_arena()` + `on_boss_phase()` | mühür inerken girer, faz 1'de yaralanır |
+| B15 | `chapter15.py` `_update_kalachev()` | sürünün arasında, `silent=True` |
+| B18 | — | ⬜ üç fazlı final, ölümü |
+
+**İki mekanik karaktere ait, bölüme değil** — yani B18 hiçbir şey
+yazmadan ikisini de devralır:
+
+* **Yara** (`wounded`) — `_blit_wound()` sprite'a 7 piksel işliyor,
+  yön değişince aynalanıyor. Kalıcılığı `SaveData.flags`'te
+  (`kalachev.WOUND_FLAG`), okunduğu tek yer
+  `PlayScene.summon_kalachev`. "Her bölüm bir satır eklesin" bir
+  hatanın şekli: bir bölüm unutulur ve yara sessizce kaybolur.
+* **Sessizlik** (`silent`) — durur, bakar, vurmaz, süre saati işlemez.
+  Sürü uyanınca kendiliğinden biter.
+
 ---
 
 ## 6. FİNAL — ÜÇ FAZ

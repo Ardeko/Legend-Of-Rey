@@ -203,7 +203,9 @@ def test_no_going_back() -> None:
 def test_marks_readable() -> None:
     """Bolumun tek olcusu: **frenlemek ne kadarini gosteriyor.**"""
     print("\n--- izler ---")
-    check(MARKS_TOTAL == 6, "alti iz", str(MARKS_TOTAL))
+    check(MARKS_TOTAL == 7,
+          "yedi iz - altisi Ardo'nun, biri IKISININ",
+          str(MARKS_TOTAL))
     sides = {side for _y, side, _k, _a, _kind in MARKS}
     check(sides == {-1, 1}, "izler IKI duvara dagilmis - yurumek bir secim")
 

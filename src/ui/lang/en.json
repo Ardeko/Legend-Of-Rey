@@ -473,7 +473,17 @@
     "ch01_jet_name2": "Others give you a nickname. Your name is said by someone who knows you.",
     "ch01_ardo_name": "So you still think of Berke.",
     "ch01_jet_leave": "Look after yourself. I am heading east.",
-    "ch01_echo_sword_given": "He gave you something. Do not forget it."
+    "ch01_echo_sword_given": "He gave you something. Do not forget it.",
+    "ch06_rey_kalachev": "You know him. — This man didn't come for you.",
+    "ch06_ardo_kalachev": "You're still down here?",
+    "ch12_mark_pair": "Two sets of footprints. He wasn't alone here.",
+    "ch12_mark_pair_ardo": "Kalachev. We came down this far together.",
+    "ch13_rey_kalachev": "The gate was coming down. He went under it.",
+    "ch13_ardo_kalachev": "Kalachev! Always the closing door with you.",
+    "ch13_rey_wound": "He's bleeding. First time I've seen anything slow him.",
+    "ch13_ardo_wound": "Get back! ... Listen to me, just once.",
+    "ch15_echo_kalachev": "He isn't moving. He's standing among them, not moving.",
+    "ch15_echo_kalachev_wakes": "Now he moves? Now?"
   },
   "combat": {
     "counter": "COUNTER",

@@ -67,6 +67,14 @@ RESCUE_DELAY = 90
 # Kurtarma parcasi (Ardo.mp3) bu kadar kare kilitli kaliyor - an
 # gecene kadar dovus muzigi devralmasin. ~10 saniye.
 RESCUE_MUSIC_FRAMES = 600
+
+# --- Kalachev (`docs/kalachev.md` 3/5) ---------------------------------------
+# Yoldastan OTEDE duruyor: yan yana dursalardi "iki yoldas" okunurdu.
+ALLY_OFFSET = 58.0
+# B6 bir **sahne**, bir dovus degil - kisa kaliyor. B5'in 900 ve
+# B10'un 2400 karesinden az; orada isi vardi, burada yalnizca
+# taniniyor.
+ALLY_STAY = 480
 # Kapi kapanmadan once yoldasin arenaya girmesi icin taninan sure.
 # ~1.3 saniye: kosarak yetismesine yeter, oyuncuyu bekletmez.
 SEAL_GRACE_FRAMES = 80
@@ -269,8 +277,34 @@ class Chapter06Scene(PlayScene):
         # (`chapter06_cinematics.draw_stage_foreground`); buradaki
         # `question_frames` yolu kaldirildi - ayni seyi iki yerde
         # cizmek ikisinin ayrisması demekti.
+        # **Kalachev de orada** (`docs/kalachev.md` 3/5). Tanisma
+        # sahnesi bu: Rey iki adamin birbirini tanidigini goruyor.
+        #
+        # Yoldastan biraz OTEDE duruyor, yaninda degil. Yan yana
+        # dursalardi "iki yoldas" okunurdu; belge onu acikca yoldas
+        # SAYMIYOR - beliriyor, kesiyor, gidiyor.
+        self.summon_kalachev(
+            self.player.body.center_x + ALLY_OFFSET,
+            self.player.body.feet[1], stay=ALLY_STAY)
+
         from src.scenes.chapter06_cinematics import ArdoEntranceCinematic
         self.scenes.push(ArdoEntranceCinematic, character=self.character)
+
+    def on_kalachev_arrived(self, ally) -> None:
+        """Tanisma - ve **kimin hikayesi oldugu** karaktere gore degisiyor.
+
+        `docs/kalachev.md` 3: *"Rey'in hatti bir tanisma hikayesi,
+        Ardo'nunki bir veda hikayesi. Ikisi ayni sahneleri paylasiyor,
+        farkli sey yasiyor."*
+
+        Rey oynarken Kalachev'i **Ardo tanitiyor**: Rey iki yabancinin
+        birbirini tanidigini goruyor ve ona guveni Ardo'ya guveninden
+        geciyor. Ardo oynarken tanitilacak bir sey yok - eski bir dost
+        karsisinda duruyor.
+        """
+        ally.facing = -1
+        self.camera.linger(40)
+        self.say_player("line.ch06_rey_kalachev", "line.ch06_ardo_kalachev")
 
     def _open_corner(self) -> None:
         for row in CORNER_WALL_ROWS:

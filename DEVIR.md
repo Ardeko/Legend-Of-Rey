@@ -20,29 +20,44 @@ Son güncelleme: **08.09.2026** (korku katmanı, kayıt hatası, uzaktan dövü�
 `main` dalı güncel ve push'lu. **48 test paketi yeşil.** Çalışma alanı
 temiz. Devam etmek için: `git pull`, sonra aşağıdaki listeden bir madde.
 
-### 0.1 Yarım kalan tek iş: KALACHEV
+### 0.1 Yarım kalan tek iş: KALACHEV — sırada YALNIZCA B18
 
 `docs/kalachev.md` **onaylandı ve bağlayıcı.** Belgenin §9'undaki 7
-maddelik sıradan **ilk ikisi bitti**:
+maddelik sıradan **altısı bitti**:
 
 | | İş | Durum |
 |---|---|---|
 | 1 | Sprite (`KALACHEV_SPEC`) | ✅ `src/art/animation.py` |
 | 2 | Agresif AI (`Kalachev`) | ✅ `src/entities/kalachev.py` |
-| 3 | **B5 ilk görüş + B10 belirme** | ⬜ sıradaki |
-| 4 | **Rey ve Ardo için AYRI diyalog hatları** | ⬜ |
-| 5 | **B18 üç fazlı final + ölüm sahnesi** | ⬜ en büyük parça |
-| 6 | B4'ün kampı: iskelet artık **yoldaşının** | ⬜ küçük |
+| 3 | **B5 ilk görüş + B10 belirme** | ✅ |
+| 4 | **Rey ve Ardo için AYRI diyalog hatları** | ✅ her belirmede |
+| 5 | **B18 üç fazlı final + ölüm sahnesi** | ⬜ **kalan tek iş** |
+| 6 | B4'ün kampı: iskelet artık **yoldaşının** | ✅ |
 | 7 | Kapanışta Ardo'nun dönüp bakması | ⬜ küçük |
 
-**Belgenin kendi önerisi:** 3'ü yapıp B5+B10'u **oyna**. Karakterin
-agresifliği ekranda doğru hissettirmiyorsa 5'i yazmanın anlamı yok —
-o belge onun ölümüne yatırım yapıyor ve yatırım ancak oyuncu onu
-izlemekten hoşlanırsa geri döner.
+§5 yerleştirme tablosunun sekiz maddesinden **yedisi ekranda**
+(08.09.2026): B4 kamp · B5 ilk görüş · B6 tanışma · B10 tuzak ·
+B12 iki kişinin izi · B13 yara · B15 sessizlik. Kalan: **B18.**
 
-`PlayScene.summon_kalachev(x, feet_y, stay=...)` hazır ve bölüm başına
-bir kez çalışıyor. `on_kalachev_arrived(ally)` kancası replik/kamera
-için orada bekliyor.
+**Belgenin kendi önerisi hâlâ geçerli:** B18'i yazmadan önce
+B5→B15'i **oyna.** O belge onun ölümüne yatırım yapıyor ve yatırım
+ancak oyuncu onu izlemekten hoşlanırsa geri döner. B18 mevcut finalin
+gerçek bir yeniden yazımı — ucuz değil.
+
+**İki mekanik yeni ve karaktere ait, bölüme değil:**
+
+* `Kalachev.wounded` — B13'te Zindancı onu faz 1'de yakalıyor. Yara
+  sprite'a işleniyor (`_blit_wound`, 7 piksel, yönle aynalanıyor) ve
+  `SaveData.flags["kalachev_wounded"]` ile **kayıtta** yaşıyor.
+  `summon_kalachev` bayrağı tek yerde okuyor — B15 ve B18 hiçbir şey
+  yazmadan yaralı bir Kalachev alıyor.
+* `Kalachev.silent` — B15'te uyuyan sürünün arasında duruyor,
+  konuşmuyor, vurmuyor, kimseyi uyandırmıyor (hayalet ödülü sağlam).
+  Oyuncu sürüyü uyandırırsa sessizlik biter ve dövüşe girer.
+
+`PlayScene.summon_kalachev(x, feet_y, stay=…, silent=…)` bölüm başına
+bir kez çalışıyor; `on_kalachev_arrived(ally)` ve
+`wound_kalachev(ally)` kancaları sahnede.
 
 ### 0.2 Korku katmanı — 4/6 faz bitti
 
@@ -1375,12 +1390,14 @@ Bunlar eksik değil, **karar**. Yeniden açılmasın diye gerekçeleriyle:
 paralelde yürüyen Kalachev/korku hattını görmüyordu; merge sonrası
 eksik kaldı.
 
-7. **Kalachev'in yerleştirmesi YARIM.** 08.09.2026'da B4 (kamp
-   anlamı), B5 (ilk görüş) ve B10 (tuzağı kırar) yazıldı. Belgenin
-   §5 tablosunda kalanlar: **B6** (tanışma — Ardo'yla aynı sahne),
-   **B12** (izleri), **B13** (Zindancı dövüşü, yaralanır),
-   **B15** (uyuyan sürü, sessiz), **B18** (üç fazlı final — ölümü).
-   Son maddesi belgenin kendi ölçüsünde "Büyük".
+7. **Kalachev'in yerleştirmesinde YALNIZCA B18 kaldı.**
+   08.09.2026'da yedi madde yazıldı: B4 (kamp anlamı), B5 (ilk
+   görüş), B6 (tanışma — Ardo'nun kurtarılma anı), B10 (tuzağı
+   kırar), B12 (yedinci iz — "iki çift ayak izi"), B13 (Zindancı
+   dövüşü, faz 1'de yaralanır ve yara **kayıtta kalır**), B15
+   (uyuyan sürünün arasında, sessiz). Kalan tek madde **B18** —
+   üç fazlı final ve ölümü; belgenin kendi ölçüsünde "Büyük" ve
+   şu anki finalin gerçek bir yeniden yazımı. **Önce oynanmalı.**
 
    *Eski hâli:* **★ Kalachev bölümlere YERLEŞTİRİLMEDİ.** `docs/kalachev.md` §9'un
    sırası: sprite → AI → B4 düzeltmesi. İlk ikisi yazıldı

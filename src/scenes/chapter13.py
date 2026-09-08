@@ -71,6 +71,21 @@ GATE_FRAMES = {
 # Arena muhru - boss odasinin girisi.
 ARENA_SEAL_ROWS = range(3, FLOOR_TOP)
 
+# --- Kalachev (`docs/kalachev.md` 5) -----------------------------------------
+# *"B13: Zindanci dovusune dalar. Yaralanir ve bu gorunur kalir."*
+#
+# **Muhur inerken** giriyor, dovus baslamadan degil: kapanan bir
+# kapidan iceri suzulmek adamin butun karakteri - cagrilmadan gelir,
+# kacilmasi gereken yere girer.
+#
+# Ve **faz 1'de cikiyor** (bkz. `on_boss_phase`), yani dovusun ilk
+# ucte biri. Sonuna kadar kalsaydi Zindanci'yi o yenerdi ve bolumun
+# darbesi - "boss'u yendin, kapinin arkasi bos" - oyuncunun degil
+# onun olurdu.
+KALACHEV_OFFSET = 34.0      # oyuncunun arkasi; onunde belirse yol keserdi
+KALACHEV_STAY = 60 * 75     # faz 1'e kadar yeter; takilirsa yine de cekilir
+KALACHEV_WOUND_PHASE = 1
+
 
 def _load(path: str):
     module_name, class_name = path.split(":")
@@ -363,6 +378,51 @@ class Chapter13Scene(PlayScene):
             self.tilemap.set_tile(start + 3, row, SOLID)
         self.arena_sealed = True
         self.game.play_sound("rift_close")
+        self._summon_kalachev()
+
+    def _summon_kalachev(self) -> None:
+        """Muhur inerken iceri suzuluyor.
+
+        **Yaralandiysa bir daha gelmiyor.** Oyuncu arenada olup
+        yeniden basladiginda `setup()` her seyi sifirliyor ve
+        `after_restart` muhru tekrar induruyor - o yol buraya da
+        cikiyordu. Kaydi soruyoruz cunku "geldi mi" bilgisi bolume
+        degil karaktere ait: yaralandi ve gitti, tekrari yok.
+        """
+        from src.entities.kalachev import WOUND_FLAG
+        if self.save_data is not None and self.save_data.flags.get(WOUND_FLAG):
+            return
+        self.summon_kalachev(
+            self.player.body.center_x - self.player.facing * KALACHEV_OFFSET,
+            self.player.body.bottom, stay=KALACHEV_STAY)
+
+    def on_kalachev_arrived(self, ally) -> None:
+        """Kimse cagirmadi. Iki karakter de ayni seyi goruyor, farkli
+        sey anliyor (`docs/kalachev.md` 3): Rey icin bir kurtulus,
+        Ardo icin eski dostun yine ayni hatayi yapmasi.
+        """
+        self.juice.shake.add(ImpactWeight.FINISHER, (0.0, 1.0))
+        self.say_player("line.ch13_rey_kalachev", "line.ch13_ardo_kalachev")
+
+    def on_boss_phase(self, boss, phase: int) -> None:
+        """Faz 1: Zindanci onu yakaliyor. **Senaryolu** - kacinilmaz.
+
+        Oyuncunun becerisine baglanmadi bilerek: iyi oynayan oyuncu
+        Kalachev'i sag cikarabilseydi B18'deki olumu bir kaza gibi
+        okunurdu. Burada gosterilen sey su - bu adam vurulabiliyor.
+        """
+        if phase < KALACHEV_WOUND_PHASE or not self.allies:
+            return
+        ally = self.allies[0]
+        if not self.wound_kalachev(ally):
+            return
+        self.juice.explosion(ally.body.center_x, ally.body.center_y,
+                             ImpactWeight.BOSS)
+        self.decals.splatter(ally.body.center_x, ally.body.bottom)
+        self.say_player("line.ch13_rey_wound", "line.ch13_ardo_wound")
+        # Cekiliyor - ama **olmuyor.** Ikisi ayni sey degil, ve
+        # farki B18 tasiyor.
+        ally.leave()
 
     def _on_boss_defeated(self) -> None:
         self.boss_defeated = True

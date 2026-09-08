@@ -48,6 +48,7 @@ from src.config import (
 from src.scenes.play import PlayScene
 from src.systems.noise import Chime, NoiseField
 from src.systems.resonance import ResonanceState
+from src.ui.dialogue import ECHO, Line
 from src.ui.chapter_end import ChapterEndScene, ChapterResult
 from src.ui.i18n import t
 from src.world import cave_backdrop
@@ -66,6 +67,19 @@ ENEMY_CLASSES = {
 # Tam `PLAYER_RUN_SPEED`e bakmak yanlis olurdu - hizlanma sirasinda
 # oyuncu bir kare bile tam hiza ulasmadan once ceza yerdi.
 RUN_THRESHOLD = 0.55
+
+# --- Kalachev (`docs/kalachev.md` 5) -----------------------------------------
+# *"Uyuyan surunun arasinda. Konusmuyor - konusamaz, cunku ses suruyu
+# uyandirir. Ilk kez sessiz ve bu onu yanlis gosteriyor."*
+#
+# 70. tile: uyuyanlar 59, 67 ve 74'te, yani **aralarinda** duruyor -
+# kenarda dursaydi "onlari izliyor" olurdu, arada durunca "onlardan
+# biri" gibi okunuyor. Bolumun istedigi supheyi konum kuruyor.
+KALACHEV_TILE = 70
+KALACHEV_FLOOR_ROW = 14         # ayak hizasi; uyuyanlar 13. satirda
+# Supheyi Yanki dile getiriyor - ekran yarim genisliginden dar bir
+# mesafede, yani oyuncu adami GORUYORKEN.
+KALACHEV_NOTICE_TILES = 8
 
 
 def _load(path: str):
@@ -118,6 +132,8 @@ class Chapter15Scene(PlayScene):
         self.kills = 0
         self.chime_hinted = False
         self.walk_hinted = False
+        self.kalachev_noticed = False
+        self.kalachev_woke = False
 
         self._enter_room(self._room_at(self.player.body.center_x))
 
@@ -187,6 +203,9 @@ class Chapter15Scene(PlayScene):
                 enemy.asleep = True
                 enemy.aware = False
                 self.enemies.append(enemy)
+        if name == "suru":
+            self.summon_kalachev(KALACHEV_TILE * TILE_SIZE + TILE_SIZE * 0.5,
+                                 KALACHEV_FLOOR_ROW * TILE_SIZE, silent=True)
 
     def _narrate_room(self, name: str) -> None:
         """Anahtarlar **duz dize** - f-string ile kurulani test goremiyor."""
@@ -211,6 +230,7 @@ class Chapter15Scene(PlayScene):
         self._update_chimes()
         self.noise.update()
         self._update_hints()
+        self._update_kalachev()
         self._update_triggers()
         self._update_chests()
         self._check_exit()
@@ -309,6 +329,42 @@ class Chapter15Scene(PlayScene):
             self.chime_hinted = True
             from src.core.input import Action
             self.hint_once("hint_chime", "hint.chime", Action.RESONATE)
+
+    # --- Kalachev ------------------------------------------------------------
+    def on_kalachev_arrived(self, ally) -> None:
+        """**Hicbir sey soylemiyor.** Bu bir eksik degil, sahnenin ta kendisi.
+
+        Her belisinde bir replik vardi (`line.ch06_*`, `line.ch10_*`,
+        `line.ch13_*`); burada yok, cunku ses suruyu uyandirir. Oyuncu
+        farki hissediyor ve yanlis yorumluyor - amaclanan bu.
+        """
+
+    def _update_kalachev(self) -> None:
+        if not self.allies:
+            return
+        ally = self.allies[0]
+
+        # Suru uyandiysa saklanacak bir sey kalmadi: konusmuyor ama
+        # **artik duruyor da degil.** Cevap sozle degil baltayla
+        # veriliyor - ve yalnizca oyuncu zaten kaybettiginde, yani
+        # hayalet odulu calmadan.
+        if ally.silent and any(e.aware and not e.dead for e in self.enemies):
+            ally.silent = False
+            self.kalachev_woke = True
+            self.say(Line(ECHO, "line.ch15_echo_kalachev_wakes"))
+            return
+
+        if ally.silent and not self.kalachev_noticed:
+            near = (abs(self.player.body.center_x - ally.body.center_x)
+                    <= KALACHEV_NOTICE_TILES * TILE_SIZE)
+            if near:
+                self.kalachev_noticed = True
+                self.say(Line(ECHO, "line.ch15_echo_kalachev"))
+
+        # Oda gecildi: kalirsa bir yoldas olur. Odayi gecen oyuncu
+        # arkasina baktiginda orada olmamali.
+        if self.room != "suru" and self.player.body.center_x > ally.body.center_x:
+            ally.leave()
 
     # --- Tetikleyiciler ------------------------------------------------------
     def _update_triggers(self) -> None:
