@@ -1435,8 +1435,13 @@ eksik kaldı.
 10. **Baştan sona oynanış testi yapılmadı.** Sistemler doğru, testler
    yeşil — ama dört saatlik akışın *ritmi* ölçülmez. **Kalan en
    değerli iş bu.**
-11. **`docs/asset-plani.md` ve `docs/asset-listesi.md` 21.08'den
-   kalma.** İçerikleri hâlâ büyük ölçüde geçerli ama sayılar bayat.
+11. ~~`docs/asset-plani.md` ve `docs/asset-listesi.md` sayıları
+   bayat~~ — **kapandı (08.09.2026).** İkisine de **§Z GERÇEKLEŞEN**
+   bölümü eklendi: plan sayısı ile ölçülen sayı yan yana, ve sayıları
+   yeniden üreten komutlar. En büyük iki fark — 40 elle çizilmiş
+   panel hiç üretilmedi (yerine `staging.py`, 18 sahne, 186 `Panel`)
+   ve boğuk ses için ikinci bir dosya seti tutulmadı (sesler zaten
+   kod). Plan metinleri **tarihsel kayıt** olarak duruyor.
 
 ### 02.09.2026'da kapandığı doğrulananlar
 

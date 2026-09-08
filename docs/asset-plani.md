@@ -170,3 +170,54 @@ Prototipte zaten var olanlar **[✓]** ile işaretli:
 | Kapsam (18 bölüm) | 🔴 | 🟡 Orta |
 
 **Ana risk artık sanat üretimi değil, üretilen sanatın tutarlılığı.** Palet dosyası ve sprite üretici modülü bu riski büyük ölçüde kapatır — ikisi de ilk hafta yapılmalı.
+
+---
+
+## Z. GERÇEKLEŞEN — ölçülmüş sayılar (08.09.2026)
+
+Yukarısı 21.08.2026'da yazılmış bir **plan**. Aşağısı oyun bitince
+kodun kendisinden sayıldı: `docs` ile depo arasındaki fark bir daha
+tahmin edilmesin diye.
+
+| Kalem | Plan | Gerçek | Not |
+|---|---|---|---|
+| Palet | 32 renk | **37** | beş yeşil eklendi (`DEVIR.md` §7) |
+| Karakter/varlık sprite'ı | Rey + Ardo + 10 düşman | **25 `CharSpec`** | `src/art/animation.py` |
+| Karakter başına animasyon | ~18 klip | **12 klip / 36 sanat karesi** | `ANIMATIONS` |
+| Toplam sprite karesi | ~581 | **~900 (25 × 36)** | hiçbiri PNG değil — **kod** |
+| Portre | listede yok | **3** (Rey, Ardo, Cemo) | 64×96, 29.08'de eklendi |
+| Ses efekti | ~65 | **80** | `sfx_*.py` içinde `@_register` |
+| Müzik | 8–10 parça | **9** | `music.py :: TRACKS` |
+| Ara sahne paneli | ~40 statik illüstrasyon | **186 `Panel`, 18 sahne** | illüstrasyon YOK |
+
+### Planın en isabetli tahmini
+
+K bölümündeki 6. madde: *"Ara sahne panellerini oyun sprite'ından
+üret. Ayrı illüstrasyon çizme — büyütülmüş sprite + özel poz yeter."*
+
+Tam olarak bu oldu. 40 elle çizilmiş panel hiç üretilmedi; yerine
+`src/scenes/staging.py` geldi: aktörleri sahneye koyan, poz/bakış
+veren, ışık ve zerre ekleyen bir **sahneleme katmanı**. 18 ara sahne
+onu kullanıyor ve hepsi oyunun kendi sprite'larından çıkıyor. En
+pahalı görsel kalem böylece sıfıra indi ve tutarlılık bedava geldi.
+
+### Planın yanıldığı yer
+
+*"Yankı ses işlemi: önceden işlenmiş ikinci set (~20 dosya)."*
+Dosya üretilmedi — sesler zaten kod (`numpy` dalga tabloları), o
+yüzden boğuk sürüm **çalışma zamanında** aynı tablodan türetiliyor
+(`src/audio/sfx.py`, "boğulmuş set"). İkinci bir set tutmak, tek
+kaynağı ikiye bölmek olurdu.
+
+### Sayılar nasıl tekrar ölçülür
+
+```
+python -c "from src.art.animation import CHARACTERS, ANIMATIONS; \
+           print(len(CHARACTERS), len(ANIMATIONS))"
+grep -c "@_register(" src/audio/sfx_*.py
+python -c "from src.audio import music; print(len(music.TRACKS))"
+grep -rho "Panel(" src/scenes/*.py | wc -l
+```
+
+`tests/test_pipeline.py` ve `tests/test_audio.py` bunların bir kısmını
+zaten bağlayıcı olarak ölçüyor.
