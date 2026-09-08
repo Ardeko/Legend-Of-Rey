@@ -7,11 +7,111 @@ Okuma sırası: **1) `CLAUDE.md`** (bağlayıcı kurallar — anayasa) → **2) 
 dosya** (nerede kaldık) → 3) gerekirse `docs/` altındaki ilgili tasarım
 belgesi.
 
-Son güncelleme: **30.08.2026** (Bölüm 7 + sinematik sahneleme katmanı, oyun kolu ayarı, test paketi 97 sn) · Ardeko Studios · Arda Güner
+Son güncelleme: **08.09.2026** (korku katmanı, kayıt hatası, uzaktan dövüş, Jet, Kalachev) · Ardeko Studios · Arda Güner
 
 > `GOREVLER.md` **silindi** (23.08.2026, Arda'nın isteği: "bir devir.md
 > olsun diğerlerini sil kafa karıştırmasın"). İçindeki canlı bilgi bu
 > dosyaya taşındı; eski hâli git geçmişinde duruyor.
+
+---
+
+## 0. SIRADA NE VAR — **YENİ OTURUM ÖNCE BURAYI OKU**
+
+`main` dalı güncel ve push'lu. **48 test paketi yeşil.** Çalışma alanı
+temiz. Devam etmek için: `git pull`, sonra aşağıdaki listeden bir madde.
+
+### 0.1 Yarım kalan tek iş: KALACHEV
+
+`docs/kalachev.md` **onaylandı ve bağlayıcı.** Belgenin §9'undaki 7
+maddelik sıradan **ilk ikisi bitti**:
+
+| | İş | Durum |
+|---|---|---|
+| 1 | Sprite (`KALACHEV_SPEC`) | ✅ `src/art/animation.py` |
+| 2 | Agresif AI (`Kalachev`) | ✅ `src/entities/kalachev.py` |
+| 3 | **B5 ilk görüş + B10 belirme** | ⬜ sıradaki |
+| 4 | **Rey ve Ardo için AYRI diyalog hatları** | ⬜ |
+| 5 | **B18 üç fazlı final + ölüm sahnesi** | ⬜ en büyük parça |
+| 6 | B4'ün kampı: iskelet artık **yoldaşının** | ⬜ küçük |
+| 7 | Kapanışta Ardo'nun dönüp bakması | ⬜ küçük |
+
+**Belgenin kendi önerisi:** 3'ü yapıp B5+B10'u **oyna**. Karakterin
+agresifliği ekranda doğru hissettirmiyorsa 5'i yazmanın anlamı yok —
+o belge onun ölümüne yatırım yapıyor ve yatırım ancak oyuncu onu
+izlemekten hoşlanırsa geri döner.
+
+`PlayScene.summon_kalachev(x, feet_y, stay=...)` hazır ve bölüm başına
+bir kez çalışıyor. `on_kalachev_arrived(ally)` kancası replik/kamera
+için orada bekliyor.
+
+### 0.2 Korku katmanı — 4/6 faz bitti
+
+`docs/korku.md` **onaylandı ve bağlayıcı.**
+
+| Faz | İçerik | Durum |
+|---|---|---|
+| 1 | Kapı, erişilebilirlik ayarları, 10 ses, **nefes** | ✅ |
+| 2 | Cemo'nun sözcükleri (B4/B9/B13→B18), yanlış sessizlik | ✅ |
+| 3 | **Yalan defteri**, hayalet parıltı, tekil ses | ✅ |
+| 4 | **İzleyen** (yeni sprite), ölüm hayaleti | ✅ |
+| 5 | **Dört şok + B14'ün JUMPSCARE'i** (§6.1) | ⬜ |
+| 6 | **Bütün yeni diyalogları Arda'ya iletmek** | ⬜ |
+
+Faz 5'in tamamı `docs/korku.md` §6'da kare kare yazılı. Jumpscare
+B14'te ve İzleyen'in on bölümlük kuralını kırıyor — `retreats=False`
+varyantı zaten kodda.
+
+**Faz 6 Arda'nın açık isteği:** *"diyalogların hepsini bitirdikten sonra
+bana ilet, geliştirip tekrar yollayacağım."* Bugün eklenen replikler:
+`ch02_echo_bones`, `ch04_echo_seed`, `ch04_echo_name`, `ch04_ardo_name`,
+`ch09_echo_seed`, `ch13_echo_seed`, `echo_alone_voice`, `kalachev_name`,
+ve **Jet'in dokuz repliği** (`ch01_jet_*`, `ch01_rey_jet`,
+`ch01_rey_name`, `ch01_ardo_jet`, `ch01_ardo_name`).
+`tools/dialogue_dump.py` var — hepsini tek dosyada dökmek için.
+
+### 0.3 Diğer açık maddeler
+
+| İş | Not |
+|---|---|
+| **2 save slotu** | Arda onayladı, hiç başlanmadı. `save.py` tek dosya + yedek kullanıyor; slot = dosya adına indis + ana menüde slot ekranı |
+| **Paketleme** | `Legend of Rey.spec` doğru, `icon.ico` var, `test_build.py` denetliyor. **İki eksik:** müzik MP3'leri (~53 MB, `.gitignore`'da) ve Inno Setup — ikisi de Arda'nın öteki bilgisayarında. Arda "ikisi de" dedi: kurulum dosyası + taşınabilir tek exe |
+| **B9 freski** | Çan ipucu eklendi ama **sıranın** okunabildiği doğrulanmadı. Arda oynayıp söyleyecek |
+| **Ok/bomba sprite'ı** | Prosedürel çiziliyor, elle çizilmiş değil. Görev 9'un sanat geçişine bırakıldı |
+| **`/code-review ultra`** | Bugün 17 commit girdi, hiçbiri derin incelemeden geçmedi. Arda'ya önerildi |
+
+### 0.4 Bugün eklenen sistemler — nerede oldukları
+
+```
+src/systems/horror.py        korku katmanı kapısı + fotosensitivite
+src/systems/breath.py        nefes (üç tetikleyici)
+src/systems/lies.py          yalan defteri
+src/systems/phantom.py       Yankı Görüşü'nün yalanı
+src/systems/false_silence.py yanlış sessizlik
+src/systems/consumables.py   ok ve bomba
+src/entities/watcher.py      İzleyen (düşman DEĞİL)
+src/entities/ghost.py        ölüm hayaleti
+src/entities/kalachev.py     Kalachev (Companion DEĞİL)
+src/ui/mechanic_card.py      mekanik tanıtım kartı
+src/core/display.py          monitör yerleşimi (ctypes)
+src/scenes/chapter01_cinematics.py   Jet'in kılıç sahnesi
+docs/korku.md  docs/kalachev.md      onaylı tasarım belgeleri
+```
+
+### 0.5 ⚠ BUGÜN ÖĞRENİLEN EN PAHALI ŞEY
+
+**Test paketi oyuncunun gerçek kaydını siliyordu.** Sahneler
+`read_save()` ile Arda'nın kaydını yüklüyor, `_sync_abilities()` gibi
+yerler geri yazıyordu — yani `python tests/test_chapter01.py`
+çalıştırmak oynanan oyunu bozuyordu. Arda'nın 55 altını ve seçtiği
+balta böyle kayboldu; yedek dosyası da aynı koşuda üzerine yazıldığı
+için kurtarılamadı.
+
+Artık `save.py` `LORE_SAVE_DIR` ortam değişkenini okuyor ve **44 test
+paketinin hepsi** başlangıçta geçici bir klasöre geçiyor. Yeni bir test
+dosyası açarken o bloğu kopyalamayı unutma — yoksa aynı şey tekrar olur.
+
+**Doğrulama:** tam süiti çalıştır, `save.json`'ın SHA256'sı önce ve
+sonra aynı olmalı.
 
 ---
 
