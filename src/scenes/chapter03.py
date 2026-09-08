@@ -27,7 +27,6 @@ import math
 import pygame
 
 from src.art import lighting, palette
-from src.combat.hitbox import Hitbox, Team, melee_rect
 from src.config import (
     CANDLE_KEEPER_PRICE_DEATH_CANDLE, CANDLE_KEEPER_PRICE_ETERNAL_WICK,
     CANDLE_KEEPER_PRICE_TORCH, CHAPTER3_BOSS_GOLD, CHAPTER3_CHEST_GOLD_ROOM2,
@@ -39,7 +38,7 @@ from src.core.juice import ImpactWeight
 from src.entities.candle_keeper import CandleKeeper
 from src.entities.enemies.extinguished_one import Brazier, ExtinguishedOne
 from src.scenes.play import PlayScene
-from src.systems import abilities, charms, economy
+from src.systems import charms, economy
 from src.systems.economy import TradeOffer
 from src.systems.light import LightState
 from src.ui import text as text_ui

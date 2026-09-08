@@ -37,13 +37,12 @@ import math
 import pygame
 
 from src.art import palette
-from src.config import INTERNAL_WIDTH, TILE_SIZE
+from src.config import TILE_SIZE
 from src.core.input import Action
 from src.core.juice import ImpactWeight
 from src.entities.companion import Companion, other_character
 from src.scenes.play import PlayScene
 from src.ui.chapter_end import ChapterEndScene, ChapterResult
-from src.ui.dialogue import Line
 from src.ui.i18n import t
 from src.world import cave_backdrop
 from src.world.pickups import Chest

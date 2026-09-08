@@ -35,7 +35,6 @@ kisa bir final.
 """
 from __future__ import annotations
 
-import pygame
 
 from src.art.animation import CHARACTERS
 from src.art.animator import Animator

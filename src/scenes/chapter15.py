@@ -53,8 +53,7 @@ from src.ui.i18n import t
 from src.world import cave_backdrop
 from src.world.pickups import Chest
 from src.world.rooms.chapter15 import (
-    CHEST_GOLD, DRIP_INTERVAL, FLOOR_TOP, GHOST_BONUS, LEVEL, ROOM_STARTS,
-    SECRETS_TOTAL,
+    CHEST_GOLD, DRIP_INTERVAL, GHOST_BONUS, LEVEL, ROOM_STARTS, SECRETS_TOTAL,
 )
 from src.world.tilemap import TileMap
 

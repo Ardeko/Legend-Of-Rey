@@ -17,8 +17,6 @@
     "new_game_hint": "Rey'in hikâyesini baştan başla",
     "settings": "AYARLAR",
     "settings_hint": "Görüntü, ses ve erişilebilirlik",
-    "extras": "EKSTRALAR",
-    "extras_hint": "Oyun ilerledikçe açılır",
     "quit": "ÇIKIŞ",
     "restored_from_backup": "Ana kayıt okunamadı, yedekten dönüldü.",
     "overwrite_warning": "Mevcut kaydın silinecek.",

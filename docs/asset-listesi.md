@@ -1,9 +1,23 @@
 # LORE — Asset Listesi
+
+> **⚠ 02.09.2026 DÜZELTME.** Bu belge 21.08.2026'da yazıldı ve tasarım
+> içeriği hâlâ geçerli. Ama üç *olgusal* iddiası bayatladı — aşağıda
+> düzeltildi, gerekçeler `CLAUDE.md` §6 ve `DEVIR.md` §7'de:
+>
+> | Eskiden | Şimdi |
+> |---|---|
+> | Palet **32 renk** | **37 renk** — Arda 23.08.2026'da beş yeşil onayladı |
+> | "Türkçe karakter eksik" | **Tam set var** (`src/ui/font_data.py`) |
+> | "Yüz: 2 piksel göz, ağız yok" | Arda 29.08.2026'da genişletti: sprite'ta göz + kaş + çene gölgesi; gerçek yüz **portrede** (`src/art/portrait.py`) |
+>
+> Oyunun tamamı yazıldı (18/18 bölüm). Bu belge artık bir **plan**
+> değil, bir **kayıt**.
+
 **GDD Ek C** · v0.1
 
 **Teknik standart:** 480×270 iç çözünürlük · 32×32 karakter · 16×16 tile · 60 FPS
 **Format:** PNG spritesheet (yatay şerit), OGG ses
-**Palet:** Tek ana palet — 32 renk. Tüm asset'ler bu paletten. Tutarlılık kaliteyi bedava artırır.
+**Palet:** Tek ana palet — **37 renk**. Tüm asset'ler bu paletten. Tutarlılık kaliteyi bedava artırır.
 
 ---
 
@@ -241,7 +255,7 @@ Bölüm 2'yi tam cilalı bitirmek için sadece bunlar lazım — **listenin %15'
 
 ## K. ÜRETİM STRATEJİSİ ÖNERİSİ
 
-1. **Palet önce.** 32 renk sabitle, her şey ondan çıksın. Sonradan palet değiştirmek tüm asset'i çöpe atar.
+1. **Palet önce.** 37 renk sabitle, her şey ondan çıksın. Sonradan palet değiştirmek tüm asset'i çöpe atar.
 2. **Placeholder ile başla.** Renkli dikdörtgenlerle oyna, oynanış oturunca sanat yap. Güzel sprite'la kötü oynanışı fark edemezsin.
 3. **Rey'i en son cilala.** En çok bakılan sprite o; oynanış netleşmeden animasyon yaparsan iki kez yaparsın.
 4. **Tileset'i modüler kur.** 9-slice mantığı (köşe/kenar/orta) — 20 tile ile sonsuz oda.

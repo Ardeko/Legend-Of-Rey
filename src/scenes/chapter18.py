@@ -45,8 +45,8 @@ from src.systems.silence import SilenceState
 from src.ui.i18n import t
 from src.world import cave_backdrop
 from src.world.rooms.chapter18 import (
-    ARENA_SEAL_COLUMN, ARENA_SEAL_ROWS, CALLER_TILE, CEMO_TILE, CLEAN_BONUS,
-    CLEAN_RISES, FALSE_CEMO_TILE, LEVEL, ZONE_STARTS,
+    ARENA_SEAL_COLUMN, ARENA_SEAL_ROWS, CALLER_TILE, CEMO_TILE, CLEAN_RISES,
+    FALSE_CEMO_TILE, LEVEL, ZONE_STARTS,
 )
 from src.world.tilemap import SOLID, TileMap
 

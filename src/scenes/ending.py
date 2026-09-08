@@ -47,8 +47,6 @@ import pygame
 
 from src.art import palette
 from src.config import INTERNAL_HEIGHT, INTERNAL_WIDTH
-from src.core.input import Action
-from src.core.scene import Scene
 from src.entities.companion import other_character
 from src.scenes.staging import ActorSpec, Cue, MoteField, StagedScene
 from src.scenes.story import Panel

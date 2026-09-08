@@ -1,4 +1,18 @@
 # LORE — Asset Planı v2 (Revize)
+
+> **⚠ 02.09.2026 DÜZELTME.** Bu belge 21.08.2026'da yazıldı ve tasarım
+> içeriği hâlâ geçerli. Ama üç *olgusal* iddiası bayatladı — aşağıda
+> düzeltildi, gerekçeler `CLAUDE.md` §6 ve `DEVIR.md` §7'de:
+>
+> | Eskiden | Şimdi |
+> |---|---|
+> | Palet **32 renk** | **37 renk** — Arda 23.08.2026'da beş yeşil onayladı |
+> | "Türkçe karakter eksik" | **Tam set var** (`src/ui/font_data.py`) |
+> | "Yüz: 2 piksel göz, ağız yok" | Arda 29.08.2026'da genişletti: sprite'ta göz + kaş + çene gölgesi; gerçek yüz **portrede** (`src/art/portrait.py`) |
+>
+> Oyunun tamamı yazıldı (18/18 bölüm). Bu belge artık bir **plan**
+> değil, bir **kayıt**.
+
 **GDD Ek C-2** · Mevcut prototip görüldükten sonra güncellendi
 
 ---
@@ -68,7 +82,7 @@ Sadece en kritik anlar: açılış (Cemo'nun düşüşü), Ardo'nun ilk girişi,
 Claude Code her seferinde sprite üretebilir — ama **her seferinde biraz farklı üretir**. 240 düşman karesi ayrı oturumlarda üretilirse oyun dağınık görünür. Çözüm:
 
 **a) Palet dosyası — ilk iş**
-`palette.py` içinde 32 renk sabit. Her sprite üretiminde bu dosya referans verilir. Palet dışı renk yasak.
+`palette.py` içinde **37 renk** sabit. Her sprite üretiminde bu dosya referans verilir. Palet dışı renk yasak.
 
 **b) Sprite üretici modülü**
 Sprite'lar elle çizilmiş PNG değil, **kod fonksiyonu** olarak üretilsin:
@@ -80,7 +94,7 @@ Böylece Rey, Ardo, Muhafızlar aynı iskeletten çıkar. Tutarlılık garanti, 
 **c) Stil sözleşmesi (CLAUDE.md'ye yazılacak)**
 - Kontur: koyu ama siyah değil (paletin en koyu 2. rengi)
 - Işık kaynağı: her zaman sol üst
-- Karakter yüzü: 2 piksel göz, ağız yok
+- Karakter yüzü: göz + kaş + çene gölgesi (29.08.2026'da genişletildi; gerçek yüz detayı portrede)
 - Gölge: karakterin altında 1 elips
 - Animasyon: 8 FPS hissi (her kare 7-8 oyun karesi)
 
@@ -93,7 +107,7 @@ Böylece Rey, Ardo, Muhafızlar aynı iskeletten çıkar. Tutarlılık garanti, 
 
 | Sorun | Çözüm |
 |---|---|
-| Türkçe karakter eksik | Font'a ğ ü ş ı ö ç ekle — ilk iş, her yerde görünüyor |
+| ~~Türkçe karakter eksik~~ | **Kapandı** — tam set `src/ui/font_data.py` içinde |
 | Ekran çok karanlık | Platform kenarı yeşil şeridi güçlendir; meşale yarıçapını %30 artır |
 | Platform okunabilirliği | Kenar şeridine 1px açık kontur ekle |
 | Arka plan duvar dokusu tekdüze | 3-4 varyant tile + rastgele dağıtım |
@@ -126,7 +140,7 @@ Prototipte zaten var olanlar **[✓]** ile işaretli:
 - [ ] Katman 1 ambient + dövüş müziği (2 parça)
 
 **Font**
-- [ ] Türkçe karakterler
+- [x] Türkçe karakterler
 
 **Kalan gerçek iş: ~35 sprite/animasyon + ~26 ses + font.** Prototipin üstüne inşa edildiğinde makul.
 

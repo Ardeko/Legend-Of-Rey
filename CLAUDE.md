@@ -11,7 +11,7 @@ Kafasının içindeki sesler yüzünden lanetli sayılan Rey, kaçırılan karde
 
 **Stüdyo:** Ardeko Studios
 **Hedef platform:** PC (klavye + gamepad). **Mobil DEĞİL.**
-**Kapsam:** 18 bölüm, ~4 saat, 2 oynanabilir karakter
+**Kapsam:** 18 bölüm, ~4 saat, 2 oynanabilir karakter — **18'i de yazıldı (02.09.2026)**
 
 ---
 
@@ -311,22 +311,34 @@ Palet tek kaynak olduğu için bunların çoğu neredeyse bedava. Ayarlar menüs
 
 ---
 
-## 14. ÜRETİM SIRASI (mevcut durum)
+## 14. ÜRETİM SIRASI — ★ TAMAMI BİTTİ (02.09.2026)
 
-- [x] Faz -1: İlk prototip (hareket, kılıç, düşman, HUD) — mevcut
-- [ ] **Faz 0: Temel** — palet, font (Türkçe + tr_upper!), spritegen, klasör yapısı, sabit adım döngü
-- [ ] **Faz 1: Dövüş çekirdeği** — zincir, hitstop, kill cancel, kaçınma (placeholder kutularla)
-- [ ] **Faz 2: Düşman AI** — 3 tip + saldırı hakkı sistemi + ritim imzaları
-- [ ] **Faz 3: Yankı sistemi** — 3 kademe, soru sorma, kolye pusulası, kırılabilir duvar
-- [ ] **Faz 4: Bölüm 2** — 8 oda, mini-boss, gizli oda
-- [ ] **★ ARA DEĞERLENDİRME** — kutularla eğlenceli mi? Değilse dur.
-- [ ] **Faz 5: Menü ve UI** — işlevsel katman (menü, kayıt, ayarlar, HUD)
-- [ ] **Faz 6: Menü sahnesi** — mor alev, rüzgâr, 5 aşamalı evrim
-- [ ] **Faz 7: Bölüm 3** — meşale ekonomisi, ses haritası, Mum Bekçisi, Mor Alev
-- [ ] **Faz 8: Sanat geçişi** — placeholder → gerçek sprite
-- [ ] **Faz 9: Ses + son cila** — dikey katmanlama, erişilebilirlik
+- [x] Faz -1: İlk prototip (hareket, kılıç, düşman, HUD)
+- [x] **Faz 0: Temel** — palet, font (Türkçe + tr_upper), spritegen, klasör yapısı, sabit adım döngü
+- [x] **Faz 1: Dövüş çekirdeği** — zincir, hitstop, kill cancel, kaçınma
+- [x] **Faz 2: Düşman AI** — **10 tip** + saldırı hakkı sistemi + ritim imzaları
+- [x] **Faz 3: Yankı sistemi** — 3 kademe, soru sorma, kolye pusulası, kırılabilir duvar
+- [x] **Faz 4: Bölüm 2** — 8 oda, mini-boss, gizli oda
+- [x] **★ ARA DEĞERLENDİRME** — geçildi, devam edildi
+- [x] **Faz 5: Menü ve UI** — menü, kayıt, ayarlar, HUD, tuş yeniden atama
+- [x] **Faz 6: Menü sahnesi** — mor alev, rüzgâr, 5 aşamalı evrim
+- [x] **Faz 7: Bölüm 3** — meşale ekonomisi, ses haritası, Mum Bekçisi, Mor Alev
+- [x] **Faz 8: Sanat geçişi** — prosedürel sprite + portre + içe aktarılan sanat
+- [x] **Faz 9: Ses + son cila** — 71 efekt, 9 parça müzik, erişilebilirlik
 
-**Dikey dilim kriteri:** Bölüm 1-3 + menü bittiğinde oynayan biri "bir bölüm daha oynayayım" demiyorsa, devam etmeden önce dur ve tartış.
+### Bundan sonrası
+
+**18 bölümün 18'i oynanabilir.** Zincir kesintisiz: intro → menü →
+karakter seçimi → dikey yolculuk → B1…B18 → kapanış → jenerik → ana menü.
+Dört büyük boss'un dördü de yerinde (B6, B13, B14, B18).
+
+Kalan iş **içerik üretimi değil, cila**: denge, oynanış testi, geri
+bildirim. Yeni bölüm eklenmeyecek — kapsam `docs/yapi.md` ile kapandı.
+
+**Bir sonraki gerçek adım oynamak.** `DEVIR.md` §9 açık kalanları
+listeliyor; hiçbiri oyunu bitirmeye engel değil.
+
+**Dikey dilim kriteri** (tarihsel): Bölüm 1-3 + menü bittiğinde oynayan biri "bir bölüm daha oynayayım" demiyorsa dur ve tartış. Geçildi.
 
 ## graphify
 

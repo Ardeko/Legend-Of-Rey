@@ -35,7 +35,6 @@ from src.art import palette
 from src.config import FPS, INTERNAL_HEIGHT, INTERNAL_WIDTH
 from src.scenes.staging import ActorSpec, Cue, MoteField, StagedScene
 from src.scenes.story import Panel
-from src.ui.dialogue import Line
 
 GROUND_Y = 184
 

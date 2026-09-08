@@ -41,7 +41,7 @@ from src.core.input import Action
 from src.entities.companion import other_character
 from src.scenes.staging import ActorSpec, Cue, MoteField, StagedScene
 from src.scenes.story import Panel
-from src.ui import balloon, gesture
+from src.ui import gesture
 from src.ui.dialogue import Line
 
 GROUND_Y = 196

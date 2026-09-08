@@ -43,7 +43,7 @@ kilitlenme degil. Bu ders projede pahaliya ogrenildi (bkz. `DEVIR.md`
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from src.config import (
     LEVER_COOLDOWN, TILE_SIZE, TIMEGATE_FRAMES, TIMEGATE_WARN_FRAMES,

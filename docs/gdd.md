@@ -1,4 +1,17 @@
 # LEGEND OF REY (LORE) — Game Design Document
+
+> **★ 02.09.2026 — BU BELGEDEKİ HER ŞEY YAZILDI.**
+>
+> 18 bölümün 18'i oynanabilir; zincir kesintisiz (intro → menü →
+> karakter seçimi → dikey yolculuk → B1…B18 → kapanış → jenerik).
+> Dört büyük boss'un dördü de yerinde: Çürümüş Olan (B6), Zindancı
+> (B13), Kaynak (B14), Çağıran (B18). On bir mekaniğin on biri +
+> B17'nin ikili kontrolü ve B18'in susturması.
+>
+> Belge artık bir **plan** değil bir **sözleşme**: kod buna uyuyor,
+> uymayan yer bir hatadır. Kalan iş içerik değil **cila** —
+> `DEVIR.md` §9.
+
 **v0.1 — Tasarım Aşaması** · Ardeko Studios · Pygame
 
 ---

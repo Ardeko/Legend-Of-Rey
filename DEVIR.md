@@ -35,7 +35,7 @@ Tasarım paketi `docs/` altında ve **bağlayıcı**: `gdd.md` (ana belge),
 
 ## 2. NEREDE DURUYORUZ
 
-**63.911 satır Python. 42 test paketi de yeşil — 112 saniyede.**
+**63.968 satır Python. 42 test paketi de yeşil — 108 saniyede.**
 (02.09.2026'da ölçüldü.)
 
 Oynanabilir akış:
@@ -1161,88 +1161,106 @@ Exe **bölüm adı argümanı alıyor** — testte en çok işe yarayan şey:
 `"Legend of Rey.exe" bolum18`. Geçerli 51 ad `main.py` `SCENES`
 içinde; yanlış ad yazılınca liste basılıyor.
 
+### Kapanış taraması — belgeler gerçekle hizalandı (02.09.2026)
+
+Oyun bitince tüm proje baştan tarandı. Kod sağlamdı (42 paket yeşil,
+sıfır TODO, sıfır yetim modül); **bayat olan belgelerdi.**
+
+#### Bulunan ve düzeltilen
+
+| Ne | Durum |
+|---|---|
+| `DEVIR.md` §9'un yarısı | 11 madde çoktan kapanmıştı, "açık" yazıyordu → yeniden yazıldı, kanıt tablosu eklendi |
+| `CLAUDE.md` §14 | Faz 0–9 hepsi işaretsizdi, hepsi bitmişti → işaretlendi |
+| `assets/REGISTRY.md` | "Müzik yok" diyordu (9 parça var), düşman rolleri "AI yok" diyordu (10 AI var), balon ikonları hiç kayıtlı değildi |
+| `docs/asset-plani.md` · `asset-listesi.md` | "32 renk" (37), "Türkçe karakter eksik" (var), eski yüz kuralı |
+| `docs/yapi.md` · `gdd.md` | Tamamlanma notu yoktu |
+| 35 kullanılmayan import | 22 dosyada, silindi |
+| Ana menüde gri **EKSTRALAR** | Kaldırıldı |
+
+#### Kayıt üreticiden gelir, elle yazılmaz
+
+`assets/REGISTRY.md`'yi elle düzeltmek yanlış olurdu — `tools/registry.py`
+üretiyor. Araç düzeltildi ve müzik/ikon tabloları artık **kaynaktan**
+üretiliyor (`music.TRACKS`, `balloon.ICONS`), yani bir daha bayatlayamaz.
+Aynı ders `palette.COLORS` sayımında zaten uygulanmıştı.
+
+#### EKSTRALAR neden kaldırıldı
+
+`menu.py`'nin iki satır yukarısında zaten şu yazıyordu: *"Kayıt yoksa
+görünmez — gri değil, YOK."* Aynı ölçüt EKSTRALAR için de geçerli:
+içeriği yok, o hâlde satırı da olmamalı. Kalıcı gri bir satır oyuncuya
+hiçbir şey öğretmiyor.
+
 ## 9. AÇIK KALANLAR
 
-Sırası gelmediği için değil, **gözden kaçmasın** diye:
+**02.09.2026'da baştan tarandı.** Yarısı çoktan kapanmıştı ama
+kapandığı buraya yazılmamıştı — o yüzden liste yeniden yazıldı.
+Kapanmış maddeler kanıtıyla duruyor; bir daha "acaba yapıldı mı"
+diye bakılmasın.
 
-1. **Işık sistemi yalnızca Bölüm 3'e bağlı.** B1'in yarığı ve B2'nin
-   meşaleleri gerçek ışık vermiyor. (Faz C'nin yarım kalan parçası.)
-2. ~~Katman 2'de sadece Kalkanlı'nın AI'ı var~~ — **kapandı
-   (30.08.2026).** On AI'ın onu da yazıldı; `tests/test_enemies.py`
-   her birinin `docs/gdd.md` §7'deki cümlesini gerçekten yaptığını
-   ölçüyor. Kalan iş yerleştirme, davranış değil.
-3. ~~Ardo'nun oynanışı Rey'in aynısı~~ — **kapandı (29.08.2026).**
-   `src/systems/tracking.py` + `src/ui/tracking_view.py`. Aynı tuş, zıt
-   bilgi: Rey geleceği/gizliyi **duyar**, Ardo geçmişi **görür**. Eğri
-   birebir aynı (girdi ortak), menzil bilerek farklı (Yankı 260/96/0 —
-   bir lanet, ölümle zayıflar; İz Sürme sabit 190 — zayıflamaz ama
-   berrak Yankı kadar da görmez). Bedel: Yankı ekranı **karartır**,
-   İz Sürme **ağartır** ve yaşayan düşmanlar %62 solar.
-   **Eşitlik yapısal:** Yankı ne açıklıyorsa İz Sürme de açıklıyor
-   (kırılabilir duvarlar), gerekçe farklı — Rey duvarın arkasını duyar,
-   Ardo duvardan birinin geçtiğini görür. Bölüm verisine tek satır
-   eklenmedi; `CLAUDE.md` §3 sırası gelmemiş içeriği yasakladığı için
-   eşitliğin yapısal olması şarttı.
-4. **Ardo'nun Bölüm 1'deki motivasyonu yazılmadı** (bkz. §3 madde 7).
+### Bilinçli kararlar — yapılmayacak
 
-4b. **Tuş yeniden atama arayüzü yok.** `CLAUDE.md` §10 zorunlu tutuyor;
-   `settings.py` `bindings` değerini tutuyor ama onu değiştiren bir ekran
-   yok. Arda 30.08.2026'da kol ayarını seçerken *"Tuşları falan da
-   ayarlara getiririz"* dedi — sırası geldi.
+Bunlar eksik değil, **karar**. Yeniden açılmasın diye gerekçeleriyle:
 
-4c. **Bölüm 1-6'nın ara sahneleri hâlâ eski dilde.** `staging.py` artık
-   var ama yalnızca Bölüm 7 kullanıyor; Bölüm 2/3'ün sinematikleri hâlâ
-   renkli daireler. Geriye dönük çevirmek ucuz (`Panel` zaten ortak) ve
-   oyunun ilk yarısını belirgin biçimde iyileştirir.
-5. **Boss kapısı + anahtar (24.08.2026)** — `src/world/keydoor.py`.
-   Bölüm 2 ve 3'ün arena çıkışı kilitli, boss ölünce anahtar düşüyor.
-   Aynı yapı sonraki boss odalarında da kullanılmalı; Bölüm 2/3'e
-   bakarak bağlanır (`_drop_key` / `_update_key`).
-   *Bölüm 5'te gerekmedi* — orada kilit **tasarıma gömülü** (savak su
-   seviyesini izliyor). Kilit bir mekanizma değil, bir sonuç olduğunda
-   daha iyi okunuyor; boss odaları dışında bu yol tercih edilmeli.
+1. **B1/B2'de gerçek ışık yok.** Işık B3'ün mekaniği
+   (`src/systems/light.py`, B3/B11/B13'te kullanılıyor). Geriye dönük
+   eklemek iki yerleşik bölümün hissini sebepsiz değiştirir —
+   `CLAUDE.md` §12: *"tasarım belgesindeki sayısal değerleri sessizce
+   değiştirmek"* yasak, aynı ruh.
+2. **`intro.py` hâlâ eski dilde.** Ardeko logosu; `StagedScene`
+   karakter sahnelemesi için var, logoda sahnelenecek karakter yok.
+   Öteki **14 ara sahnenin hepsi** yeni dile geçti.
+3. **9-slice tileset yok.** Mevcut dikdörtgen blok tasarımı için
+   gerekmiyor.
+4. **B3'ün "5 yuva" ödülü basitleştirilmiş.** Belge "ısıyla açılan
+   gizli kapı" tarif ediyor, kodda kutlama + toast var. Yerleşik bir
+   bölüme yeni içerik eklemek `CLAUDE.md` §3'e göre sıraya bağlı ve
+   sırası geçti.
+5. **`tools/reachability.py` Bölüm 5'i yalnızca KURU doğruluyor.** BFS
+   suyu bilmiyor; "su yüzeyi platformdur" denendi ve yanlış çıktı
+   (yüzmek yüzeyde yürümek değil). Su yolu `tests/test_chapter05.py`
+   içinde **gerçek fizikle** oynatılıyor. *Aynı desen ileride bir
+   mekanik BFS'e sığmadığında tekrar kullanılmalı: aracı zorlama,
+   testi yaz.*
+6. **`_prototype/` referans, ASLA import etme.** İçinde işe yarar
+   fikirler var (parallax, post-fx, ışıklandırma, tile üreteci).
 
-6. ~~Bölüm 2'nin ödülü eksik~~ — **kapandı (29.08.2026).**
-   `src/ui/weapon_choice.py`. Boss ölünce 100 kare sonra açılıyor
-   (öldürme anında açmak zaferi keser), iptal yok (bu bir menü değil
-   **ödül**), sayılar `config.py`'nin zincir tablolarından **okunuyor**
-   (elle yazılsa ilk denge geçişinde yalan olurdu). Ölüm ödül vermiyor:
-   `_open_arena(defeated=False)`. Hançer/Balta'nın kendi sprite'ları var.
-   Seçim `PlayScene._equip_saved_weapon()` ile sonraki bölümlere
-   taşınıyor — **yalnızca Hançer/Balta**, yoksa kaydın varsayılan
-   "sword" değeri Bölüm 1'in "kılıcı buluyor" anını bozardı.
-7. **`tools/reachability.py` Bölüm 5'i yalnızca KURU doğruluyor.** BFS
-   suyu bilmiyor; su yüzeyini "platform" sayan ikinci bir geçiş denendi
-   ve **yanlış** çıktı (yüzmek "yüzeyde yürümek" değil, su hacminde
-   yükselmek). Üst kat `validate(..., ignore=)` ile "bilerek erişilemez"
-   kümesine alındı — yoksa araç sürekli kırmızı yanar ve zamanla göz ardı
-   edilirdi. Su yolu bunun yerine `tests/test_chapter05.py` içinde
-   **gerçek fizikle** oynatılıyor. *Aynı desen ileride bir mekanik
-   BFS'e sığmadığında tekrar kullanılmalı: aracı zorlama, testi yaz.*
-8. ~~Checkpoint yok~~ — **kapandı (29.08.2026).** `PlayScene.restart()`
-   artık **odanın** başından devam ettiriyor. Kısmi geri alma değil:
-   sahne yine **tamamen** baştan kuruluyor (yoksa kapı/anahtar/arena
-   mührü/su seviyesi gibi değişmezlerden biri mutlaka bayat kalır),
-   sonra oyuncu ölduğü odanın başına ışınlanıyor ve o odanın düşmanları
-   yeniden doğuyor. Alt sınıflar bunun için **hiçbir şey yapmıyor** —
-   hepsi zaten `self.room` tutuyor, `PlayScene` o değişimi izliyor.
-   Yalnızca **yerdeyken** kaydediliyor (havada kaydedilse boşluğa düşen
-   oyuncu sonsuz ölüm döngüsüne girerdi).
-9. **Müzik yok.** Ses efektleri var (sentezlenmiş). **Döngülü/sürekli
-   sesler bilerek kaldırıldı** — Arda: *"cızırtı gibi, rahatsız edici"*.
-   Altyapı (`play_loop`/`stop_loop`) duruyor, kullanılmıyor. Gerçek kayıt
-   gelirse tekrar açılabilir.
-10. **`game.music_hush` dolduruluyor ama kimse okumuyor.** Görsel yarısı
-   çalışıyor, müziği kısacak taraf müzik gelince yazılacak.
-11. **EKSTRALAR ve EKİPMAN menüde kapalı.**
-12. **Bölüm 3'ün "5 yuva" ödülü basitleştirildi** — belge "ısıyla açılan
-    gizli kapı" tarif ediyor, kodda kutlama efekti/toast var.
-13. **Gerçek 9-slice tileset yok** (köşe/kenar ayrı parça). Şu anki
-    dikdörtgen blok tasarımı için yeterli görünüyor.
-14. **`docs/asset-plani.md` güncel değil** — "Türkçe karakter eksik" ve
-    "prototipteki sprite kalitesi" maddeleri artık geçersiz.
-15. **`_prototype/` referans, ASLA import etme.** İçinde işe yarar
-    fikirler var (parallax, post-fx, ışıklandırma, tile üreteci).
+### Gerçekten açık
+
+7. **Tam ekran her zaman BİRİNCİ monitörde açılıyor.** pygame-ce
+   2.5.8 pencerenin hangi ekranda olduğunu sormanın bir yolunu
+   vermiyor (`get_desktop_sizes` yalnızca boyut döner,
+   `set_mode(display=…)` bu SDL/Windows bileşiminde pencereyi
+   taşımıyor — ikisi de ölçüldü). Kütüphane bunu açarsa
+   `window_origin()` tek noktadan düzeltilir.
+8. **Baştan sona oynanış testi yapılmadı.** Sistemler doğru, testler
+   yeşil — ama dört saatlik akışın *ritmi* ölçülmez. **Kalan en
+   değerli iş bu.**
+9. **`docs/asset-plani.md` ve `docs/asset-listesi.md` 21.08'den
+   kalma.** İçerikleri hâlâ büyük ölçüde geçerli ama sayılar bayat.
+
+### 02.09.2026'da kapandığı doğrulananlar
+
+Aşağıdakiler listede "açık" duruyordu; tarandı, **kapalı** çıktı:
+
+| Eskiden | Durum | Kanıt |
+|---|---|---|
+| Katman 2'de sadece Kalkanlı'nın AI'ı var | **kapalı** | 10 AI, `tests/test_enemies.py` her birinin `gdd.md` §7 cümlesini ölçüyor |
+| Ardo'nun oynanışı Rey'in aynısı | **kapalı** | `src/systems/tracking.py` — aynı tuş, zıt bilgi |
+| Tuş yeniden atama arayüzü yok | **kapalı** | `bindings.py` 14 girdi + Ayarlar → Tuşlar sekmesi |
+| B1-B6 ara sahneleri eski dilde | **kapalı** | 14 ara sahnenin 14'ü `StagedScene` (yalnızca `intro.py` hariç, madde 2) |
+| Bölüm 2'nin ödülü eksik | **kapalı** | `src/ui/weapon_choice.py` |
+| Checkpoint yok | **kapalı** | `PlayScene.restart()` odanın başından |
+| Müzik yok | **kapalı** | `assets/audio/music/` — 9 parça, `music.py :: TRACKS` |
+| `music_hush` doldurulup okunmuyor | **kapalı** | `music.py:140` okuyor |
+| EKİPMAN menüde kapalı | **kapalı** | `src/ui/equipment.py` — duraklat menüsü + Tab |
+| Boss kapısı + anahtar | **kapalı** | `src/world/keydoor.py`, B2/B3 |
+| `docs/asset-plani.md` "Türkçe karakter eksik" | **kapalı** | tam Türkçe seti, `font_data.py` |
+
+**EKSTRALAR** ana menüden **kaldırıldı** (02.09.2026): kalıcı gri bir
+satır oyuncuya hiçbir şey öğretmiyor ve `CLAUDE.md` §9'un kendi kuralı
+zaten *"kayıt yoksa DEVAM ET görünmez (gri değil)"* diyor.
 
 ---
 

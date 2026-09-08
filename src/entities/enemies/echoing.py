@@ -44,7 +44,6 @@ from src.config import (
     ECHOING_HINT_RANGE, ECHOING_POISE, ECHOING_REACH, ECHOING_RECOVER_FRAMES,
     ECHOING_SPEED, ECHOING_TELL_FRAMES,
 )
-from src.entities.enemy import Enemy, EnemyState
 from src.entities.enemies.shambler import Shambler
 
 

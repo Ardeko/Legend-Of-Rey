@@ -73,8 +73,12 @@ class MainMenuScene(Scene):
                      hint="menu.new_game_hint"),
             MenuItem("menu.settings", self._open_settings,
                      hint="menu.settings_hint"),
-            MenuItem("menu.extras", None, enabled=False,
-                     hint="menu.extras_hint"),
+            # **EKSTRALAR kaldirildi (02.09.2026).** Kalici olarak gri
+            # duran bir satir oyuncuya hicbir sey ogretmiyordu ve bu
+            # dosyanin kendi kurali onu zaten reddediyor: iki satir
+            # yukarida "Kayit yoksa gorunmez - gri degil, YOK."
+            # Ayni olcut EKSTRALAR icin de gecerli - icerigi yok, o
+            # halde satiri da olmamali.
             MenuItem("menu.quit", self.game.quit, gap_before=True),
         ], MENU_X, MENU_Y, width=140,
             on_sound=self.game.play_sound)

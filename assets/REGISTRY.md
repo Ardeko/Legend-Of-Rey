@@ -29,16 +29,16 @@ Spec'ler: `src/art/animation.py :: CHARACTERS`
 | `shambler` | 40x36 | 31 | 50 | Katman 1 - Suruklenen |
 | `climber` | 44x34 | 28 | 50 | Katman 1 - Tirmanan |
 | `bloated` | 44x40 | 34 | 50 | Katman 1 - Sismek |
-| `rotted_one` | 64x56 | 48 | 50 | **BOSS 1** - Curumus Olan (B6) |
-| `gaoler` | 64x80 | 64 | 50 | **BOSS 2** - Zindanci (B13) |
-| `source` | 96x96 | 76 | 50 | **BOSS 3** - Kaynak (B14). Oyunun en buyuk sprite'i; Katman 3'un atasi |
-| `shieldbearer` | 44x40 | 34 | 50 | Katman 2 - Kalkanli (AI VAR, B5'te tanitiliyor) |
-| `spearman` | 56x40 | 34 | 50 | Katman 2 - Mizrakli (AI VAR, B11+B13) |
-| `archer` | 48x40 | 34 | 50 | Katman 2 - Okcu (AI VAR, **B13'te yerlesti**) |
-| `commander` | 52x48 | 41 | 50 | Katman 2 - Komutan (AI VAR, **B13'te yerlesti**) |
-| `silent` | 44x40 | 34 | 50 | Katman 3 - Sessiz (AI VAR, **B14'te yerlesti**) |
-| `echoing` | 48x42 | 36 | 50 | Katman 3 - Yankilayan (AI VAR, **B14'te yerlesti**) |
-| `splitter` | 48x42 | 36 | 50 | Katman 3 - Bolunen (AI VAR, **B14'te yerlesti**) |
+| `rotted_one` | 64x56 | 48 | 50 | - |
+| `gaoler` | 64x80 | 64 | 50 | - |
+| `shieldbearer` | 44x40 | 34 | 50 | Katman 2 - Kalkanli (B5'te tanitiliyor) |
+| `spearman` | 56x40 | 34 | 50 | Katman 2 - Mizrakli (B10) |
+| `archer` | 48x40 | 34 | 50 | Katman 2 - Okcu (B13) |
+| `commander` | 52x48 | 41 | 50 | Katman 2 - Komutan (B13) |
+| `source` | 96x96 | 76 | 50 | - |
+| `silent` | 44x40 | 34 | 50 | Katman 3 - Sessiz - Yanki onu gostermez (B14) |
+| `echoing` | 48x42 | 36 | 50 | Katman 3 - Yankilayan - sahte ipucu verir (B14) |
+| `splitter` | 48x42 | 36 | 50 | Katman 3 - Bolunen - vurunca ikiye ayrilir (B14) |
 
 **Animasyon durumlari (kare sayisi):** attack1 (5) · attack2 (5) · attack3 (5) · death (6) · dodge (2) · fall (4) · hurt (2) · idle (6) · jump (1) · land (3) · run (8) · turn (3)
 
@@ -88,5 +88,43 @@ sessizce dusmez, konsola rapor edilir.
 sentezleniyor (numpy). Sprite'lar gibi: diskte dosya yok, kaynak koddur. 
 Her tekrarli ses +-%8 rastgele perdeyle calinir (`CLAUDE.md` 7).
 
-**Muzik yok.** Donguli/surekli sesler bilerek kaldirildi (Arda: *"cizirti gibi, 
+Donguli/surekli **efektler** bilerek kaldirildi (Arda: *"cizirti gibi, 
 rahatsiz edici"*); altyapi (`play_loop`/`stop_loop`) duruyor.
+
+## Muzik
+
+`src/audio/music.py :: TRACKS` - **gercek kayit**, sentez degil. 
+Diskteki tek asset kategorisi bu.
+
+| Baglam | Parca | Nerede |
+|---|---|---|
+| `menu` | Azula.mp3 | Ana menu |
+| `explore` | Fade.mp3 | Kesif - B5 ve B12 gibi sulu/sakin bolumler |
+| `combat` | Mai.mp3 | Dovus |
+| `miniboss` | Fuze.mp3 | Mini-boss |
+| `boss` | Iron and Bone.mp3 | Buyuk boss - B6, B13, B14, B18 |
+| `echo` | Rey.mp3 | Yanki kisimlari |
+| `companion` | Ardo.mp3 | Oteki karakterin girisi |
+| `sad` | Loki.mp3 | Uzucu kisimlar - B10, B15, B17 |
+| `emotional` | Raze.mp3 | Cok nadir duygusal anlar - yalnizca B18 kapanisi |
+
+Parcalar `assets/audio/music/` altinda ve **akitilarak** calmiyor: 
+`Fade.mp3` (479 sn) cozuldugunde ~80 MB tutar, dokuzu birden bellege 
+alinamaz. `music.py` tek seferde tek parca tutuyor.
+
+## Balon ikonlari
+
+`src/ui/balloon.py :: ICONS` - **7x7 piksel deseni**, font glifi 
+degil. Oyunda hicbir replik yok (`docs/gdd.md` 2); duygu ve niyet 
+bu ikonlarla tasiniyor.
+
+| Ikon | Nerede |
+|---|---|
+| `question` | B6 - Ardo'yla ilk karsilasma |
+| `alert` | Genel uyari |
+| `heart` | B16 kapanisi ve B18 son paneli |
+| `necklace` | B1 Cemo'nun kolyesi, B18 geri takilmasi |
+| `hand` | Jest secimi - elini uzat (B16, B18) |
+| `nod` | Jest secimi - basini salla (B16, B18) |
+| `back` | Jest secimi - geri cekil (B16, B18) |
+| `echo` | Yanki isareti |

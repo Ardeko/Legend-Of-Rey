@@ -59,7 +59,6 @@ from src.art import palette, portrait
 from src.art.glow import radial_glow
 from src.config import INTERNAL_HEIGHT, INTERNAL_WIDTH
 from src.scenes.story import Panel, StoryScene
-from src.ui import text
 from src.ui.dialogue import Line
 
 # --- Panel sureleri (kare) ---------------------------------------------------

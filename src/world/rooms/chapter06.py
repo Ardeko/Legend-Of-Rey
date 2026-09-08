@@ -35,7 +35,6 @@ vanalari icin de yazildi).
 """
 from __future__ import annotations
 
-from src.config import TILE_SIZE
 from src.world.level import join_rooms, parse
 
 ROOM_HEIGHT = 16

@@ -26,20 +26,16 @@ import pygame
 from src.art import palette
 from src.art.animation import CHARACTERS
 from src.art.animator import Animator
-from src.art.glow import radial_glow
-from src.config import INTERNAL_HEIGHT, INTERNAL_WIDTH, TILE_SIZE
-from src.core.input import Action
+from src.config import INTERNAL_HEIGHT, TILE_SIZE
 from src.core.juice import ImpactWeight
 from src.scenes.play import PlayScene
-from src.ui import balloon, text
+from src.ui import balloon
 from src.ui.dialogue import Line
-from src.ui.i18n import t
 from src.entities.enemies.shambler import Shambler
 from src.entities.villager import Villager
 from src.systems import abilities
 from src.world.rooms.chapter01 import (
     ECHO_TUTORIAL_TILE, LEVEL, PROLOGUE, RIFT_TILE, SCENERY,
-    TUTORIAL_ATTACK_AFTER, TUTORIAL_MOVE_AFTER,
 )
 from src.scenes import chapter01_render
 from src.world import village_backdrop

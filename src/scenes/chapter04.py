@@ -45,7 +45,6 @@ from src.core.input import Action
 from src.core.juice import ImpactWeight
 from src.scenes import chapter04_render as render
 from src.scenes.play import PlayScene
-from src.systems import abilities
 from src.ui.chapter_end import ChapterEndScene, ChapterResult
 from src.ui.dialogue import Line
 from src.ui.i18n import t

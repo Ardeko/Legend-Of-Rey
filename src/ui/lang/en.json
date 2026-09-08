@@ -17,8 +17,6 @@
     "new_game_hint": "Start Rey's story from the beginning",
     "settings": "SETTINGS",
     "settings_hint": "Display, audio and accessibility",
-    "extras": "EXTRAS",
-    "extras_hint": "Unlocks as you progress",
     "quit": "QUIT",
     "restored_from_backup": "Main save unreadable - restored from backup.",
     "overwrite_warning": "Your save will be erased.",

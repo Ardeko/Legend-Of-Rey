@@ -40,7 +40,7 @@ from src.ui.i18n import t
 from src.world import cave_backdrop
 from src.world.pickups import Chest
 from src.world.rooms.chapter14 import (
-    BETRAYAL_ROOM, CHEST_GOLD, FLOOR_TOP, LEVEL, ROOM_STARTS, SECRETS_TOTAL,
+    CHEST_GOLD, FLOOR_TOP, LEVEL, ROOM_STARTS, SECRETS_TOTAL,
 )
 from src.world.tilemap import EMPTY, SOLID, TileMap
 

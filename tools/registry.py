@@ -40,16 +40,17 @@ ROLES = {
     "climber": "Katman 1 - Tirmanan",
     "bloated": "Katman 1 - Sismek",
     # Katman 2 - Lanetli Muhafizlar (B7-B13): combo KIRMAYI ogretiyor.
-    # Kalkanli'nin AI'i yazildi (B5'te tek ornekle tanitiliyor,
-    # DEVIR 3.8); digerlerinin yalnizca sanati var.
-    "shieldbearer": "Katman 2 - Kalkanli (AI VAR, B5'te tanitiliyor)",
-    "spearman": "Katman 2 - Mizrakli (sanat var, AI yok)",
-    "archer": "Katman 2 - Okcu (sanat var, AI yok)",
-    "commander": "Katman 2 - Komutan (sanat var, AI yok)",
+    # **Onun da AI'i yazildi** (30.08.2026); `tests/test_enemies.py`
+    # her birinin `docs/gdd.md` 7'deki cumlesini gercekten yaptigini
+    # olcuyor.
+    "shieldbearer": "Katman 2 - Kalkanli (B5'te tanitiliyor)",
+    "spearman": "Katman 2 - Mizrakli (B10)",
+    "archer": "Katman 2 - Okcu (B13)",
+    "commander": "Katman 2 - Komutan (B13)",
     # Katman 3 - Yanki'nin Cocuklari (B14-B18): yardimcinin ihaneti
-    "silent": "Katman 3 - Sessiz (sanat var, AI yok)",
-    "echoing": "Katman 3 - Yankilayan (sanat var, AI yok)",
-    "splitter": "Katman 3 - Bolunen (sanat var, AI yok)",
+    "silent": "Katman 3 - Sessiz - Yanki onu gostermez (B14)",
+    "echoing": "Katman 3 - Yankilayan - sahte ipucu verir (B14)",
+    "splitter": "Katman 3 - Bolunen - vurunca ikiye ayrilir (B14)",
 }
 
 
@@ -57,6 +58,50 @@ def _sound_count() -> int:
     """Kayitli efekt sayisi. Sayiyi elle yazmak eskitiyordu."""
     from src.audio.sfx import SFX
     return len(SFX)
+
+
+
+# Ikonun nerede kullanildigi - kayit "hangi dosya" degil "ne ise
+# yariyor" sorusunu cevapliyor.
+ICON_ROLES = {
+    "question": "B6 - Ardo'yla ilk karsilasma",
+    "alert": "Genel uyari",
+    "heart": "B16 kapanisi ve B18 son paneli",
+    "necklace": "B1 Cemo'nun kolyesi, B18 geri takilmasi",
+    "echo": "Yanki isareti",
+    "hand": "Jest secimi - elini uzat (B16, B18)",
+    "nod": "Jest secimi - basini salla (B16, B18)",
+    "back": "Jest secimi - geri cekil (B16, B18)",
+}
+
+MUSIC_ROLES = {
+    "menu": "Ana menu",
+    "explore": "Kesif - B5 ve B12 gibi sulu/sakin bolumler",
+    "combat": "Dovus",
+    "miniboss": "Mini-boss",
+    "boss": "Buyuk boss - B6, B13, B14, B18",
+    "echo": "Yanki kisimlari",
+    "companion": "Oteki karakterin girisi",
+    "sad": "Uzucu kisimlar - B10, B15, B17",
+    "emotional": "Cok nadir duygusal anlar - yalnizca B18 kapanisi",
+}
+
+
+def _music_rows() -> list[str]:
+    from src.audio import music
+    rows = []
+    for context, filename in music.TRACKS.items():
+        where = MUSIC_ROLES.get(context, "-")
+        rows.append(f"| `{context}` | {filename} | {where} |")
+    return rows
+
+
+def _icon_rows() -> list[str]:
+    from src.ui import balloon
+    rows = []
+    for name in balloon.ICONS:
+        rows.append(f"| `{name}` | {ICON_ROLES.get(name, '-')} |")
+    return rows
 
 
 def build() -> str:
@@ -154,9 +199,34 @@ def build() -> str:
         "Her tekrarli ses +-%8 rastgele perdeyle calinir "
         "(`CLAUDE.md` 7).",
         "",
-        "**Muzik yok.** Donguli/surekli sesler bilerek kaldirildi "
-        "(Arda: *\"cizirti gibi, ",
+        "Donguli/surekli **efektler** bilerek kaldirildi (Arda: "
+        "*\"cizirti gibi, ",
         "rahatsiz edici\"*); altyapi (`play_loop`/`stop_loop`) duruyor.",
+        "",
+        "## Muzik",
+        "",
+        "`src/audio/music.py :: TRACKS` - **gercek kayit**, sentez degil. ",
+        "Diskteki tek asset kategorisi bu.",
+        "",
+        "| Baglam | Parca | Nerede |",
+        "|---|---|---|",
+        *_music_rows(),
+        "",
+        "Parcalar `assets/audio/music/` altinda ve **akitilarak** "
+        "calmiyor: ",
+        "`Fade.mp3` (479 sn) cozuldugunde ~80 MB tutar, dokuzu birden "
+        "bellege ",
+        "alinamaz. `music.py` tek seferde tek parca tutuyor.",
+        "",
+        "## Balon ikonlari",
+        "",
+        "`src/ui/balloon.py :: ICONS` - **7x7 piksel deseni**, font glifi ",
+        "degil. Oyunda hicbir replik yok (`docs/gdd.md` 2); duygu ve niyet ",
+        "bu ikonlarla tasiniyor.",
+        "",
+        "| Ikon | Nerede |",
+        "|---|---|",
+        *_icon_rows(),
         "",
     ]
     return "\n".join(lines)

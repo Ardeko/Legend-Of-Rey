@@ -13,7 +13,7 @@ import pygame
 
 from src.art import palette
 from src.art.glow import radial_glow
-from src.config import INTERNAL_WIDTH, TILE_SIZE
+from src.config import INTERNAL_WIDTH
 from src.core.input import Action
 from src.ui import balloon, text
 from src.ui.i18n import t
