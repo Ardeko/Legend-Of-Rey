@@ -85,9 +85,21 @@ class ChapterEndScene(Scene):
 
     def on_enter(self, result: ChapterResult | None = None,
                  on_continue: Callable[[], None] | None = None,
+                 save_data=None,
                  **kwargs: object) -> None:
         self.result = result
         self.on_continue = on_continue
+        self.save_data = save_data
+        # **Kayit BURADA yaziliyor.** Bir donem hicbir yerde yazilmiyordu:
+        # `write_save` yalnizca yeni oyunda, olumde ve duraklat
+        # menusunun "ANA MENU"sunde cagriliyordu. Yani bir bolumu
+        # bitirip menuye donen oyuncu butun ilerlemesini kaybediyordu
+        # (Arda, 08.09.2026: *"menuye dondugumde save sistemi duzgun
+        # calismiyor"*).
+        #
+        # Ekranin acildigi an dogru an: bolum bitti, sayilar hesaplandi,
+        # oyuncu daha hicbir sey yapmadi.
+        self._persist()
         self.frames = 0
         self._blurred: pygame.Surface | None = None
 
@@ -103,6 +115,14 @@ class ChapterEndScene(Scene):
 
     def update(self) -> None:
         self.frames += 1
+
+    def _persist(self) -> None:
+        """Ilerlemeyi diske yaz. Sessizce basarisiz OLMAZ - konsola yazar."""
+        if self.save_data is None:
+            return
+        from src.systems.save import write_save
+        if not write_save(self.save_data):
+            print("[bolum sonu] KAYIT YAZILAMADI")
 
     def _continue(self) -> None:
         if self.on_continue is not None:

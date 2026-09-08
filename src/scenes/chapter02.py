@@ -500,7 +500,8 @@ class Chapter02Scene(PlayScene):
             from src.scenes.chapter03_cinematics import DescentCinematic
             self.scenes.set_root(DescentCinematic, character=character)
 
-        self.scenes.push(ChapterEndScene, result=result, on_continue=_continue)
+        self.scenes.push(ChapterEndScene, result=result,
+                         save_data=self.save_data, on_continue=_continue)
 
     # --- Kancalar -----------------------------------------------------------
     def on_player_died(self, player) -> None:

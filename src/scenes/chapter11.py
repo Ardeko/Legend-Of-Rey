@@ -318,6 +318,7 @@ class Chapter11Scene(PlayScene):
         from src.scenes.chapter12 import Chapter12Scene
         self.scenes.push(
             ChapterEndScene, result=result,
+                         save_data=self.save_data,
             on_continue=lambda: self.scenes.set_root(
                 Chapter12Scene, character=self.character))
 

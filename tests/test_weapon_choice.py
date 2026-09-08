@@ -25,6 +25,21 @@ from pathlib import Path
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
+# **Kayit dizini gecici bir klasore aliniyor.**
+#
+# Bu paket `Chapter01Scene` kuruyor ve o sahne `read_save()` cagirip
+# OYUNCUNUN GERCEK KAYDINI yukluyordu. Test uzun sure gecti cunku
+# Arda'nin kaydinda silah "sword"du; balta secince kayit "axe" oldu ve
+# test kirildi - kodda hicbir sey degismeden.
+#
+# Bir test, calistirildigi makinede oynanmis oyuna bagli olmamali.
+# Ayrica ters yon de tehlikeli: test gercek kayda YAZABILIRDI.
+import tempfile  # noqa: E402
+
+_SAVE_DIR = tempfile.mkdtemp(prefix="lore_test_")
+os.environ["APPDATA"] = _SAVE_DIR          # Windows
+os.environ["XDG_DATA_HOME"] = _SAVE_DIR    # Linux
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -160,6 +175,18 @@ def main() -> int:
     # Bolum 1'de yumrukla baslamasi gereken Rey kilicla baslar ve o
     # bolumun anlati ani ("kilici buluyor") cope giderdi.
     print("\n--- Bolum 1 bozulmuyor ---")
+    # **Kaydi temizle.** Bu paketin daha onceki bolumu bir silah SECIYOR
+    # ve secim artik diske yaziliyor (08.09.2026 - bir donem yalnizca
+    # bellekte kaliyordu ve oyuncu kararini kaybediyordu). Yani sahne
+    # kurulurken o secim geri okunuyor ve Rey Bolum 1'e baltayla
+    # basliyordu; test hakli olarak kirildi.
+    #
+    # Olculmek istenen sey BOS bir kayitla Bolum 1. Temizlik testin
+    # kendi kurdugu durumu kaldiriyor, davranisi degistirmiyor.
+    from src.systems.save import backup_path, save_path
+    save_path().unlink(missing_ok=True)
+    backup_path().unlink(missing_ok=True)
+
     fresh = SaveData()
     check(fresh.weapon == weapons.SWORD,
           "kaydin varsayilani hala 'sword'", fresh.weapon)

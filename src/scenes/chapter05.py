@@ -291,6 +291,7 @@ class Chapter05Scene(PlayScene):
             self.scenes.set_root(Chapter06Scene, character=character)
 
         self.scenes.push(ChapterEndScene, result=result,
+                         save_data=self.save_data,
                          on_continue=_continue)
 
     # --- Cizim --------------------------------------------------------------

@@ -315,6 +315,7 @@ class Chapter08Scene(PlayScene):
             self.scenes.set_root(Chapter09Scene, character=character)
 
         self.scenes.push(ChapterEndScene, result=result,
+                         save_data=self.save_data,
                          on_continue=_continue)
 
     # --- Kancalar -----------------------------------------------------------

@@ -623,7 +623,8 @@ class Chapter03Scene(PlayScene):
             from src.scenes.chapter04 import Chapter04Scene
             self.scenes.set_root(Chapter04Scene, character=character)
 
-        self.scenes.push(ChapterEndScene, result=result, on_continue=_continue)
+        self.scenes.push(ChapterEndScene, result=result,
+                         save_data=self.save_data, on_continue=_continue)
 
     # --- Yanki: sonar --------------------------------------------------------------------
     def update(self) -> None:

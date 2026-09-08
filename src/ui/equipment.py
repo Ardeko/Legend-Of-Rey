@@ -172,6 +172,16 @@ class EquipmentScene(Scene):
             return
         if self.save_data is not None:
             self.save_data.weapon = key
+            # **Diske yaz.** Bir donem yalnizca bellekte tutuluyordu:
+            # oyuncu silahini degistirip oynamaya devam ediyor, oyunu
+            # kapatinca degisiklik yok oluyordu. `write_save` yalnizca
+            # yeni oyunda, olumde ve duraklat menusunun "ANA MENU"sunde
+            # cagriliyordu - yani silah degisimi ancak oyuncu hemen
+            # ardindan menuye donerse kayda geciyordu.
+            # (Arda, 08.09.2026: *"hancer balta falan hafizada
+            # kalmiyor"*.)
+            from src.systems.save import write_save
+            write_save(self.save_data)
         if self.player is not None:
             self.player.equip_weapon(key)
         self.game.play_sound("ui_confirm")

@@ -112,10 +112,17 @@ def main() -> int:
 
     ardo.player.body.set_feet(ECHO_TUTORIAL_TILE.x, ECHO_TUTORIAL_TILE.feet_y)
     ardo.player.body.vx = ardo.player.body.vy = 0.0
+    # Bildirim alanini **once temizle**. Olculmek istenen sey ogretinin
+    # ne urettigi; sahnenin daha once gosterdigi baska bir sey degil.
+    # Envanter ipucu (`hint.inventory`) eklendiginde bu kontrol kirildi
+    # ve hakli degildi: ipucu dogru calisiyordu, olcum yanlis yerdeydi.
+    ardo.toast = ""
+    ardo.toast_frames = 0
     idle(game, ardo, 5)
     check(not ardo.player.has(abilities.ECHO_SIGHT),
           "ogreti tetiklenince de Ardo Yanki Gorusu KAZANMIYOR")
-    check(ardo.toast == "", "hicbir bildirim gosterilmedi", repr(ardo.toast))
+    check(ardo.toast == "", "ogreti hicbir bildirim URETMEDI",
+          repr(ardo.toast))
     check(ardo.echo_taught,
           "tetikleyici yine de 'ogretildi' isaretleniyor - tekrar denenmiyor")
 

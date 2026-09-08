@@ -164,6 +164,12 @@ class WeaponChoiceScene(Scene):
             from src.ui import equipment
             equipment.grant(self.save_data, key)
             equipment.grant(self.save_data, weapons.SWORD)
+            # **Diske yaz.** Secim bir KARAR ekrani; bellekte kalirsa
+            # oyuncu oyunu kapatinca kararini kaybediyor ve bir daha
+            # asla soramiyor (Arda: "hancer balta falan hafizada
+            # kalmiyor").
+            from src.systems.save import write_save
+            write_save(self.save_data)
         if self.player is not None:
             self.player.equip_weapon(key)
         self.game.play_sound("ui_confirm")
