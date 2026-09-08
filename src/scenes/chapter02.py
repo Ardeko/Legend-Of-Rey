@@ -519,8 +519,14 @@ class Chapter02Scene(PlayScene):
             self.show_toast(t("chapter02.secret_found"), frames=200)
             # Gizli odadaki bulgu Yanki'ya ozel bir sezgi degil - iskeleti
             # Ardo da goruyor. Ayni metin, farkli agiz.
+            # Ikinci replik **adi vermiyor** - iskeletin sahibi Bolum
+            # 4'te taniniyor (Kalachev). Burada yalnizca "biri gelmis"
+            # deniyor; ad B4'te dusunce oyuncu geriye donup bu iskeleti
+            # hatirliyor. Tersi sirada olsaydi ad bir bilgi olurdu, bir
+            # **taninma** degil.
             if self.has_echo:
-                self.say(Line("echo", "line.ch02_echo_secret"))
+                self.say(Line("echo", "line.ch02_echo_secret"),
+                         Line("echo", "line.ch02_echo_bones"))
             else:
                 self.say_player("line.ch02_ardo_secret")
             return

@@ -461,7 +461,11 @@
     "ch04_echo_seed": "Did it think twice?",
     "ch09_echo_seed": "I made this for you.",
     "ch13_echo_seed": "Rey?",
-    "echo_alone_voice": "Only I am left now. You chose me."
+    "echo_alone_voice": "Only I am left now. You chose me.",
+    "kalachev_name": "E. KALACHEV",
+    "ch04_echo_name": "Kalachev. He carved his own name into the wall.",
+    "ch04_ardo_name": "Kalachev. We will see this name further down.",
+    "ch02_echo_bones": "Someone came before you. You will learn his name later."
   },
   "combat": {
     "counter": "COUNTER",

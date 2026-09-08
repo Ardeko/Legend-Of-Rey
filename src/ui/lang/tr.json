@@ -461,7 +461,11 @@
     "ch04_echo_seed": "İki kez düşündü mü?",
     "ch09_echo_seed": "Bunu senin için yaptım.",
     "ch13_echo_seed": "Rey?",
-    "echo_alone_voice": "Artık yalnızca ben kaldım. Sen beni seçtin."
+    "echo_alone_voice": "Artık yalnızca ben kaldım. Sen beni seçtin.",
+    "kalachev_name": "E. KALACHEV",
+    "ch04_echo_name": "Kalachev. Adını duvara kendi kazımış.",
+    "ch04_ardo_name": "Kalachev. Bu adı aşağıda da göreceğiz.",
+    "ch02_echo_bones": "Senden önce biri gelmiş. Adını sonra öğreneceksin."
   },
   "combat": {
     "counter": "KARŞI VURUŞ",
