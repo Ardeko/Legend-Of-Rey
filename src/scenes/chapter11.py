@@ -57,7 +57,12 @@ ENEMY_CLASSES = {
 }
 
 # Aynayi cevirmek icin bu kadar yakin olmak gerek (piksel).
-MIRROR_REACH = 26.0
+#
+# 32 = iki tile. Salonun yuksek aynasi (A, satir 5) ust cikintinin
+# (satir 8) 3 tile yukarisinda; orada duran oyuncunun merkezi
+# aynaya 29 piksel. Eski 26 yetmiyordu ve Bolum 10'dan beri yoldas
+# olmadigi icin firlatma da yok - tek yol cikintiya cikip cevirmek.
+MIRROR_REACH = 32.0
 
 
 def _load(path: str):
@@ -153,6 +158,10 @@ class Chapter11Scene(PlayScene):
 
     def _narrate_room(self, name: str) -> None:
         """Anahtarlar **duz dize** - f-string ile kurulani test goremiyor."""
+        # Izleyen (docs/korku.md 5.2). Ayna Salonu - oyuncu yalniz ve zaten aynalarda kendini goruyor.
+        # Ikinci gorulus: kural pekisiyor.
+        if name == "salon":
+            self.spawn_watcher(62, 13, retreats=True)
         if name == "giris":
             self.say_player("line.ch11_rey_hall", "line.ch11_ardo_hall")
         elif name == "ogrenme":

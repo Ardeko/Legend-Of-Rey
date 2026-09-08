@@ -32,7 +32,7 @@ from src.core.juice import ImpactEvent, ImpactWeight, Juice
 from src.core.scene import Scene
 from src.entities.character_stats import ARDO, REY
 from src.entities.player import Player
-from src.systems import abilities, loyalty
+from src.systems import abilities, horror, loyalty
 from src.systems.compass import Compass
 from src.systems.echo import Answer, EchoState
 from src.systems.tracking import BLOOD, SCORCH, TraceField, TrackingState
@@ -182,6 +182,22 @@ class PlayScene(Scene):
         # Ayni zamanda yalan defterinin **kaniti**: bolume ozel kod
         # istemeyen tek curutme yolu.
         self.phantom = Phantom()
+
+        # Izleyenler (docs/korku.md 5.2). **`enemies` listesine girmiyor**:
+        # oraya girseydi Yanki Gorusu onlari dusman gibi isaretler,
+        # saldiri hakki sistemi hak ayirir, "oda temizlendi" sayimlari
+        # onlari beklerdi. Izleyen dovusun parcasi degil.
+        self.watchers: list = []
+
+        # Hayaletler (docs/korku.md 5.3). Oldugun yerde kalir, YALNIZCA
+        # Yanki acikken gorunur. `restart()` bunlari sahne yeniden
+        # kurulurken tasiyor - yoksa her olum hafizayi silerdi ve
+        # "zindan hatirliyor" fikri hic yasanmazdi.
+        self.ghosts: list = []
+
+        # Temizlenmis odaya donunce bir sey degismis olmali - bolum
+        # basina BIR kez (docs/korku.md 5.5).
+        self._room_changed_done = False
 
         self.setup()
 
@@ -431,8 +447,14 @@ class PlayScene(Scene):
         room = self.checkpoint_room
         entered = set(getattr(self, "entered_rooms", ())) if room else set()
         x, y = self.checkpoint_x, self.checkpoint_y
+        # Hayaletler olumu **atlatmali** - `on_enter` sahneyi bastan
+        # kuruyor ve listeyi bosaltiyor. "Zindan hatirliyor" fikrinin
+        # tamami buna bagli: her olum hafizayi silseydi hicbir hayalet
+        # ikinci kez gorulmezdi (docs/korku.md 5.3).
+        ghosts = list(getattr(self, "ghosts", ()))
 
         self.on_enter(character=self.character)
+        self.ghosts = ghosts
 
         if not room:
             return
@@ -689,6 +711,11 @@ class PlayScene(Scene):
         self.lies.update()
         self.phantom.update(self.game, self)
         self._watch_intimacy()
+        for watcher in self.watchers:
+            watcher.update(self.game, self)
+        self.watchers = [w for w in self.watchers if not w.gone]
+        for ghost in self.ghosts:
+            ghost.update(self.game, self)
         if self.card is not None:
             self.card.update()
         if self.ambience is not None:
@@ -704,6 +731,10 @@ class PlayScene(Scene):
         if self.toast_frames > 0:
             self.toast_frames -= 1
         self.update_scene()
+        # Sahne bu karede duvar cikarmis olabilir (arena muhuru).
+        # `Body.move` mevcut gomulmeyi cozmez, yalnizca yeni girisi
+        # keser - oyuncu bir tile'lik sutunda kalici sikisir.
+        self._eject_from_solids()
 
     def _update_water(self) -> None:
         """Suyun seviyesini surer ve butun aktorlere etkisini uygular.
@@ -849,6 +880,23 @@ class PlayScene(Scene):
         loyalty.mark_spoke_alone(self.save_data)
         self.say(Line(ECHO, "line.echo_alone_voice"))
 
+    def spawn_watcher(self, tile_x: int, tile_y: int,
+                      retreats: bool = True) -> None:
+        """Bir Izleyen koy (docs/korku.md 5.2).
+
+        **Bolum basina en fazla bir kez.** Ikinci bir Izleyen ilkini
+        ucuzlatir: "bu sey ara sira cikiyor" bir olay degil bir doku
+        olur. Ayrica korku katmani kapaliysa hic olusturulmuyor.
+        """
+        from src.config import TILE_SIZE
+        from src.entities.watcher import Watcher
+        if self.watchers or not horror.atmosphere(self.game.settings):
+            return
+        self.watchers.append(Watcher(
+            tile_x * TILE_SIZE + TILE_SIZE * 0.5,
+            (tile_y + 1) * TILE_SIZE,
+            retreats=retreats))
+
     def catch_lie(self) -> bool:
         """Oyuncu bir yalani curuttu (docs/korku.md 4.1).
 
@@ -964,6 +1012,13 @@ class PlayScene(Scene):
         if self.water is not None:
             from src.world import water as water_draw
             water_draw.draw(surface, offset, self.water)
+        # Izleyen oyuncudan ONCE ciziliyor: hep uzakta, hep arkada.
+        # One cizilseydi oyuncunun onune gecerdi ve "yaklasti" gibi
+        # okunurdu - oysa hicbir zaman yaklasmiyor.
+        for watcher in self.watchers:
+            watcher.draw(surface, offset)
+        for ghost in self.ghosts:
+            ghost.draw(surface, offset)
         self.draw_foreground(surface, offset)
         # Atmosfer aktorlerin ONUNDE: toz "odanin icinde" degil "kamerayla
         # oyuncu arasinda" olmali, yoksa zemin dokusu sanilir. Yanki
@@ -1044,8 +1099,9 @@ class PlayScene(Scene):
         kurtarmiyor.
 
         Once istenen yer, sonra iki yana artan mesafeler deneniyor.
-        Hicbiri olmazsa oyuncunun tam ustu (orasi kesin bos, oyuncu
-        orada duruyor).
+        Hicbiri olmazsa en kisa kaydirma (`_nudge_clear_feet`);
+        oyuncunun kendi konumu yedek DEGIL - o da duvardaysa
+        sikisma kalici olur.
         """
         probe = body.rect.copy()
         for dx in (0, -14, 14, -28, 28, -44, 44, -60, 60):
@@ -1053,7 +1109,37 @@ class PlayScene(Scene):
             probe.y = int(y - probe.height)
             if not self.tilemap.solid_overlap(probe):
                 return (x + dx, y)
-        return (self.player.body.center_x, self.player.body.feet[1])
+        return self._nudge_clear_feet(body)
+
+    def _eject_from_solids(self) -> None:
+        """Duvarin icinde kalan oyuncuyu en kisa yoldan cikarir.
+
+        Arena muhuru (`set_tile(..., SOLID)`) govdenin ustune binebilir:
+        esik merkeze bakinca 10 piksellik kutu sutunun 5 pikselinde
+        kaliyor. `Body.move` bunu cozmez. `docs/derinlestirme.md`:
+        *"Hicbir odada oyuncu kalici olarak sikismasin."*
+        """
+        if self.player.dead or self.player.body.ignore_solids:
+            return
+        if not self.tilemap.solid_overlap(self.player.body.rect):
+            return
+        x, y = self._nudge_clear_feet(self.player.body)
+        self.player.body.set_feet(x, y)
+        self.player.body.vx = 0.0
+
+    def _nudge_clear_feet(self, body) -> tuple[float, float]:
+        """En kisa yatay kaydirma. Es mesafede saga (arena ici) oncelik."""
+        y = body.feet[1]
+        probe = body.rect.copy()
+        probe.y = int(y - probe.height)
+        half = probe.width * 0.5
+        for dist in range(1, TILE_SIZE * 4):
+            for sign in (1, -1):
+                nx = body.center_x + sign * dist
+                probe.x = int(nx - half)
+                if not self.tilemap.solid_overlap(probe):
+                    return (nx, y)
+        return (body.center_x, y)
 
     # --- Game feel kancalari ------------------------------------------------
     def on_hit(self, box, target, result, direction) -> None:
@@ -1275,6 +1361,23 @@ class PlayScene(Scene):
             self.on_echo_tier_changed(self.echo.tier, gained=False)
         self.game.play_sound("player_death")
         self.death_frames = DEATH_SCREEN_DELAY
+        self._leave_ghost(player)
+
+    def _leave_ghost(self, player) -> None:
+        """Oldugun yerde bir hayalet kalir (docs/korku.md 5.3).
+
+        Ust uste ayni yerde olen oyuncu hayalet YIGMASIN: yakindaki bir
+        hayalet varsa yenisi konmuyor. On tane ust uste duran mor leke
+        bir anlam degil bir hata gibi okunur.
+        """
+        if not horror.atmosphere(self.game.settings):
+            return
+        from src.entities.ghost import Ghost
+        fx, fy = player.body.feet
+        for existing in self.ghosts:
+            if abs(existing.x - fx) < 20.0 and abs(existing.feet_y - fy) < 24.0:
+                return
+        self.ghosts.append(Ghost(fx, fy))
 
     def _open_death_screen(self) -> None:
         """Olum ekranini acar.

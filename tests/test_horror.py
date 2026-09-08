@@ -466,6 +466,98 @@ def main() -> int:
     check(scene.dialogue.done,
           "BIR KEZ - tekrarlanirsa uslup olur, bir kez olursa kayma")
 
+    # --- 12. Izleyen (Katman 2) --------------------------------------------
+    # `docs/korku.md` 5.2. Uc bolum boyunca TEK bir sey ogretiliyor:
+    # bu sey sana yaklasmaz. Oyuncu bunu ogrenmeden B14'un jumpscare'i
+    # ucuz olur - orada kirilan sey ani hareket degil, bir KURAL.
+    print("\n--- Izleyen ---")
+    from src.entities.watcher import RETREAT_RANGE, Watcher
+
+    game.settings.set("horror", horror.FULL)
+    scene = fresh()
+    scene.spawn_watcher(40, 13)
+    check(len(scene.watchers) == 1, "Izleyen olusturuldu")
+    scene.spawn_watcher(60, 13)
+    check(len(scene.watchers) == 1,
+          "BOLUM BASINA BIR TANE - ikincisi ilkini ucuzlatirdi")
+
+    watcher = scene.watchers[0]
+    check(watcher not in scene.enemies,
+          "`enemies` listesine GIRMIYOR - dovusun parcasi degil")
+
+    # Yaklas: cekilmeli.
+    start_x = watcher.x
+    scene.player.body.set_feet(watcher.x - RETREAT_RANGE * 0.5,
+                               watcher.feet_y)
+    for _ in range(60):
+        watcher.update(game, scene)
+    check(watcher.x > start_x or watcher.state == "leaving",
+          "yaklasinca GERI CEKILIYOR",
+          f"{start_x:.0f} -> {watcher.x:.0f} ({watcher.state})")
+
+    # Israr et: ulasilamamali.
+    for _ in range(600):
+        scene.player.body.set_feet(watcher.x - 10.0, watcher.feet_y)
+        watcher.update(game, scene)
+    check(watcher.gone or watcher.state == "leaving",
+          "israrla yaklasilinca siliniyor - ASLA ulasilamiyor",
+          watcher.state)
+
+    # Gozler daima oyuncuda - govde nereye donuk olursa olsun.
+    scene = fresh()
+    scene.spawn_watcher(40, 13)
+    w2 = scene.watchers[0]
+    scene.player.body.set_feet(w2.x - 200.0, w2.feet_y)
+    w2.update(game, scene)
+    left_facing = w2.facing
+    scene.player.body.set_feet(w2.x + 200.0, w2.feet_y)
+    w2.update(game, scene)
+    check(left_facing != w2.facing, "gozler daima oyuncuya donuyor",
+          f"{left_facing} -> {w2.facing}")
+
+    # B14: CEKILMIYOR. Kural burada kiriliyor.
+    stubborn = Watcher(300.0, 200.0, retreats=False)
+    stubborn.state = "watching"
+    scene.player.body.set_feet(stubborn.x - 20.0, stubborn.feet_y)
+    home = stubborn.x
+    for _ in range(200):
+        stubborn.update(game, scene)
+    check(stubborn.x == home and not stubborn.gone,
+          "B14 varyanti CEKILMIYOR - durup bakiyor", f"x={stubborn.x:.0f}")
+
+    # Ayar kapaliyken hic olusturulmuyor.
+    game.settings.set("horror", horror.OFF)
+    scene = fresh()
+    scene.spawn_watcher(40, 13)
+    check(not scene.watchers, "korku KAPALI iken Izleyen olusturulmuyor")
+    game.settings.set("horror", horror.FULL)
+
+    # Silueti gercekten ayrisiyor mu? (CLAUDE.md 6 - siluet testi)
+    import numpy as np
+    from src.art.animator import Animator
+
+    def silhouette(name: str) -> tuple[int, int]:
+        anim = Animator(name)
+        anim.play("idle")
+        anim.update()
+        alpha = pygame.surfarray.array_alpha(anim.render(1))
+        cols, rows = np.nonzero(alpha)
+        return (int(rows.max() - rows.min() + 1),
+                int(cols.max() - cols.min() + 1))
+
+    w_h, w_w = silhouette("watcher")
+    check(w_h <= 32, "CLAUDE.md 6: sprite yuksekligi 32 pikseli asmiyor",
+          f"{w_h}px")
+    ratios = {n: silhouette(n)[0] / silhouette(n)[1]
+              for n in ("watcher", "shambler", "climber", "bloated", "rey")}
+    check(ratios["watcher"] == max(ratios.values()),
+          "silueti oyundaki EN DIKEY sey - hicbir dusmana benzemiyor",
+          "  ".join(f"{k} {v:.2f}" for k, v in sorted(
+              ratios.items(), key=lambda kv: -kv[1])))
+    check(ratios["watcher"] > max(v for k, v in ratios.items()
+                                  if k != "watcher") * 1.5,
+          "ayrisma belirgin - en yakinindan %50'den fazla dikey")
+
     game.shutdown()
 
     print("\n=== SONUC ===")

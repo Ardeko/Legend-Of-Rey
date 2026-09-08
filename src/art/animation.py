@@ -466,6 +466,41 @@ CLIMBER_SPEC = CharSpec(
     claws=4.2,          # Tavana tutunan uzun pence - asili haldeyken de okunur
 )
 
+# Izleyen - `docs/korku.md` 5.2. **Dusman degil.**
+#
+# Saldirmiyor, hasar vermiyor, ulasilamiyor. Odanin uzak ucunda durup
+# bakiyor; yaklasirsan geri cekiliyor. B14'ten sonra artik cekilmiyor.
+#
+# Silueti hicbir dusmana BENZEMEMELI - tanidik bir siluet "dusman" diye
+# okunur ve oyuncu dovus refleksine girer. Izleyen'in isi tam tersi:
+# oyuncunun ne yapacagini bilememesi.
+#
+#     Suruklenen  cokuk ve genis     (hunch=1.2, torso_width=6.0)
+#     Tirmanan    yatay ve orumceksi (shoulder_width=6.6)
+#     IZLEYEN     dikey ve ince      - zindanin en dar seyi
+#
+# Kollari YOK denecek kadar ince ve kisa: saldirmayacagi siluetten
+# okunmali. Silah yok, pence yok, diken yok - hicbir cikinti.
+#
+# Renk: govde en koyu iki zincir (`shadow`), gozler Yanki'nin moru.
+# `glow_eyes` en yuksek degerde - karanlikta once gozler goruluyor ve
+# oyuncu bakan seyin ne oldugunu ancak sonra anliyor.
+WATCHER_SPEC = CharSpec(
+    name="watcher",
+    cell_width=34, cell_height=42, foot_y=37,
+    # Uzun ve ince. Govde dar, bacaklar cok uzun: oran insani degil.
+    head_radius=2.3, torso_height=6.6, torso_width=3.4,
+    thigh=5.6, shin=5.8, upper_arm=2.6, fore_arm=2.4,
+    limb_width=1.5, shoulder_width=3.2,
+    neck=1.9,               # Uzun boyun - kafa govdeden ayri okunuyor
+    skin="shadow", hair="shadow", cloth="shadow",
+    cloth_dark="shadow", armor="shadow", accent="arcane",
+    glow_eyes=255,          # En yuksek: karanlikta ONCE gozler gorunur
+    weapon="none",
+    claws=0.0,              # Cikinti YOK - saldirmayacagi siluetten okunur
+    hunch=0.0,              # Dimdik. Suruklenen'in tam karsiti.
+)
+
 # Sismek - konumlandirma. Yaklasir, siser, patlar.
 BLOATED_SPEC = CharSpec(
     name="bloated",
@@ -784,6 +819,9 @@ CHARACTERS: dict[str, CharSpec] = {
     "shambler": SHAMBLER_SPEC,
     "climber": CLIMBER_SPEC,
     "bloated": BLOATED_SPEC,
+    # Izleyen - dusman degil (docs/korku.md 5.2). Katman 1'den itibaren
+    # goruluyor ama hicbir katmana ait degil: saldirmiyor, olmuyor.
+    "watcher": WATCHER_SPEC,
     # Katman 2 - Lanetli Muhafizlar (B7-B13)
     # SANAT hazir; hicbir bolume YERLESTIRILMEDI (CLAUDE.md 3: ileri bolum
     # icerigi sirasi gelmeden yazilmaz). Dovus test odasindan gorulebilir.

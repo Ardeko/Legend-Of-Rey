@@ -76,10 +76,9 @@ PLANNED: frozenset[str] = frozenset({
     # cikti. Bir ses baglaninca buradan silinmezse test "listede ama
     # kullaniliyor" diye kiriliyor; kasitli olarak boyle, cunku eski bir
     # PLANNED girdisi "bu hic yazilmadi" yalanini soyluyor.
+    # `watcher_notice` (5.2) ve `ghost_seen` (5.3) de BAGLANDI.
     "breath_sharp",      # 6.1 jumpscare - Rey'in irkilmesi
-    "watcher_notice",    # 5.2 Izleyen
     "watcher_strike",    # 6.1 jumpscare
-    "ghost_seen",        # 5.3 zindan hatirliyor
     "room_changed",      # 5.5 zindan degisiyor
 })
 # `necklace_warm` ve `necklace_conflict` 30.08.2026'da listeden CIKTI:

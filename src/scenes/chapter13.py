@@ -349,7 +349,10 @@ class Chapter13Scene(PlayScene):
             return
         if not self.arena_sealed and self.room == "zindan":
             start, _ = self._room_span("zindan")
-            if self.player.body.center_x > (start + 4) * TILE_SIZE:
+            # Sol kenar. Merkeze bakmak govdeyi muhur sutununun
+            # icinde birakiyordu (10px kutu, 16px tile) ve
+            # `Body.move` gomulmeyi cozmedigi icin oyuncu sikisiyordu.
+            if self.player.body.x >= (start + 4) * TILE_SIZE:
                 self._seal_arena()
         if self.boss.dead:
             self._on_boss_defeated()

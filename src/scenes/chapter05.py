@@ -139,6 +139,10 @@ class Chapter05Scene(PlayScene):
                     self.enemies.append(_load(path)(self, spot.x, spot.feet_y))
 
     def _narrate_room(self, name: str) -> None:
+        # Izleyen (docs/korku.md 5.2). Ilk gorulus. Vana odasinin uzak ucu - oyuncu vanayla ugrasirken
+        # arka planda duruyor ve donunce hala orada.
+        if name == "vana_odasi":
+            self.spawn_watcher(55, 13, retreats=True)
         if name == "esik":
             self._voice("line.ch05_echo_enter", "line.ch05_ardo_enter")
         elif name == "vana_odasi":

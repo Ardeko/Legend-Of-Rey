@@ -424,6 +424,42 @@ def test_arena_and_exit() -> None:
         game.quit()
 
 
+def test_seal_does_not_embed_player() -> None:
+    """Muhur govdenin ustune binince oyuncu duvarda kalmamali.
+
+    Eski esik `center_x > (start+4)*TILE` idi. 10 piksellik kutu
+    sutunun 5 pikselinde kaliyordu; `Body.move` gomulmeyi cozmez.
+    """
+    print("\n--- muhur gommez ---")
+    game = Game()
+    try:
+        scene = start(game)
+        start_tile, _ = scene._room_span("zindan")
+        feet_y = FLOOR_TOP * TILE_SIZE
+        # Gövde merkeze gore sutunun ICINDE: sol kenar muhurde.
+        overlap_x = (start_tile + 4) * TILE_SIZE - 3
+        scene.player.body.set_feet(overlap_x, feet_y)
+        scene._enter_room("zindan")
+        scene._seal_arena()
+        check(scene.tilemap.solid_overlap(scene.player.body.rect),
+              "test onkosulu: muhur govdeye bindi")
+        scene._eject_from_solids()
+        check(not scene.tilemap.solid_overlap(scene.player.body.rect),
+              "oyuncu duvardan cikarildi")
+        check(scene.player.body.x >= (start_tile + 4) * TILE_SIZE,
+              "arena ICINE itildi, kilitlenmedi",
+              f"x={scene.player.body.x:.1f}")
+
+        # Olum sonrasi: kontrol noktasi giristeyse muhur yine biner.
+        scene.player.body.set_feet((start_tile + 3) * TILE_SIZE + 8, feet_y)
+        scene.after_restart("zindan")
+        scene._eject_from_solids()
+        check(not scene.tilemap.solid_overlap(scene.player.body.rect),
+              "yeniden denemede de duvarda kalmadi")
+    finally:
+        game.quit()
+
+
 def test_after_restart_respawns_boss() -> None:
     """Arenada olen oyuncu BOS bir arenada uyanmamali (`DEVIR.md` B6)."""
     print("\n--- olumden sonra arena ---")
@@ -508,6 +544,7 @@ def main() -> int:
     test_gaoler_call_and_snuff()
     test_brazier_lit_by_sword()
     test_arena_and_exit()
+    test_seal_does_not_embed_player()
     test_after_restart_respawns_boss()
     test_cinematics()
     test_chapter_shape()

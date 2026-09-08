@@ -204,9 +204,19 @@ class Chapter18Scene(PlayScene):
         self.enemies.append(self.boss)
 
     def _seal_arena(self) -> None:
-        """Arena muhurleniyor - B6'dan beri ayni desen."""
+        """Arena muhurleniyor - oyuncu ICERI alindiktan sonra.
+
+        Tetikleyici yerel sutun 2, muhur 4. Tetik aninda oyuncu
+        henuz sutunu gecmemis oluyor; duvar Cagiran'la araya
+        iniyordu. Testler `set_feet` ile duvarin icinden gectigi
+        icin bunu yakalamiyordu.
+        """
         if self.arena_sealed:
             return
+        edge = (ARENA_SEAL_COLUMN + 1) * TILE_SIZE
+        body = self.player.body
+        if body.x < edge:
+            body.set_feet(edge + body.width * 0.5, body.feet[1])
         for row in ARENA_SEAL_ROWS:
             self.tilemap.set_tile(ARENA_SEAL_COLUMN, row, SOLID)
         self.arena_sealed = True
