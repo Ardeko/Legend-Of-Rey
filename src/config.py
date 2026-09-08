@@ -765,7 +765,7 @@ CALLER_RISE_FRAMES: Final[int] = 96
 
 # Cagirmanin menzili: Cemo'nun sesi bu uzakliktan cekiyor.
 CALLER_CALL_RANGE: Final[float] = 220.0
-CALLER_CALL_DAMAGE: Final[int] = 12
+CALLER_CALL_DAMAGE: Final[int] = 10
 # Yem kac kare duruyor. Kisa olsaydi tuzak degil bir sus olurdu.
 CALLER_LURE_FRAMES: Final[int] = 150
 
@@ -848,21 +848,48 @@ PLATE_GRACE_FRAMES: Final[int] = 30
 # Katman 1'in finali. Uc fazin her biri bir Katman 1 dusmanini geri
 # getiriyor: Suruklenen (yer ritmi), Tirmanan (tavandan dusus), Sismek
 # (yavru + patlama). Yeni bir sey OGRETMIYOR - tierin sinavini yapiyor.
-ROTTED_HEALTH: Final[int] = 420
+# --- BOSS DENGESI (08.09.2026) -------------------------------------------
+# Arda: *"bosslari biraz daha kolaylastir."* Tahminle degil olcumle:
+#
+#   boss              can  oldurme  boss dps   olme   hak
+#   B2  Sismis Olan   240     5.2s     16.8    4.8s   5.7
+#   B6  Curumus Olan  420     9.1s     18.5    4.3s   5.0   <-- aykiri
+#   B13 Zindanci      260     5.6s     17.5    4.6s   5.7
+#   B14 Kaynak        300     6.5s     13.8    5.8s   4.4
+#   B18 Cagiran       320     6.9s     14.6    5.5s   4.4
+#
+# ("hak" = kac boss vurusu yiyip hayatta kalirsin. Rey'in cani 80.)
+#
+# Iki sorun cikti:
+#
+# 1. **ILK boss en uzun dovus.** B6 420 canla finalden (320) %31 daha
+#    uzundu. Oyuncunun ilk buyuk boss'u en affedici olmali, en yorucu
+#    degil - sira tersine donmustu. 320'ye indi.
+#
+# 2. **Tek vurus canin ucte birini goturuyordu.** `SOURCE_CRUSH` 24
+#    hasar, yani Rey'in %30'u; dort vurus olduruyor. Agir saldirilar
+#    artik en fazla ~%22 (17-19), hafifler ~%15 (12-13).
+#    "Hak" 4.4'ten ~6'ya cikti: bir hata canin ucte biri degil, altida
+#    biri. Aradaki fark "dovusu ogrenebilmek".
+#
+# Can degerlerine dokunulmadi (B6 disinda): dovusu kisaltmak onu daha
+# OGRENILEBILIR yapmiyor, yalnizca daha kisa yapiyor. Kolaylik
+# affedicilikten gelmeli.
+ROTTED_HEALTH: Final[int] = 320
 ROTTED_POISE: Final[int] = 8             # Combo'yu kolayca kirdirmiyor
 
-ROTTED_SWEEP_DAMAGE: Final[int] = 16
+ROTTED_SWEEP_DAMAGE: Final[int] = 13
 ROTTED_SWEEP_REACH: Final[int] = 40      # Genis - kacinmayla gecilir
-ROTTED_LUNGE_DAMAGE: Final[int] = 18
+ROTTED_LUNGE_DAMAGE: Final[int] = 15
 ROTTED_LUNGE_SPEED: Final[float] = 4.6   # Mesafe acarak gecilir
-ROTTED_DROP_DAMAGE: Final[int] = 20
+ROTTED_DROP_DAMAGE: Final[int] = 17
 ROTTED_DROP_SPEED: Final[float] = 5.0
 ROTTED_CLIMB_FRAMES: Final[int] = 46     # Tavanda asili kaldigi sure
 ROTTED_SPAWN_COUNT: Final[int] = 2
 # Patlama YONSUZ: kacinmanin yonu ise yaramiyor, tek cozum menzil disina
 # cikmak. Uc hamlenin ucu de farkli cozum istiyor - ayni cozum ise
 # yarasaydi dovus tek tuslu olurdu.
-ROTTED_BURST_DAMAGE: Final[int] = 22
+ROTTED_BURST_DAMAGE: Final[int] = 18
 ROTTED_BURST_REACH: Final[int] = 46
 
 # Faz 2'nin muhru plakalarla kirilinca boss bu kadar kare savunmasiz.
@@ -955,18 +982,18 @@ GAOLER_BRAZIER_COUNT: Final[int] = 3
 GAOLER_EYE_GLOW: Final[int] = 210
 
 # Hamleler. Her fazin biri ONCEKI bir Katman 2 dusmanini animsatiyor.
-GAOLER_SWING_DAMAGE: Final[int] = 14
+GAOLER_SWING_DAMAGE: Final[int] = 12
 GAOLER_SWING_REACH: Final[int] = 30
-GAOLER_SLAM_DAMAGE: Final[int] = 20
+GAOLER_SLAM_DAMAGE: Final[int] = 17
 GAOLER_SLAM_REACH: Final[int] = 40
 # Zincir: Mizrakli'nin dersi boss olcusunde - senin menzilinin cok
 # disindan geliyor (oyuncu kilici ~16).
-GAOLER_CHAIN_DAMAGE: Final[int] = 16
+GAOLER_CHAIN_DAMAGE: Final[int] = 13
 GAOLER_CHAIN_REACH: Final[int] = 62
 # Anahtar demeti: Okcu'nun dersi. Mermi altyapisi Okcu icin
 # yazilmisti (`Hitbox.velocity`) - burada ikinci kez kullaniliyor,
 # yani sinir dogru yerdeymis.
-GAOLER_KEYS_DAMAGE: Final[int] = 11
+GAOLER_KEYS_DAMAGE: Final[int] = 9
 GAOLER_KEYS_SPEED: Final[float] = 2.6
 GAOLER_KEYS_LIFE: Final[int] = 100
 # Cagirma: Komutan'in dersi. Cagirdigi sey **Katman 1** - bu
@@ -1107,13 +1134,13 @@ SOURCE_CONTACT_RANGE: Final[float] = 70.0
 
 # Feryat: yonsuz ses dalgasi. Kacinmayla degil **uzaklasarak** gecilir -
 # Curumus Olan'in radyal patlamasiyla ayni ders, boss olcusunde.
-SOURCE_WAIL_DAMAGE: Final[int] = 18
+SOURCE_WAIL_DAMAGE: Final[int] = 15
 SOURCE_WAIL_REACH: Final[int] = 58
 # Uzanma: uzun kol. Mizrakli'nin dersi degil - bu bir SES, duvardan
 # geciyor. Menzil uzun ama tell de uzun.
-SOURCE_REACH_DAMAGE: Final[int] = 15
+SOURCE_REACH_DAMAGE: Final[int] = 12
 SOURCE_REACH_LENGTH: Final[int] = 74
-SOURCE_CRUSH_DAMAGE: Final[int] = 24
+SOURCE_CRUSH_DAMAGE: Final[int] = 19
 SOURCE_CRUSH_REACH: Final[int] = 46
 
 # Sahte suretler. **Yanki onlari GOSTERIYOR, gercegini gostermiyor** -
