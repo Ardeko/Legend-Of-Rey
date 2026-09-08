@@ -63,6 +63,17 @@ ENEMY_CLASSES = {
 # olur - oyuncu geri donebilirdi ve donmedi.
 TRAP_CREAK_FRAMES = 26
 
+# --- Kalachev (`docs/kalachev.md` 5) -----------------------------------------
+# Tuzagin ortasi: `TRAP_TILES` 70-75, ortasi 72.
+ALLY_TRAP_COLUMN = 72
+# Oyuncu tuzaga bu kadar kala beliriyor (tile). 11 secildi: ekranin
+# yarisi 15 tile, yani olay kenarda degil kadrajin icinde basliyor -
+# B5'te 13 ile olculen ayni gerekce.
+ALLY_TRIGGER_TILES = 11
+# Belge "~40 sn" diyor; 60 FPS'te 2400 kare. Kalachev bu sure boyunca
+# oradaki mizraklilari da kesiyor, sonra cekiliyor.
+ALLY_STAY = 2400
+
 
 def _load(path: str):
     module_name, class_name = path.split(":")
@@ -104,6 +115,12 @@ class Chapter10Scene(PlayScene):
         self.choice = ""                 # "" | "followed" | "ignored"
         self.trap_creak = 0
         self.trap_sprung = False
+        # Kalachev tuzagi KIRDI mi (`docs/kalachev.md` 5).
+        # `trap_sprung`dan **ayri**: o "oyuncu dustu" demek ve bolum
+        # sonu sinematigi onu okuyor (`ch10_lie_sprung`). Ikisini ayni
+        # bayraga baglamak sahneye "tuzaga dustun" dedirtirdi - oysa
+        # oyuncu dusmedi, biri onu once kirdi.
+        self.trap_broken = False
         self.lesson_played = False
 
         # Yanlis sessizlik (docs/korku.md 5.4). Bu koridorda
@@ -170,6 +187,7 @@ class Chapter10Scene(PlayScene):
         self._update_parting()
         self._update_lure()
         self._update_choice()
+        self._update_ally()
         self._update_trap()
         self._update_lesson()
         self._update_chests()
@@ -228,13 +246,68 @@ class Chapter10Scene(PlayScene):
             self.say(self._voice_line("line.ch10_echo_ignored",
                                       "line.ch10_trace_ignored"))
 
+    # --- Kalachev: tuzagi kiran ---------------------------------------------
+    def _update_ally(self) -> None:
+        """`docs/kalachev.md` 5: *"B10 Ayrilik - Rey yalniz kaldiktan
+        sonra ilk kez tek basina belirir. **Tuzagi o kirar.**"*
+
+        ## Kirmak, kurtarmak degil
+
+        Oyuncu tuzaga basmadan **once** geliyor ve zemini kendisi
+        cokertiyor. Yani gizli bir tehlike gorunur bir deliğe
+        donusuyor: oyuncu artik uzerinden atlayacak, icine dusmeyecek.
+
+        Son anda yetisip oyuncuyu cekmek de olabilirdi ama o bir
+        **kurtarma** olurdu ve B16'nin isini (karsilikli kurtarma)
+        onceden harcardi. Burada kimse kurtarilmiyor - biri yoldan bir
+        seyi kaldiriyor ve gidiyor.
+
+        ## Tuzak zaten uyariyordu
+
+        Gicirti (`TRAP_CREAK_FRAMES`) yerinde duruyor: Kalachev
+        gelmezse - ki gelmeyebilir, korku katmani kapaliysa muttefik
+        de yok - oyuncu yine uyarilmis oluyor. Yeni davranis eskisini
+        **bozmuyor**, onun yerine geciyor.
+        """
+        if self.trap_broken or self.trap_sprung or self.allies:
+            return
+        if self.room != "catal":
+            return
+        trap_x = ALLY_TRAP_COLUMN * TILE_SIZE
+        gap = trap_x - self.player.body.center_x
+        # Oyuncu tuzagin SOLUNDA ve yaklasiyor olmali. Sagindaysa
+        # oyunu geriden izliyor demektir; o zaman gec kalmis olurduk.
+        if not 0 < gap <= ALLY_TRIGGER_TILES * TILE_SIZE:
+            return
+        feet_y = (TRAP_ROW) * TILE_SIZE
+        ally = self.summon_kalachev(trap_x, feet_y, stay=ALLY_STAY)
+        if ally is None:
+            return
+        self._break_trap()
+
+    def _break_trap(self) -> None:
+        """Zemin **oyuncunun altinda degil**, ileride cokuyor."""
+        self.trap_broken = True
+        for column in TRAP_TILES:
+            self.tilemap.set_tile(column, TRAP_ROW, EMPTY)
+        x = ALLY_TRAP_COLUMN * TILE_SIZE
+        y = TRAP_ROW * TILE_SIZE
+        self.juice.explosion(x, y, ImpactWeight.FINISHER)
+        self.particles.burst(x, y, 22, path="dust", speed=(0.8, 3.0))
+        self.game.play_sound("echo_wall")
+        self.show_toast(t("chapter10.trap_broken"), frames=180)
+
+    def on_kalachev_arrived(self, ally) -> None:
+        """Kamera bir an oraya bakiyor. Replik yok - tanisma B6'daydi."""
+        self.camera.linger(40)
+
     def _update_trap(self) -> None:
         """Ust yolun ortasinda zemin cokuyor.
 
         Once **gicirdiyor** (`TRAP_CREAK_FRAMES`): uyarisiz bir tuzak
         haksizlik, uyarili bir tuzak ders. Oyuncu geri donebilirdi.
         """
-        if self.trap_sprung or self.room != "catal":
+        if self.trap_sprung or self.trap_broken or self.room != "catal":
             return
         column = int(self.player.body.center_x) // TILE_SIZE
         row = int(self.player.body.feet[1]) // TILE_SIZE

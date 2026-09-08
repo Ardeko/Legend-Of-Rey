@@ -737,7 +737,8 @@
   },
   "chapter10": {
     "creak": "The floor is creaking...",
-    "trap": "The floor gave way"
+    "trap": "The floor gave way",
+    "trap_broken": "Someone caved the floor in. The trap is just a hole now."
   },
   "chapter11": {
     "rule": "You can't touch it in the dark — pull it into the light",

@@ -737,7 +737,8 @@
   },
   "chapter10": {
     "creak": "Zemin gıcırdıyor...",
-    "trap": "Zemin çöktü"
+    "trap": "Zemin çöktü",
+    "trap_broken": "Zemini biri çökertti. Tuzak artık bir delik."
   },
   "chapter11": {
     "rule": "Karanlıkta ona dokunamıyorsun — ışığa çek",
