@@ -26,16 +26,19 @@ Spec'ler: `src/art/animation.py :: CHARACTERS`
 | `ardo_axe` | 48x40 | 34 | 50 | Ardo + Balta (Bolum 2 mini-boss odulu) |
 | `cemo` | 40x32 | 27 | 50 | Rey'in kucuk kardesi - menu 5. asama |
 | `villager` | 40x38 | 32 | 50 | Bolum 1 koylusu - olay patlayinca evine kaciyor |
+| `jet` | 44x40 | 34 | 50 | B1'de kilici veren arkadas |
+| `kalachev` | 48x40 | 34 | 50 | Onceki maceraci (docs/kalachev.md) - B4/B5/B6/B10/B12/B13/B15, B18'de olur |
 | `shambler` | 40x36 | 31 | 50 | Katman 1 - Suruklenen |
 | `climber` | 44x34 | 28 | 50 | Katman 1 - Tirmanan |
 | `bloated` | 44x40 | 34 | 50 | Katman 1 - Sismek |
-| `rotted_one` | 64x56 | 48 | 50 | - |
-| `gaoler` | 64x80 | 64 | 50 | - |
+| `watcher` | 34x42 | 37 | 50 | Izleyen (docs/korku.md 5.2) - saldirmaz, bakar. B5/B11/B14 |
+| `rotted_one` | 64x56 | 48 | 50 | BOSS 1 - Curumus Olan (B6), Ardo'yla ilk beraber dovus |
+| `gaoler` | 64x80 | 64 | 50 | BOSS 2 - Zindanci (B13), zaman kapilari |
 | `shieldbearer` | 44x40 | 34 | 50 | Katman 2 - Kalkanli (B5'te tanitiliyor) |
 | `spearman` | 56x40 | 34 | 50 | Katman 2 - Mizrakli (B10) |
 | `archer` | 48x40 | 34 | 50 | Katman 2 - Okcu (B13) |
 | `commander` | 52x48 | 41 | 50 | Katman 2 - Komutan (B13) |
-| `source` | 96x96 | 76 | 50 | - |
+| `source` | 96x96 | 76 | 50 | BOSS 3 - Kaynak (B14), twist'in kendisi |
 | `silent` | 44x40 | 34 | 50 | Katman 3 - Sessiz - Yanki onu gostermez (B14) |
 | `echoing` | 48x42 | 36 | 50 | Katman 3 - Yankilayan - sahte ipucu verir (B14) |
 | `splitter` | 48x42 | 36 | 50 | Katman 3 - Bolunen - vurunca ikiye ayrilir (B14) |
@@ -84,7 +87,7 @@ sessizce dusmez, konsola rapor edilir.
 
 ## Ses
 
-`src/audio/sfx.py :: SFX` - **71 efekt**, hepsi calisma zamaninda 
+`src/audio/sfx.py :: SFX` - **81 efekt**, hepsi calisma zamaninda 
 sentezleniyor (numpy). Sprite'lar gibi: diskte dosya yok, kaynak koddur. 
 Her tekrarli ses +-%8 rastgele perdeyle calinir (`CLAUDE.md` 7).
 

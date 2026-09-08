@@ -971,6 +971,35 @@ def portrait(name: str) -> pygame.Surface | None:
     _cache[name] = surface
     return surface
 
+_has_cache: dict[str, bool] = {}
+
+
+def has_portrait(name: str) -> bool:
+    """Bu konusmacinin portresi VAR MI - cizilmis ya da uretilmis.
+
+    ## Neden `PORTRAITS`e bakmak yanlisti
+
+    `ui/dialogue.py` "portre gosterilsin mi" sorusunu `PORTRAITS`
+    sozlugune sorarak cevapliyordu - oysa o sozluk yalnizca
+    **prosedurel** speclerin listesi (rey, ardo, cemo). Elle cizilmis
+    bir portre `assets/portraits/<ad>.png` olarak konunca `portrait()`
+    onu memnuniyetle yukluyor ama diyalog kutusu haberdar olmuyordu.
+
+    Sonuc olculdu (08.09.2026): Arda `jet.png` ve `kalachev.png`
+    cizmisti; ikisi de diskte duruyor, ikisi de oyunda hic
+    gorunmuyordu. Jet B1'de dort replik, Kalachev B18'de son sozunu
+    soyluyor - dordu de portresiz akiyordu.
+
+    Soru artik "spec var mi" degil "portre var mi". Cevap onbellekte:
+    dosyasi olmayan bir ad icin her karede disk sorgusu yapilmasin.
+    """
+    known = _has_cache.get(name)
+    if known is None:
+        known = portrait(name) is not None
+        _has_cache[name] = known
+    return known
+
+
 # Ucuncu gozun (prolog, `src/scenes/prologue.py`) tuvaldeki yeri.
 # Prosedurel portrede semadan geliyor: `FACE_CX` ve kas cizgisinin bir
 # ustu. Elle cizilmis portrede sema gecerli degil - o yuzden olculuyor.
@@ -1041,4 +1070,5 @@ def eye_anchor(name: str) -> tuple[int, int]:
 def clear_cache() -> None:
     _cache.clear()
     _eye_cache.clear()
+    _has_cache.clear()
     imported.clear_warnings()

@@ -254,7 +254,12 @@ class Dialogue:
         line = self.current
         if line is None or line.speaker == ECHO or not self.show_portrait:
             return ""
-        return line.speaker if portrait_art.PORTRAITS.get(line.speaker) else ""
+        # **`PORTRAITS` DEGIL** - o yalnizca prosedurel speclerin
+        # listesi. Elle cizilmis bir portre (`assets/portraits/*.png`)
+        # oraya girmiyor ve bu yuzden Jet ile Kalachev'in cizilmis
+        # portreleri diskte durup oyunda hic gorunmuyordu
+        # (`portrait.has_portrait` docstring'i).
+        return line.speaker if portrait_art.has_portrait(line.speaker) else ""
 
     def _wrap_width(self) -> int:
         """Satir genisligi portre varken daralir - metin bustun altina

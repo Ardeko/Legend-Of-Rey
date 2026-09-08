@@ -51,6 +51,16 @@ ROLES = {
     "silent": "Katman 3 - Sessiz - Yanki onu gostermez (B14)",
     "echoing": "Katman 3 - Yankilayan - sahte ipucu verir (B14)",
     "splitter": "Katman 3 - Bolunen - vurunca ikiye ayrilir (B14)",
+    # Boss'lar - dordu de kendi arenasinda (docs/gdd.md 8)
+    "rotted_one": "BOSS 1 - Curumus Olan (B6), Ardo'yla ilk beraber dovus",
+    "gaoler": "BOSS 2 - Zindanci (B13), zaman kapilari",
+    "source": "BOSS 3 - Kaynak (B14), twist'in kendisi",
+    # Anlati varliklari - dusman degil
+    "jet": "B1'de kilici veren arkadas",
+    "kalachev": "Onceki maceraci (docs/kalachev.md) - B4/B5/B6/B10/"
+                "B12/B13/B15, B18'de olur",
+    "watcher": "Izleyen (docs/korku.md 5.2) - saldirmaz, bakar. "
+               "B5/B11/B14",
 }
 
 
