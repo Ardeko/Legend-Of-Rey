@@ -725,6 +725,68 @@ JET_SPEC = CharSpec(
 )
 
 
+# Kalachev - Ardo'nun eski dostu, serseri maceraci (`docs/kalachev.md`).
+#
+# ## Silueti Ardo'ya BENZEMEMELI
+#
+# Ikisi de agir yapili adamlar ve ikisi de yaninda dovusuyor; oyuncu
+# uzaktan hangisinin geldigini anlamali. Ardo'nun okunma isaretleri
+# **pelerin + omuzluk + genis omuz**. Kalachev'inkiler baska olmali:
+#
+#   kambur (hunch)      Ardo dimdik durur; Kalachev one egik - yorgun
+#   pelerin YOK         Ardo'nun en buyuk siluet parcasi onda yok
+#   balta               Ardo kilic tasiyor; balta govdeden disari tasan
+#                       farkli bir sekil (CLAUDE.md 6, siluet kirici)
+#   dagilmis sac        uzun ve bakimsiz; Ardo'nunki kisa
+#
+# ## Neden balta
+#
+# `docs/kalachev.md` 4: tell okumuyor, mesafe kapatiyor, kacinmasi yok.
+# Balta bu oynayisin resmi - yavas, agir, geri alinamaz. Bir hancer
+# temkinli bir adamin silahi olurdu ve Kalachev temkinli degil.
+#
+# Renk: `rot` DEGIL (o dusman ailesi). Yipranmis deri ve kir - koyde
+# yasamayan, aylardir asagida olan bir adam.
+KALACHEV_SPEC = replace(
+    REY_SPEC,
+    name="kalachev",
+    # Ardo'dan biraz daha kisa ve daha genis: yorgun, cokmus bir govde.
+    # Ardo'dan daha genis ve daha kisa: agir, cokmus bir govde. Ilk
+    # surum daha inceydi ve ekranda Rey'den bile HAFIF okunuyordu
+    # (263 piksel, Rey 302) - "agir" demek yetmiyor, olculmeli.
+    torso_height=7.6, torso_width=9.0, shoulder_width=8.4, limb_width=3.2,
+    thigh=4.2, shin=4.2,
+    brow_tilt=-1,                # Catik - Rey'de +1, Jet'te +1
+    # **Bunlar GOLGE ZINCIRI adi, palet rengi degil.** "earth_dark"
+    # yazildi ve patladi (`PaletteError: tanimsiz golge zinciri`);
+    # bugun ucuncu kez ayni karisiklik - "soot" ve "brass" da ayni
+    # sekilde patlamisti, o ikisi tersinden (zincir adi, renk
+    # beklenen yerde). Gecerli zincirler `tools/palette.json`
+    # `shade_chains` altinda.
+    # `cloth="leather"` denendi ve ten renginden ayrismiyordu - ekranda
+    # ciplak govdeli gibi okunuyordu. "rock" (yipranmis gri) hem
+    # ayrisiyor hem "aylardir asagida" anlamini tasiyor.
+    skin="skin_tan", hair="hair_dark", cloth="rock",
+    cloth_dark="shadow", armor="leather", accent="gore",
+    long_hair=False, hair_length=0.0,
+    hem=0.0, tattoo=False,
+    # **KUKULETA** - Kalachev'in siluet isareti. Olculdu: baltanin
+    # silueti yalnizca 2-3 piksel genisletiyor, yani tek basina
+    # "siluet kirici" degil (CLAUDE.md 6). Kukuleta kafa formunu
+    # tamamen degistiriyor ve Ardo'da YOK.
+    #
+    #   Ardo      pelerin + omuzluk + kisa sac + kilic
+    #   Kalachev  KUKULETA + kambur + balta
+    #
+    # Ayrica anlatiyi tasiyor: aylardir asagida yasayan bir adam.
+    hood=True,
+    cape=False,                  # **Pelerin YOK** - Ardo'nun isareti o
+    shoulder_pads=False,
+    hunch=1.4,                   # One egik durus - Ardo dimdik
+    weapon="axe",                # Siluet kirici + oynayisin resmi
+)
+
+
 # --- BOSS 2: Zindanci (Bolum 13) --------------------------------------------
 # `docs/asset-listesi.md`: *"2 - Zindanci | B13 | 64x80"* - oyunun en
 # buyuk sprite'i. Curumus Olan 64x56'ydi; buyume kasitli, cunku ikisi
@@ -846,6 +908,8 @@ CHARACTERS: dict[str, CharSpec] = {
     "villager": VILLAGER_SPEC,
     # Jet - Bolum 1'de kilici veren arkadas.
     "jet": JET_SPEC,
+    # Kalachev - Ardo'nun dostu, B5'ten itibaren beliriyor.
+    "kalachev": KALACHEV_SPEC,
     # Katman 1 - Curuyenler (B1-B6)
     "shambler": SHAMBLER_SPEC,
     "climber": CLIMBER_SPEC,

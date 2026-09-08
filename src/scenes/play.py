@@ -198,6 +198,11 @@ class PlayScene(Scene):
         # "zindan hatirliyor" fikri hic yasanmazdi.
         self.ghosts: list = []
 
+        # Kalachev (docs/kalachev.md). **`Companion` DEGIL** ve
+        # `enemies` listesinde de degil: kendi listesinde duruyor
+        # cunku ne yoldas ne dusman - belirip giden bir olay.
+        self.allies: list = []
+
         # Temizlenmis odaya donunce bir sey degismis olmali - bolum
         # basina BIR kez (docs/korku.md 5.5).
         self._room_changed_done = False
@@ -684,6 +689,9 @@ class PlayScene(Scene):
         self.enemies = [e for e in self.enemies if not e.remove]
 
         self.hitboxes.update({
+            # Muttefikler oyuncu takiminda: dusman saldirilari onlara
+            # da degiyor. Degmeseydi Kalachev dokunulmaz olurdu ve
+            # "bu adam boyle giderse olecek" hissi hic kurulmazdi.
             Team.ENEMY: self.enemies,
             Team.PLAYER: [self.player],
         })
@@ -721,6 +729,9 @@ class PlayScene(Scene):
         self.watchers = [w for w in self.watchers if not w.gone]
         for ghost in self.ghosts:
             ghost.update(self.game, self)
+        for ally in self.allies:
+            ally.update()
+        self.allies = [a for a in self.allies if not a.gone]
         if self.card is not None:
             self.card.update()
         if self.mechanic_card is not None:
@@ -912,6 +923,25 @@ class PlayScene(Scene):
             return
         loyalty.mark_spoke_alone(self.save_data)
         self.say(Line(ECHO, "line.echo_alone_voice"))
+
+    def summon_kalachev(self, x: float, feet_y: float,
+                        stay: int = 0) -> object | None:
+        """Kalachev'i sahneye sokar (`docs/kalachev.md`).
+
+        **Bolum basina bir kez.** Iki kez belirse bir olay olmaktan
+        cikip bir doku olurdu - belgenin 5. bolumu yedi bolumu kasitli
+        olarak bos birakiyor, ayni gerekce.
+        """
+        if self.allies:
+            return None
+        from src.entities.kalachev import DEFAULT_STAY, Kalachev
+        ally = Kalachev(self, x, feet_y, stay=stay or DEFAULT_STAY)
+        self.allies.append(ally)
+        self.on_kalachev_arrived(ally)
+        return ally
+
+    def on_kalachev_arrived(self, ally) -> None:
+        """Alt sinif tepki verebilir - replik, kamera, ses."""
 
     def spawn_watcher(self, tile_x: int, tile_y: int,
                       retreats: bool = True) -> None:
@@ -1128,6 +1158,8 @@ class PlayScene(Scene):
             watcher.draw(surface, offset)
         for ghost in self.ghosts:
             ghost.draw(surface, offset)
+        for ally in self.allies:
+            ally.draw(surface, offset)
         self.draw_foreground(surface, offset)
         # Atmosfer aktorlerin ONUNDE: toz "odanin icinde" degil "kamerayla
         # oyuncu arasinda" olmali, yoksa zemin dokusu sanilir. Yanki
