@@ -74,6 +74,7 @@ class Chapter05Scene(PlayScene):
     music_context = "explore"
     postfx_grade = "descent"
     ambience_preset = "dust"
+    dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
 
     def setup(self) -> None:
         self.tilemap = TileMap(LEVEL.terrain_rows)

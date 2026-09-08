@@ -88,6 +88,7 @@ class Chapter02Scene(PlayScene):
     chapter_name_key = "chapter.first_descent"
     postfx_grade = "descent"   # src/art/postfx.py
     ambience_preset = "dust"
+    dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
 
     def setup(self) -> None:
         self.tilemap = TileMap(LEVEL.terrain_rows)

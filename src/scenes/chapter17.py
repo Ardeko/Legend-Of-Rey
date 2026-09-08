@@ -72,6 +72,7 @@ class Chapter17Scene(PlayScene):
     chapter_name_key = "chapter.twintower"
     postfx_grade = "descent"
     ambience_preset = "dust"
+    dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
     music_context = "sad"
 
     def setup(self) -> None:

@@ -1,9 +1,9 @@
 # KORKU KATMANI
-**Tasarım önerisi · Ardeko Studios · 08.09.2026**
+**Ardeko Studios · 08.09.2026**
 
-> Bu belge bir **öneridir**, henüz bağlayıcı değil. Arda onaylayana kadar
-> hiçbir satırı uygulanmaz. Onaylanan bölümler `docs/gdd.md` ile aynı
-> statüye geçer.
+> **ONAYLANDI (08.09.2026).** Arda §11'deki beş sorunun hepsini
+> cevapladı; belge artık `docs/gdd.md` ile aynı statüde, **bağlayıcı**.
+> Kararlar §11'de işlendi.
 
 ---
 
@@ -199,8 +199,26 @@ Kurallar:
 Son madde önemli: B14 twist'inden sonra aynı yaratık aynı şeyi yapar
 ama davranışı değişir. Oyuncu ne değiştiğini bilir.
 
-**Bağlanacağı yer:** `entities/enemy.py` iskeleti + yeni bir durum.
-Sprite olarak mevcut Sürüklenen yeter (silüet testi geçer).
+**Sprite: yeni.** (Arda'nın kararı, 08.09.2026 — Sürüklenen varyantı
+değil.) Tasarım kısıtları:
+
+- **Silüeti hiçbir düşmana benzemeyecek.** Oyuncu ilk karede "bu ne?"
+  diyebilmeli — tanıdık bir siluet "düşman" diye okunur ve İzleyen
+  düşman değil.
+- **Uzun ve ince.** Sürüklenen çömük, Tırmanan yatay. İzleyen dikey:
+  ~30 piksel boyunda, 6-7 piksel eninde. Zindanın en dar şeyi.
+- **Kolları yok.** Saldırmayacağı silüetten okunmalı.
+- **Yüz yok — yalnızca iki nokta.** Ve o iki nokta **daima oyuncuya
+  bakar**, gövde nereye dönük olursa olsun.
+- **Renk:** paletin en koyu iki rengi (`void`, `ink`) + gözlerde
+  `violet_bright`. Yankı'nın rengi — bağ kurulsun.
+
+Son madde önemli: gövde dönmeden gözlerin dönmesi, prosedürel sprite
+sisteminde tek satır (`draw_humanoid`'in göz ofseti) ama ekranda
+yanlış bir şey olduğunu anlatan en ucuz sinyal.
+
+**Bağlanacağı yer:** `art/spritegen.py` (yeni gövde tipi),
+`entities/enemy.py` iskeleti + yeni bir durum.
 **Maliyet:** Orta.
 
 ### 5.3 Zindan Hatırlıyor — hayalet ★★
@@ -256,18 +274,63 @@ etkilemez. Fark eden oyuncu ürperir, fark etmeyen hiçbir şey kaybetmez.
 
 ## 6. KATMAN 3 — ŞOK (sayılı ve yerleşik)
 
-**Bütün oyunda dört tane. Fazlası oyunu ucuzlatır.** Her biri
-yerleştirilmiş, rastgele değil. Hiçbiri kontrolü elden almaz.
+**Bütün oyunda beş tane. Fazlası oyunu ucuzlatır.** Her biri
+yerleştirilmiş, rastgele değil. Yalnızca biri (§6.1) kontrolü kısa
+süreliğine kısıtlar; diğer dördü hiç kısıtlamaz.
 
 | # | Bölüm | Ne | Neden orada |
 |---|---|---|---|
 | 1 | B3 (Meşale Mahzeni) | Meşaleyi yere bıraktığın anda, ışığın kenarında bir şey **hareket eder** ve gider | Karanlığın maliyetini bir kez, sert biçimde öğretir |
 | 2 | B11 (Ayna Salonu) | Aynada **kendi yansımanın** senden bir kare geç dönmesi | Yalnızlık ve "kendine güvenme" temasının zirvesi |
 | 3 | B13 (Cemo) | Cemo taşınırken, ekranın kenarında bir an İzleyen belirir — ve **Cemo ona bakar** | Cemo'nun da gördüğünü anlarsın |
-| 4 | B18 (Son) | Cemo'nun sesi ilk duyulduğunda | Twist'in kendisi |
+| ★ | **B14 (Yankı'nın Kaynağı)** | **JUMPSCARE** — §6.1 | Twist'in oynanıştaki karşılığı |
+| 4 | B18 (Son) | Cemo'nun sesi ilk duyulduğunda | Twist'in anlatıdaki karşılığı |
 
-Üçü de fark edilebilir ama zorunlu değil. Dördüncüsü kaçırılamaz —
-zaten hikâyenin kendisi.
+### 6.1 JUMPSCARE — B14 ★
+
+Arda açıkça istedi (08.09.2026): *"mutlaka bir yerde jumpscare olsun."*
+
+Ucuz olmaması için tek yol var: **on bölüm süren bir kurulumun karşılığı
+olmak.** O kurulum zaten planda — İzleyen'in kuralı:
+
+    B5   ilk görülür     yaklaşırsan geri çekilir
+    B11  ikinci kez      yine geri çekilir
+    B13  üçüncü kez      Cemo ona bakar, yine geri çekilir
+    B14  ...
+
+Oyuncu üç bölüm boyunca tek bir şey öğrendi: **bu şey sana yaklaşmaz.**
+Sonra B14'te, Rey'in Yankı'nın ne olduğunu anladığı karede, İzleyen
+oyuncunun **tam önünde** belirir.
+
+Ayrıntı — kare kare:
+
+| Kare | Ne olur |
+|---|---|
+| 0 | Yankı repliği biter. **Müzik ve bütün ortam sesi kesilir** (`music_hush = 1.0`) |
+| 1–44 | Hiçbir şey. Yaklaşık 0.75 saniye tam sessizlik. Oyuncu oynamaya devam edebiliyor |
+| 45 | İzleyen ekranın **ortasında** belirir, oyuncunun 2 tile önünde, ekranın %70'ini kaplayacak ölçekte. Tek kare `white_flash`, tek sert ses |
+| 46–51 | Altı kare orada durur. Gözler oyuncuda |
+| 52 | Yok olur. Ses geri gelmez — **B14'ün geri kalanı sessiz oynanır** |
+| — | `player.control_locked = 20` yalnızca 45–65 arası: Rey donar (irkilme), oyun donmaz |
+
+Kurallara uyum:
+
+- **Kural 1** (oynanışı durdurmaz): 20 kare kilit, bir kaçınma
+  süresinden kısa. Kamera alınmıyor, ara sahne açılmıyor, oyuncu
+  ekranda kalıyor.
+- **Kural 2** (aynı numara iki kez yok): oyunda **bir** jumpscare var.
+- **Kural 3** (sessizlik): şok, sesin gelmesiyle değil **44 kare
+  boyunca gelmemesiyle** kuruluyor.
+- **Kural 6:** Cemo'ya dair hiçbir şey yok.
+
+Fotosensitivite: tek kare parlama, tekrar yok — saniyede 1 parlama.
+`flash_limit` açıkken parlama tamamen atlanır, İzleyen yine belirir.
+
+> **Neden burası:** B14 zaten oyunun kırılma noktası. Şu an o kırılma
+> yalnızca **anlatılıyor** ("Yankı lanet değil, aşağıdaki şeyin sesi").
+> Jumpscare onu **gösteriyor**: on bölümdür uzakta duran şey artık uzak
+> durmuyor, çünkü artık saklanmasına gerek yok. Korkutucu olan ani
+> hareket değil, **kuralın bozulduğunun anlaşılması.**
 
 ---
 
@@ -328,10 +391,13 @@ saniyede 3'ten fazla parlama içermeyecek biçimde tasarlanmalı.
 
 Bunlar açıkça reddedildi:
 
-- ❌ **Ekrana aniden yaklaşan yüz.** Ucuz, tek kullanımlık, oyunun
-  görsel diline (32×32 piksel, siluet okunabilirliği) aykırı.
-- ❌ **Yüksek sesli çığlık.** Kural 3'ün ihlali.
-- ❌ **Kontrolü elden alan korku anı.** Kural 1.
+- ❌ **İkinci bir jumpscare.** Oyunda **bir** tane var (§6.1) ve
+  yerleştirilmiş. İkincisi birincisini de ucuzlatır.
+- ❌ **Yüksek sesli çığlık.** §6.1'in sesi bir çığlık değil; kurulum
+  sesin gelmesi değil, 44 kare boyunca **gelmemesi**.
+- ❌ **Kontrolü tamamen elden alan korku anı.** Kural 1. §6.1'in 20
+  karelik irkilme kilidi bunun istisnası değil, sınırı: kamera
+  alınmıyor, ara sahne açılmıyor, oyuncu ekranda kalıyor.
 - ❌ **Rastgele korkutma.** Rastgelelik öğrenilemez, sadece sinir bozar
   (`derinlestirme.md` 4.2 aynı gerekçeyle boss'lar için de reddediyor).
 - ❌ **Cemo'nun cesedi / zarar görmüş hâli.** Kural 6.
@@ -364,16 +430,39 @@ verelim.** Korku, ölçülerek değil oynanarak ayarlanır.
 
 ---
 
-## 11. AÇIK KALAN KARARLAR — Arda'ya
+## 11. KARARLAR — Arda, 08.09.2026
 
-1. **Oyun bitti ve test edildi.** Bu katman 18 bölümün hepsine dokunuyor.
-   Yayın öncesi mi, yayın sonrası bir güncelleme mi?
-2. **Yaş/derecelendirme hedefi var mı?** Katman 3'ün sertliği buna bağlı.
-3. **Cemo'nun B1'deki hangi repliği tohum olacak?** `docs/diyaloglar.md`
-   içinden seçilmeli — bu seçim B18'in tamamını taşıyor.
-4. **İzleyen yeni bir sprite mı, Sürüklenen'in varyantı mı?** Varyant
-   ucuz ama "tanıdık ama yanlış" hissi verir — ki bu aslında daha
-   korkutucu olabilir.
-5. **Steam sayfasında tür etiketi değişecek mi?** `derinlestirme.md` 9.1
-   sayfanın erken açılmasını öneriyor; "psikolojik korku" etiketi
-   kitleyi değiştirir.
+| # | Soru | Karar |
+|---|---|---|
+| 1 | Yayın öncesi mi, sonrası mı? | **Yayın öncesi.** Katman paketlemeden önce girer |
+| 2 | Yaş/derecelendirme hedefi | **Yok.** §3 ve §9'un kuralları yine de geçerli — sınır dışarıdan değil, tasarımdan geliyor |
+| 3 | Cemo'nun tohum repliği | **`line.ch01_cemo_gift`** — aşağıda |
+| 4 | İzleyen | **Yeni sprite.** Sürüklenen varyantı değil |
+| 5 | Steam tür etiketi | Şimdilik geri planda, karar ertelendi |
+
+### 11.1 Tohum repliği — `ch01_cemo_gift`
+
+> **CEMO:** *"Bunu senin için yaptım... Belki karanlık sana yaklaşırken
+> iki kez düşünür."*
+
+Bu replik seçildi çünkü **kendi ironisini taşıyor.** Cemo kolyeyi Rey'i
+karanlıktan korusun diye yapıyor. B14'te öğreniyoruz ki Yankı zaten o
+karanlık — ve karanlık iki kez düşünmedi, doğrudan içeri girdi. Kolyeyi
+veren çocuk, kolyenin koruması gereken şeyin ağzından konuşacak.
+
+Ayrıca `systems/compass.py` zaten bu kolyeyi bir pusula yapmış ve **hep
+doğru söylüyor.** Yani sahnede iki Cemo var: yalan söyleyen sesi ve
+doğru söyleyen kolyesi. Tema tek bir nesnede toplanıyor.
+
+**Parçalanma planı** — replik bütün olarak asla tekrarlanmaz, üç
+parçaya bölünür:
+
+| Nerede | Yankı ne der | Neden orada |
+|---|---|---|
+| B4 Kayıt Odası | *"İki kez düşündü mü?"* | Rey kolyeyi çevirirken. Cemo'yu hatırlamayan oyuncu için anlamsız bir soru; hatırlayan için ilk çatlak |
+| B9 Çan Kulesi | *"Bunu senin için yaptım."* | Yanlış çanı çalınca, teselli eder gibi. Cemo'nun **açılış sözcükleri**, bambaşka bir şey için |
+| B13 Cemo | *"Rey?"* | `line.ch13_cemo_sees` zaten var — Cemo kafeste bunu derken **Yankı da aynı anda aynı kelimeyi söyler** |
+| **B18** | Repliğin **tamamı** | Yaratık, Cemo'nun sesiyle. Üç parça burada birleşir |
+
+İlk ikisi ancak tekrar oynayışta fark edilir. Üçüncüsü kaçırılamaz.
+Dördüncüsü hikâyenin kendisi.

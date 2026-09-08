@@ -130,7 +130,14 @@
     "gamepad_note": "Off starts instantly. Turning it on scans for pads; can be slow.",
     "gamepad_scanning": "Looking for a controller...",
     "tab_controls": "Controls",
-    "controls_binding": "[▴▾] move   [◂▸] column   [Enter] bind   [Esc] close"
+    "controls_binding": "[▴▾] move   [◂▸] column   [Enter] bind   [Esc] close",
+    "horror": "Horror layer",
+    "horror_full": "Full",
+    "horror_reduced": "Reduced",
+    "horror_off": "Off",
+    "horror_note": "Reduced: shocks stay, sudden sound goes. Off: story same.",
+    "flash_limit": "Flash limit",
+    "flash_limit_note": "Removes sudden flashes. Events still happen."
   },
   "ability": {
     "sword": "SWORD  ·  attack with J",

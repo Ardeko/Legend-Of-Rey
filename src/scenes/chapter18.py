@@ -61,6 +61,7 @@ class Chapter18Scene(PlayScene):
     chapter_name_key = "chapter.end"
     postfx_grade = "descent"
     ambience_preset = "dust"
+    dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
     music_context = "boss"
 
     def setup(self) -> None:

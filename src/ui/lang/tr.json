@@ -130,7 +130,14 @@
     "gamepad_note": "Kapalıyken açılış anında. Açarken kol taraması uzun sürebilir.",
     "gamepad_scanning": "Oyun kolu aranıyor...",
     "tab_controls": "Tuşlar",
-    "controls_binding": "[▴▾] gez   [◂▸] sütun   [Enter] ata   [Esc] kapat"
+    "controls_binding": "[▴▾] gez   [◂▸] sütun   [Enter] ata   [Esc] kapat",
+    "horror": "Korku katmanı",
+    "horror_full": "Tam",
+    "horror_reduced": "Azaltılmış",
+    "horror_off": "Kapalı",
+    "horror_note": "Azaltılmış: şok kalır, ani ses gider. Kapalı: hikâye aynı.",
+    "flash_limit": "Parlama sınırı",
+    "flash_limit_note": "Ani parlamayı kaldırır. Olaylar aynen yaşanır."
   },
   "ability": {
     "sword": "KILIÇ  ·  J ile saldır",

@@ -39,6 +39,7 @@ from src.systems.tracking import BLOOD, SCORCH, TraceField, TrackingState
 from src.systems.save import read_save
 from src.ui import echo_view, tracking_view
 from src.ui.chapter_card import ChapterCard
+from src.systems.breath import Breath
 from src.ui.dialogue import Dialogue, Line
 from src.ui import text
 from src.ui.hud import HUD
@@ -75,6 +76,18 @@ class PlayScene(Scene):
     # `particles` olaylar icin (vurus/olum), bu SUREKLI olan sey - oda
     # hicbir sey olmasa bile yasiyor gorunsun.
     ambience_preset: str = ""
+
+    # Rey burada **karanlikta ve yalniz** mi? (docs/korku.md 5.1)
+    #
+    # Nefes sisteminin ucuncu tetikleyicisi: karanlikta hareketsiz
+    # durmak. Bolum 3'un gercek isik sistemi (`self.light`) varken bu
+    # bayrak kullanilmiyor - orada karanlik olculuyor, varsayilmiyor.
+    #
+    # Ardo'nun yaninda oldugu bolumlerde **kasitli olarak False**:
+    # `docs/korku.md` 7'nin yerlesim tablosu B6/B7/B16'yi bos birakiyor
+    # cunku korkunun ise yaramasi icin nefes alinan yerler gerekiyor.
+    # Yaninda biri varken korkmuyorsun.
+    dark_ambient: bool = False
 
     def setup(self) -> None:
         """Alt sinif sahneyi burada kurar.
@@ -152,6 +165,11 @@ class PlayScene(Scene):
         # `self.echo` ile ayni desen: yoksa `None` ve kod her yerde
         # "su var mi?" diye dallanmiyor.
         self.water = None
+
+        # Nefes (docs/korku.md 5.1). Katman 2; ayardan kapatilabiliyor.
+        # Sahne kurulumundan ONCE: `setup()` icinde bir sey nefesi
+        # sifirlamak isteyebilir.
+        self.breath = Breath()
 
         self.setup()
 
@@ -655,6 +673,7 @@ class PlayScene(Scene):
         self.compass.update(self.player)
         self._update_necklace_audio()
         self.dialogue.update(self.game)
+        self.breath.update(self.game, self)
         if self.card is not None:
             self.card.update()
         if self.ambience is not None:

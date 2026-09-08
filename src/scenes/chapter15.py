@@ -81,6 +81,7 @@ class Chapter15Scene(PlayScene):
     chapter_name_key = "chapter.silence"
     postfx_grade = "descent"
     ambience_preset = "dust"
+    dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
     # Gizlilik bolumu kendi havasini istiyor: dovus parcasi burada
     # yanlis soz soylerdi. `docs/ekonomi-uretim.md` zorlugu 4 veriyor.
     music_context = "sad"
