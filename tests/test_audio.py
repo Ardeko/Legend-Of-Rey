@@ -35,8 +35,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 # Sesleri okumak icin oyunu acmaya gerek yok - kaynak taraniyor.
-SFX_FILES = ("sfx.py", "sfx_combat.py", "sfx_enemies.py", "sfx_ui.py",
-             "sfx_world.py")
+# **Yeni bir `sfx_*.py` eklenince buraya da eklenmeli.** Eklenmezse
+# oradaki sesler "kayitli degil" sayilir ve onlari cagiran kod
+# "uydurma ad" diye yakalanir - `sfx_horror.py` eklenirken tam olarak
+# bu oldu.
+SFX_FILES = ("sfx.py", "sfx_combat.py", "sfx_enemies.py", "sfx_horror.py",
+             "sfx_ui.py", "sfx_world.py")
 
 # Kayitli ama henuz cagrilmayan sesler - **bilerek** bekliyorlar.
 # Ses paketi bolumlerden once yazildi (`assets/audio/SES-LISTESI.md`),
@@ -64,6 +68,17 @@ PLANNED: frozenset[str] = frozenset({
     "intro_hum", "journey_cellar", "journey_night", "journey_wind",
     "shambler_attack",
     "shambler_idle", "step_gravel",
+    # --- Korku katmani (docs/korku.md) - fazlar halinde baglaniyor ---
+    # `breath_in`, `breath_out` ve `heartbeat` BAGLANDI (systems/breath.py);
+    # asagidakiler sirasini bekliyor. Her biri hangi maddede baglanacagi
+    # yaziyor - listeden cikmayan bir ses, yazilmamis bir ozelliktir.
+    "breath_sharp",      # 6.1 jumpscare - Rey'in irkilmesi
+    "lie_caught",        # 4.1 yalan defteri
+    "phantom_fade",      # 4.4 Yanki Gorusu'nun yalani
+    "watcher_notice",    # 5.2 Izleyen
+    "watcher_strike",    # 6.1 jumpscare
+    "ghost_seen",        # 5.3 zindan hatirliyor
+    "room_changed",      # 5.5 zindan degisiyor
 })
 # `necklace_warm` ve `necklace_conflict` 30.08.2026'da listeden CIKTI:
 # Bolum 13'un ara sahneleri ikisini de caliyor (kafes goruldugunde

@@ -42,6 +42,7 @@ from src.entities.bosses.caller import Caller
 from src.scenes.play import PlayScene
 from src.systems.echo import EchoState
 from src.systems.silence import SilenceState
+from src.ui.dialogue import Line
 from src.ui.i18n import t
 from src.world import cave_backdrop
 from src.world.rooms.chapter18 import (
@@ -110,7 +111,31 @@ class Chapter18Scene(PlayScene):
         if name == "dip":
             self.say_player("line.ch18_rey_bottom", "line.ch18_ardo_bottom")
         elif name == "ses":
-            self.say_player("line.ch18_rey_voice", "line.ch18_ardo_voice")
+            # **Tohumun patladigi yer** (docs/korku.md 11.1).
+            #
+            # Uc bolumdur parca parca duyulan replik burada butun olarak
+            # geliyor - ve Cemo'nun agzindan. Oyuncu B1'de bu cumleyi
+            # kolyeyi alirken duymustu:
+            #
+            #     "Bunu senin icin yaptim... Belki karanlik sana
+            #      yaklasirken iki kez dusunur."
+            #
+            # Karanlik iki kez dusunmedi. Iceri girdi ve simdi o
+            # cocugun sesiyle konusuyor.
+            #
+            # Once yaratik konusuyor, sonra Rey tepki veriyor: sira
+            # onemli, cunku oyuncunun once TANIMASI gerekiyor.
+            # `say()` kuyrugu DEGISTIRIYOR, eklemiyor: iki ayri cagri
+            # birincisini dusururdu. Tek cagrida veriliyor.
+            if self.character == "ardo":
+                self.say(Line("ardo", "line.ch18_ardo_voice"))
+            else:
+                # **B1'in anahtarinin ta kendisi.** Ayri bir anahtar
+                # acsaydik ikisi zamanla ayrisirdi (Ingilizce cevirisi
+                # bir kez ayristi bile) ve tohum taninmaz olurdu.
+                # Taninmayan tohum, tohum degildir.
+                self.say(Line("cemo", "line.ch01_cemo_gift"),
+                         Line("rey", "line.ch18_rey_voice"))
 
     # --- Dongu --------------------------------------------------------------
     def update_scene(self) -> None:

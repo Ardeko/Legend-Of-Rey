@@ -457,7 +457,10 @@
     "ch18_rey_three": "Üçümüz. Yukarı.",
     "ch18_ardo_three": "Çıkış orada. Yürüyebiliyoruz.",
     "ch18_rey_quiet": "Kafamda hiçbir şey yok. İlk kez.",
-    "ch18_ardo_quiet": "Sessiz. Onun için de sessiz artık."
+    "ch18_ardo_quiet": "Sessiz. Onun için de sessiz artık.",
+    "ch04_echo_seed": "İki kez düşündü mü?",
+    "ch09_echo_seed": "Bunu senin için yaptım.",
+    "ch13_echo_seed": "Rey?"
   },
   "combat": {
     "counter": "KARŞI VURUŞ",

@@ -244,16 +244,27 @@ Ve B14'ten sonra: bazı hayaletler **senin ölmediğin yerlerde** de var.
 `music_hush` var ve gizli odalarda doğru kullanılıyor. Bunu **yanlış**
 kullanmayı öneriyorum — bilerek.
 
-Oyun boyunca üç kez: hiçbir şey olmayacak bir koridorda müzik kesilir.
-Oyuncu hazırlanır. Hiçbir şey olmaz. Müzik geri gelir.
+Dört aşama, ve sırası önemli:
 
-Ve dördüncüsünde — B15'in girişinde — müzik **kesilmez**, olay tam o
-zaman olur.
+| Sıra | Bölüm | Ne olur | Oyuncu ne öğrenir |
+|---|---|---|---|
+| 1 | **B4** tile 60–78 | Müzik kesilir. Hiçbir şey olmaz | "Yanılmışım" |
+| 2 | **B10** tile 55–68 | Müzik kesilir. Yine hiçbir şey olmaz | "Sessizlik bir şey demek değilmiş" |
+| 3 | **B14** §6.1 | Müzik kesilir. **Bu sefer bir şey gelir** | Artık çok geç |
+| 4 | **B15** girişi | Müzik **kesilmez** — ve olay olur | Hiçbir sinyale güvenilemez |
 
-> Bu, kural 3'ün tam uygulaması. Sessizliği bir alarm olarak öğretip
-> sonra o alarmı bozuyoruz. Oyuncu bir daha hiçbir sinyale güvenemez.
+İlk ikisi kurulum, üçüncüsü jumpscare'in tam olarak neden işe yaradığı,
+dördüncüsü kapanış. Bir alarmı öğretip önce boşa çaldırıyoruz, sonra
+gerçekten çaldırıyoruz, sonra hiç çaldırmadan olayı yaşatıyoruz.
 
-**Maliyet:** Sıfır kod. Yalnızca üç sahnede birer değer.
+> **Hiçbir şey olmaması işin kendisi.** Bir kez bile "aslında bir şey
+> oluyordu" dersek numara olur ve oyuncu bir daha yutmaz. Bu aralıklarda
+> düşman doğmaz, tetikleyici yoktur, replik yoktur —
+> `tests/test_horror.py` aralıkların gerçekten boş olduğunu ölçüyor.
+
+**Maliyet:** Sıfır yeni sistem. `game.music_hush` zaten vardı ve
+`MusicDirector` zaten okuyordu; `systems/false_silence.py` yalnızca
+"nerede ve ne kadar" diyor.
 
 ### 5.5 Zindan Değişiyor ★
 
@@ -461,8 +472,22 @@ parçaya bölünür:
 |---|---|---|
 | B4 Kayıt Odası | *"İki kez düşündü mü?"* | Rey kolyeyi çevirirken. Cemo'yu hatırlamayan oyuncu için anlamsız bir soru; hatırlayan için ilk çatlak |
 | B9 Çan Kulesi | *"Bunu senin için yaptım."* | Yanlış çanı çalınca, teselli eder gibi. Cemo'nun **açılış sözcükleri**, bambaşka bir şey için |
-| B13 Cemo | *"Rey?"* | `line.ch13_cemo_sees` zaten var — Cemo kafeste bunu derken **Yankı da aynı anda aynı kelimeyi söyler** |
+| B13 Cemo | *"Rey?"* | `line.ch13_cemo_sees` zaten var — Cemo kafeste bunu der, **Yankı bir beat sonra aynı kelimeyi tekrarlar** |
 | **B18** | Repliğin **tamamı** | Yaratık, Cemo'nun sesiyle. Üç parça burada birleşir |
 
 İlk ikisi ancak tekrar oynayışta fark edilir. Üçüncüsü kaçırılamaz.
 Dördüncüsü hikâyenin kendisi.
+
+**Uygulamada iki karar değişti** (08.09.2026):
+
+1. **B13 aynı anda değil, bir beat sonra.** Belge önce "aynı anda"
+   diyordu. Sıralı hâli hem daha ucuz hem **daha doğru**: bir yankının
+   yaptığı şey tam olarak budur — sesi geriden tekrarlamak. Taklit
+   olduğu ancak böyle okunuyor. Aynı anda söylenseydi iki ayrı varlık
+   gibi durur, tekrar edince aynı şeyin kopyası gibi duruyor.
+2. **B18 kendi anahtarını tutmuyor, `line.ch01_cemo_gift`'i kullanıyor.**
+   Ayrı bir anahtar açıldığında ikisi zamanla ayrışır — nitekim
+   İngilizce çevirisi ilk denemede ayrıştı bile ve fark edilmesi tesadüf
+   oldu. Tohumun bütün işi **birebir tanınmak**; tanınmayan tohum, tohum
+   değildir. Artık B1'deki replik değişince B18 kendiliğinden takip
+   ediyor.

@@ -457,7 +457,10 @@
     "ch18_rey_three": "The three of us. Upward.",
     "ch18_ardo_three": "The way out is there. We can walk.",
     "ch18_rey_quiet": "There's nothing in my head. For the first time.",
-    "ch18_ardo_quiet": "Quiet. Quiet for her too, now."
+    "ch18_ardo_quiet": "Quiet. Quiet for her too, now.",
+    "ch04_echo_seed": "Did it think twice?",
+    "ch09_echo_seed": "I made this for you.",
+    "ch13_echo_seed": "Rey?"
   },
   "combat": {
     "counter": "COUNTER",

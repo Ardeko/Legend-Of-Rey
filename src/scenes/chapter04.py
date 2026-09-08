@@ -45,6 +45,7 @@ from src.core.input import Action
 from src.core.juice import ImpactWeight
 from src.scenes import chapter04_render as render
 from src.scenes.play import PlayScene
+from src.systems.false_silence import FalseSilence, Stretch
 from src.systems import abilities
 from src.ui.chapter_end import ChapterEndScene, ChapterResult
 from src.ui.dialogue import Line
@@ -126,6 +127,15 @@ class Chapter04Scene(PlayScene):
         self.frames = 0
         self.finished = False
 
+        # Yanlis sessizlik (docs/korku.md 5.4). Bu koridorda
+        # HICBIR SEY olmuyor ve olmamasi isin kendisi:
+        # kirik_merdiven odasinin bos orta kismi - bu bolumde hic dusman yok, orasi zaten tamamen sakin.
+        # Oyuncu sessizligi bir alarm sanmayi ogrendi; burada o
+        # alarm bos caliyor. B14'te ayni sessizligin ardindan
+        # jumpscare geliyor, B15'te ise sessizlik hic gelmiyor
+        # ama olay oluyor - ucu birlikte sinyali bozuyor.
+        self.false_silence = FalseSilence(Stretch(60, 78))
+
         self._enter_room(self._room_at(self.player.body.center_x))
 
     # --- Odalar ---------------------------------------------------------------
@@ -184,6 +194,7 @@ class Chapter04Scene(PlayScene):
 
     # --- Dongu ------------------------------------------------------------------
     def update_scene(self) -> None:
+        self.false_silence.update(self.game, self)
         self.frames += 1
         self.room_frames += 1
 
@@ -309,6 +320,25 @@ class Chapter04Scene(PlayScene):
         self._voice("line.ch04_echo_map", "line.ch04_ardo_map")
 
     # --- Kolye ani ------------------------------------------------------------------
+    def _seed_line(self) -> None:
+        """Cemo'nun sozcuklerinin **ilk parcasi** (docs/korku.md 11.1).
+
+        Cemo B1'de kolyeyi verirken sunu diyor:
+
+            "Bunu senin icin yaptim... Belki karanlik sana yaklasirken
+             iki kez dusunur."
+
+        Rey tam o kolyeyi cevirirken Yanki soruyor: *"Iki kez dusundu
+        mu?"* Cemo'yu hatirlamayan oyuncu icin anlamsiz bir soru;
+        hatirlayan icin ilk catlak.
+
+        **Yalnizca Rey'de.** Ardo'nun Yanki'si yok ve tohumun tamami
+        B18'de Rey'in hikayesinde patliyor.
+        """
+        if self.echo is None:
+            return
+        self.say(Line("echo", "line.ch04_echo_seed"))
+
     def _update_necklace(self) -> None:
         """Rey kolyeyi ilk kez cevirir. Kelimesiz, kesintisiz.
 
@@ -325,6 +355,7 @@ class Chapter04Scene(PlayScene):
                     and not self._necklace_restored):
                 self._necklace_restored = True
                 self._necklace_reward()
+                self._seed_line()
             if self.necklace_frames >= NECKLACE_MOMENT_FRAMES:
                 self.necklace_active = False
                 self.necklace_done = True

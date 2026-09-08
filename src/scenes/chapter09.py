@@ -42,6 +42,7 @@ from src.art import palette
 from src.config import TILE_SIZE
 from src.core.input import Action
 from src.core.juice import ImpactWeight
+from src.ui.dialogue import Line
 from src.entities.companion import Companion, other_character
 from src.scenes.play import PlayScene
 from src.systems import boost, resonance
@@ -234,7 +235,6 @@ class Chapter09Scene(PlayScene):
         Anahtarlar **duz dize** - f-string ile kurulani
         `tests/test_lang.py` goremiyor.
         """
-        from src.ui.dialogue import Line
         if self.character == "ardo":
             return Line("ardo", ardo_key)
         return Line("echo", echo_key)
@@ -303,6 +303,15 @@ class Chapter09Scene(PlayScene):
         if not self.wrong_hinted:
             self.wrong_hinted = True
             self.show_toast(t("chapter09.wrong_order"), frames=200)
+            # Cemo'nun sozcuklerinin ikinci parcasi (docs/korku.md 11.1).
+            # Yanki teselli eder gibi konusuyor ve **Cemo'nun acilis
+            # sozcuklerini** kullaniyor: "Bunu senin icin yaptim."
+            # Cemo bunu kolye icin demisti; Yanki bulmaca icin diyor.
+            # Sozcukler ayni, kaynak degil.
+            #
+            # Yalnizca Rey'de: Ardo'nun Yanki'si yok.
+            if self.echo is not None:
+                self.say(Line("echo", "line.ch09_echo_seed"))
 
     def _solve(self) -> None:
         self.solved = True
