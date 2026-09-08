@@ -589,6 +589,84 @@ def main() -> int:
                                   if k != "watcher") * 1.5,
           "ayrisma belirgin - en yakinindan %50'den fazla dikey")
 
+
+    # --- 5.5 Zindan degisiyor -------------------------------------------
+    print("\n--- 5.5 zindan degisiyor ---")
+    from src.scenes.play import PlayScene as _PS
+    import inspect as _ins
+    drift = _ins.getsource(_PS._update_room_drift)
+    check("self._rooms_seen" in drift,
+          "ziyaret edilen odalar hatirlaniyor")
+    check("if room not in self._rooms_seen" in drift,
+          "degisiklik IKINCI giriste - ilk giriste karsilastirma yok")
+    check("horror.atmosphere" in drift,
+          "korku kapaliyken hic olmuyor")
+    check("self._room_changed_done = True" in drift,
+          "bolum basina BIR kez (docs/korku.md 5.5)")
+    from src.world.decals import DecalField
+    check(hasattr(DecalField, "claw"), "tirmik izi cizilebiliyor")
+
+    # --- 6.1 Jumpscare --------------------------------------------------
+    print("\n--- 6.1 jumpscare ---")
+    from src.systems.jumpscare import (
+        APPEAR_AT, CONTROL_LOCK, Jumpscare, UNLOCK_AT, VANISH_AT)
+
+    class _FakePlayer:
+        control_locked = 0
+        facing = 1
+
+        class body:
+            center_x = 100.0
+            feet = (100.0, 200.0)
+
+    class _FakeGame:
+        music_hush = 0.0
+        settings = None
+
+        def play_sound(self, name, **kw):
+            self.last = name
+
+    scare = Jumpscare()
+    fake_game, fake_player = _FakeGame(), _FakePlayer()
+    check(scare.arm(fake_player), "kuruluyor")
+    check(not scare.arm(fake_player),
+          "IKINCI kez kurulamiyor - oyunda tek jumpscare var")
+
+    seen_hush = seen_visible = seen_lock = False
+    for _ in range(UNLOCK_AT + 4):
+        scare.update(fake_game, fake_player)
+        if scare.frames == 0 and fake_game.music_hush == 1.0:
+            seen_hush = True
+        if scare.frames == APPEAR_AT - 1:
+            check(not scare.visible,
+                  "belirmeden ONCE gorunmuyor - 44 kare tam sessizlik")
+        if scare.frames == APPEAR_AT:
+            seen_visible = scare.visible
+            seen_lock = fake_player.control_locked == CONTROL_LOCK
+        if scare.frames == VANISH_AT:
+            check(not scare.visible, "52. karede yok oluyor")
+    check(seen_hush, "0. karede ses kesiliyor")
+    check(seen_visible, "45. karede Izleyen beliriyor")
+    check(seen_lock, "Rey donuyor (20 kare) - OYUN donmuyor")
+    check(CONTROL_LOCK < 34,
+          "kilit bir kacinmadan kisa - oynanisi durdurmuyor",
+          f"{CONTROL_LOCK} kare")
+    check(scare.done and fake_game.music_hush == 1.0,
+          "bitince ses GERI GELMIYOR - B14un kalani sessiz")
+
+    # Fotosensitivite: parlama atlaniyor, OLAY atlanmiyor.
+    class _Limited:
+        def get(self, key, default=None):
+            return True if key == "flash_limit" else default
+
+    scare2 = Jumpscare()
+    scare2.arm(fake_player)
+    scare2.frames = APPEAR_AT
+    check(scare2.flash(_Limited()) == 0.0,
+          "flash_limit acikken parlama YOK")
+    check(scare2.visible,
+          "ama Izleyen yine beliriyor - erisilebilirlik icerigi kaldirmaz")
+
     game.shutdown()
 
     print("\n=== SONUC ===")

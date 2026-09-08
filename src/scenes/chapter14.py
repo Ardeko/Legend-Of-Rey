@@ -32,9 +32,11 @@ import math
 import pygame
 
 from src.art import palette
-from src.config import TILE_SIZE
+from src.config import INTERNAL_HEIGHT, INTERNAL_WIDTH, TILE_SIZE
 from src.core.juice import ImpactWeight
 from src.scenes.play import PlayScene
+from src.systems import jumpscare
+from src.systems.jumpscare import Jumpscare
 from src.ui.chapter_end import ChapterEndScene, ChapterResult
 from src.ui.i18n import t
 from src.world import cave_backdrop
@@ -92,6 +94,9 @@ class Chapter14Scene(PlayScene):
         self.finished = False
         self.silent_hinted = False
         self.betrayal_shown = False
+        # Oyunun tek jumpscare'i (`docs/korku.md` 6.1). Ihanet aninda
+        # kuruluyor - kurulum on bolum surdu, karsiligi burada.
+        self.jumpscare = Jumpscare()
         # Kac kez duyu yuzunden ele verildi - anlatim degil, olcum.
         self.betrayal_wakes = 0
 
@@ -171,6 +176,7 @@ class Chapter14Scene(PlayScene):
         if room != self.room:
             self._enter_room(room)
 
+        self._update_jumpscare()
         self._update_silent_hint()
         self._update_triggers()
         self._update_arena()
@@ -206,6 +212,15 @@ class Chapter14Scene(PlayScene):
         if data is not None:
             data.flags["sense_betrayed"] = True
         self.show_toast(t("chapter14.betrayed"), frames=260)
+        # **Jumpscare tam burada** (`docs/korku.md` 6.1): *"Rey'in
+        # Yanki'nin ne oldugunu anladigi karede."* Sozlesme degisti;
+        # on bolumdur uzak duran sey artik uzak durmuyor, cunku artik
+        # saklanmasina gerek yok.
+        if jumpscare.allowed(self.game.settings):
+            self.jumpscare.arm(self.player)
+
+    def _update_jumpscare(self) -> None:
+        self.jumpscare.update(self.game, self.player)
 
     def on_betrayal_wake(self, enemy) -> None:
         """Duyu yuzunden bir dusman uyandi - **gorunur olmali.**
@@ -337,6 +352,47 @@ class Chapter14Scene(PlayScene):
         for chest in self.chests:
             chest.draw(surface, offset, self.game.frame)
 
+    def _draw_jumpscare(self, surface: pygame.Surface) -> None:
+        """Izleyen ekranin ortasinda, **tam onunde.**
+
+        `docs/korku.md` 6.1: *"oyuncunun 2 tile onunde, ekranin %70'ini
+        kaplayacak olcekte."*
+
+        ## Neden burada ciziliyor, `Watcher` sinifinda degil
+
+        Sahnedeki Izleyen'ler dunyanin icinde duruyor: kameraya gore
+        kayiyorlar, tilemap'e carpiyorlar, yaklasinca cekiliyorlar. Bu
+        onlardan biri **degil** - ekranin ortasinda duran bir goruntu.
+        Ayni sinifa iki farkli uzay bindirmek onu bozardi.
+
+        ## Olcek TAM SAYI
+
+        `CLAUDE.md` 4: piksel art kesirli olcekte bulaniklasir. Ekranin
+        %70'i 189 piksel; 32 piksellik sprite icin en yakin tam kat 6
+        (192 piksel, %71). `smoothscale` degil `scale`.
+        """
+        scare = self.jumpscare
+        if not scare.visible:
+            return
+        from src.art.animator import Animator
+        image = Animator("watcher").render(-scare.facing)
+        if image is None:
+            return
+        factor = max(1, scare.height // image.get_height())
+        big = pygame.transform.scale(
+            image, (image.get_width() * factor, image.get_height() * factor))
+        x = INTERNAL_WIDTH // 2 - big.get_width() // 2
+        y = INTERNAL_HEIGHT - big.get_height() - 8
+        surface.blit(big, (x, y))
+
+        # Tek kare parlama - `flash_limit` acikken atlaniyor.
+        strength = scare.flash(self.game.settings)
+        if strength > 0.0:
+            veil = pygame.Surface((INTERNAL_WIDTH, INTERNAL_HEIGHT))
+            veil.fill(palette.color("white_flash"))
+            veil.set_alpha(int(235 * strength))
+            surface.blit(veil, (0, 0))
+
     def draw_overlay(self, surface: pygame.Surface) -> None:
         """Cerceve **en uste** ciziliyor - `draw_foreground`a degil.
 
@@ -351,6 +407,9 @@ class Chapter14Scene(PlayScene):
         """
         if self.sense_betrayed and self.sense_open():
             self._draw_listening(surface)
+        # **En uste**: jumpscare her seyin onunde. Karartmanin ya da
+        # cercevenin arkasinda kalirsa sok olmaz.
+        self._draw_jumpscare(surface)
 
     def _draw_listening(self, surface: pygame.Surface) -> None:
         """Duyu acikken ekranin kenarindan iceri **dinleyen** bir nabiz.

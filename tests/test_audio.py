@@ -102,10 +102,15 @@ PLANNED: frozenset[str] = frozenset({
     # kullaniliyor" diye kiriliyor; kasitli olarak boyle, cunku eski bir
     # PLANNED girdisi "bu hic yazilmadi" yalanini soyluyor.
     # `watcher_notice` (5.2) ve `ghost_seen` (5.3) de BAGLANDI.
-    "breath_sharp",      # 6.1 jumpscare - Rey'in irkilmesi
-    "watcher_strike",    # 6.1 jumpscare
-    "room_changed",      # 5.5 zindan degisiyor
 })
+# `breath_sharp` ve `watcher_strike` de 08.09.2026'da CIKTI: 6.1
+# jumpscare baglandi (`src/systems/jumpscare.py`, B14'un ihanet
+# aninda). **Korku katmaninin 11 maddesinin 11'i artik bagli** -
+# bu liste korku icin bosaldi.
+#
+# `room_changed` 08.09.2026'da listeden CIKTI: 5.5 "zindan degisiyor"
+# baglandi (`PlayScene._update_room_drift`). Temizlenmis bir odaya
+# donen oyuncu duvarda onceden olmayan bir tirmik izi buluyor.
 # `necklace_warm` ve `necklace_conflict` 30.08.2026'da listeden CIKTI:
 # Bolum 13'un ara sahneleri ikisini de caliyor (kafes goruldugunde
 # kolye isiniyor, bos kapida catisiyor). Aylardir bekleyen iki ses

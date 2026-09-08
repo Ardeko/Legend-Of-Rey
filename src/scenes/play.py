@@ -206,6 +206,7 @@ class PlayScene(Scene):
         # Temizlenmis odaya donunce bir sey degismis olmali - bolum
         # basina BIR kez (docs/korku.md 5.5).
         self._room_changed_done = False
+        self._rooms_seen: set[str] = set()
 
         self.setup()
 
@@ -675,6 +676,50 @@ class PlayScene(Scene):
             self.checkpoint_x = self.player.body.center_x
             self.checkpoint_y = self.player.body.bottom
 
+    def _update_room_drift(self) -> None:
+        """Temizlenmis bir odaya donunce **bir sey degismis** oluyor.
+
+        `docs/korku.md` 5.5: *"Bolum basina en fazla bir degisiklik ve
+        hicbiri oynanisi etkilemez. Fark eden oyuncu urperir, fark
+        etmeyen hicbir sey kaybetmez."*
+
+        ## Degisiklik bir TIRMIK IZI
+
+        Belge uc secenek sayiyor (sonmus mesale, yer degistirmis ceset,
+        yeni tirmik izi). Tirmik secildi cunku **her bolumde** calisiyor:
+        oteki ikisi o odada bir mesale ya da ceset bulunmasini
+        gerektiriyor, yani on sekiz bolume ayri ayri icerik yazmak
+        demek. Iz ise duvara ait ve duvar her yerde var.
+
+        ## Bir kez, ve **geri donuste**
+
+        Sayac odaya ilk giriste degil **ikinci** giriste isliyor:
+        degisiklik ancak "onceden boyle degildi" diyebilen bir oyuncuya
+        bir sey ifade eder. Ilk kez giren fark edemez cunku
+        karsilastiracagi bir hafizasi yoktur.
+
+        Korku katmani kapaliysa hic olmuyor (`horror.atmosphere`).
+        """
+        if self._room_changed_done:
+            return
+        room = getattr(self, "room", "")
+        if not room or self.player.dead:
+            return
+        if room not in self._rooms_seen:
+            self._rooms_seen.add(room)
+            return
+        # Ikinci giris. Ama **odaya yeni girmis** olmali - zaten
+        # icindeyken tetiklenirse oyuncu izin belirdigini gorur ve
+        # "degismis" degil "olusuyor" okur.
+        if not self.player.body.grounded:
+            return
+        if not horror.atmosphere(self.game.settings):
+            return
+        self._room_changed_done = True
+        body = self.player.body
+        self.decals.claw(body.center_x + 24, body.feet[1] - 6)
+        self.game.play_sound("room_changed")
+
     def update(self) -> None:
         self._update_music()
         self.player.update()
@@ -683,6 +728,7 @@ class PlayScene(Scene):
         self._update_companion_order()
         self._update_death()
         self._update_checkpoint()
+        self._update_room_drift()
         self.tokens.update()
         for enemy in self.enemies:
             enemy.update()

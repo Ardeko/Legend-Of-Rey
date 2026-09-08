@@ -1375,20 +1375,24 @@ Bunlar eksik değil, **karar**. Yeniden açılmasın diye gerekçeleriyle:
 paralelde yürüyen Kalachev/korku hattını görmüyordu; merge sonrası
 eksik kaldı.
 
-7. **★ Kalachev bölümlere YERLEŞTİRİLMEDİ.** `docs/kalachev.md` §9'un
+7. **Kalachev'in yerleştirmesi YARIM.** 08.09.2026'da B4 (kamp
+   anlamı), B5 (ilk görüş) ve B10 (tuzağı kırar) yazıldı. Belgenin
+   §5 tablosunda kalanlar: **B6** (tanışma — Ardo'yla aynı sahne),
+   **B12** (izleri), **B13** (Zindancı dövüşü, yaralanır),
+   **B15** (uyuyan sürü, sessiz), **B18** (üç fazlı final — ölümü).
+   Son maddesi belgenin kendi ölçüsünde "Büyük".
+
+   *Eski hâli:* **★ Kalachev bölümlere YERLEŞTİRİLMEDİ.** `docs/kalachev.md` §9'un
    sırası: sprite → AI → B4 düzeltmesi. İlk ikisi yazıldı
    (`d91135b`, "KALACHEV 1/3"), üçüncüsü ve asıl yerleştirme
    (B5/B10/B13/B15/B18) bekliyor. **Yarım kalmış en büyük iş bu** —
    sprite ve AI var ama karakter hiçbir bölümde görünmüyor.
 
-8. **Korku katmanının 11 maddesinden 2'si bağlanmadı.**
-   `docs/korku.md`:
-   - **5.5 Zindan Değişiyor** (`room_changed` sesi) — belge "küçük ★"
-   - **6.1 Jumpscare B14** (`breath_sharp`, `watcher_strike`) — "orta ★★"
-
-   Ölçüt `tests/test_audio.py`'nin kendi kuralı: *"listeden çıkmayan
-   bir ses, yazılmamış bir özelliktir."* Kalan üç ses tam bu ikisine
-   ait. Dokuz madde bağlı: 4.1–4.4, 5.1–5.4, §8 erişilebilirlik.
+8. ~~Korku katmanının 11 maddesinden 2'si bağlanmadı~~ —
+   **kapandı (08.09.2026).** 5.5 Zindan Değişiyor
+   (`PlayScene._update_room_drift` + `DecalField.claw`) ve 6.1
+   Jumpscare (`src/systems/jumpscare.py`, B14'ün ihanet anında).
+   `PLANNED` ses listesi korku için **boşaldı**.
 
 9. **Tam ekran her zaman BİRİNCİ monitörde açılıyor.** pygame-ce
    2.5.8 pencerenin hangi ekranda olduğunu sormanın bir yolunu

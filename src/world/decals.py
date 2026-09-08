@@ -71,6 +71,34 @@ class DecalField:
         self.surface.blit(mark, (int(x - radius), int(y - radius)))
         self.count += 4
 
+    def claw(self, x: float, y: float, length: float = 13.0) -> None:
+        """Uc paralel tirmik izi (`docs/korku.md` 5.5).
+
+        Temizlenmis bir odaya donen oyuncu duvarda **onceden olmayan**
+        bir iz buluyor. Oynanisa etkisi yok; fark eden urperiyor, fark
+        etmeyen hicbir sey kaybetmiyor - belgenin kendi olcutu.
+
+        Ucu **paralel ve esit araliksiz**: rastgele cizikler bir doku
+        olurdu, paralel uclu bir **pence** okunuyor. Hafif egik cunku
+        dik cizgiler tas dokusunun kendi cizgilerine karisiyor.
+        """
+        if self.count >= MAX_GROUND_DECALS:
+            return
+        tone = palette.color("stone_darkest")
+        for index in range(3):
+            offset_x = (index - 1) * 3
+            # Yukaridan asagi, hafif saga egik.
+            for step in range(int(length)):
+                ratio = step / max(1.0, length)
+                px = int(x + offset_x + ratio * 3)
+                py = int(y - length + step)
+                # Ucu inceliyor: iz basta derin, sonunda siliniyor.
+                alpha = int(180 * (1.0 - ratio * 0.7))
+                spot = pygame.Surface((1, 1), pygame.SRCALPHA)
+                spot.fill((*tone, alpha))
+                self.surface.blit(spot, (px, py))
+        self.count += 3
+
     # --- Cizim --------------------------------------------------------------
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]) -> None:
         ox, oy = offset

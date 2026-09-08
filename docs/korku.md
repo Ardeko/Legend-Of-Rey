@@ -1,4 +1,17 @@
 # KORKU KATMANI
+
+> **★ 08.09.2026 — ON BİR MADDENİN ON BİRİ DE BAĞLANDI.**
+>
+> 4.1 Yalan Defteri, 4.2 Cemo'nun Sözcükleri, 4.3 "Biz"→"Ben",
+> 4.4 Yankı Görüşü yalanı, 5.1 Nefes, 5.2 İzleyen, 5.3 Hayalet,
+> 5.4 Yanlış Sessizlik, **5.5 Zindan Değişiyor**, **6.1 Jumpscare**,
+> §8 erişilebilirlik.
+>
+> Ölçüt `tests/test_audio.py`'nin kendi kuralıydı: *"listeden çıkmayan
+> bir ses, yazılmamış bir özelliktir."* `PLANNED` listesi korku için
+> **boşaldı** — `room_changed`, `breath_sharp`, `watcher_strike` üçü de
+> düştü.
+
 **Ardeko Studios · 08.09.2026**
 
 > **ONAYLANDI (08.09.2026).** Arda §11'deki beş sorunun hepsini
