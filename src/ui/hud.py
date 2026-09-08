@@ -22,6 +22,7 @@ import pygame
 
 from src.art import palette
 from src.config import (
+    INTERNAL_HEIGHT,
     COMBO_THRESHOLD_HIGH, COMBO_THRESHOLD_LOW, COMBO_THRESHOLD_MID,
     HUD_HEALTH_VISIBLE_FRAMES, INTERNAL_WIDTH,
 )
@@ -41,6 +42,12 @@ HEALTH_SEGMENTS = 8
 GHOST_DELAY_FRAMES = 14       # Bosalmaya baslamadan once bekleme
 GHOST_DRAIN_PER_FRAME = 0.012 # Kare basina bosalan oran
 FADE_FRAMES = 20              # Gorunurluk bitiminde yumusak sonme
+# Cephane gostergesi - sol ALT kose. Can ve combo ustte, altin
+# sagda; sol alt bos duruyordu ve goz oraya en son gidiyor - bir
+# sayac icin dogru yer.
+AMMO_X = 6
+AMMO_BOTTOM = 14
+
 GOLD_VISIBLE_FRAMES = 150
 ECHO_VISIBLE_FRAMES = 120
 TOAST_FRAMES = 150
@@ -55,6 +62,9 @@ class HUD:
         self.ghost_hold = 0
         self.frame = 0
         self.gold_frames = 0
+        # Secili sarf malzemesi - sahne her karede tazeliyor.
+        self._ammo_key = ""
+        self._ammo_count = 0
         self.echo_frames = 0
         self.toast = ""
         self.toast_frames = 0
@@ -118,7 +128,51 @@ class HUD:
             self._draw_combo(surface, player)
         self._draw_gold(surface, gold)
         self._draw_echo(surface, echo_tier)
+        self._draw_ammo(surface)
         self._draw_toast(surface)
+
+    def set_ammo(self, key: str, amount: int) -> None:
+        """Secili sarf malzemesi ve adedi (`src/systems/consumables.py`).
+
+        Sahne her karede veriyor; HUD **saklamiyor**, yalnizca ciziyor.
+        """
+        self._ammo_key = key
+        self._ammo_count = amount
+
+    def _draw_ammo(self, surface: pygame.Surface) -> None:
+        """Ok/bomba sayaci - **yalnizca elde bir sey varsa.**
+
+        Asamali aciga cikarma (`CLAUDE.md` 9): sarf malzemesi olmayan
+        oyuncu bos bir yuva gormuyor. Bolum 1 ve 2'de bu gosterge hic
+        yok, cunku orada satin alinacak bir sey de yok.
+        """
+        key = getattr(self, "_ammo_key", "")
+        amount = getattr(self, "_ammo_count", 0)
+        if not key or amount <= 0:
+            return
+        x = AMMO_X
+        y = INTERNAL_HEIGHT - AMMO_BOTTOM
+        self._draw_ammo_icon(surface, key, x, y)
+        text.draw(surface, str(amount), x + 11, y + 1,
+                  color=palette.role("ui_text"), outline=True)
+
+    def _draw_ammo_icon(self, surface: pygame.Surface, key: str,
+                        x: int, y: int) -> None:
+        """Ikon **cizilir** - hangisinin secili oldugu bakisla anlasilsin.
+
+        Harf yazsaydik ("O"/"B") oyuncunun okumasi gerekirdi; siluet
+        farki bir bakista okunuyor (`CLAUDE.md` 9, diegetik tercih).
+        """
+        if key == "bomb":
+            pygame.draw.circle(surface, palette.color("ink"), (x + 4, y + 5), 4)
+            pygame.draw.circle(surface, palette.color("stone_dark"),
+                               (x + 4, y + 5), 4, 1)
+            surface.fill(palette.color("ember"), (x + 4, y - 1, 1, 2))
+            return
+        # Ok: ince govde + uc.
+        surface.fill(palette.color("stone_light"), (x, y + 4, 9, 1))
+        surface.fill(palette.color("bone"), (x + 7, y + 3, 2, 3))
+        surface.fill(palette.color("earth_dark"), (x, y + 3, 2, 3))
 
     def _update_ghost(self, player) -> None:
         """Hayalet cani gercek canin ardindan surukler.

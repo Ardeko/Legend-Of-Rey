@@ -428,6 +428,11 @@ SONAR_MAX_RADIUS: Final[float] = 140.0
 CANDLE_KEEPER_PRICE_TORCH: Final[int] = 40
 CANDLE_KEEPER_PRICE_ETERNAL_WICK: Final[int] = 120     # "Sonmez Fitil"
 CANDLE_KEEPER_PRICE_DEATH_CANDLE: Final[int] = 200     # Olum korumasi
+# Sarf malzemeleri - tekrar alinabilir (src/systems/consumables.py).
+# Ok demeti mesaleden (40) ucuz: uzaktan dovus bir luks degil bir arac.
+# Bomba pahali cunku alan hasari veriyor ve kalabaligi dagitiyor.
+CANDLE_KEEPER_PRICE_ARROWS: Final[int] = 18     # uc adet
+CANDLE_KEEPER_PRICE_BOMB: Final[int] = 30       # tek adet
 
 # Sonmus Olan - Bolum 3 mini-boss. Uc hamle: Karanlik Dalgasi/Surukleme/
 # Mum Cagrisi. Mangal yanarken sersemler - combo penceresi.

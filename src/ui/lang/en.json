@@ -541,7 +541,8 @@
     "pocket_open": "A hidden passage opened",
     "trade_title": "THE CANDLE KEEPER",
     "trade_owned": "owned",
-    "trade_exit": "[Esc] leave   [Enter] buy"
+    "trade_exit": "[Esc] leave   [Enter] buy",
+    "bought_item": "{name} bought — you have {count}"
   },
   "chapter04": {
     "gold_found": "{count} gold",
@@ -552,7 +553,9 @@
   "trade": {
     "torch": "Torch",
     "wick": "Eternal Wick",
-    "candle": "Guardian Candle"
+    "candle": "Guardian Candle",
+    "arrows": "Three Arrows",
+    "bomb": "Bomb"
   },
   "boss": {
     "bloated_one": "THE BLOATED ONE",
@@ -653,7 +656,8 @@
     "heading": "EQUIPMENT",
     "equipped": "equipped",
     "hint": "[▴▾] select   [Enter] equip   [Esc] back",
-    "stat_line": "{hits} hits · {damage} dmg · {frames} frames · knockback {knockback}"
+    "stat_line": "{hits} hits · {damage} dmg · {frames} frames · knockback {knockback}",
+    "ammo_heading": "CONSUMABLES"
   },
   "chapter07": {
     "order_hint": "Your shoulders won't fit — signal to them",
@@ -706,7 +710,9 @@
     "switch_title": "SWITCH CHARACTER",
     "companion_wait_title": "COMPANION ORDER",
     "inventory_title": "INVENTORY",
-    "rescue_title": "LIFT"
+    "rescue_title": "LIFT",
+    "throw": "{key} to throw the selected item",
+    "throw_title": "RANGED COMBAT"
   },
   "chapter08": {
     "first_crystal": "Crystal shattered — sound is a weapon",
@@ -764,5 +770,11 @@
     "path_lifted": "You pulled them back up.",
     "path_tidy": "You solved the tower without hesitating.",
     "path_clean": "You let the voice go early."
+  },
+  "item": {
+    "arrow": "Arrow",
+    "arrow_desc": "Fast, flies straight. Single target.",
+    "bomb": "Bomb",
+    "bomb_desc": "Arcs, blows up on landing. Area damage."
   }
 }

@@ -29,6 +29,7 @@ import pygame
 from src.art import lighting, palette
 from src.combat.hitbox import Hitbox, Team, melee_rect
 from src.config import (
+    CANDLE_KEEPER_PRICE_ARROWS, CANDLE_KEEPER_PRICE_BOMB,
     CANDLE_KEEPER_PRICE_DEATH_CANDLE, CANDLE_KEEPER_PRICE_ETERNAL_WICK,
     CANDLE_KEEPER_PRICE_TORCH, CHAPTER3_BOSS_GOLD, CHAPTER3_CHEST_GOLD_ROOM2,
     CHAPTER3_CHEST_GOLD_SECRET, DARK_WAVE_BLACKOUT_FRAMES, INTERNAL_WIDTH,
@@ -39,7 +40,7 @@ from src.core.juice import ImpactWeight
 from src.entities.candle_keeper import CandleKeeper
 from src.entities.enemies.extinguished_one import Brazier, ExtinguishedOne
 from src.scenes.play import PlayScene
-from src.systems import abilities, charms, economy
+from src.systems import abilities, charms, consumables, economy
 from src.systems.economy import TradeOffer
 from src.systems.light import LightState
 from src.ui import text as text_ui
@@ -73,6 +74,16 @@ TRADE_OFFERS = (
     TradeOffer("candle_keeper_torch", CANDLE_KEEPER_PRICE_TORCH, "trade.torch"),
     TradeOffer("eternal_wick", CANDLE_KEEPER_PRICE_ETERNAL_WICK, "trade.wick"),
     TradeOffer("death_candle", CANDLE_KEEPER_PRICE_DEATH_CANDLE, "trade.candle"),
+    # **Sarf malzemeleri** - uzaktan dovus (docs: Arda 08.09.2026).
+    # Tekrar alinabiliyor; otekiler tekil.
+    #
+    # Ok demet halinde (3 adet) satiliyor: tek tek almak dukkan
+    # ekraninda anlamsiz bir tekrar olurdu. Bomba tek, cunku pahali ve
+    # her biri bir karar.
+    TradeOffer("buy_arrows", CANDLE_KEEPER_PRICE_ARROWS, "trade.arrows",
+               repeatable=True, item=consumables.ARROW, amount=3),
+    TradeOffer("buy_bomb", CANDLE_KEEPER_PRICE_BOMB, "trade.bomb",
+               repeatable=True, item=consumables.BOMB, amount=1),
 )
 
 
@@ -477,6 +488,19 @@ class Chapter03Scene(PlayScene):
             return
         if not economy.spend(self.save_data, offer.cost):
             self.show_toast(t("chapter03.not_enough_gold"))
+            return
+        if offer.repeatable:
+            # Sarf malzemesi: bayrak yerine SAYAC artiyor.
+            total = consumables.add(self.save_data, offer.item, offer.amount)
+            if consumables.count(self.save_data, offer.item) == offer.amount:
+                # Ilk kez alindi - firlatma tusunu ogret.
+                self.hint_once("hint_throw", "hint.throw", Action.THROW,
+                               icon="throw")
+            self.show_toast(t("chapter03.bought_item",
+                              name=t(offer.label_key), count=total),
+                            frames=160)
+            self.game.play_sound("chest_open")
+            self.trading = False
             return
         economy.mark_bought(self.save_data, offer)
         if offer.key == "candle_keeper_torch" and self.torch is None:

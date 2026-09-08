@@ -67,6 +67,7 @@ TITLES: dict[str, str] = {
     "hint.companion_wait": "hint.companion_wait_title",
     "hint.inventory": "hint.inventory_title",
     "hint.rescue": "hint.rescue_title",
+    "hint.throw": "hint.throw_title",
 }
 
 
@@ -210,6 +211,7 @@ class MechanicCard:
             "switch": _icon_switch,
             "companion": _icon_companion,
             "inventory": _icon_inventory,
+            "throw": _icon_throw,
         }.get(self.icon, _icon_generic)
         drawer(card, cx, cy, progress, self.frames)
 
@@ -271,6 +273,20 @@ def _icon_inventory(card, cx: int, cy: int, progress: float,
         card.fill(palette.color("ink"), rect.inflate(-2, -2))
         if index == 1:
             card.fill(palette.color("gold"), rect.inflate(-4, -4))
+
+
+def _icon_throw(card, cx: int, cy: int, progress: float, frame: int) -> None:
+    """Ucan bir ok + arkasinda iz. Uzakligi iz anlatiyor."""
+    colour = palette.color("bone")
+    reach = int(14 * progress)
+    card.fill(palette.color("stone_light"), (cx - 7, cy, reach, 1))
+    tip = cx - 7 + reach
+    card.fill(colour, (tip, cy - 1, 2, 3))
+    # Iz: geride kalan uc nokta, giderek soluk.
+    for step in range(3):
+        x = tip - 4 - step * 3
+        if x > cx - 8:
+            card.fill(palette.color("stone_dark"), (x, cy, 1, 1))
 
 
 def _icon_generic(card, cx: int, cy: int, progress: float,

@@ -118,6 +118,10 @@ class SaveData:
     owned_weapons: list[str] = field(default_factory=list)
     armor: str = "light"
     charms: list[str] = field(default_factory=list)
+    # Sarf malzemeleri: {"arrow": 3, "bomb": 1}. `flags`ta DEGIL - orasi
+    # bir "olan/olmayan" sozlugu ve sayilar orada tutulsa her okuma bir
+    # tip donusumu olurdu (`src/systems/consumables.py`).
+    consumables: dict[str, int] = field(default_factory=dict)
 
     # Yetenek agaci (src/systems/skilltree.py). Yeteneklerle **ayni**
     # gerekceyle liste: yeni dugum eklemek kayit surumunu degistirmiyor,

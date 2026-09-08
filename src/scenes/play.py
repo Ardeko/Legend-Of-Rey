@@ -18,7 +18,7 @@ from src.art import palette
 from src.art.ambience import Ambience
 from src.art.particles import ParticleField
 from src.combat.attack_token import AttackTokenManager
-from src.combat.hitbox import HitboxManager, Team
+from src.combat.hitbox import Hitbox, HitboxManager, Team
 from src.config import (
     SENSE_BETRAYAL_DELAY, SENSE_BETRAYAL_RANGE,
     COMBO_THRESHOLD_HIGH, COMBO_THRESHOLD_MID, DEATH_SCREEN_DELAY,
@@ -32,7 +32,7 @@ from src.core.juice import ImpactEvent, ImpactWeight, Juice
 from src.core.scene import Scene
 from src.entities.character_stats import ARDO, REY
 from src.entities.player import Player
-from src.systems import abilities, horror, loyalty
+from src.systems import abilities, consumables, horror, loyalty
 from src.systems.compass import Compass
 from src.systems.echo import Answer, EchoState
 from src.systems.tracking import BLOOD, SCORCH, TraceField, TrackingState
@@ -699,6 +699,7 @@ class PlayScene(Scene):
         self._update_traces()
         self._update_betrayal()
         self._update_dialogue_hint()
+        self._update_throw()
         if self.echo is not None:
             self.echo.update(self.echo_held())
             self._update_echo_audio()
@@ -736,6 +737,10 @@ class PlayScene(Scene):
                            for r in self.tilemap.breakable_rects()]
 
         self.hud.update(self.player, self.gold, self.echo_tier)
+        # Cephane gostergesi HUD'da saklanmiyor, her karede veriliyor:
+        # tek kaynak kayit, HUD yalnizca ciziyor.
+        chosen = consumables.selected(self.save_data)
+        self.hud.set_ammo(chosen, consumables.count(self.save_data, chosen))
         if self.toast_frames > 0:
             self.toast_frames -= 1
         self.update_scene()
@@ -924,6 +929,82 @@ class PlayScene(Scene):
             tile_x * TILE_SIZE + TILE_SIZE * 0.5,
             (tile_y + 1) * TILE_SIZE,
             retreats=retreats))
+
+    # --- Uzaktan dovus ------------------------------------------------------
+    def _update_throw(self) -> None:
+        """Secili sarf malzemesini firlat (`src/systems/consumables.py`).
+
+        Oyuncu **mesgulken atamiyor**: zincirin ortasinda ok firlatmak
+        combo penceresini kirar ve iki sistem birbirini yer. Kacinma
+        sirasinda da yok - kacinma bir kacis, bir saldiri firsati degil.
+        """
+        if self.save_data is None:
+            return
+        if not self.game.input.pressed(Action.THROW):
+            return
+        if self.player.dead or self.player.busy or self.player.control_locked:
+            return
+        key = consumables.selected(self.save_data)
+        if not key:
+            # Elde bir sey yoksa **sessizce gecmiyoruz**: reddedilen bir
+            # giris oyuncuya "tus mu calismadi" dedirtir.
+            self.game.play_sound("ui_deny")
+            return
+        if not consumables.spend(self.save_data, key):
+            return
+        self.throw(key)
+
+    def throw(self, key: str) -> None:
+        """Bir mermi uretir. Sayac zaten dusuruldu."""
+        item = consumables.get(key)
+        if item is None:
+            return
+        body = self.player.body
+        facing = self.player.facing or 1
+        rect = pygame.Rect(int(body.center_x + facing * 6),
+                           int(body.center_y - 4), 6, 6)
+        box = Hitbox(
+            rect=rect, owner=self.player, targets=Team.ENEMY | Team.BREAKABLE,
+            damage=item.damage, active_frames=item.life,
+            knockback=1.8, poise_damage=1,
+            velocity=(facing * item.speed, item.lift),
+            gravity=item.gravity,
+            stop_on_solid=True,
+            # Bomba **carpinca yok olmuyor**: hasari sifir, isi patlamak.
+            pierce=item.blast > 0,
+        )
+        if item.blast > 0:
+            box.on_expire = self._explode
+        self.hitboxes.spawn(box)
+        self.game.play_sound("swing_light")
+        self.on_thrown(key, item)
+
+    def _explode(self, box) -> None:
+        """Bomba tukendi - **radyal** patlama (docs/derinlestirme.md 1.2).
+
+        Yeni bir hitbox aciliyor: genis, delici, tek kare. Delici olmasi
+        sart - `pierce=False` olsaydi ilk dusmanda tukenir ve alan
+        hasari diye bir sey kalmazdi (ayni tuzaga Sismek'te dusulmustu).
+        """
+        item = consumables.get(consumables.BOMB)
+        if item is None:
+            return
+        centre = box.rect.center
+        blast = pygame.Rect(0, 0, item.blast * 2, item.blast * 2)
+        blast.center = centre
+        self.hitboxes.spawn(Hitbox(
+            rect=blast, owner=self.player, targets=Team.ENEMY | Team.BREAKABLE,
+            damage=item.blast_damage, active_frames=4,
+            knockback=3.4, knockback_up=1.6, poise_damage=3, pierce=True,
+        ))
+        from src.core.juice import ImpactWeight
+        self.juice.explosion(centre[0], centre[1], ImpactWeight.FINISHER)
+        self.particles.burst(centre[0], centre[1], 20, path="spark",
+                             speed=(1.2, 3.4))
+        self.decals.scorch(centre[0], centre[1])
+
+    def on_thrown(self, key: str, item) -> None:
+        """Alt sinif tepki verebilir. Taban: ipucu bir kez gosteriliyor."""
 
     def catch_lie(self) -> bool:
         """Oyuncu bir yalani curuttu (docs/korku.md 4.1).

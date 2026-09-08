@@ -541,7 +541,8 @@
     "pocket_open": "Gizli bir geçit açıldı",
     "trade_title": "MUM BEKÇİSİ",
     "trade_owned": "alındı",
-    "trade_exit": "[Esc] çık   [Enter] al"
+    "trade_exit": "[Esc] çık   [Enter] al",
+    "bought_item": "{name} alındı — elinde {count}"
   },
   "chapter04": {
     "gold_found": "{count} altın",
@@ -552,7 +553,9 @@
   "trade": {
     "torch": "Meşale",
     "wick": "Sönmez Fitil",
-    "candle": "Koruyucu Mum"
+    "candle": "Koruyucu Mum",
+    "arrows": "Üç Ok",
+    "bomb": "Bomba"
   },
   "boss": {
     "bloated_one": "ŞİŞMİŞ OLAN",
@@ -653,7 +656,8 @@
     "heading": "EKİPMAN",
     "equipped": "kuşanılı",
     "hint": "[▴▾] seç   [Enter] kuşan   [Esc] geri",
-    "stat_line": "{hits} vuruş · {damage} hasar · {frames} kare · itiş {knockback}"
+    "stat_line": "{hits} vuruş · {damage} hasar · {frames} kare · itiş {knockback}",
+    "ammo_heading": "SARF MALZEMESİ"
   },
   "chapter07": {
     "order_hint": "Omuzların sığmıyor — ona işaret et",
@@ -706,7 +710,9 @@
     "switch_title": "KARAKTER DEĞİŞTİR",
     "companion_wait_title": "YOLDAŞA KOMUT",
     "inventory_title": "ENVANTER",
-    "rescue_title": "KALDIR"
+    "rescue_title": "KALDIR",
+    "throw": "{key} ile seçili malzemeyi fırlat",
+    "throw_title": "UZAKTAN DÖVÜŞ"
   },
   "chapter08": {
     "first_crystal": "Kristal kırıldı — ses bir silah",
@@ -764,5 +770,11 @@
     "path_lifted": "Onu yerden kaldırdın.",
     "path_tidy": "Kuleyi tereddütsüz çözdün.",
     "path_clean": "Sesi erken bıraktın."
+  },
+  "item": {
+    "arrow": "Ok",
+    "arrow_desc": "Hızlı, düz uçar. Tek hedef.",
+    "bomb": "Bomba",
+    "bomb_desc": "Yay çizer, yerde patlar. Alan hasarı."
   }
 }
