@@ -342,11 +342,26 @@ def draw_journal_panel(scene, surface: pygame.Surface) -> None:
 
 
 def draw_memory_panel(scene, surface: pygame.Surface) -> None:
-    """Iskeletin sahibi - **Yanki acikken** beliren yuz.
+    """**Kampin** sahibi - Yanki acikken beliren yuz.
+
+    ## Bu yuz olen adamin degil ★ (08.09.2026 duzeltmesi)
+
+    Bir donem panel "iskeletin sahibi"ydi ve Kalachev'in yuzunu
+    gosteriyordu - yani iskelet oydu. `docs/kalachev.md` §5 bunu
+    tersine cevirdi: **iskelet onun degil, yoldasinin.** Kalachev
+    yasiyor; B5'te ilk kez goruluyor, B18'de oluyor.
+
+    Gunluk zaten dogruyu soyluyordu: son sayfasi kafatasi ve
+    **sonmus** alev - "arkadasim oldu", "ben oldum" degil. Bir olu
+    kendi olumunu cizemez. Yanlis olan gunluk degil bu panelin
+    iddiasiydi.
+
+    Yanki "burada kim oldu" degil **"burada kim vardi"** gosteriyor.
+    Ayni mekanik, dogru soru. Yeni bir sistem gerekmedi; degisen tek
+    sey panelin ne iddia ettigi.
 
     Gunluk kelimesiz kalmali (`docs/yapi.md` B4), o yuzden bu adamin
-    adi oraya yazilamazdi. Ama Yanki zaten gizli olani gosteriyor ve
-    bir olunun kim oldugunu gostermesi tam da onun isi.
+    adi oraya yazilamazdi. Ama Yanki zaten gizli olani gosteriyor.
 
     Panel gunlugunkinden **farkli duruyor**: cercevesiz, kenarlari
     sonuk, hafifce suzuluyor. Gunluk bir nesne, bu bir hatira - ikisi

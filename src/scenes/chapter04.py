@@ -318,12 +318,21 @@ class Chapter04Scene(PlayScene):
             self.journal_page = 0
 
     def _update_memory(self) -> None:
-        """Iskeletin basinda **Yanki acilinca** olen adamin yuzu beliriyor.
+        """Iskeletin basinda **Yanki acilinca** kampin sahibi beliriyor.
 
-        Bu adamin adi Kalachev ve oyunun tamaminda uc kez geciyor:
-        Bolum 2'nin gizli odasindaki iskelet, buradaki kamp, ve
-        Bolum 12'de baskasinin cizdigi isaretler - ucu de ayni kisi ve
-        adi bugune kadar hic konmamisti.
+        ## Beliren yuz OLEN degil (08.09.2026 duzeltmesi)
+
+        Bir donem "olen adamin yuzu" diye yazilmisti ve iskeleti
+        Kalachev sayiyordu. `docs/kalachev.md` §5 bunu cevirdi:
+        **iskelet yoldasinin, Kalachev yasiyor** - B5'te goruluyor,
+        B18'de oluyor.
+
+        Yanki "burada kim oldu" degil "burada kim vardi" gosteriyor.
+        Iki kisi indi, biri kalkti; gunlugun son sayfasi (kafatasi +
+        sonmus alev) zaten bunu soyluyordu.
+
+        Kalachev'in adi oyunda uc kez geciyor: Bolum 2'nin gizli
+        odasi, bu kamp, ve Bolum 12'de baskasinin cizdigi isaretler.
 
         ## Neden Yanki'ya bagli
 

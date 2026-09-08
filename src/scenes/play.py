@@ -1306,6 +1306,18 @@ class PlayScene(Scene):
             target_squash=target.squash,
         )
 
+        # **Muttefikin kesim sayaci.** `Kalachev.kills` tanimlaniyordu
+        # ama hicbir yerde ARTMIYORDU - olu bir sayac. B5'in ilk
+        # gorusu onu okuyunca ortaya cikti (08.09.2026): "hepsini
+        # kesiyor" iddiasi olculemiyordu.
+        #
+        # Burada duruyor cunku "kim oldurdu" sorusunun cevabi yalnizca
+        # burada var: `box.owner` vuranı, `result.killed` sonucu
+        # soyluyor. Muttefige ozel degil - `allies` listesindeki her
+        # sey icin isliyor.
+        if result.killed and box.owner in self.allies:
+            box.owner.kills += 1
+
         if box.owner is self.player:
             self.total_hits += 1
             self.player.register_hit()

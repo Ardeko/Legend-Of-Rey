@@ -43,6 +43,39 @@ from src.world.rooms.chapter05 import (
 from src.world.tilemap import EMPTY, SOLID, TileMap
 from src.world.water import WaterState
 
+# --- Kalachev'in ilk gorusu (`docs/kalachev.md` 5) ---------------------------
+# Vana odasinin uzak ucu. Oyuncu vanadayken (~sutun 30) burasi ekranin
+# sag kenarinda: goruluyor ama ulasilamiyor - belgenin "uzakta"si.
+SIGHTING_COLUMN = 52
+# **Cikintinin ustu** (satir 6, sutun 50-63), zemin degil. Olculdu:
+# su yukselirken cikinti 320 kare kuru kaliyor, sonra ortuluyor -
+# yani dovus icin yer var ve bitince adam suyun icinde kaliyor.
+# Belgenin "suya atlayip kayboluyor"u bir efekt degil, ZEMININ kendisi.
+#
+# Ilk surum onu zemine (satir 12) koymustu ve suru **bogularak**
+# oluyordu: `kesim=0` olculdu. "Hepsini kesiyor" cumlesi yalan
+# oluyordu - oyuncu bir adamin bir suruyu bicmesini degil, suyun
+# yukselmesini izliyordu.
+SIGHTING_ROW = 5
+# Su **yukselmis** olmali (yuksek vana zaten suyu gerektiriyor) ve
+# oyuncu **gorecek kadar yakin**.
+#
+# Ilk surum yalnizca suya bakiyordu ve olay ekran DISINDA oluyordu:
+# oyuncu sutun 34'te, Kalachev 55'te - 21 tile, kamera yarim genisligi
+# 15. Olculdu ve ekran goruntusuyle goruldu. "Uzakta" demek
+# "gorunmuyor" demek degil.
+SIGHTING_WATER_DROP = 4
+# Oyuncu cikintiya bu kadar yaklasinca basliyor (tile). 13 secildi:
+# ekranin yarisi 15 tile, yani olay kenardan biraz iceride basliyor -
+# oyuncu once **hareketi** goruyor, sonra ne oldugunu anliyor.
+SIGHTING_NEAR_TILES = 13
+# Kac kare kaliyor. Belge "~15 sn" diyor; 60 FPS'te 900 kare. Suruyu
+# bitirince zaten `Kalachev.leave()` cagriliyor, bu bir UST SINIR.
+SIGHTING_STAY = 900
+SIGHTING_LINGER = 40
+# Suru: uc Suruklenen, aralarinda iki tile.
+SIGHTING_PACK_OFFSETS = (2, 4, 6)
+
 # Oyuncu vanaya bu kadar yaklasinca cevirebilir (piksel).
 VALVE_REACH = 20.0
 # Vana cevrildikten sonra tekrar cevrilemeyecegi kare sayisi. Su yavas
@@ -97,6 +130,10 @@ class Chapter05Scene(PlayScene):
         self.secret_found = False
         self.finished = False
         self.shield_hinted = False
+        # Kalachev'in ILK GORUSU (`docs/kalachev.md` 5). Suyun
+        # yukselmesine bagli - gerekce `_update_sighting`da.
+        self.sighting_done = False
+        self.sighting_pack: list = []
 
         self.chests = [Chest(spot.x, spot.feet_y, gold=CHEST_GOLD,
                              secret=True)
@@ -171,8 +208,80 @@ class Chapter05Scene(PlayScene):
             self.valve_frames -= 1
         self._update_valves()
         self._update_sluice()
+        self._update_sighting()
         self._update_chests()
         self._check_exit()
+
+    # --- Kalachev: ILK GORUS ------------------------------------------------
+    def _update_sighting(self) -> None:
+        """`docs/kalachev.md` 5: *"B5 Sular - **Ilk gorus.** Uzakta, bir
+        surunun ortasina daliyor, hepsini kesiyor, suya atlayip
+        kayboluyor. Tek kelime yok."*
+
+        ## Iki sart: su yukselmis VE oyuncu yakin
+
+        Yalnizca suya bakan ilk surum olayi ekran DISINDA oynatiyordu -
+        oyuncu sutun 34'te, Kalachev 55'te, kamera yarim genisligi 15
+        tile. Olculdu ve ekran goruntusuyle goruldu.
+
+        Ikinci sart bunu kapatiyor: oyuncu cikintiya 13 tile
+        yaklasinca basliyor. Ve o yolculuk zaten **zorunlu** - yuksek
+        vana (57, 5) cikintinin ustunde, yani oyuncu suyu yukseltip
+        oraya yuzmek durumunda.
+
+        Sahnenin sekli boylece kendiliginden dogru oluyor:
+        su yukseliyor -> oyuncu vanaya dogru yuzuyor -> karsida,
+        cikintinin ustunde biri uc yaratigi biciyor -> suya atlayip
+        kayboluyor -> oyuncu vardiginda cikinti bos.
+
+        Ayrica belgenin "suya atlayip kayboluyor" cumlesi ancak su
+        VARKEN dogru olabilir: bolum kuru basliyor (`WATER_LOW`). Kuru
+        bir odada suya atlamak bir hata olurdu.
+
+        Dovus **cikintinin ustunde** geciyor (bkz. `SIGHTING_ROW`):
+        orasi su yukselirken 320 kare kuru kaliyor, sonra ortuluyor.
+        Yani adam once biciyor, sonra su onu aliyor. Zemine
+        konuldugunda suru bogularak oluyordu ve "hepsini kesiyor"
+        yalan oluyordu - olculdu.
+
+        ## Tek kelime yok
+
+        Belge acikca soyluyor. Ne replik ne toast - yalnizca kamera
+        oraya bir an bakiyor ve oyuncu ne gorduguna kendi karar
+        veriyor. Tanisma B6'da.
+        """
+        if self.sighting_done:
+            return
+        # `WATER_HIGH` daha KUCUK bir y: yukari cikmak sayinin dusmesi.
+        # Yani "yukselmeye basladi" = seviye `WATER_LOW`un altina indi.
+        if self.water.level > WATER_LOW - SIGHTING_WATER_DROP:
+            return
+        # Ve oyuncu **gorecek kadar yakin** olmali.
+        distance = abs(self.player.body.center_x
+                       - SIGHTING_COLUMN * TILE_SIZE)
+        if distance > SIGHTING_NEAR_TILES * TILE_SIZE:
+            return
+        self.sighting_done = True
+
+        feet_y = (SIGHTING_ROW + 1) * TILE_SIZE
+        ally = self.summon_kalachev(
+            SIGHTING_COLUMN * TILE_SIZE + TILE_SIZE * 0.5, feet_y,
+            stay=SIGHTING_STAY)
+        if ally is None:
+            return
+        # **Kesecegi suru.** Kalachev'in AI'i en yakin dusmani seciyor;
+        # onu bir suruye birakmak yeterli, koreografi gerekmiyor.
+        from src.entities.enemies.shambler import Shambler
+        for offset in SIGHTING_PACK_OFFSETS:
+            enemy = Shambler(self, (SIGHTING_COLUMN + offset) * TILE_SIZE,
+                             feet_y)
+            self.enemies.append(enemy)
+            self.sighting_pack.append(enemy)
+
+    def on_kalachev_arrived(self, ally) -> None:
+        """Kamera bir an oraya bakiyor. **Replik yok** - belge oyle diyor."""
+        self.camera.linger(SIGHTING_LINGER)
+        self.game.play_sound("swing_heavy")
 
     # --- Kalkanli -----------------------------------------------------------
     def on_shield_block(self, enemy) -> None:

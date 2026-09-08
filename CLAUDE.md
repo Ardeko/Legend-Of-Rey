@@ -22,18 +22,28 @@ Kafasının içindeki sesler yüzünden lanetli sayılan Rey, kaçırılan karde
 | Dosya | İçerik |
 |---|---|
 | `docs/gdd.md` | Ana tasarım belgesi — sistemler, karakterler, bölüm listesi |
+| `docs/yapi.md` | 18 bölümün tam akışı |
 | `docs/dovus-sistemi.md` | Dövüş, combo, game feel, kare değerleri |
 | `docs/ekonomi-uretim.md` | Altın, zorluk eğrisi, üretim aşamaları |
-| `docs/asset-plani.md` | Asset listesi, stil kuralları, tutarlılık protokolü |
+| **`docs/korku.md`** ★ | **Korku katmanı — üç katman, 11 madde, erişilebilirlik. 08.09.2026'da eklendi** |
+| **`docs/kalachev.md`** ★ | **Kalachev — önceki maceracı. Sprite/AI yazıldı, yerleştirme sürüyor** |
+| `docs/diyaloglar.md` | Replik metinleri ve yerleşimleri |
+| `docs/menu-ui.md` | Ana menü, karakter seçimi, ayarlar, HUD, UX prensipleri |
+| `docs/derinlestirme.md` | Araştırma temelli ekler — ileri game feel, yenilikçi mekanikler, erişilebilirlik, Pygame performans |
 | `docs/bolum-02.md` | Dikey dilim — Bölüm 2 oda oda tasarım |
 | `docs/bolum-03.md` | Bölüm 3 — Meşale Mahzeni, mor alev, Mum Bekçisi |
-
-**Durum ve devir bilgisi `DEVIR.md`'de** (tek devir belgesi — `GOREVLER.md` 23.08.2026'da silindi).
-| `docs/menu-ui.md` | Ana menü, karakter seçimi, ayarlar, HUD, UX prensipleri |
-| `docs/yapi.md` | 18 bölümün tam akışı |
-| `docs/derinlestirme.md` | Araştırma temelli ekler — ileri game feel, yenilikçi mekanikler, erişilebilirlik, Pygame performans |
+| `docs/asset-plani.md` | Asset listesi, stil kuralları, tutarlılık protokolü |
 | `docs/asset-listesi.md` | Kalem kalem asset dökümü — kaç kare, hangi boyut |
 | `docs/asset-boru-hatti.md` | Asset üretim araçları — Pillow/NumPy boru hattı, quantize, siluet testi |
+| `docs/paket-readme.md` | Tester sürümü paketleme notları |
+
+> **Tablo 08.09.2026'da onarıldı.** Devir satırı tablonun *ortasında*
+> duruyordu ve tabloyu ikiye bölüyordu — alt yarısı Markdown'da tablo
+> olarak bile işlenmiyordu. Ayrıca dört belge (`korku`, `kalachev`,
+> `diyaloglar`, `paket-readme`) hiç listelenmemişti; `korku.md` bütün
+> bir tasarım katmanı ve listede olmaması onu görünmez kılıyordu.
+
+**Durum ve devir bilgisi `DEVIR.md`'de** (tek devir belgesi — `GOREVLER.md` 23.08.2026'da silindi).
 
 ---
 

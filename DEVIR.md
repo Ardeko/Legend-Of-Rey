@@ -1371,16 +1371,35 @@ Bunlar eksik değil, **karar**. Yeniden açılmasın diye gerekçeleriyle:
 
 ### Gerçekten açık
 
-7. **Tam ekran her zaman BİRİNCİ monitörde açılıyor.** pygame-ce
+**08.09.2026'da güncellendi.** Bu liste 02.09'da yazılmıştı ve o sırada
+paralelde yürüyen Kalachev/korku hattını görmüyordu; merge sonrası
+eksik kaldı.
+
+7. **★ Kalachev bölümlere YERLEŞTİRİLMEDİ.** `docs/kalachev.md` §9'un
+   sırası: sprite → AI → B4 düzeltmesi. İlk ikisi yazıldı
+   (`d91135b`, "KALACHEV 1/3"), üçüncüsü ve asıl yerleştirme
+   (B5/B10/B13/B15/B18) bekliyor. **Yarım kalmış en büyük iş bu** —
+   sprite ve AI var ama karakter hiçbir bölümde görünmüyor.
+
+8. **Korku katmanının 11 maddesinden 2'si bağlanmadı.**
+   `docs/korku.md`:
+   - **5.5 Zindan Değişiyor** (`room_changed` sesi) — belge "küçük ★"
+   - **6.1 Jumpscare B14** (`breath_sharp`, `watcher_strike`) — "orta ★★"
+
+   Ölçüt `tests/test_audio.py`'nin kendi kuralı: *"listeden çıkmayan
+   bir ses, yazılmamış bir özelliktir."* Kalan üç ses tam bu ikisine
+   ait. Dokuz madde bağlı: 4.1–4.4, 5.1–5.4, §8 erişilebilirlik.
+
+9. **Tam ekran her zaman BİRİNCİ monitörde açılıyor.** pygame-ce
    2.5.8 pencerenin hangi ekranda olduğunu sormanın bir yolunu
    vermiyor (`get_desktop_sizes` yalnızca boyut döner,
    `set_mode(display=…)` bu SDL/Windows bileşiminde pencereyi
    taşımıyor — ikisi de ölçüldü). Kütüphane bunu açarsa
    `window_origin()` tek noktadan düzeltilir.
-8. **Baştan sona oynanış testi yapılmadı.** Sistemler doğru, testler
+10. **Baştan sona oynanış testi yapılmadı.** Sistemler doğru, testler
    yeşil — ama dört saatlik akışın *ritmi* ölçülmez. **Kalan en
    değerli iş bu.**
-9. **`docs/asset-plani.md` ve `docs/asset-listesi.md` 21.08'den
+11. **`docs/asset-plani.md` ve `docs/asset-listesi.md` 21.08'den
    kalma.** İçerikleri hâlâ büyük ölçüde geçerli ama sayılar bayat.
 
 ### 02.09.2026'da kapandığı doğrulananlar
