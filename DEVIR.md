@@ -17,103 +17,171 @@ Son güncelleme: **08.09.2026** (korku katmanı, kayıt hatası, uzaktan dövü�
 
 ## 0. SIRADA NE VAR — **YENİ OTURUM ÖNCE BURAYI OKU**
 
-**48 test paketi yeşil.** Çalışma alanı temiz.
+**48 test paketi yeşil. Çalışma alanı temiz. `origin/main` ile tam eşit
+— bekleyen commit yok.** 209 `src` modülünün 209'u import ediliyor.
 
-> **`git push` bu ortamda çalışmıyor** (kimlik doğrulama yok) — commit'ler
-> yerelde birikiyor, bkz. §10. `git log origin/main..main --oneline`
-> ile kaç tanesi beklediği görülür.
+> **Testler `unittest` sınıfı DEĞİL, bağımsız betik.** Koşma biçimi:
+> ```
+> for f in tests/test_*.py; do .venv/Scripts/python.exe "$f"; done
+> ```
+> `python -m unittest discover` **çalışmaz** — yükleyici `TestCase`
+> bulamadığı için 27 modülü "hata" sayar. Bu bir arıza değil,
+> konvansiyon. `pytest` de kurulu değil.
 
-**Kod tarafında planlanmış iş kalmadı.** `docs/kalachev.md` ve
-`docs/korku.md`'nin tamamı uygulandı; §9'da gerçekten açık iki madde
-var ve ikisi de kod değil: biri bir pygame-ce sınırı (madde 9),
-öteki **baştan sona oynanış testi** (madde 10) — kalan en değerli iş.
+**Kalan işin tamamı aşağıda, dört grupta.** A grubu müziğin bulunduğu
+bilgisayarda yapılmak *zorunda*; B–D her yerde yapılabilir.
 
-### 0.1 KALACHEV — BİTTİ (08.09.2026)
+---
 
-`docs/kalachev.md` **onaylandı, bağlayıcı ve tamamı uygulandı.**
-Belgenin §9'undaki 7 maddenin 7'si:
+### 0.1 ⚠ A GRUBU — YALNIZCA MÜZİĞİN OLDUĞU BİLGİSAYARDA
 
-| | İş | Durum |
-|---|---|---|
-| 1 | Sprite (`KALACHEV_SPEC`) | ✅ `src/art/animation.py` |
-| 2 | Agresif AI (`Kalachev`) | ✅ `src/entities/kalachev.py` |
-| 3 | **B5 ilk görüş + B10 belirme** | ✅ |
-| 4 | **Rey ve Ardo için AYRI diyalog hatları** | ✅ her belirmede |
-| 5 | **B18 üç fazlı final + ölüm sahnesi** | ✅ `chapter18.py` |
-| 6 | B4'ün kampı: iskelet artık **yoldaşının** | ✅ |
-| 7 | Kapanışta Ardo'nun dönüp bakması | ✅ `ending.py` `"bakis"` |
+Sebep: `assets/audio/music/` **bu depoda yok** (`.gitignore:175`,
+~53 MB MP3). Klasörün kendisi de yok. Paket onsuz çıkamaz.
 
-§5 yerleştirme tablosunun **sekizi de ekranda**: B4 kamp · B5 ilk
-görüş · B6 tanışma · B10 tuzak · B12 iki kişinin izi · B13 yara ·
-B15 sessizlik · B18 ölüm — artı kapanıştaki bakış.
+**A1 — Müzikleri yerine koy.** `assets/audio/music/` klasörünü aç ve
+dokuz dosyayı bırak. `src/audio/music.py:64 :: TRACKS` tam olarak bu
+adları arıyor — adlar birebir eşleşmeli:
 
-**Sıradaki iş kod değil, OYNAMAK.** Belgenin kendi ölçüsü: bu karakter
-ekranda doğru hissettiriyor mu? Testler mekaniği ölçüyor, ritmi
-ölçmüyor.
+```
+Azula.mp3          menu          Iron and Bone.mp3   boss
+Fade.mp3           explore       Rey.mp3             echo
+Mai.mp3            combat        Ardo.mp3            companion
+Fuze.mp3           miniboss      Loki.mp3            sad
+                                 Raze.mp3            emotional
+```
 
-**Üç mekanik karaktere ait, bölüme değil:**
+**A2 — ⚠ `.spec`'e iki portreyi ekle. BU BİR HATA, ATLAMA.**
+`Legend of Rey.spec:42-44` portreleri **tek tek** sayıyor ve yalnızca
+üçünü içeriyor:
 
-* `Kalachev.wounded` — B13'te Zindancı onu faz 1'de yakalıyor. Yara
-  sprite'a işleniyor (`_blit_wound`, 7 piksel, yönle aynalanıyor) ve
-  `SaveData.flags["kalachev_wounded"]` ile **kayıtta** yaşıyor.
-  `summon_kalachev` bayrağı tek yerde okuyor — B15 ve B18 hiçbir şey
-  yazmadan yaralı bir Kalachev alıyor.
-* `Kalachev.silent` — B15'te uyuyan sürünün arasında duruyor,
-  konuşmuyor, vurmuyor, kimseyi uyandırmıyor (hayalet ödülü sağlam).
-  Oyuncu sürüyü uyandırırsa sessizlik biter ve dövüşe girer. B18'de
-  aynı kip "durup dinliyor" anlamına geliyor.
-* `Kalachev.perish()` / `chase(x)` — B18 faz 2. Ölüm `leave()`den
-  **ayrı** tutuldu: çekilme geçici, ölüm kalıcı, ve ikisi aynı koda
-  düşseydi biri gün gelir ötekinin yerine kullanılırdı. Gövde yerde
-  kalıyor.
+```python
+('assets/portraits/rey.png',  'assets/portraits'),
+('assets/portraits/ardo.png', 'assets/portraits'),
+('assets/portraits/cemo.png', 'assets/portraits'),
+```
 
-**B18'in üç fazı** (`docs/kalachev.md` §6.1): arena mühürlenirken
-dördü birlikte → ilk diz çöküşte 392 karelik senaryolu bir an
-(Cemo'nun sesi, koşu, ölüm, kapının inişi) → yalnız. Susturma o
-anın **sonunda** açılıyor, yani "yardımsız savaşır" artık verilen
-değil alınan bir şey. Faz 2 bir ara sahne değil: oyuncunun arenasında,
-kontrolü kilitli geçiyor.
+Ama diskte **beş** portre var: Arda `jet.png` ve `kalachev.png`
+ekledi ve ikisi de kullanılıyor —
+`chapter01_cinematics.py:100` (`closeup="jet"`) ve
+`chapter04_render.py:380` (`portrait("kalachev")`).
 
-`PlayScene.summon_kalachev(x, feet_y, stay=…, silent=…)` bölüm başına
-bir kez çalışıyor; `on_kalachev_arrived(ally)` ve
-`wound_kalachev(ally)` kancaları sahnede.
+`portrait.py:930` eksik dosyada **çökmüyor**, sessizce prosedürel
+portreye düşüyor. Yani paketlenmiş oyunda Arda'nın elle çizdiği iki
+portre görünmez ve **hiçbir hata mesajı çıkmaz**. Kurulumdan sonra
+gözle fark edilene kadar sessiz kalır.
 
-### 0.2 Korku katmanı — 4/6 faz bitti
+İki satır ekle:
 
-`docs/korku.md` **onaylandı ve bağlayıcı.**
+```python
+('assets/portraits/jet.png',      'assets/portraits'),
+('assets/portraits/kalachev.png', 'assets/portraits'),
+```
 
-| Faz | İçerik | Durum |
-|---|---|---|
-| 1 | Kapı, erişilebilirlik ayarları, 10 ses, **nefes** | ✅ |
-| 2 | Cemo'nun sözcükleri (B4/B9/B13→B18), yanlış sessizlik | ✅ |
-| 3 | **Yalan defteri**, hayalet parıltı, tekil ses | ✅ |
-| 4 | **İzleyen** (yeni sprite), ölüm hayaleti | ✅ |
-| 5 | **Dört şok + B14'ün JUMPSCARE'i** (§6.1) | ⬜ |
-| 6 | **Bütün yeni diyalogları Arda'ya iletmek** | ⬜ |
+*Daha iyisi gibi görünen ama değil:* satırları
+`('assets/portraits', 'assets/portraits')` ile değiştirmek. `.spec:19`
+`portraits/kaynak/` klasörünün 5.7 MB yüksek çözünürlüklü asıllarını
+**bilerek** dışarıda bıraktığını söylüyor; klasörü toptan alırsan o da
+girer. Tek tek saymak bilinçli bir karar — yeni portre eklenince
+listeyi güncellemek de onun bedeli.
 
-Faz 5'in tamamı `docs/korku.md` §6'da kare kare yazılı. Jumpscare
-B14'te ve İzleyen'in on bölümlük kuralını kırıyor — `retreats=False`
-varyantı zaten kodda.
+**A3 — Derle ve denetle.**
 
-**Faz 6 Arda'nın açık isteği:** *"diyalogların hepsini bitirdikten sonra
-bana ilet, geliştirip tekrar yollayacağım."* Bugün eklenen replikler:
-`ch02_echo_bones`, `ch04_echo_seed`, `ch04_echo_name`, `ch04_ardo_name`,
-`ch09_echo_seed`, `ch13_echo_seed`, `echo_alone_voice`, `kalachev_name`,
-ve **Jet'in dokuz repliği** (`ch01_jet_*`, `ch01_rey_jet`,
-`ch01_rey_name`, `ch01_ardo_jet`, `ch01_ardo_name`).
-`tools/dialogue_dump.py` var — hepsini tek dosyada dökmek için.
+```
+.venv/Scripts/python.exe -m PyInstaller "Legend of Rey.spec"
+.venv/Scripts/python.exe tests/test_build.py
+```
 
-### 0.3 Diğer açık maddeler
+`test_build.py` dört şeyi denetliyor: veri yolları, dinamik importlar,
+dışlananlar, spec tutarlılığı. **Derledikten sonra oyunu gerçekten aç**
+— B1'de Jet'in sinematiğine kadar oyna ve portrenin elle çizilmiş
+olanı mı yoksa prosedürel mi olduğuna **bak**. A2'nin tek gerçek
+doğrulaması bu; `test_build.py` spec'i okur, diskte olan ile
+karşılaştırmaz.
+
+**A4 — Taşınabilir tek exe.** Arda "ikisi de" dedi: hem kurulum
+dosyası hem taşınabilir. `.spec`'in şu an `onedir` mi `onefile` mı
+ürettiğine bak; taşınabilir sürüm `onefile` ister.
+
+**A5 — Inno Setup kurulum dosyası.** **Depoda hiç `.iss` yok** —
+sıfırdan yazılacak. Gerekenler: `icon.ico` (kökte, 67 KB),
+`OKU-BENI.txt`, sürüm numarası, başlat menüsü kısayolu, kaldırma.
+Kayıt dizini `%APPDATA%\LegendOfRey` — **kaldırma onu silmemeli**,
+oyuncunun ilerlemesi orada.
+
+> `dist/` ve `dist-yeni/` `.gitignore`'da (`441d9d6`: oyun açıkken exe
+> kilitli kalıyor). Derleme çıktısı commit edilmez.
+
+---
+
+### 0.2 B GRUBU — 2 SAVE SLOTU
+
+**Arda onayladı, hiç başlanmadı.** Tek gerçek yeni kod işi bu.
+
+`save.py` şu an tek `save.json` + `save.bak.json` kullanıyor. Slot =
+dosya adına indis (`save1.json`, `save2.json` ve yedekleri) + ana
+menüde slot seçim ekranı.
+
+Bağlayıcı üç kural, `CLAUDE.md` §9:
+
+* **DEVAM ET** en üstte ve önceden seçili; kayıt yoksa **görünmez**
+  (gri değil).
+* Üzerine yazmada varsayılan seçim daima **İPTAL**.
+* Her slot kendi `.bak`'ını tutar — yazarken çökerse yedekten dönülür.
+
+⚠ `LORE_SAVE_DIR` yolunu bozma (bkz. §0.6). Slot indisini **dosya
+adına** ekle, dizini değiştirme — 48 testin izolasyonu o dizine bağlı.
+
+---
+
+### 0.3 C GRUBU — KORKU KATMANI FAZ 5 ve 6
+
+`docs/korku.md` onaylı ve bağlayıcı. **6 fazın 4'ü bitti.**
+
+**Faz 5 yarım.** Jumpscare **bitti** — `src/systems/jumpscare.py`,
+B14'ün ihanet anında (`chapter14.py:97-99`). Ama §6'nın **dört şoku
+hiç yazılmadı**; `horror.shock()` yalnızca `jumpscare.py`'den
+çağrılıyor ve dört bölümün dördünde de iz yok:
+
+| # | Bölüm | Ne | Durum |
+|---|---|---|---|
+| 1 | B3 Meşale Mahzeni | Meşaleyi bırakınca ışığın kenarında bir şey hareket eder ve gider | ⬜ |
+| 2 | B11 Ayna Salonu | Yansıman senden **bir kare geç** döner | ⬜ |
+| 3 | B13 Cemo | Cemo taşınırken kenarda İzleyen belirir — **ve Cemo ona bakar** | ⬜ |
+| ★ | B14 Yankı'nın Kaynağı | **JUMPSCARE** (§6.1) | ✅ |
+| 4 | B18 Son | Cemo'nun sesi ilk duyulduğunda | ⬜ |
+
+B11'de `spawn_watcher(62, 13, retreats=True)` var ama o §5.3'ün
+sıradan İzleyen'i, §6'nın şoku değil.
+
+**Faz 6 — Arda'nın açık isteği:** *"diyalogların hepsini bitirdikten
+sonra bana ilet, geliştirip tekrar yollayacağım."* `tools/dialogue_dump.py`
+hepsini tek dosyaya döküyor. Bekleyen replikler: `ch02_echo_bones`,
+`ch04_echo_seed`, `ch04_echo_name`, `ch04_ardo_name`, `ch09_echo_seed`,
+`ch13_echo_seed`, `echo_alone_voice`, `kalachev_name` ve **Jet'in dokuz
+repliği** (`ch01_jet_*`, `ch01_rey_jet`, `ch01_rey_name`,
+`ch01_ardo_jet`, `ch01_ardo_name`).
+
+> §9 madde 8, korku katmanının **5.5** (Zindan Değişiyor) ve **6.1**
+> (Jumpscare) maddelerinin kapandığını söylüyor ve **doğru**:
+> `play.py:680 _update_room_drift` + `play.py:721 decals.claw()`
+> yerinde. Kapanan o iki madde; §6'nın dört şoku ayrı iş.
+
+---
+
+### 0.4 D GRUBU — KÜÇÜK İŞLER
 
 | İş | Not |
 |---|---|
-| **2 save slotu** | Arda onayladı, hiç başlanmadı. `save.py` tek dosya + yedek kullanıyor; slot = dosya adına indis + ana menüde slot ekranı |
-| **Paketleme** | `Legend of Rey.spec` doğru, `icon.ico` var, `test_build.py` denetliyor. **İki eksik:** müzik MP3'leri (~53 MB, `.gitignore`'da) ve Inno Setup — ikisi de Arda'nın öteki bilgisayarında. Arda "ikisi de" dedi: kurulum dosyası + taşınabilir tek exe |
-| **B9 freski** | Çan ipucu eklendi ama **sıranın** okunabildiği doğrulanmadı. Arda oynayıp söyleyecek |
+| **`tests/test_kalachev.py` satır bozulması** | Her satırın arasına boş satır girmiş: 578 satır, olması gereken 345. `9f04c9f` commit'inde (öteki bilgisayar) oldu — **merge yapmadı**. Test geçiyor, kozmetik; ama dosya okunmaz ve her diff'i şişiriyor. Repodaki tek bozuk dosya: 264 `.py` ve tüm `docs/` tarandı, temizler |
+| **Baştan sona oynanış testi** | **Kalan en değerli iş.** Sistemler doğru, testler yeşil — ama dört saatlik akışın *ritmi* ölçülmez |
+| **B9 freski** | Çan ipucu eklendi, **sıranın** okunabildiği doğrulanmadı. Arda oynayıp söyleyecek |
 | **Ok/bomba sprite'ı** | Prosedürel çiziliyor, elle çizilmiş değil. Görev 9'un sanat geçişine bırakıldı |
-| **`/code-review ultra`** | Bugün 17 commit girdi, hiçbiri derin incelemeden geçmedi. Arda'ya önerildi |
+| **`/code-review ultra`** | 17+ commit derin incelemeden geçmedi. **Arda tetiklemeli** — Claude kendisi başlatamaz |
+| **Tam ekran ikinci monitörde** | §9 madde 9. **Bizim hatamız değil:** pygame-ce 2.5.8 pencerenin hangi ekranda olduğunu sormanın yolunu vermiyor (iki yol da ölçüldü). Kütüphane açarsa `window_origin()` tek noktadan düzelir |
 
-### 0.4 Bugün eklenen sistemler — nerede oldukları
+---
+
+### 0.5 Bu hatta eklenen sistemler — nerede oldukları
 
 ```
 src/systems/horror.py        korku katmanı kapısı + fotosensitivite
@@ -121,6 +189,7 @@ src/systems/breath.py        nefes (üç tetikleyici)
 src/systems/lies.py          yalan defteri
 src/systems/phantom.py       Yankı Görüşü'nün yalanı
 src/systems/false_silence.py yanlış sessizlik
+src/systems/jumpscare.py     B14'ün tek jumpscare'i (korku.md §6.1)
 src/systems/consumables.py   ok ve bomba
 src/entities/watcher.py      İzleyen (düşman DEĞİL)
 src/entities/ghost.py        ölüm hayaleti
@@ -131,7 +200,7 @@ src/scenes/chapter01_cinematics.py   Jet'in kılıç sahnesi
 docs/korku.md  docs/kalachev.md      onaylı tasarım belgeleri
 ```
 
-### 0.5 ⚠ BUGÜN ÖĞRENİLEN EN PAHALI ŞEY
+### 0.6 ⚠ EN PAHALI ŞEY — TEKRARLAMA
 
 **Test paketi oyuncunun gerçek kaydını siliyordu.** Sahneler
 `read_save()` ile Arda'nın kaydını yüklüyor, `_sync_abilities()` gibi
@@ -140,13 +209,14 @@ yerler geri yazıyordu — yani `python tests/test_chapter01.py`
 balta böyle kayboldu; yedek dosyası da aynı koşuda üzerine yazıldığı
 için kurtarılamadı.
 
-Artık `save.py` `LORE_SAVE_DIR` ortam değişkenini okuyor ve **44 test
+Artık `save.py` `LORE_SAVE_DIR` ortam değişkenini okuyor ve **48 test
 paketinin hepsi** başlangıçta geçici bir klasöre geçiyor. Yeni bir test
-dosyası açarken o bloğu kopyalamayı unutma — yoksa aynı şey tekrar olur.
+dosyası açarken o bloğu **`src` import edilmeden önce** kopyalamayı
+unutma — yoksa aynı şey tekrar olur.
 
-**Doğrulama:** tam süiti çalıştır, `save.json`'ın SHA256'sı önce ve
-sonra aynı olmalı.
-
+**Doğrulama:** tam süiti çalıştır, `%APPDATA%\LegendOfRey\save.json`'ın
+SHA256'sı önce ve sonra aynı olmalı. 09.09.2026'da doğrulandı: iki
+hash de değişmedi.
 ---
 
 ## 1. OYUN NE
