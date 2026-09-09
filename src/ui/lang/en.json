@@ -8,7 +8,8 @@
   "common": {
     "on": "On",
     "off": "Off",
-    "cancel": "CANCEL"
+    "cancel": "CANCEL",
+    "back": "BACK"
   },
   "menu": {
     "continue": "CONTINUE",
@@ -811,5 +812,13 @@
     "arrow_desc": "Fast, flies straight. Single target.",
     "bomb": "Bomb",
     "bomb_desc": "Arcs, blows up on landing. Area damage."
+  },
+  "slot": {
+    "title": "WHICH SAVE?",
+    "title_new": "WHERE TO BEGIN?",
+    "slot1": "SLOT 1",
+    "slot2": "SLOT 2",
+    "empty": "empty",
+    "character": "Character"
   }
 }

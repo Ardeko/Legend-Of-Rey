@@ -12,6 +12,29 @@ Iki dosya da bozuksa yeni oyun baslar - ama kullaniciya soylenir.
 
 Kayit dizini oyun klasoru degil, kullanicinin veri klasorudur: PyInstaller
 ile paketlendiginde oyun klasoru salt okunur olabilir.
+
+## Iki slot - ve neden her cagirana slot parametresi GECMEDIK
+
+09.09.2026'da iki kayit yuvasi eklendi. Dosya adina indis giriyor:
+
+    save1.json  save1.bak.json      save2.json  save2.bak.json
+
+**Dizin degismiyor.** `LORE_SAVE_DIR` 48 test paketinin izolasyonunu
+tasiyor (§0.6'daki en pahali hata); slotu dizine tasimak o izolasyonu
+ikinci bir degiskene baglardi.
+
+`read_save()` / `write_save()` / `has_save()` imzalari **degismedi**.
+Aktif slot modul duzeyinde tutuluyor ve menu onu seciyor. Alternatifi -
+her cagirana bir `slot` parametresi eklemek - kirk kusur cagri yeri
+demekti, ve "her yeni cagri bir satir eklesin" bu projede bir hatanin
+sekli (`summon_kalachev`in yara bayragi, `.spec`in portre listesi).
+Biri unutulur, oyun sessizce yanlis slota yazar.
+
+## Eski tek dosya kaybolmuyor
+
+`save.json` (slotsuz surum) varsa ilk erisimde `save1.json`e tasiniyor
+(`migrate_legacy`). Arda'nin gercek ilerlemesi orada; bir surum
+degisikliginin onu silmesi affedilmez olurdu.
 """
 from __future__ import annotations
 
@@ -27,9 +50,15 @@ from typing import Any
 from src.config import ECHO_TIER_CLEAR
 
 SAVE_VERSION = 1
-SAVE_NAME = "save.json"
-BACKUP_NAME = "save.bak.json"
-TEMP_NAME = "save.tmp"
+
+# Slotsuz eski surumun adlari. **Yalnizca goc icin** duruyorlar.
+LEGACY_SAVE_NAME = "save.json"
+LEGACY_BACKUP_NAME = "save.bak.json"
+
+# Iki slot: Arda onayladi. Ucuncusu menuye satir ekler, oyuna bir sey
+# katmaz - iki karakter var, iki yuva onun karsiligi.
+SLOT_COUNT = 2
+
 SETTINGS_NAME = "settings.json"
 APP_FOLDER = "LegendOfRey"
 
@@ -167,27 +196,114 @@ class SaveData:
         return cls(**{k: v for k, v in raw.items() if k in known})
 
 
+# --- Slotlar ----------------------------------------------------------------
+# Aktif slot **modul duzeyinde**. Menu seciyor, geri kalan her sey
+# imzasini degistirmeden calisiyor (gerekce modul basliginda).
+_active_slot = 1
+
+
+def clamp_slot(slot: int) -> int:
+    """1..SLOT_COUNT araligina kirpar. Bozuk bir indis oyunu durdurmaz."""
+    return max(1, min(SLOT_COUNT, int(slot)))
+
+
+def active_slot() -> int:
+    return _active_slot
+
+
+def set_active_slot(slot: int) -> None:
+    """Hangi yuvaya yazilacagini secer. Menu ve slot ekrani cagirir."""
+    global _active_slot
+    _active_slot = clamp_slot(slot)
+
+
 # --- Dosya islemleri --------------------------------------------------------
-def save_path() -> Path:
-    return user_data_dir() / SAVE_NAME
+def save_path(slot: int | None = None) -> Path:
+    return user_data_dir() / f"save{clamp_slot(slot or _active_slot)}.json"
 
 
-def backup_path() -> Path:
-    return user_data_dir() / BACKUP_NAME
+def backup_path(slot: int | None = None) -> Path:
+    return (user_data_dir()
+            / f"save{clamp_slot(slot or _active_slot)}.bak.json")
 
 
-def has_save() -> bool:
-    """Menude DEVAM ET gorunecek mi? Yedegi de sayariz."""
-    return save_path().is_file() or backup_path().is_file()
+def _temp_path(slot: int) -> Path:
+    """Slot basina ayri gecici dosya.
+
+    Tek bir `save.tmp` de yeterdi (ayni anda tek slot aktif), ama iki
+    slot ayni gecici adi paylassaydi bir gun biri otekinin yarim
+    yazilmis dosyasini gorurdu. Ayirmanin maliyeti sifir.
+    """
+    return user_data_dir() / f"save{clamp_slot(slot)}.tmp"
+
+
+def migrate_legacy() -> bool:
+    """Slotsuz `save.json`'u 1. yuvaya tasir. Bir kez, sessizce.
+
+    Arda'nin gercek ilerlemesi o dosyada. Slot surumune gecerken onu
+    gormezden gelmek, oyuncunun saatlerini silmek olurdu.
+
+    Yalnizca 1. yuva **bosken** calisiyor: yeni bir kayit varsa eski
+    dosya artik bir kalinti ve onun uzerine yazmak veri kaybi olur.
+    """
+    directory = user_data_dir()
+    legacy = directory / LEGACY_SAVE_NAME
+    if not legacy.is_file() or save_path(1).is_file():
+        return False
+    try:
+        shutil.move(str(legacy), str(save_path(1)))
+        legacy_backup = directory / LEGACY_BACKUP_NAME
+        if legacy_backup.is_file() and not backup_path(1).is_file():
+            shutil.move(str(legacy_backup), str(backup_path(1)))
+    except OSError as exc:
+        print(f"[save] eski kayit tasinamadi: {exc}")
+        return False
+    print("[save] eski kayit 1. yuvaya tasindi")
+    return True
+
+
+def has_save(slot: int | None = None) -> bool:
+    """Bu yuvada kayit var mi? Yedegi de sayariz."""
+    return save_path(slot).is_file() or backup_path(slot).is_file()
+
+
+def any_save() -> bool:
+    """Herhangi bir yuvada kayit var mi - DEVAM ET bunu soruyor."""
+    return any(has_save(i) for i in range(1, SLOT_COUNT + 1))
+
+
+def used_slots() -> list[int]:
+    return [i for i in range(1, SLOT_COUNT + 1) if has_save(i)]
+
+
+def peek_slot(slot: int) -> "SaveData | None":
+    """Bir yuvanin ozeti - **aktif slotu degistirmeden.**
+
+    Slot ekrani iki karti da ayni anda gostermek zorunda; bunun icin
+    aktif slotu ileri geri oynatmak, bir istisna aninda oyunu yanlis
+    yuvaya bagli birakirdi.
+    """
+    data = _read(save_path(slot))
+    return data if data is not None else _read(backup_path(slot))
+
+
+def latest_slot() -> int | None:
+    """En son oynanan yuva. DEVAM ET dogrudan buraya giriyor."""
+    best, newest = None, -1.0
+    for index in range(1, SLOT_COUNT + 1):
+        data = peek_slot(index)
+        if data is not None and data.updated_at > newest:
+            best, newest = index, data.updated_at
+    return best
 
 
 def write_save(data: SaveData) -> bool:
     """Kaydi guvenle yazar. Basarisizsa mevcut kayit bozulmaz."""
     data.updated_at = time.time()
-    directory = user_data_dir()
-    temp = directory / TEMP_NAME
-    target = save_path()
-    backup = backup_path()
+    slot = clamp_slot(_active_slot)
+    temp = _temp_path(slot)
+    target = save_path(slot)
+    backup = backup_path(slot)
 
     try:
         temp.write_text(
@@ -219,24 +335,25 @@ def _read(path: Path) -> SaveData | None:
         return None
 
 
-def read_save() -> tuple[SaveData | None, str]:
+def read_save(slot: int | None = None) -> tuple[SaveData | None, str]:
     """Kaydi okur. (veri, durum) doner.
 
     durum: "ok" | "backup" | "none" - arayuz yedekten donuldugunu
     oyuncuya soyleyebilsin diye.
     """
-    data = _read(save_path())
+    migrate_legacy()
+    data = _read(save_path(slot))
     if data is not None:
         return data, "ok"
-    data = _read(backup_path())
+    data = _read(backup_path(slot))
     if data is not None:
         print("[save] ana kayit okunamadi, yedekten donuldu")
         return data, "backup"
     return None, "none"
 
 
-def delete_save() -> None:
-    for path in (save_path(), backup_path()):
+def delete_save(slot: int | None = None) -> None:
+    for path in (save_path(slot), backup_path(slot)):
         try:
             path.unlink(missing_ok=True)
         except OSError as exc:

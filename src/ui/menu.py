@@ -21,7 +21,9 @@ from src.art import palette
 from src.config import INTERNAL_HEIGHT, INTERNAL_WIDTH
 from src.core.input import Action
 from src.core.scene import Scene
-from src.systems.save import has_save, read_save
+from src.systems.save import (
+    any_save, latest_slot, read_save, set_active_slot, used_slots,
+)
 from src.ui import text
 from src.ui.i18n import t, t_or_raw
 from src.ui.menu_scene import MenuBackdrop, stage_for
@@ -47,7 +49,9 @@ class MainMenuScene(Scene):
         # baslamıyor - kesintisiz kaliyor.
         self.game.music.play("menu")
         self.frame = 0
-        self.save_data, self.save_status = read_save()
+        # Kart **en son oynanan** yuvayi gosteriyor - DEVAM ET oraya
+        # giriyor, kart baska bir yuvayi gosterseydi yalan olurdu.
+        self.save_data, self.save_status = read_save(latest_slot())
         self.confirm_overwrite: Menu | None = None
         self.notice = ""
         self.notice_frames = 0
@@ -64,7 +68,10 @@ class MainMenuScene(Scene):
             self.menu.start_reveal()
 
     def _build_menu(self) -> Menu:
-        save_exists = has_save()
+        # **Herhangi bir yuvada** kayit varsa gorunuyor. Tek yuvaya
+        # bakmak, ikinci yuvada oyunu olan oyuncuya "kaydin yok"
+        # demek olurdu.
+        save_exists = any_save()
         return Menu([
             # Kayit yoksa gorunmez - gri degil, YOK.
             MenuItem("menu.continue", self._continue, visible=save_exists,
@@ -85,8 +92,20 @@ class MainMenuScene(Scene):
 
     # --- Eylemler -----------------------------------------------------------
     def _continue(self) -> None:
-        if self.save_data is None:
+        """Tek yuva doluysa **dogrudan** girer; ikisi de doluysa secim.
+
+        `CLAUDE.md` §9: *"Oyuncu enter'a basip devam edebilmeli -
+        dusunmeden."* Tek kayitli oyuncuya bir yuva ekrani gostermek
+        tam olarak bu kurali bozardi. Ekran ancak gercekten bir SECIM
+        varken cikiyor.
+        """
+        if len(used_slots()) > 1:
+            self._open_slots("continue")
             return
+        slot = latest_slot()
+        if slot is None or self.save_data is None:
+            return
+        set_active_slot(slot)
         # Kamera alevden **asagi** iner, kaldigin bolume kadar. Ne kadar
         # ilerlediysen o kadar uzun dusersin (docs/menu-ui.md 0.4).
         from src.scenes.vertical_journey import VerticalJourneyScene
@@ -96,19 +115,17 @@ class MainMenuScene(Scene):
                             character=self.save_data.character)
 
     def _new_game(self) -> None:
-        if has_save():
-            self._ask_overwrite()
-            return
-        self._go_character_select()
+        """Her zaman yuva ekrani - **nereye** baslanacagi bir karar.
 
-    def _ask_overwrite(self) -> None:
-        # Yikici eylem: varsayilan secim daima IPTAL.
-        self.confirm_overwrite = Menu([
-            MenuItem("common.cancel", self._cancel_overwrite),
-            MenuItem("menu.overwrite_confirm", self._go_character_select,
-                     danger=True),
-        ], INTERNAL_WIDTH // 2, INTERNAL_HEIGHT // 2 + 14, width=150,
-            centered=True, on_sound=self.game.play_sound)
+        Uzerine yazma onayi da orada ve varsayilani IPTAL; iki yerde
+        iki ayri onay diyalogu tutmak ikisinin bir gun ayrismasi
+        demekti.
+        """
+        self._open_slots("new")
+
+    def _open_slots(self, mode: str) -> None:
+        from src.ui.slot_select import SlotSelectScene
+        self.scenes.push(SlotSelectScene, mode=mode)
 
     def _cancel_overwrite(self) -> None:
         self.confirm_overwrite = None
@@ -125,7 +142,7 @@ class MainMenuScene(Scene):
     # --- Dongu --------------------------------------------------------------
     def on_resume(self) -> None:
         # Karakter seciminden ya da ayarlardan donunce kayit degismis olabilir.
-        self.save_data, self.save_status = read_save()
+        self.save_data, self.save_status = read_save(latest_slot())
         self.menu = self._build_menu()
         self.backdrop.stage = stage_for(self.save_data)
 

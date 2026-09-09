@@ -56,7 +56,8 @@ import pygame  # noqa: E402
 from src.config import MENU_TRANSITION_MAX_FRAMES  # noqa: E402
 from src.core.game import Game  # noqa: E402
 from src.systems.save import (  # noqa: E402
-    SaveData, backup_path, delete_save, has_save, read_save, save_path,
+    SLOT_COUNT, SaveData, backup_path, delete_save, has_save,
+    read_save, save_path,
     write_save,
 )
 from src.systems.settings import DISPLAY_OPTIONS, Settings, TABS  # noqa: E402
@@ -64,6 +65,18 @@ from src.ui import i18n  # noqa: E402
 from src.ui.widgets import CONFIRM_FLASH_FRAMES, SELECT_ANIM_FRAMES  # noqa: E402
 
 failures: list[str] = []
+
+
+def clear_all_slots() -> None:
+    """Her yuvayi siler.
+
+    `delete_save()` **tek** yuvayi siliyor (aktif olani) ama menu
+    `any_save()` soruyor - yani "kayit yok" durumu ancak hepsi
+    silinince olusuyor. 09.09.2026'da iki slot gelince bu testi
+    kirdi ve dogrusu buydu.
+    """
+    for slot in range(1, SLOT_COUNT + 1):
+        delete_save(slot)
 
 
 def check(condition: bool, label: str, detail: str = "") -> None:
@@ -96,7 +109,7 @@ def main() -> int:
 
     # --- 1. Kayit guvenligi -------------------------------------------------
     print("--- kayit guvenligi ---")
-    delete_save()
+    clear_all_slots()
     check(not has_save(), "baslangicta kayit yok")
 
     data = SaveData(chapter=2, chapter_name="İlk İniş", gold=310,
@@ -131,7 +144,7 @@ def main() -> int:
     check(nothing is None and status == "none",
           "iki dosya da bozuksa temiz basarisizlik", status)
 
-    delete_save()
+    clear_all_slots()
 
     # --- 2. Ayarlar ---------------------------------------------------------
     print("\n--- ayarlar ---")
@@ -192,18 +205,48 @@ def main() -> int:
           menu_scene.menu.selected.text)
 
     # --- 4. Uzerine yazma uyarisi -------------------------------------------
-    print("\n--- uzerine yazma ---")
+    #
+    # **09.09.2026'da yer degistirdi.** Onay artik ana menude degil
+    # yuva ekraninda (`src/ui/slot_select.py`): iki slot gelince
+    # "nereye baslanacagi" bir secim oldu ve onay o secimin yaninda
+    # duruyor. Iki yerde iki ayri onay diyalogu tutmak ikisinin bir
+    # gun ayrismasi demekti.
+    #
+    # **Olculen kural degismedi** (`CLAUDE.md` §9): yikici eylem onay
+    # ister ve varsayilan secim daima IPTAL.
+    print("\n--- uzerine yazma (yuva ekraninda) ---")
     menu_scene.menu.index = 1               # YENI OYUN
     menu_scene.menu.activate()
-    check(menu_scene.confirm_overwrite is not None,
-          "kayit varken YENI OYUN onay soruyor")
-    check(menu_scene.confirm_overwrite.selected.text == "İPTAL",
+    game.scenes._flush()
+    slot_scene = game.scenes.current
+    check(type(slot_scene).__name__ == "SlotSelectScene",
+          "YENI OYUN yuva ekranini aciyor", type(slot_scene).__name__)
+    check(slot_scene.mode == "new", "ekran 'yeni' kipinde", slot_scene.mode)
+
+    slot_scene.menu.index = 0               # 1. yuva - dolu
+    slot_scene.menu.activate()
+    check(slot_scene.confirm is not None,
+          "dolu yuva secilince onay soruyor")
+    check(slot_scene.confirm.selected.text == "İPTAL",
           "yikici eylemde varsayilan secim IPTAL",
-          menu_scene.confirm_overwrite.selected.text)
-    check(menu_scene.confirm_overwrite.items[1].danger,
+          slot_scene.confirm.selected.text)
+    check(slot_scene.confirm.items[1].danger,
           "yikici secenek tehlike olarak isaretli")
-    menu_scene.confirm_overwrite.activate()  # IPTAL
-    check(menu_scene.confirm_overwrite is None, "IPTAL uyariyi kapatti")
+    slot_scene.confirm.activate()           # IPTAL
+    check(slot_scene.confirm is None, "IPTAL uyariyi kapatti")
+    check(has_save(1), "IPTAL kaydi SILMEDI")
+
+    # Bos yuva onay sormadan geciyor - silinecek bir sey yok.
+    slot_scene.menu.index = 1               # 2. yuva - bos
+    slot_scene.menu.activate()
+    check(slot_scene.confirm is None,
+          "bos yuvada onay YOK - silinecek bir sey yok")
+    game.scenes._flush()
+
+    # Ana menuye don.
+    game.scenes.set_root(MainMenuScene, transition=False)
+    game.scenes._flush()
+    menu_scene = game.scenes.current
 
     # --- 5. Gecis sureleri --------------------------------------------------
     print("\n--- gecis sureleri ---")
@@ -219,7 +262,7 @@ def main() -> int:
 
     # --- 6. Gezinme gorunmezi atliyor mu ------------------------------------
     print("\n--- gezinme ---")
-    delete_save()
+    clear_all_slots()
     menu_scene.on_resume()
     labels_seen = []
     for _ in range(5):

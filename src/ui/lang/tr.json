@@ -8,7 +8,8 @@
   "common": {
     "on": "Açık",
     "off": "Kapalı",
-    "cancel": "İPTAL"
+    "cancel": "İPTAL",
+    "back": "GERİ"
   },
   "menu": {
     "continue": "DEVAM ET",
@@ -811,5 +812,13 @@
     "arrow_desc": "Hızlı, düz uçar. Tek hedef.",
     "bomb": "Bomba",
     "bomb_desc": "Yay çizer, yerde patlar. Alan hasarı."
+  },
+  "slot": {
+    "title": "HANGİ KAYIT?",
+    "title_new": "NEREYE BAŞLANSIN?",
+    "slot1": "1. YUVA",
+    "slot2": "2. YUVA",
+    "empty": "boş",
+    "character": "Karakter"
   }
 }

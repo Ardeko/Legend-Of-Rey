@@ -17,8 +17,7 @@ Son güncelleme: **08.09.2026** (korku katmanı, kayıt hatası, uzaktan dövü�
 
 ## 0. SIRADA NE VAR — **YENİ OTURUM ÖNCE BURAYI OKU**
 
-**48 test paketi yeşil. Çalışma alanı temiz. `origin/main` ile tam eşit
-— bekleyen commit yok.** 209 `src` modülünün 209'u import ediliyor.
+**49 test paketi yeşil. Çalışma alanı temiz.** 209 `src` modülünün 209'u import ediliyor.
 
 > **Testler `unittest` sınıfı DEĞİL, bağımsız betik.** Koşma biçimi:
 > ```
@@ -50,39 +49,25 @@ Fuze.mp3           miniboss      Loki.mp3            sad
                                  Raze.mp3            emotional
 ```
 
-**A2 — ⚠ `.spec`'e iki portreyi ekle. BU BİR HATA, ATLAMA.**
-`Legend of Rey.spec:42-44` portreleri **tek tek** sayıyor ve yalnızca
-üçünü içeriyor:
+**A2 — ✅ BİTTİ (09.09.2026, `7384470`).** `.spec` portreleri artık
+**tek tek saymıyor** — `assets/portraits/*.png` glob'u alıyor.
 
-```python
-('assets/portraits/rey.png',  'assets/portraits'),
-('assets/portraits/ardo.png', 'assets/portraits'),
-('assets/portraits/cemo.png', 'assets/portraits'),
-```
+Sorun doğrulandı ve Kalachev tarafı rapor edilenden bir tık kötüydü:
 
-Ama diskte **beş** portre var: Arda `jet.png` ve `kalachev.png`
-ekledi ve ikisi de kullanılıyor —
-`chapter01_cinematics.py:100` (`closeup="jet"`) ve
-`chapter04_render.py:380` (`portrait("kalachev")`).
+| | Ne olurdu |
+|---|---|
+| Jet | `staging._draw_closeup` prosedürele düşer — çizim kaybolur, sahne oynamaya devam eder |
+| Kalachev | prosedürel bir spec'i **yok** (`PORTRAITS` üçü tutuyor), `portrait()` `None` döner ve `chapter04_render.py:381` paneli **hiç çizmeden** geri döner — B4'ün Kalachev açığı paketlenmiş oyunda görünmezdi |
 
-`portrait.py:930` eksik dosyada **çökmüyor**, sessizce prosedürel
-portreye düşüyor. Yani paketlenmiş oyunda Arda'nın elle çizdiği iki
-portre görünmez ve **hiçbir hata mesajı çıkmaz**. Kurulumdan sonra
-gözle fark edilene kadar sessiz kalır.
+*Eski notun "glob yapma" uyarısı haklıydı ama dar kapsamlıydı:* itiraz
+`('assets/portraits', 'assets/portraits')`'e, yani **klasörü toptan**
+almaya. `*.png` glob'u özyinelemeli değil, `kaynak/` yine dışarıda —
+`test_build.py` bunu ayrıca ölçüyor ve yeşil.
 
-İki satır ekle:
-
-```python
-('assets/portraits/jet.png',      'assets/portraits'),
-('assets/portraits/kalachev.png', 'assets/portraits'),
-```
-
-*Daha iyisi gibi görünen ama değil:* satırları
-`('assets/portraits', 'assets/portraits')` ile değiştirmek. `.spec:19`
-`portraits/kaynak/` klasörünün 5.7 MB yüksek çözünürlüklü asıllarını
-**bilerek** dışarıda bıraktığını söylüyor; klasörü toptan alırsan o da
-girer. Tek tek saymak bilinçli bir karar — yeni portre eklenince
-listeyi güncellemek de onun bedeli.
+`test_build.py`'ye iki ölçüm eklendi (çizilmiş her portre pakete
+giriyor mu; adıyla istenen her portrenin karşılığı var mı) ve
+**kanıtlandı**: spec eski hâline döndürülünce `DISARIDA: jet,
+kalachev` diye kırılıyor.
 
 **A3 — Derle ve denetle.**
 
@@ -113,23 +98,42 @@ oyuncunun ilerlemesi orada.
 
 ---
 
-### 0.2 B GRUBU — 2 SAVE SLOTU
+### 0.2 ✅ B GRUBU — 2 SAVE SLOTU — BİTTİ (09.09.2026)
 
-**Arda onayladı, hiç başlanmadı.** Tek gerçek yeni kod işi bu.
+`save1.json` · `save1.bak.json` · `save2.json` · `save2.bak.json`.
+Dizin **değişmedi** — `LORE_SAVE_DIR` 49 test paketinin izolasyonunu
+taşıyor, slot dosya adına girdi.
 
-`save.py` şu an tek `save.json` + `save.bak.json` kullanıyor. Slot =
-dosya adına indis (`save1.json`, `save2.json` ve yedekleri) + ana
-menüde slot seçim ekranı.
+**Çağıranların hiçbiri değişmedi.** `read_save()` / `write_save()` /
+`has_save()` imzaları duruyor; aktif slot modül düzeyinde
+(`save.active_slot()`), menü seçiyor. Alternatifi — kırk küsur çağrı
+yerine `slot` parametresi eklemek — "her yeni çağrı bir satır eklesin"
+demekti ve biri unutulunca oyun sessizce yanlış yuvaya yazardı.
 
-Bağlayıcı üç kural, `CLAUDE.md` §9:
+**Eski `save.json` kaybolmuyor.** `migrate_legacy()` ilk okumada onu
+1. yuvaya taşıyor; 1. yuva doluysa **hiçbir şey yapmıyor**. Arda'nın
+gerçek kaydının bir kopyası üzerinde denendi: bölüm, karakter,
+yetenekler yerinde, asıl dosyaya dokunulmadı.
 
-* **DEVAM ET** en üstte ve önceden seçili; kayıt yoksa **görünmez**
-  (gri değil).
-* Üzerine yazmada varsayılan seçim daima **İPTAL**.
-* Her slot kendi `.bak`'ını tutar — yazarken çökerse yedekten dönülür.
+Yeni ekran: `src/ui/slot_select.py` — iki kart yan yana, her kartta
+bölüm/süre/altın/karakter.
 
-⚠ `LORE_SAVE_DIR` yolunu bozma (bkz. §0.6). Slot indisini **dosya
-adına** ekle, dizini değiştirme — 48 testin izolasyonu o dizine bağlı.
+    DEVAM ET   tek yuva doluysa  -> ekran AÇILMAZ, doğrudan girer
+               ikisi de doluysa  -> ekran açılır
+    YENİ OYUN  her zaman         -> ekran açılır
+
+Birincisi `CLAUDE.md` §9'un *"oyuncu enter'a basıp devam edebilmeli —
+düşünmeden"* kuralı; tek kayıtlı oyuncuya seçim ekranı göstermek onu
+bozardı.
+
+Üzerine yazma onayı **ana menüden yuva ekranına taşındı** (iki yerde
+iki diyalog bir gün ayrışırdı); varsayılan seçim hâlâ **İPTAL** ve
+`tests/test_slots.py` bunu ölçüyor — iptal edince kaydın gerçekten
+silinmediğini de.
+
+`tests/test_slots.py` (yeni, 6 test) dört şeyi ölçüyor: yuvalar
+birbirini görmüyor, eski kayıt göç ediyor, göç dolu yuvanın üzerine
+yazmıyor, DEVAM ET tek kayıtta ekran açmıyor.
 
 ---
 
@@ -172,7 +176,7 @@ repliği** (`ch01_jet_*`, `ch01_rey_jet`, `ch01_rey_name`,
 
 | İş | Not |
 |---|---|
-| **`tests/test_kalachev.py` satır bozulması** | Her satırın arasına boş satır girmiş: 578 satır, olması gereken 345. `9f04c9f` commit'inde (öteki bilgisayar) oldu — **merge yapmadı**. Test geçiyor, kozmetik; ama dosya okunmaz ve her diff'i şişiriyor. Repodaki tek bozuk dosya: 264 `.py` ve tüm `docs/` tarandı, temizler |
+| ~~**`tests/test_kalachev.py` satır bozulması**~~ ✅ `2bf1829` | Her satırın arasına boş satır girmiş: 578 satır, olması gereken 345. `9f04c9f` commit'inde (öteki bilgisayar) oldu — **merge yapmadı**. Test geçiyor, kozmetik; ama dosya okunmaz ve her diff'i şişiriyor. Repodaki tek bozuk dosya: 264 `.py` ve tüm `docs/` tarandı, temizler |
 | **Baştan sona oynanış testi** | **Kalan en değerli iş.** Sistemler doğru, testler yeşil — ama dört saatlik akışın *ritmi* ölçülmez |
 | **B9 freski** | Çan ipucu eklendi, **sıranın** okunabildiği doğrulanmadı. Arda oynayıp söyleyecek |
 | **Ok/bomba sprite'ı** | Prosedürel çiziliyor, elle çizilmiş değil. Görev 9'un sanat geçişine bırakıldı |
