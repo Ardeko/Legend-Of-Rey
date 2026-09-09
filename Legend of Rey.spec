@@ -29,6 +29,35 @@ sessizce kapaniyor ve elimizde hicbir sey kalmiyor; acikken tester
 ekran goruntusu alabiliyor. Yayin surumunde `False` olacak.
 """
 
+from pathlib import Path as _Path
+
+# Elle cizilmis portreler. **Tek tek sayilmiyor** - klasordeki her PNG
+# aliniyor.
+#
+# ## Bu satir bir kez daha sessizce bozuldu (09.09.2026)
+#
+# Liste elle yaziliydi ve uzerinde `rey`, `ardo`, `cemo` vardi. Sonradan
+# `jet.png` ve `kalachev.png` cizildi, ikisi de oyunda kullaniliyor
+# (`chapter01_cinematics.py` Jet'in yakin cekimi,
+# `chapter04_render.py` B4'un Kalachev paneli) ama listeye
+# eklenmemisti.
+#
+# Sonucu **hicbir hata vermiyordu**, en kotu turden bir hata:
+#
+#   Jet       `staging._draw_closeup` prosedurel portreye duserdi -
+#             yani cizim kaybolur, sahne oynamaya devam ederdi
+#   Kalachev  prosedurel bir spec'i YOK (`portrait.PORTRAITS` ucu
+#             tutuyor), yani `portrait()` None doner ve
+#             `chapter04_render` panelin tamamini cizmeden geri doner -
+#             B4'un Kalachev acigi paketlenmis oyunda HIC gorunmezdi
+#
+# "Her yeni portre bir satir eklesin" bir hatanin sekli; bu projede
+# ayni ders `summon_kalachev`in yara bayraginda da yazildi. Glob
+# ozyinelemeli DEGIL, yani `kaynak/` (5.7 MB asillar) yine disarida
+# kaliyor - o bilincli bir dislama.
+_PORTRAITS = [(str(f).replace("\\", "/"), 'assets/portraits')
+              for f in sorted(_Path('assets/portraits').glob('*.png'))]
+
 DATAS = [
     # Palet - `src/art/palette.py` acilista okuyor. Olmazsa oyun baslamaz.
     ('tools/palette.json', 'tools'),
@@ -37,12 +66,7 @@ DATAS = [
     # Muzik (53 MB) ve logo.
     ('assets/audio', 'assets/audio'),
     ('assets/logo', 'assets/logo'),
-    # Elle cizilmis portreler ve ara sahne panelleri. Klasor bos olsa da
-    # kalsin: oyun once diske bakip yoksa prosedurele donuyor.
-    ('assets/portraits/rey.png', 'assets/portraits'),
-    ('assets/portraits/ardo.png', 'assets/portraits'),
-    ('assets/portraits/cemo.png', 'assets/portraits'),
-]
+] + _PORTRAITS
 
 a = Analysis(
     ['main.py'],

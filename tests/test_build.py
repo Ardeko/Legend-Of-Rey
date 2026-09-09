@@ -179,8 +179,70 @@ def test_spec_sane() -> None:
           "dil dosyalari yerinde")
 
 
+def test_every_portrait_is_packaged() -> None:
+    """Cizilmis her portre pakete giriyor mu - ve istenen her ad var mi.
+
+    09.09.2026'da bulundu: spec portreleri **tek tek sayiyordu** ve
+    listede yalnizca rey/ardo/cemo vardi. Sonradan cizilen `jet.png`
+    ile `kalachev.png` eksikti, ikisi de kullaniliyordu.
+
+    Hicbir hata cikmiyordu, en kotu turden:
+
+      Jet       `staging._draw_closeup` prosedurele duser - Arda'nin
+                cizimi kaybolur, sahne oynamaya devam eder
+      Kalachev  prosedurel spec'i YOK (`PORTRAITS` ucu tutuyor),
+                `portrait()` None doner ve `chapter04_render` paneli
+                hic cizmeden geri doner - B4'un Kalachev acigi
+                paketlenmis oyunda GORUNMEZDI
+
+    Iki sey olculuyor:
+
+      1. `assets/portraits/*.png` icindeki her dosya pakete giriyor mu.
+         Asil hata buydu: cizilen sey diskte kaliyordu.
+      2. Kodun ADIYLA istedigi (`portrait("x")`) her portrenin ya bir
+         spec'i ya bir PNG'si var mi.
+
+    `closeup="x"` **kasitli olarak taranmiyor**: oradaki ad bir portre
+    degil bir sahne aktoru kimligi (`ActorSpec("player", character,
+    ...)`), ve `staging` onu once aktorun gercek karakterine ceviriyor.
+    "player" diye bir portre aramak yanlis alarm olurdu.
+    """
+    print("\n--- portreler ---")
+    from src.art.portrait import PORTRAITS
+
+    spec = spec_text().replace("\\", "/")
+    # Glob kullanildiginda adlar spec metninde GECMEZ; o zaman olcut
+    # "klasorde duruyor mu" oluyor.
+    globbed = "assets/portraits').glob('*.png'" in spec
+    drawn = sorted(f.stem
+                   for f in (ROOT / "assets" / "portraits").glob("*.png"))
+    check(bool(drawn), "elle cizilmis portre var", ", ".join(drawn))
+
+    if globbed:
+        check(True, "portreler glob ile aliniyor - liste bayatlayamaz")
+    else:
+        outside = [n for n in drawn
+                   if f"assets/portraits/{n}.png" not in spec]
+        check(not outside, "cizilmis her portre pakete giriyor",
+              "DISARIDA: " + ", ".join(outside) if outside else "")
+
+    wanted: set[str] = set()
+    for path in sorted((ROOT / "src").rglob("*.py")):
+        wanted |= set(re.findall(r'portrait\(\s*"([a-z_]+)"',
+                                 path.read_text(encoding="utf-8")))
+    check(bool(wanted), "kaynakta adiyla istenen portre bulundu",
+          ", ".join(sorted(wanted)))
+
+    missing = [name for name in sorted(wanted)
+               if name not in PORTRAITS and name not in drawn]
+    check(not missing,
+          "istenen her portrenin ya spec'i ya PNG'si var",
+          "EKSIK: " + ", ".join(missing) if missing else "")
+
+
 def main() -> int:
     test_spec_sane()
+    test_every_portrait_is_packaged()
     test_data_paths()
     test_dynamic_imports()
     test_excluded()
