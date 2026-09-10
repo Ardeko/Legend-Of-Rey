@@ -69,29 +69,37 @@ giriyor mu; adıyla istenen her portrenin karşılığı var mı) ve
 **kanıtlandı**: spec eski hâline döndürülünce `DISARIDA: jet,
 kalachev` diye kırılıyor.
 
-**A3 — Derle ve denetle.**
+**A1 — ✅ BU MAKİNEDE (10.09.2026).** Dokuz MP3 `assets/audio/music/`
+içinde, adları `music.TRACKS` ile birebir (programla sayıldı: 0 eksik,
+0 fazla). Müzik git'ten geçmiyor (`.gitignore:175`) — paketlenmiş oyunu
+üretebilen tek makine bu.
 
-```
-.venv/Scripts/python.exe -m PyInstaller "Legend of Rey.spec"
-.venv/Scripts/python.exe tests/test_build.py
-```
+**A3 — ✅ Derlendi ve ÇIKTI denetlendi (10.09.2026).** Eski not
+haklıydı: `test_build.py` spec'i okur, çıktıyı değil. Bu yüzden exe'nin
+kendi arşivi listelendi
+(`python -m PyInstaller.utils.cliutils.archive_viewer --list`):
 
-`test_build.py` dört şeyi denetliyor: veri yolları, dinamik importlar,
-dışlananlar, spec tutarlılığı. **Derledikten sonra oyunu gerçekten aç**
-— B1'de Jet'in sinematiğine kadar oyna ve portrenin elle çizilmiş
-olanı mı yoksa prosedürel mi olduğuna **bak**. A2'nin tek gerçek
-doğrulaması bu; `test_build.py` spec'i okur, diskte olan ile
-karşılaştırmaz.
+* **9 MP3'ün 9'u** içinde
+* **5 portrenin 5'i** içinde — `jet.png` ve `kalachev.png` dahil (A2)
 
-**A4 — Taşınabilir tek exe.** Arda "ikisi de" dedi: hem kurulum
-dosyası hem taşınabilir. `.spec`'in şu an `onedir` mi `onefile` mı
-ürettiğine bak; taşınabilir sürüm `onefile` ister.
+Paketlenmiş exe `LORE_SAVE_DIR` geçici bir dizine alınarak 40 saniye
+çalıştırıldı: **çökmedi**, iz yok, gerçek kayda dokunmadı. ⚠ Exe'yi
+test için çalıştırırken `LORE_SAVE_DIR` verilmezse ilk açılış senin
+`save.json`'unu `save1.json`'a taşır (B grubunun göçü) — bu tasarım,
+ama bir *deneme* çalıştırmasında istenmez.
 
-**A5 — Inno Setup kurulum dosyası.** **Depoda hiç `.iss` yok** —
-sıfırdan yazılacak. Gerekenler: `icon.ico` (kökte, 67 KB),
-`OKU-BENI.txt`, sürüm numarası, başlat menüsü kısayolu, kaldırma.
-Kayıt dizini `%APPDATA%\LegendOfRey` — **kaldırma onu silmemeli**,
-oyuncunun ilerlemesi orada.
+Hâlâ gözle bakılması gereken: B1'de Jet'in yakın çekimi. Arşivde dosya
+var; ekranda elle çizilmiş olanın göründüğünü **oynayan** doğrular.
+
+**A4 — ✅ Zaten tek exe.** Spec'te `COLLECT` yok; `EXE(...)` binary'leri
+ve verileri içine alıyor, yani `onefile`. `dist/Legend of Rey.exe`
+(~84 MB) taşınabilir sürümün kendisi.
+
+**A5 — ⬜ Inno Setup kurulum dosyası — Arda'nın kararıyla SONRAYA.**
+Depoda hiç `.iss` yok, bu makinede `ISCC.exe` kurulu değil. Gerekenler:
+`icon.ico` (kökte, 67 KB), `OKU-BENI.txt`, sürüm numarası, başlat menüsü
+kısayolu, kaldırma. Kayıt dizini `%APPDATA%\LegendOfRey` — **kaldırma
+onu silmemeli**, oyuncunun ilerlemesi orada.
 
 > `dist/` ve `dist-yeni/` `.gitignore`'da (`441d9d6`: oyun açıkken exe
 > kilitli kalıyor). Derleme çıktısı commit edilmez.
@@ -192,6 +200,7 @@ bitirdikten sonra bana ilet"* — bu dosyanın kendisi. Düzenleyip
 | ~~**`tests/test_kalachev.py` satır bozulması**~~ ✅ `2bf1829` | Her satırın arasına boş satır girmiş: 578 satır, olması gereken 345. `9f04c9f` commit'inde (öteki bilgisayar) oldu — **merge yapmadı**. Test geçiyor, kozmetik; ama dosya okunmaz ve her diff'i şişiriyor. Repodaki tek bozuk dosya: 264 `.py` ve tüm `docs/` tarandı, temizler |
 | **Baştan sona oynanış testi** | **Kalan en değerli iş.** Sistemler doğru, testler yeşil — ama dört saatlik akışın *ritmi* ölçülmez |
 | **B9 freski** | Çan ipucu eklendi, **sıranın** okunabildiği doğrulanmadı. Arda oynayıp söyleyecek |
+| **İzleyen'in göz rengi** | `korku.md` §5.2 *"gözlerde `violet_bright` — Yankı'nın rengi, bağ kurulsun"* diyor. Ölçüldü: göz **(252,250,246)** — neredeyse beyaz ve **palet dışı**. `glow_eyes=255` `arcane` tonunu beyaza yakıyor. `arcane`'i altı sprite paylaşıyor (Sessiz, Kaynak dahil), o yüzden sessizce değiştirilmedi — **sanat kararı, Arda'nın**. `glow` hiçbir testte ölçülmüyor |
 | **Ok/bomba sprite'ı** | Prosedürel çiziliyor, elle çizilmiş değil. Görev 9'un sanat geçişine bırakıldı |
 | **`/code-review ultra`** | 17+ commit derin incelemeden geçmedi. **Arda tetiklemeli** — Claude kendisi başlatamaz |
 | **Tam ekran ikinci monitörde** | §9 madde 9. **Bizim hatamız değil:** pygame-ce 2.5.8 pencerenin hangi ekranda olduğunu sormanın yolunu vermiyor (iki yol da ölçüldü). Kütüphane açarsa `window_origin()` tek noktadan düzelir |
