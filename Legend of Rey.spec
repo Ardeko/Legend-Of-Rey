@@ -22,11 +22,16 @@ yeni bir varlik klasoru eklenip buraya yazilmazsa test kiriliyor.
     assets/*.md                belgeler
     docs/, tools/, tests/      gelistirme
 
-## console=True - bilerek
+## console=False - yayin surumu (Arda, 10.09.2026)
 
-Bir tester surumunde cokme **gorunur** olmali. Konsol kapaliysa oyun
-sessizce kapaniyor ve elimizde hicbir sey kalmiyor; acikken tester
-ekran goruntusu alabiliyor. Yayin surumunde `False` olacak.
+Tester surumunde `True`'ydu: cokme **gorunur** olsun, tester ekran
+goruntusu alabilsin diye. Oyun bitti ve dagitilacak surumde oyunla
+birlikte acilan siyah pencere yersiz duruyordu - kapatildi.
+
+**Bedeli bilinerek kabul edildi:** bu surumde bir cokme iz birakmadan
+kapanir. Kodda konsola dogrudan yazan satir yok (`print` stdout `None`
+iken sessizce hicbir sey yapmiyor), yani konsolun kapanmasi kendi basina
+bir cokme uretmiyor - paketlenmis exe 40 sn olculdu.
 """
 
 from pathlib import Path as _Path
@@ -180,8 +185,8 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    # Tester surumu: cokme gorunur olsun. Gerekce dosya basliginda.
-    console=True,
+    # Yayin surumu: konsol penceresi yok. Gerekce dosya basliginda.
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

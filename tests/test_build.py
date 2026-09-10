@@ -171,8 +171,11 @@ def test_spec_sane() -> None:
     print("\n--- spec ---")
     check(SPEC.exists(), "spec dosyasi var")
     spec = spec_text()
-    check("console=True" in spec,
-          "tester surumunde konsol ACIK - cokme gorunur olmali")
+    # Yayin surumu (Arda, 10.09.2026): konsol penceresi YOK. Tester
+    # surumunde True'ydu - geri acilirsa oyunla birlikte siyah bir
+    # pencere acilir ve bu test onu yakalar.
+    check("console=False" in spec,
+          "yayin surumu: konsol penceresi kapali")
     check((ROOT / "icon.ico").exists(), "icon.ico yerinde")
     check((ROOT / "tools" / "palette.json").exists(), "palette.json yerinde")
     check((ROOT / "src" / "ui" / "lang" / "tr.json").exists(),
