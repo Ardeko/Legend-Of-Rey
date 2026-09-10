@@ -1,0 +1,69 @@
+LEGEND OF REY
+Ardeko Studios · v1.0
+
+(Türkçesi: OKU-BENI.txt)
+
+===============================================================
+HOW TO RUN
+===============================================================
+
+Double-click "Legend of Rey.exe". There is no installer.
+
+If Windows says "Windows protected your PC": More info -> Run anyway.
+The game isn't code-signed, that's all.
+
+The first launch takes a few seconds - the game is a single file and
+unpacks itself into a temporary folder.
+
+Saves are kept here (two save slots):
+  %APPDATA%\LegendOfRey\
+
+To start completely fresh, delete that folder.
+
+THE GAME STARTS IN TURKISH. To switch to English, on the main menu:
+  AYARLAR (Settings) -> OYNANIS (Gameplay) -> Dil (Language) -> English
+The menus change immediately.
+
+
+===============================================================
+CONTROLS
+===============================================================
+
+  Arrows / A-D           move
+  Space / W / Z          jump
+  J or X                 attack
+  Shift / L / C          dodge
+  E                      interact (levers, chests, people)
+  Q / K (hold)           Echo - Rey sees, Ardo reads traces
+  F                      ask the Echo a question
+  G                      resonance (after chapter 8)
+  U                      command your companion ("wait here")
+  Y                      switch character (chapter 17)
+  Tab                    inventory / weapon
+  Esc                    pause
+
+Gamepad is OFF by default - turn it on in Settings.
+Every key can be rebound in Settings -> Controls (Turkish: Tuslar).
+
+
+===============================================================
+ACCESSIBILITY
+===============================================================
+
+Settings include three colour-blind modes, screen-shake and flash
+limits, UI scaling, damage-taken and enemy-speed sliders, auto-combo,
+and a horror setting (full / reduced / off).
+
+Contains fantasy violence, blood, psychological horror and the death
+of a character.
+
+
+===============================================================
+IF THE GAME CLOSES
+===============================================================
+
+Tell us which chapter you were in, what you did last and roughly how
+long you had been playing. A crash leaves no error message behind, so
+every detail you remember helps.
+
+Thanks for playing.
