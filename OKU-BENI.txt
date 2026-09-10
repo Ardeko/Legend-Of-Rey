@@ -1,5 +1,5 @@
 LEGEND OF REY — test sürümü
-Ardeko Studios · 02.09.2026
+Ardeko Studios · 10.09.2026
 
 ═══════════════════════════════════════════════════════════════
 NASIL ÇALIŞTIRILIR
@@ -10,9 +10,8 @@ NASIL ÇALIŞTIRILIR
 Windows "bilinmeyen yayıncı" uyarısı verirse: Daha fazla bilgi →
 Yine de çalıştır. (İmzalı değil, o kadar.)
 
-Arkada bir siyah konsol penceresi açılır — BU NORMAL. Oyun çökerse
-hata orada yazar; bir sorun görürsen o pencerenin ekran görüntüsünü
-al, bizim için en değerli şey o.
+İlk açılış birkaç saniye sürebilir — oyun tek dosya ve açılırken
+kendini geçici bir klasöre çıkarıyor. Bu normal.
 
 Kayıtlar buraya gider:
   %APPDATA%\LegendOfRey\
@@ -31,7 +30,7 @@ istersen komut satırından bölüm adını ver:
 
 Kullanılabilir adlar: bolum1 ... bolum18, ayrıca ara sahneler
 (bolum18-ad, bolum18-sessizlik, safak gibi). Yanlış bir ad
-yazarsan konsol geçerli olanların listesini basar.
+yazarsan oyun hiç açılmaz — adı kontrol et.
 
 DİKKAT: Doğrudan atlayınca karakterin yetenekleri kayıttan gelir.
 Kayıt yoksa Rey kılıçsız başlayabilir — normal akışta böyle olmaz.
@@ -85,8 +84,8 @@ BİLDİĞİMİZ EKSİKLER — bunları yazmana gerek yok
 • Ara sahnelerin arka planları kod ile çiziliyor, çizim değil.
   Sade duruyorlar; farkındayız.
 
-• Sadece Rey, Ardo ve Cemo'nun portresi çizilmiş durumda. Öteki
-  karakterler kod üretimi.
+• Rey, Ardo, Cemo, Jet ve Kalachev'in portresi çizilmiş durumda.
+  Öteki karakterler kod üretimi.
 
 • Ses efektleri sentezle üretiliyor (dosya değil). Müzik gerçek.
 
@@ -146,9 +145,11 @@ BİR HATA BULURSAN
   - Hangi bölüm / oda
   - Ne yapıyordun
   - Ne bekliyordun, ne oldu
-  - Konsol penceresinde yazı varsa ekran görüntüsü
+  - Yapabildiysen ekran görüntüsü
 
-Oyun donarsa ya da kapanırsa: konsol penceresi çok önemli,
-kapatmadan fotoğrafını çek.
+Oyun donarsa ya da kendiliğinden kapanırsa: hangi bölümdeydin, en
+son ne yaptın, ne kadar oynamıştın — bunları yaz. Kapanan bir oyun
+arkasında hata mesajı bırakmıyor, o yüzden senin anlattığın her
+ayrıntı değerli.
 
 Teşekkürler.
