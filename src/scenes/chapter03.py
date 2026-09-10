@@ -86,6 +86,74 @@ TRADE_OFFERS = (
 )
 
 
+# --- SOK 1 (`docs/korku.md` §6, satir 1) -------------------------------------
+# *"Mesaleyi yere biraktigin anda, isigin kenarinda bir sey HAREKET
+# EDER ve gider."*
+#
+# Karanligin maliyetini bir kez, sert bicimde ogretiyor - ve tam
+# oyuncunun onu KENDI ELIYLE sectigi anda: mesaleyi biraktin, gorusun
+# daraldi, ve daralan cemberin kenarinda bir sey vardi.
+#
+# Kurallara uyum (`docs/korku.md` §3):
+#   1. Oynanisi durdurmuyor  - kontrol da kamera da alinmiyor
+#   2. Bir kez               - `try_shock` kapisi
+#   3. Ses YOK               - "ses korkutmaz, sessizlik korkutur"
+#   4. Kacirilabilir         - arkanda beliriyor, donmezsen gormezsin
+#
+# **Ne oldugu soylenmiyor.** Suruklenen sprite'i kullaniliyor ama
+# `silhouette_mode` ile tek renge duzlesiyor: oyuncu bir dusman degil
+# bir SEKIL goruyor. Tanidik bir siluet "dusman" diye okunurdu ve
+# okununca korkutmazdi.
+SHOCK_FRAMES = 46          # ~0.75 sn: gormeye yeter, bakmaya yetmez
+SHOCK_DRIFT = 19.0         # bir govde eni kadar uzaklasiyor
+SHOCK_FADE = 16            # son bu kadar karede soner
+
+
+class EdgeShape:
+    """Isigin kenarinda bir sekil. Yurur, soner, bir daha olmaz.
+
+    Bir `Actor` **degil**: govdesi yok, carpismasi yok, vurulamaz.
+    Dusman yapmak onu bir hedefe cevirirdi - oysa anin butun isi
+    dokunulamaz olmasi.
+    """
+
+    __slots__ = ("x", "y", "facing", "frames", "animator")
+
+    def __init__(self, x: float, y: float, facing: int) -> None:
+        from src.art.animator import Animator
+        self.x = float(x)
+        self.y = float(y)
+        self.facing = facing
+        self.frames = SHOCK_FRAMES
+        self.animator = Animator("shambler")
+        self.animator.play("run")
+
+    @property
+    def gone(self) -> bool:
+        return self.frames <= 0
+
+    def update(self) -> None:
+        if self.frames <= 0:
+            return
+        self.frames -= 1
+        # Isiktan **uzaga** yuruyor: yaklasan bir sey tehdit olurdu,
+        # uzaklasan bir sey soru olur.
+        self.x += self.facing * (SHOCK_DRIFT / SHOCK_FRAMES)
+        self.animator.update()
+
+    def draw(self, surface: pygame.Surface, offset) -> None:
+        alpha = (255 if self.frames > SHOCK_FADE
+                 else int(255 * self.frames / SHOCK_FADE))
+        image = self.animator.render(self.facing, silhouette_mode=True,
+                                     tint_colour=palette.color("void"),
+                                     alpha=max(0, alpha))
+        if image is None:
+            return
+        ox, oy = offset
+        surface.blit(image, (int(self.x - image.get_width() * 0.5) - ox,
+                             int(self.y - image.get_height()) - oy))
+
+
 def _load(path: str):
     module_name, class_name = path.split(":")
     module = __import__(module_name, fromlist=[class_name])
@@ -125,6 +193,8 @@ class Chapter03Scene(PlayScene):
                                           self.player.body.feet[1])
         self.has_purple_flame = False
         self.blackout_frames = 0        # Karanlik Dalgasi (Oda 7)
+        # Sok 1 - mesale ilk kez elden cikinca.
+        self.edge_shape: EdgeShape | None = None
 
         self.chests = [
             Chest(spot.x, spot.feet_y,
@@ -249,6 +319,7 @@ class Chapter03Scene(PlayScene):
         if self.trading:
             self._update_trade()
         self._update_torch_input()
+        self._update_edge_shape()
         self._update_torch_physics()
         self._update_combo_restriction()
         self._update_light()
@@ -321,6 +392,10 @@ class Chapter03Scene(PlayScene):
                 self._socket_torch(socket)
             else:
                 self.torch.throw(self.player.facing)
+            # Iki yol da "mesaleyi biraktin" demek; sok ikisinde de
+            # ayni. Yalnizca yuvaya koymaya baglasaydik firlatarak
+            # ilerleyen oyuncu onu hic gormezdi.
+            self._edge_shock()
         elif self.torch is None:
             # Elde mesale yok - yakindaki yanan bir yuvadan yeniden yak.
             socket = self._nearest_lit_socket()
@@ -328,6 +403,60 @@ class Chapter03Scene(PlayScene):
                 self.torch = Torch(self.player.body.center_x,
                                    self.player.body.feet[1])
                 self.game.play_sound("torch_light")
+
+    def _shock_side(self) -> int:
+        """Sekil hangi yana konsun - **olculuyor**, varsayilmiyor.
+
+        Ilk surum kosulsuz "arkaya" koyuyordu ve mesaleyi duvar dibinde
+        birakan oyuncu hicbir sey gormuyordu: sekil ya tasin icinde ya
+        kameranin disindaydi. Ayni sinif hata B5'in ilk gorusunde de
+        yasandi (olay ekranin 21 tile otesinde oynadi).
+
+        Once arka, sonra on; ikisi de kapaliysa **sok hic olmuyor** ve
+        `try_shock` onu harcamis oluyor - bu bilincli: gorunmeyen bir
+        sok, oynamis sayilmaz ama tekrar denenirse bir dokuya doner.
+        """
+        body = self.player.body
+        half = INTERNAL_WIDTH // 2 - 16      # kamera yari genisligi, pay ile
+        for side in (-self.player.facing, self.player.facing):
+            x = body.center_x + side * TORCH_LIGHT_RADIUS
+            probe = pygame.Rect(int(x) - 5, int(body.feet[1]) - 20, 10, 20)
+            if self.tilemap.solid_overlap(probe):
+                continue                     # tasin icinde
+            if abs(x - self.camera.offset[0] - half) > half:
+                continue                     # kameranin disinda
+            return side
+        return 0
+
+    def _update_edge_shape(self) -> None:
+        if self.edge_shape is None:
+            return
+        self.edge_shape.update()
+        if self.edge_shape.gone:
+            self.edge_shape = None
+            # **Kisilma geri aliniyor.** Kalici olsaydi bolumun geri
+            # kalani sessiz kalirdi ve bu bir hata gibi okunurdu -
+            # sok bir AN, bir durum degil.
+            self.game.music.duck(0.0)
+
+    def _edge_shock(self) -> None:
+        """Isigin kenarinda bir sey. **Bir kez.**"""
+        if not self.try_shock("b3_edge"):
+            return
+        body = self.player.body
+        # Oyuncunun **arkasinda** beliriyor: onunde olsaydi yoluna
+        # cikan bir sey olurdu ve oyuncu ona dogru yururdu. Arkada
+        # olunca donup bakmak bir karar oluyor - ve cogu oyuncu
+        # donmuyor. Kacirilabilir olmasi kural 4.
+        side = self._shock_side()
+        if side == 0:
+            return                      # iki yan da kapali - sok yok
+        self.edge_shape = EdgeShape(
+            body.center_x + side * TORCH_LIGHT_RADIUS,
+            body.feet[1], side)
+        # Ses YOK (kural 3). Muzik bir an kisiliyor - korkutan sey
+        # beklenen sesin GELMEMESI.
+        self.game.music.duck(0.55)
 
     def _nearest_dark_socket(self, range_px: float = TILE_SIZE * 2.5):
         best, best_d = None, range_px
@@ -681,6 +810,11 @@ class Chapter03Scene(PlayScene):
         cave_backdrop.draw(surface, offset, self.game.frame)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
+        # **En altta** ciziliyor: sekil isigin kenarinda, yari
+        # karanlikta duruyor. Herseyin ustune cizilseydi apacik
+        # goruntur ve "kacirilabilir olmali" kurali bozulurdu.
+        if self.edge_shape is not None:
+            self.edge_shape.draw(surface, offset)
         lit_sconces = [tuple(entry) for entry in self.sconces]
         cave_backdrop.draw_torches(surface, offset, lit_sconces, self.game.frame)
         self.brazier.draw(surface, offset, self.game.frame)

@@ -36,6 +36,7 @@ oyuncu neyi kaybettigini fark etmeden gecerdi.
 from __future__ import annotations
 
 import math
+from dataclasses import replace as _replace
 
 import pygame
 
@@ -43,6 +44,7 @@ from src.art import palette
 from src.config import INTERNAL_HEIGHT, INTERNAL_WIDTH
 from src.scenes.staging import ActorSpec, Cue, MoteField, StagedScene
 from src.scenes.story import Panel
+from src.systems import horror
 from src.ui.dialogue import Line
 
 GROUND_Y = 186
@@ -101,6 +103,38 @@ class _Chapter13Cinematic(StagedScene):
 
 
 # --- Ara Sahne 1: "Kafes" ★ ---------------------------------------------------
+# --- SOK 3 (`docs/korku.md` §6, satir 3) -------------------------------------
+# *"Cemo tasinirken, ekranin kenarinda bir an Izleyen belirir - ve
+# CEMO ONA BAKAR."*
+#
+# Oyuncu uc bolumdur Izleyen'i goruyor (B5, B11) ve hep tek basina
+# gordugunu saniyor. Burada anliyor ki Cemo da goruyor - ve tasinirken
+# kardesine degil ONA bakiyor. Korkutan sey Izleyen degil, bakisin yon
+# degistirmesi.
+#
+# Kurallar (`docs/korku.md` §3):
+#   2. Bir kez     - sinematik atlanamaz ve bolum basina bir kez oynar
+#   3. Ses YOK     - cue'larin hicbiri ses calmiyor
+#   4. Kacirilabilir - Izleyen yari saydam, kenarda, 34 kare
+#   6. Cemo'ya zarar YOK - yalnizca bakiyor
+#
+# Korku katmani kapaliysa (`horror.shock`) ne aktor ekleniyor ne cue:
+# Cemo sebepsiz yere donmesin.
+WATCHER_X = INTERNAL_WIDTH - 26.0
+WATCHER_CUES = (
+    # **Tam alfa.** Ilk surum 170'ti ve gozleri griye cekiyordu
+    # (olculdu): govde zaten karanlikta kayboluyor, okunan tek sey
+    # gozler - ve oyundaki Izleyen onlari tam parlaklikta ciziyor.
+    # "Karanlikta ONCE gozler gorunur" (`WATCHER_SPEC`). Kacirilabilirlik
+    # alfadan degil kenardan ve 34 karelik sureden geliyor.
+    Cue("watcher", delay=12, visible=True, alpha=255),
+    # Kardesinden gozunu ayiriyor. Oncesinde Rey'e bakiyordu.
+    Cue("cemo", delay=20, face=1),
+    # Cemo onun durdugu yere tasinirken yok oluyor.
+    Cue("watcher", delay=46, visible=False),
+)
+
+
 class CageCinematic(_Chapter13Cinematic):
     """Cemo gorunuyor, bakiyor, tasiniyor.
 
@@ -156,7 +190,17 @@ class CageCinematic(_Chapter13Cinematic):
             # "uzakta" degil "kucuk" okunurdu.
             ActorSpec("cemo", "cemo", 300.0, LEDGE_Y, facing=-1, scale=2,
                       shadow=False, depth=0.85),
-        )
+        ) + self._watcher_actor()
+
+    def _watcher_actor(self) -> tuple[ActorSpec, ...]:
+        """Sok 3'un Izleyen'i - korku katmani kapaliysa hic yok."""
+        if not horror.shock(self.game.settings):
+            return ()
+        # Cemo ile ayni katta ve ayni derinlikte: ikisi ayni dunyada,
+        # oyuncu ise asagida.
+        return (ActorSpec("watcher", "watcher", WATCHER_X, LEDGE_Y,
+                          facing=-1, scale=2, visible=False, alpha=0,
+                          shadow=False, depth=0.85),)
 
     def on_enter(self, character: str = "rey", **kwargs: object) -> None:
         super().on_enter(character=character, **kwargs)
@@ -185,6 +229,12 @@ class CageCinematic(_Chapter13Cinematic):
                          if character != "ardo" else "line.ch13_ardo_reach"),
             "bos": self.voice("line.ch13_echo_cage", "line.ch13_trace_cage"),
         })
+        if self.actor("watcher") is not None:
+            # `Panel` donuk (frozen) bir veri sinifi: kopyasi uretiliyor.
+            self.panels = tuple(
+                _replace(p, cues=tuple(p.cues) + WATCHER_CUES)
+                if p.name == "tasiniyor" else p
+                for p in self.panels)
 
     def draw_stage_background(self, surface: pygame.Surface, panel: Panel,
                               progress: float,

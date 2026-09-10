@@ -17,7 +17,7 @@ Son güncelleme: **08.09.2026** (korku katmanı, kayıt hatası, uzaktan dövü�
 
 ## 0. SIRADA NE VAR — **YENİ OTURUM ÖNCE BURAYI OKU**
 
-**49 test paketi yeşil. Çalışma alanı temiz.** 209 `src` modülünün 209'u import ediliyor.
+**50 test paketi yeşil.** 209 `src` modülünün 209'u import ediliyor.
 
 > **Testler `unittest` sınıfı DEĞİL, bağımsız betik.** Koşma biçimi:
 > ```
@@ -137,38 +137,51 @@ yazmıyor, DEVAM ET tek kayıtta ekran açmıyor.
 
 ---
 
-### 0.3 C GRUBU — KORKU KATMANI FAZ 5 ve 6
+### 0.3 ✅ C GRUBU — KORKU KATMANI FAZ 5 ve 6 — BİTTİ (10.09.2026)
 
-`docs/korku.md` onaylı ve bağlayıcı. **6 fazın 4'ü bitti.**
+`docs/korku.md` §6'nın **beş anının beşi** yerinde:
 
-**Faz 5 yarım.** Jumpscare **bitti** — `src/systems/jumpscare.py`,
-B14'ün ihanet anında (`chapter14.py:97-99`). Ama §6'nın **dört şoku
-hiç yazılmadı**; `horror.shock()` yalnızca `jumpscare.py`'den
-çağrılıyor ve dört bölümün dördünde de iz yok:
-
-| # | Bölüm | Ne | Durum |
+| # | Bölüm | Ne | Nerede |
 |---|---|---|---|
-| 1 | B3 Meşale Mahzeni | Meşaleyi bırakınca ışığın kenarında bir şey hareket eder ve gider | ⬜ |
-| 2 | B11 Ayna Salonu | Yansıman senden **bir kare geç** döner | ⬜ |
-| 3 | B13 Cemo | Cemo taşınırken kenarda İzleyen belirir — **ve Cemo ona bakar** | ⬜ |
-| ★ | B14 Yankı'nın Kaynağı | **JUMPSCARE** (§6.1) | ✅ |
-| 4 | B18 Son | Cemo'nun sesi ilk duyulduğunda | ⬜ |
+| 1 | B3 | Meşaleyi bırakınca ışığın kenarında bir şekil yürür, söner | `chapter03.py` `EdgeShape`, `_edge_shock` |
+| 2 | B11 | Duvar aynasındaki yansıman **bir kez geç** döner | `chapter11.py` `_update_reflection` |
+| 3 | B13 | Cemo taşınırken kenarda İzleyen — **Cemo ona bakar** | `chapter13_cinematics.py` `WATCHER_CUES` |
+| ★ | B14 | Jumpscare | `systems/jumpscare.py` |
+| 4 | B18 | Cemo'nun sesi ilk duyulduğunda — **sessizlik** | `chapter18.py` `_voice_shock` |
 
-B11'de `spawn_watcher(62, 13, retreats=True)` var ama o §5.3'ün
-sıradan İzleyen'i, §6'nın şoku değil.
+**Kapı tek yerde:** `PlayScene.try_shock(name)` iki şeyi birden soruyor —
+bir kez mi (§3 kural 2) ve Katman 3 açık mı (§8). Dört bölüme ayrı ayrı
+yazılsaydı biri unutulurdu ve "korku kapalı" diyen oyuncu bir bölümde
+irkilirdi. (B13 bir sinematik, `PlayScene` değil; o `horror.shock`'u
+doğrudan soruyor ve atlanamaz sinematik zaten bölüm başına bir kez oynuyor.)
 
-**Faz 6 — Arda'nın açık isteği:** *"diyalogların hepsini bitirdikten
-sonra bana ilet, geliştirip tekrar yollayacağım."* `tools/dialogue_dump.py`
-hepsini tek dosyaya döküyor. Bekleyen replikler: `ch02_echo_bones`,
-`ch04_echo_seed`, `ch04_echo_name`, `ch04_ardo_name`, `ch09_echo_seed`,
-`ch13_echo_seed`, `echo_alone_voice`, `kalachev_name` ve **Jet'in dokuz
-repliği** (`ch01_jet_*`, `ch01_rey_jet`, `ch01_rey_name`,
-`ch01_ardo_jet`, `ch01_ardo_name`).
+Dördü de **ses çıkarmıyor** (§3 kural 3): B3 ve B18 müziği kısıyor —
+korkutan şey beklenen sesin gelmemesi — ve kısma kendini geri alıyor.
+Hiçbiri kontrolü almıyor (kural 1).
 
-> §9 madde 8, korku katmanının **5.5** (Zindan Değişiyor) ve **6.1**
-> (Jumpscare) maddelerinin kapandığını söylüyor ve **doğru**:
-> `play.py:680 _update_room_drift` + `play.py:721 decals.claw()`
-> yerinde. Kapanan o iki madde; §6'nın dört şoku ayrı iş.
+Üç karar ölçüme dayanıyor:
+
+* **B3'ün şekli ilk sürümde ekran dışında kaldı** — duvar dibinde
+  bırakılan meşalede "arka" taş ya da kamera dışıydı. B5'in ilk
+  görüşüyle aynı sınıf hata. Artık `_shock_side()` önce arkayı, sonra
+  önü deniyor; ikisi de kapalıysa şok hiç olmuyor.
+* **B11'in "bir kare"si bir SANAT karesi** — 8 oyun karesi. Tek oyun
+  karesi 16 ms ve algı eşiğinin altında; şok hiç olmamış olurdu.
+  Yalnızca **yüz** gecikiyor, konum ve yürüyüş eşit — bütün yansıma
+  geriden gelseydi B14'ün Yankılayan'ı gibi okunurdu.
+* **B11'in aynası yeni** — ışın aynaları 16 piksellik bulmaca parçası,
+  yansıma taşıyamaz. Öğrenme odasında (sütun 36-38), çünkü oyuncu ayna
+  çevirmek için orada ileri geri yürüyor, yani dönüyor.
+
+`tests/test_shocks.py` (yeni, 29 kontrol): her şok oluyor, görünür
+yerde oluyor, bir kez oluyor, korku kapalıyken olmuyor.
+
+**Faz 6 — diyaloglar:** `docs/diyaloglar.md` artık **337 repliğin
+hepsini** taşıyor (v3'te `tools/dialogue_dump.py` B6'dan 18'e çıkarıldı,
+konuşmacı adları çözüldü). Arda'nın isteği — *"diyalogların hepsini
+bitirdikten sonra bana ilet"* — bu dosyanın kendisi. Düzenleyip
+`python tools/dialogue_dump.py --geri` ile oyuna geri yazılıyor
+(gidiş-dönüş kayıpsız, ölçüldü).
 
 ---
 

@@ -77,6 +77,10 @@ from src.world.tilemap import SOLID, TileMap
 # Susturma halkasinin yaricapi (piksel) - oyuncunun ustunde.
 RING_RADIUS = 13
 
+# Sok 4'ten sonra muzigin kesik kaldigi sure. Uc saniye: repligin
+# okunmasina yeter, bolumu sessiz birakacak kadar uzun degil.
+SHOCK_HUSH_FRAMES = 180
+
 # --- Uc faz ------------------------------------------------------------------
 PHASE_TOGETHER = 1      # dorduniz birlikte
 PHASE_TAKEN = 2         # aliniyor - dovus yok
@@ -153,6 +157,8 @@ class Chapter18Scene(PlayScene):
         self.calls = 0
 
         # --- Uc faz -----------------------------------------------------
+        # Sok 4'un sessizligi kac kare surecek (0 = sok olmadi).
+        self.silence_shock_frames = 0
         self.phase = PHASE_TOGETHER
         self.taken_frames = 0       # faz 2'nin kendi sayaci
         self.taken_step = 0         # cetvelde kacinci adim islendi
@@ -198,6 +204,21 @@ class Chapter18Scene(PlayScene):
             # onemli, cunku oyuncunun once TANIMASI gerekiyor.
             # `say()` kuyrugu DEGISTIRIYOR, eklemiyor: iki ayri cagri
             # birincisini dusururdu. Tek cagrida veriliyor.
+            # --- SOK 4 (`docs/korku.md` §6, son satir) ------------------
+            # *"Cemo'nun sesi ILK duyuldugunda."*
+            #
+            # Twist'in anlatidaki karsiligi: on yedi bolumdur aranan
+            # cocugun sesi nihayet geliyor - ve yanlis agizdan.
+            #
+            # Sok **sesin gelmesiyle degil** kuruluyor: muzik ve
+            # ortam tamamen kesiliyor (§3 kural 3, *"ses korkutmaz,
+            # sessizlik korkutur"*), zaman bir an duruyor, kamera
+            # oyalaniyor. Ani bir gurultu ucuz olurdu ve §9 onu
+            # acikca reddediyor.
+            #
+            # Kontrol ALINMIYOR (kural 1): hitstop 14 kare, bir
+            # kacinma suresinden kisa.
+            self._voice_shock()
             if self.character == "ardo":
                 self.say(Line("ardo", "line.ch18_ardo_voice"))
             else:
@@ -207,6 +228,19 @@ class Chapter18Scene(PlayScene):
                 # Taninmayan tohum, tohum degildir.
                 self.say(Line("cemo", "line.ch01_cemo_gift"),
                          Line("rey", "line.ch18_rey_voice"))
+
+    def _voice_shock(self) -> None:
+        """Cemo'nun sesi ilk kez. **Sessizlikle** kuruluyor."""
+        if not self.try_shock("b18_voice"):
+            return
+        self.game.hitstop(14)
+        self.camera.linger(48)
+        # Tamamen kesiliyor. `_update_taken` faz 2'de kendi kismasini
+        # yapiyor; burada geri acan **oda cikisi** (`_enter_zone`)
+        # degil, bir sonraki muzik baglami - "arena" tetigi
+        # `music_context` uzerinden boss parcasini basliyor.
+        self.game.music.duck(1.0)
+        self.silence_shock_frames = SHOCK_HUSH_FRAMES
 
     # --- Dongu --------------------------------------------------------------
     def update_scene(self) -> None:
@@ -227,10 +261,23 @@ class Chapter18Scene(PlayScene):
             self._update_taken()
             return
 
+        self._update_shock_hush()
         self._update_silence()
         self._update_triggers()
         self._update_hints()
         self._check_exit()
+
+    def _update_shock_hush(self) -> None:
+        """Sok 4'un sessizligi kendini geri aliyor.
+
+        Kalici olsaydi bolumun geri kalani sessiz kalirdi - ve bu bir
+        tasarim degil bir hata gibi okunurdu. Sok bir AN.
+        """
+        if self.silence_shock_frames <= 0:
+            return
+        self.silence_shock_frames -= 1
+        if self.silence_shock_frames == 0:
+            self.game.music.duck(0.0)
 
     def _update_silence(self) -> None:
         """Basili tut, ses gitsin.

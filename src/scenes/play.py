@@ -207,6 +207,9 @@ class PlayScene(Scene):
         # Temizlenmis odaya donunce bir sey degismis olmali - bolum
         # basina BIR kez (docs/korku.md 5.5).
         self._room_changed_done = False
+        # Bu bolumde hangi sok anlari oynadi (`docs/korku.md` §6).
+        # **Kural 2: ayni numara iki kez yok.**
+        self._shocks_fired: set[str] = set()
         self._rooms_seen: set[str] = set()
 
         self.setup()
@@ -1008,6 +1011,30 @@ class PlayScene(Scene):
         ally.wound()
         if self.save_data is not None:
             self.save_data.flags[KALACHEV_WOUND_FLAG] = True
+        return True
+
+    def try_shock(self, name: str) -> bool:
+        """Bir sok anini **bir kez** acar (`docs/korku.md` §6).
+
+        Kapi tek yerde: dagitilsaydi dort bolume yayilirdi ve biri
+        mutlaka unuturdu - "korku kapali" diyen oyuncu uc bolumde
+        rahat, birinde irkilirdi (`systems/horror.py` basligindaki
+        ayni gerekce).
+
+        Iki sey birden soruluyor:
+
+          * **Bir kez mi** - §6'nin 2. kurali: *"Bir kez ise yarayan
+            sey ikinci seferde komik olur."*
+          * **Katman 3 acik mi** - erisilebilirlik ayari (§8).
+
+        `True` donerse cagiran soku oynatir. Donmezse **hicbir sey
+        olmaz** - sok atlanir, oynanis degismez (§3 kural 1).
+        """
+        if name in self._shocks_fired:
+            return False
+        if not horror.shock(self.game.settings):
+            return False
+        self._shocks_fired.add(name)
         return True
 
     def spawn_watcher(self, tile_x: int, tile_y: int,

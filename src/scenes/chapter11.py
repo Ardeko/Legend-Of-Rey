@@ -65,6 +65,30 @@ ENEMY_CLASSES = {
 MIRROR_REACH = 32.0
 
 
+# --- SOK 2 (`docs/korku.md` §6, satir 2) -------------------------------------
+# *"Aynada kendi yansimanin senden bir kare gec donmesi."*
+#
+# Salonun ogrenme odasinda bir **duvar aynasi** var (isin aynalarindan
+# ayri: onlar 16 piksellik bulmaca parcasi, bu bir yansima yuzeyi).
+# Yansiman seninle birlikte yuruyor ve donuyor - her zaman. Bir kez,
+# aynanin onunde dondugunde, **gec** donuyor.
+#
+# "Bir kare" burada bir SANAT karesi: `CLAUDE.md` 6'ya gore animasyon
+# 8 FPS, yani bir sanat karesi ~8 oyun karesi. Tek oyun karesi 16 ms
+# ve gozun esiginin altinda kalirdi - sok hic olmamis olurdu. 8 kare
+# "tuhaf" dedirtiyor, "bozuk" dedirtmiyor (§4.4'un ayni olcusu).
+#
+# Neden ogrenme odasi: oyuncu ayna cevirmek icin orada ILERI GERI
+# yuruyor, yani donuyor. Donmeyen oyuncu soku hic gormez - kural 4,
+# kacirilabilir olmali.
+WALL_MIRROR_COLS = (36, 37, 38)
+WALL_MIRROR_ROWS = (11, 12, 13)
+MIRROR_LAG = 8              # bir sanat karesi (8 FPS animasyon)
+REFLECT_FULL = 24.0         # bu mesafeye kadar yansima tam gorunur
+REFLECT_RANGE = 64.0        # bu mesafede tamamen soner
+REFLECT_ALPHA = 150
+
+
 def _load(path: str):
     module_name, class_name = path.split(":")
     return getattr(__import__(module_name, fromlist=[class_name]), class_name)
@@ -118,6 +142,9 @@ class Chapter11Scene(PlayScene):
         self.lie_told = False
         self.doubt_told = False
         self.rule_hinted = False
+        # Sok 2: yansimanin yuzu ve kac kare daha eski yuzde kalacagi.
+        self.reflect_facing = self.player.facing
+        self.reflect_hold = 0
 
         self._enter_room(self._room_at(self.player.body.center_x))
         self._trace_beams()
@@ -181,6 +208,7 @@ class Chapter11Scene(PlayScene):
         self._trace_beams()
         self._update_lie()
         self._update_rule_hint()
+        self._update_reflection()
         self._update_chests()
         self._check_exit()
 
@@ -323,8 +351,92 @@ class Chapter11Scene(PlayScene):
                 Chapter12Scene, character=self.character))
 
     # --- Cizim --------------------------------------------------------------
+    # --- Duvar aynasi (sok 2) ------------------------------------------------
+    def _mirror_rect(self) -> pygame.Rect:
+        """Aynanin dunya koordinatlarindaki yeri."""
+        return pygame.Rect(WALL_MIRROR_COLS[0] * TILE_SIZE,
+                           WALL_MIRROR_ROWS[0] * TILE_SIZE,
+                           len(WALL_MIRROR_COLS) * TILE_SIZE,
+                           len(WALL_MIRROR_ROWS) * TILE_SIZE)
+
+    def _mirror_distance(self) -> float:
+        return abs(self.player.body.center_x - self._mirror_rect().centerx)
+
+    def _near_wall_mirror(self) -> bool:
+        rect = self._mirror_rect()
+        feet = self.player.body.feet[1]
+        return (self._mirror_distance() <= REFLECT_RANGE
+                and rect.top <= feet <= rect.bottom + 4)
+
+    def _update_reflection(self) -> None:
+        """Yansima oyuncunun yuzunu izliyor - **bir kez** gec.
+
+        Gecikme yalnizca yuz icin: konum ve yuruyus karesi hep esit.
+        Butun yansima geriden gelseydi bir "yankilanan" dusman gibi
+        okunurdu (B14'un `Echoing`i); yalnizca donusun gecikmesi ise
+        tam olarak "ben dondum, o donmedi" - daha kucuk ve daha kotu.
+        """
+        facing = self.player.facing
+        if self.reflect_hold > 0:
+            self.reflect_hold -= 1
+            return
+        if facing == self.reflect_facing:
+            return
+        if self._near_wall_mirror() and self.try_shock("b11_reflection"):
+            # Eski yuzde kaliyor. Ses yok (kural 3), kontrol alinmiyor
+            # (kural 1).
+            self.reflect_hold = MIRROR_LAG
+            return
+        self.reflect_facing = facing
+
+    def _reflection_alpha(self) -> int:
+        distance = self._mirror_distance()
+        if distance >= REFLECT_RANGE:
+            return 0
+        if distance <= REFLECT_FULL:
+            return REFLECT_ALPHA
+        ratio = (REFLECT_RANGE - distance) / (REFLECT_RANGE - REFLECT_FULL)
+        return int(REFLECT_ALPHA * ratio)
+
+    def _draw_wall_mirror(self, surface: pygame.Surface, offset) -> None:
+        """Cerceve, cam, ve camin icinde yansiman.
+
+        Yansima aynanin dikey eksenine gore **simetrik**: soldan
+        yaklasinca yansiman sagdan geliyor, ortada bulusuyorsunuz. Bir
+        yan gorunus oyununda ayna boyle okunuyor ve ilk bakista
+        taniniyor.
+        """
+        ox, oy = offset
+        world = self._mirror_rect()
+        rect = world.move(-ox, -oy)
+        surface.fill(palette.color("stone"), rect)
+        glass = rect.inflate(-4, -4)
+        surface.fill(palette.color("ink"), glass)
+        # Camin parlamasi - sol ustten, `CLAUDE.md` 6'nin isik kurali.
+        for step in range(6):
+            surface.fill(palette.color("abyss_light"),
+                         (glass.x + 3 + step, glass.y + 8 - step, 1, 1))
+
+        alpha = self._reflection_alpha()
+        if alpha <= 0:
+            return
+        image = self.player.animator.render(
+            -self.reflect_facing, tint_colour=palette.color("abyss_light"),
+            tint_strength=0.35, alpha=alpha)
+        if image is None:
+            return
+        body = self.player.body
+        mirrored_x = 2 * world.centerx - body.center_x
+        position = (int(mirrored_x - image.get_width() * 0.5) - ox,
+                    int(body.bottom - self.player.sprite_foot_y) - oy)
+        previous = surface.get_clip()
+        surface.set_clip(glass)
+        surface.blit(image, position)
+        surface.set_clip(previous)
+
     def draw_background(self, surface: pygame.Surface, offset) -> None:
         cave_backdrop.draw(surface, offset, self.game.frame)
+        self._draw_wall_mirror(surface, offset)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         self._draw_beams(surface, offset)
