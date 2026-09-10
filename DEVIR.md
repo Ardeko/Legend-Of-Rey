@@ -200,7 +200,7 @@ bitirdikten sonra bana ilet"* — bu dosyanın kendisi. Düzenleyip
 | ~~**`tests/test_kalachev.py` satır bozulması**~~ ✅ `2bf1829` | Her satırın arasına boş satır girmiş: 578 satır, olması gereken 345. `9f04c9f` commit'inde (öteki bilgisayar) oldu — **merge yapmadı**. Test geçiyor, kozmetik; ama dosya okunmaz ve her diff'i şişiriyor. Repodaki tek bozuk dosya: 264 `.py` ve tüm `docs/` tarandı, temizler |
 | **Baştan sona oynanış testi** | **Kalan en değerli iş.** Sistemler doğru, testler yeşil — ama dört saatlik akışın *ritmi* ölçülmez |
 | **B9 freski** | Çan ipucu eklendi, **sıranın** okunabildiği doğrulanmadı. Arda oynayıp söyleyecek |
-| **İzleyen'in göz rengi** | `korku.md` §5.2 *"gözlerde `violet_bright` — Yankı'nın rengi, bağ kurulsun"* diyor. Ölçüldü: göz **(252,250,246)** — neredeyse beyaz ve **palet dışı**. `glow_eyes=255` `arcane` tonunu beyaza yakıyor. `arcane`'i altı sprite paylaşıyor (Sessiz, Kaynak dahil), o yüzden sessizce değiştirilmedi — **sanat kararı, Arda'nın**. `glow` hiçbir testte ölçülmüyor |
+| ~~**İzleyen'in göz rengi**~~ ✅ | Göz `arcane` zincirinin 3. adımıyla çiziliyordu — o `white_flash`, yani beyaz (palet içi; "palet dışı" ilk ölçümde yanlış okunmuştu). `CharSpec.eye_step` eklendi, İzleyen'e 2 = `violet_bright` verildi. `arcane`'i paylaşan öteki sprite'lar değişmedi |
 | **Ok/bomba sprite'ı** | Prosedürel çiziliyor, elle çizilmiş değil. Görev 9'un sanat geçişine bırakıldı |
 | **`/code-review ultra`** | 17+ commit derin incelemeden geçmedi. **Arda tetiklemeli** — Claude kendisi başlatamaz |
 | **Tam ekran ikinci monitörde** | §9 madde 9. **Bizim hatamız değil:** pygame-ce 2.5.8 pencerenin hangi ekranda olduğunu sormanın yolunu vermiyor (iki yol da ölçüldü). Kütüphane açarsa `window_origin()` tek noktadan düzelir |

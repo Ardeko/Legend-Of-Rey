@@ -242,12 +242,46 @@ def test_b18_voice_silence() -> None:
         game.quit()
 
 
+# --- Izleyen'in gozu (`docs/korku.md` 5.2) ------------------------------------
+def test_watcher_eyes_are_echo_colour() -> None:
+    """Gozler Yanki'nin renginde - `violet_bright`, beyaz degil.
+
+    10.09.2026'ya kadar goz `arcane` zincirinin 3. adimiyla ciziliyordu
+    ve o adim `white_flash`: Izleyen'in gozu BEYAZDI. Belge morunu
+    istiyor - bag kurulsun diye. `CharSpec.eye_step` bunu yalnizca
+    Izleyen icin degistiriyor; bu test sessizce geri donmesin diye.
+    """
+    print()
+    print("--- Izleyen'in gozu ---")
+    from src.art import palette
+    from src.art.animator import Animator
+    anim = Animator("watcher")
+    anim.play("idle")
+    anim.update()
+    image = anim.render(1)
+    violet = palette.color("violet_bright")
+    white = palette.color("white_flash")
+    counts = {"violet": 0, "white": 0}
+    for y in range(image.get_height()):
+        for x in range(image.get_width()):
+            r, g, b, a = image.get_at((x, y))
+            if a == 0:
+                continue
+            if (r, g, b) == violet:
+                counts["violet"] += 1
+            elif (r, g, b) == white:
+                counts["white"] += 1
+    check(counts["violet"] >= 2, "gozler violet_bright", str(counts))
+    check(counts["white"] == 0, "beyaz goz YOK", str(counts))
+
+
 def main() -> int:
     test_gate()
     test_b3_edge_shape()
     test_b11_reflection_lags_once()
     test_b13_watcher_in_cage_scene()
     test_b18_voice_silence()
+    test_watcher_eyes_are_echo_colour()
 
     print("\n=== SONUC ===")
     if failures:

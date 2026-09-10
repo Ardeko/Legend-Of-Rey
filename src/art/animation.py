@@ -496,6 +496,7 @@ WATCHER_SPEC = CharSpec(
     skin="shadow", hair="shadow", cloth="shadow",
     cloth_dark="shadow", armor="shadow", accent="arcane",
     glow_eyes=255,          # En yuksek: karanlikta ONCE gozler gorunur
+    eye_step=2,             # violet_bright - Yanki'nin rengi (korku.md 5.2)
     weapon="none",
     claws=0.0,              # Cikinti YOK - saldirmayacagi siluetten okunur
     hunch=0.0,              # Dimdik. Suruklenen'in tam karsiti.

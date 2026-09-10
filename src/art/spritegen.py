@@ -80,6 +80,12 @@ class CharSpec:
     hem_length: float = 5.0
     tattoo: bool = False
     glow_eyes: int = 0
+    # Parlayan gozun `accent` zincirindeki adimi. Varsayilan 3 - ki
+    # `arcane`de o `white_flash`, yani BEYAZ goz. Izleyen icin 2 veriliyor
+    # (`violet_bright`): `docs/korku.md` 5.2 gozlerini Yanki'nin
+    # renginde istiyor, bag kurulsun diye. Alan tek sprite'a ozel;
+    # `arcane`i paylasan oteki bes sprite'in gozu degismiyor.
+    eye_step: int = 3
     # Kasin egimi (piksel). +1 yukari egik (acik, genc, sempatik),
     # -1 asagi egik (catik, sert). Tek sayi, iki farkli ifade.
     brow_tilt: int = 0
@@ -496,9 +502,9 @@ def _draw_eyes(canvas: Canvas, cx: float, cy: float, spec: CharSpec) -> None:
     """
     eye_y = int(cy + spec.head_radius * 0.05)
     if spec.glow_eyes:
-        canvas.px(int(cx + spec.head_radius * 0.35), eye_y, spec.accent, 3,
+        canvas.px(int(cx + spec.head_radius * 0.35), eye_y, spec.accent, spec.eye_step,
                   glow=spec.glow_eyes)
-        canvas.px(int(cx - spec.head_radius * 0.5), eye_y, spec.accent, 3,
+        canvas.px(int(cx - spec.head_radius * 0.5), eye_y, spec.accent, spec.eye_step,
                   glow=spec.glow_eyes)
         return
     if spec.skull:
