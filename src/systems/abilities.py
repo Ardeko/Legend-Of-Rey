@@ -41,9 +41,9 @@ ALL: Final[tuple[str, ...]] = (
     SWORD, DODGE, ECHO_SIGHT, ECHO_ASK, DOUBLE_JUMP, WALL_JUMP,
 )
 
-# Ardo hikayeye sonradan katiliyor; **egitimli** bir yabanci, sifirdan
-# baslamiyor. Rey'in ogrenme yayini tekrar oynatmak anlamsiz olurdu.
-ARDO_STARTING: Final[frozenset[str]] = frozenset({SWORD, DODGE})
+# Ardo egitimli bir yabanci (kacinma basta var) ama kilici da Jet
+# veriyor - elde kilicla "al beni" diyen ikinci bir kilica bakmamali.
+ARDO_STARTING: Final[frozenset[str]] = frozenset({DODGE})
 
 # Rey hicbir seyle baslamiyor - koy kizi.
 REY_STARTING: Final[frozenset[str]] = frozenset()

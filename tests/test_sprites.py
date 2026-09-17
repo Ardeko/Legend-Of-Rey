@@ -86,13 +86,13 @@ SPRITE_BUDGET = TILE_SIZE * 2
 # kalani (mizrakli, okcu, komutan, sessiz, yankilayan, bolunen) yalnizca
 # sanat olarak var - hicbir odaya konmadi, yani butce onlari henuz
 # baglamiyor. Sirasi gelince bu listeye eklenecekler.
-PLACED = ("rey", "rey_armed", "ardo", "villager", "cemo",
+PLACED = ("rey", "rey_armed", "ardo", "ardo_armed", "villager", "cemo",
           "shambler", "climber", "bloated", "shieldbearer")
 
 # Silah tasiyanlarda olculen yukseklige silahin ucu de giriyor. Silah
 # govde degil - ceza yazmiyoruz, ama tolerans da vermiyoruz: yalnizca
 # hangi karakterlerde bunun beklendigini ISIMLENDIRIYORUZ.
-ARMED = {"rey_armed", "ardo", "shieldbearer"}
+ARMED = {"rey_armed", "ardo_armed", "shieldbearer"}
 ARMED_ALLOWANCE = 2
 
 failures: list[str] = []
@@ -198,8 +198,22 @@ def main() -> int:
           "en benzer iki siluet bile yeterince farkli",
           f"{worst_pair} %{worst * 100:.1f} farkli (esik %22)")
 
+    print("\n--- Ardo vurusu Rey'den farkli (ayni kare sayisi) ---")
+    from src.art.animation import ANIMATIONS, pose_table
+    for state in ("attack1", "attack2", "attack3"):
+        rey_fn, rey_n, _ = pose_table("rey_armed")[state]
+        ardo_fn, ardo_n, _ = pose_table("ardo_armed")[state]
+        check(rey_n == ardo_n == 5,
+              f"{state} kare sayisi ayni (dovus tablosu bozulmasin)",
+              f"rey {rey_n} ardo {ardo_n}")
+        mid_r, mid_a = rey_fn(0.7), ardo_fn(0.7)
+        check((mid_r.weapon_angle, mid_r.weapon_hand, mid_r.dx)
+              != (mid_a.weapon_angle, mid_a.weapon_hand, mid_a.dx),
+              f"Ardo {state} poz'u Rey'den ayri",
+              f"rey {mid_r.weapon_angle:.2f}/{mid_r.weapon_hand} "
+              f"ardo {mid_a.weapon_angle:.2f}/{mid_a.weapon_hand}")
+
     print("\n--- her karakterin butun pozlari cizilebiliyor ---")
-    from src.art.animation import ANIMATIONS
     broken = []
     for name in PLACED:
         for state in ANIMATIONS:

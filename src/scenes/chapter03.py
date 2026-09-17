@@ -660,6 +660,16 @@ class Chapter03Scene(PlayScene):
             return
         self.arena_sealed = True
 
+    def after_restart(self, room: str) -> None:
+        """Mini-boss odasinda olduysak kapi yine insin.
+
+        Olum `_open_arena` cagirirdi ve Fener + altin odul olarak
+        kaliyordu. Restart sahneyi kurar; muhur burada geri gelir.
+        """
+        if room != "sonmus_olan" or self.boss_defeated:
+            return
+        self._seal_arena()
+
     def _open_arena(self) -> None:
         self.boss_defeated = True
         self.arena_sealed = False
@@ -799,11 +809,6 @@ class Chapter03Scene(PlayScene):
                 self.show_toast(t("chapter03.pocket_open"), frames=140)
                 return
         super().on_wall_broken(rects)
-
-    def on_player_died(self, player) -> None:
-        if self.arena_sealed:
-            self._open_arena()
-        super().on_player_died(player)
 
     # --- Cizim --------------------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:

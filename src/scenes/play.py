@@ -37,7 +37,7 @@ from src.systems import abilities, consumables, horror, loyalty
 from src.systems.compass import Compass
 from src.systems.echo import Answer, EchoState
 from src.systems.tracking import BLOOD, SCORCH, TraceField, TrackingState
-from src.systems.save import read_save
+from src.systems.save import read_save, write_save
 from src.ui import echo_view, tracking_view
 from src.ui.chapter_card import ChapterCard
 from src.systems.breath import Breath
@@ -50,6 +50,14 @@ from src.ui.i18n import t
 from src.world.decals import DecalField
 
 HUD_MARGIN = 6
+# Arena muhru oda basindan 1-4 tile icerde iniyor. Olum sonrasi spawn
+# bu kadar icerde olunca duvar oyuncunun ARKASINDA kalir, icinde degil.
+RESUME_INSET_TILES = 5
+# Giris muhrunu oda basindan bu kadar tile icerde ara. Cikis kapisi
+# (B2 sutun 180) bu pencerede olmasin.
+SEAL_SCAN_TILES = 8
+# Yoldas / muttefik olum sonrasi oyuncunun bu kadar yanina konur.
+FOLLOWER_RESUME_GAP = 22.0
 
 
 class _WallTarget:
@@ -102,6 +110,10 @@ class PlayScene(Scene):
 
     def on_enter(self, character: str = "rey", **kwargs: object) -> None:
         self.character = character
+        # Yalnizca DEVAM ET bunu True verir. `main.py bolumN` ve bolum
+        # gecisleri kayittaki odaya isinlamasin - o bir debug/akis yolu,
+        # kayitli ilerleme degil.
+        self._resume_save = bool(kwargs.get("resume_save", False))
         self.enemies: list = []
         self.toast = ""
         self.toast_frames = 0
@@ -228,6 +240,8 @@ class PlayScene(Scene):
         self.camera.set_bounds(self.tilemap.bounds)
         self.decals = DecalField(*self.tilemap.bounds.size)
         self.camera.snap_to(self.player.body.center_x, self.player.body.center_y)
+        self._stamp_progress()
+        self._resume_if_needed()
 
     def _restore_abilities(self) -> None:
         """Kazanilmis yetenekleri kayittan geri yukler.
@@ -466,26 +480,9 @@ class PlayScene(Scene):
         # tamami buna bagli: her olum hafizayi silseydi hicbir hayalet
         # ikinci kez gorulmezdi (docs/korku.md 5.3).
         ghosts = list(getattr(self, "ghosts", ()))
-
+        self._pending_resume = (room, x, y, entered)
         self.on_enter(character=self.character)
         self.ghosts = ghosts
-
-        if not room:
-            return
-        # `entered_rooms` geri konuyor ki anlati TEKRARLAMASIN - ust uste
-        # olen oyuncuya ayni replikleri okutmak ogut olur. Ama odanin
-        # dusmanlari yine de dogmali, o yuzden `_spawn_room` DOGRUDAN
-        # cagriliyor (`_enter_room` "zaten girilmis" deyip donerdi).
-        self.entered_rooms = entered
-        self.room = room
-        self.player.body.set_feet(x, y)
-        spawn_room = getattr(self, "_spawn_room", None)
-        if spawn_room is not None:
-            spawn_room(room)
-        # Sahne icinde KAZANILMIS durumlar geri kuruluyor (yoldas gibi).
-        self.after_restart(room)
-        self.camera.snap_to(self.player.body.center_x,
-                            self.player.body.center_y)
 
     # --- Kontrol noktasi ----------------------------------------------------
     # Oda tabanli. Alt siniflar bunun icin **hicbir sey yapmiyor**: hepsi
@@ -679,6 +676,16 @@ class PlayScene(Scene):
             self.checkpoint_room = room
             self.checkpoint_x = self.player.body.center_x
             self.checkpoint_y = self.player.body.bottom
+            self._persist_checkpoint()
+
+    def _persist_checkpoint(self) -> None:
+        """Kontrol noktasini kayit nesnesine yazar - disk duraklat/olumde."""
+        data = self.save_data
+        if data is None:
+            return
+        data.checkpoint = self.checkpoint_room
+        data.checkpoint_x = self.checkpoint_x
+        data.checkpoint_y = self.checkpoint_y
 
     def _update_room_drift(self) -> None:
         """Temizlenmis bir odaya donunce **bir sey degismis** oluyor.
@@ -862,6 +869,209 @@ class PlayScene(Scene):
 
         Alt sinif burada o durumlari geri kuruyor.
         """
+
+    def _stamp_progress(self) -> None:
+        """Bu bolume girmek kayittaki 'nerede kaldin'i gunceller.
+
+        Bolum numarasi bir donem yalnizca bolum BITINCE yaziliyordu.
+        Ortadaki boss'ta kaydedip menuye donen oyuncu kartta onceki
+        bolumu goruyor, DEVAM ET de oraya (veya unutulan Bolum 1'e)
+        iniyordu.
+        """
+        data = self.save_data
+        if data is None or not self.chapter_number:
+            return
+        if data.chapter == self.chapter_number:
+            return
+        data.chapter = self.chapter_number
+        if self.chapter_name_key:
+            data.chapter_name = self.chapter_name_key
+        data.checkpoint = ""
+        data.checkpoint_x = 0.0
+        data.checkpoint_y = 0.0
+        write_save(data)
+
+    def _resume_if_needed(self) -> None:
+        """Olum retry'si ya da DEVAM ET. Dogrudan bolum acmak dokunmaz."""
+        pending = getattr(self, "_pending_resume", None)
+        self._pending_resume = None
+        if pending is not None:
+            room, x, y, entered = pending
+            self._apply_resume(room, x, y, entered)
+            return
+        if not getattr(self, "_resume_save", False):
+            return
+        data = self.save_data
+        if data is None or not data.checkpoint:
+            return
+        if data.chapter != self.chapter_number:
+            return
+        self._apply_resume(
+            data.checkpoint, data.checkpoint_x, data.checkpoint_y,
+            {data.checkpoint})
+
+    def _apply_resume(self, room: str, x: float, y: float,
+                      entered: set[str]) -> None:
+        """Oyuncuyu odaya koy, dusmanlari dogur, muhurun icinde tut."""
+        if not room:
+            return
+        rooms = getattr(self, "entered_rooms", None)
+        if isinstance(rooms, set):
+            rooms.clear()
+            rooms.update(entered)
+        else:
+            self.entered_rooms = set(entered)
+        self.room = room
+        self.player.body.set_feet(x, y)
+        spawn_room = getattr(self, "_spawn_room", None)
+        if spawn_room is not None:
+            spawn_room(room)
+        self._resuming = True
+        try:
+            self.after_restart(room)
+        finally:
+            self._resuming = False
+        self._eject_from_solids()
+        self._pull_inside_if_sealed()
+        self._place_followers_for_resume()
+        self.checkpoint_room = room
+        self.checkpoint_x = self.player.body.center_x
+        self.checkpoint_y = self.player.body.bottom
+        self._persist_checkpoint()
+        self.camera.snap_to(self.player.body.center_x,
+                            self.player.body.center_y)
+
+    def _sealed_entry_center(self, room: str, width: float) -> float | None:
+        """Giris muhrunun saginda, govdenin TAMAMEN durabilecegi merkez.
+
+        Oda basina +5 tile varsaymak B13/B14 icin yetiyor (muhur
+        start+3). B2 kapi 157 / oda 156, B18 muhur start+4 - yine
+        icerde. Asil risk: merkeze bakmak govdenin sol yarısını
+        kapi sutununa bindirir; `_eject_from_solids` es mesafede
+        saga oncelik verse de `free_spot_near` once sola bakar ve
+        yoldasi boslukta, duvarin ARKASINDA birakir.
+        """
+        span = getattr(self, "_room_span", None)
+        if span is None or not room:
+            return None
+        start, end = span(room)
+        body = self.player.body
+        top = max(0, int(body.top) // TILE_SIZE)
+        bottom = max(top, int(body.bottom - 1) // TILE_SIZE)
+        last_block: int | None = None
+        limit = min(end, start + SEAL_SCAN_TILES)
+        for col in range(start, limit):
+            blocked = any(self.tilemap.is_solid(col, row)
+                          for row in range(top, bottom + 1))
+            if blocked:
+                last_block = col
+            elif last_block is not None:
+                break
+        if last_block is None:
+            col = start + RESUME_INSET_TILES
+        else:
+            col = last_block + 1
+        return float(col * TILE_SIZE + width * 0.5)
+
+    def _interior_feet(self, x: float, y: float,
+                       room: str, width: float = 0.0) -> tuple[float, float]:
+        """Oda kenarindaki spawn'u muhurun icine kaydirir."""
+        span = getattr(self, "_room_span", None)
+        if span is None or not room:
+            return x, y
+        start, end = span(room)
+        body_w = width or float(self.player.body.width)
+        left = self._sealed_entry_center(room, body_w)
+        if left is None:
+            left = float((start + RESUME_INSET_TILES) * TILE_SIZE + body_w * 0.5)
+        right = (end - 2) * TILE_SIZE
+        if left >= right:
+            return x, y
+        if x < left:
+            x = float(left)
+        elif x > right:
+            x = float(right)
+        return x, y
+
+    def _pull_inside_if_sealed(self) -> None:
+        """Muhur indiyse oyuncu duvarin arkasinda kalmasin.
+
+        Kontrol noktasi odaya ILK giriste aliniyor; kapi birkac tile
+        icerde kapaninca o nokta muhurun disinda kaliyor. Oyuncu
+        bosluktadir (gomulu degil) bu yuzden `_eject_from_solids`
+        yardim etmez.
+        """
+        if not getattr(self, "arena_sealed", False):
+            return
+        room = getattr(self, "room", "")
+        x, y = self._interior_feet(self.player.body.center_x,
+                                   self.player.body.bottom, room,
+                                   float(self.player.body.width))
+        self.player.body.set_feet(x, y)
+        self._eject_from_solids()
+        # Eject en kisa yolu secti ve o yol disariysa (nadir) tekrar it.
+        x, y = self._interior_feet(self.player.body.center_x,
+                                   self.player.body.bottom, room,
+                                   float(self.player.body.width))
+        if abs(x - self.player.body.center_x) > 0.5:
+            self.player.body.set_feet(x, y)
+            self._eject_from_solids()
+
+    def _resume_followers(self) -> list:
+        """Olum sonrasi yaninda olmasi gerekenler - yoldas ve Kalachev."""
+        found: list = []
+        companion = getattr(self, "companion", None)
+        if companion is not None:
+            found.append(companion)
+        for ally in getattr(self, "allies", ()):
+            if ally in found:
+                continue
+            if getattr(ally, "gone", False) or getattr(ally, "dead", False):
+                continue
+            found.append(ally)
+        return found
+
+    def _place_followers_for_resume(self) -> None:
+        """Yoldas ve muttefikler oyuncunun yaninda, muhurun icinde.
+
+        Boss kapisi oyuncunun arkasinda kapaninca yoldas oda girisinde
+        (duvarin ARKASINDA) kalabiliyordu. Oyuncu iceri cekildikten
+        sonra onlar da ayni tarafa alinir.
+        """
+        room = getattr(self, "room", "")
+        px = self.player.body.center_x
+        py = self.player.body.feet[1]
+        sealed = bool(getattr(self, "arena_sealed", False))
+        for index, follower in enumerate(self._resume_followers()):
+            body = getattr(follower, "body", None)
+            if body is None:
+                continue
+            # Saga once: sola bakmak muhurun arkasindaki boslugu "serbest
+            # yer" sanar ve yoldasi duvarin DISINA koyar.
+            side = 1 if index % 2 == 0 else -1
+            desired = px + side * FOLLOWER_RESUME_GAP * ((index // 2) + 1)
+            x_want, y_want = desired, py
+            if sealed:
+                x_want, y_want = self._interior_feet(
+                    desired, py, room, float(body.width))
+            x, y = self.free_spot_near(x_want, y_want, body)
+            if sealed:
+                x, y = self._interior_feet(x, y, room, float(body.width))
+            body.set_feet(x, y)
+            releaser = getattr(follower, "release", None)
+            if callable(releaser):
+                releaser()
+
+    def present_kalachev(self, beat: str) -> None:
+        """Yuzu ve adi - 32 piksellik figuru taninir kilar.
+
+        Olum retry'sinde tekrar oynamaz: tanisma bir kez.
+        """
+        if getattr(self, "_resuming", False):
+            return
+        from src.scenes.kalachev_cinematics import KalachevCinematic
+        self.scenes.push(KalachevCinematic, character=self.character,
+                         beat=beat)
 
     # --- Ipuclari -----------------------------------------------------------
     def hint_once(self, flag: str, message_key: str, action: Action,

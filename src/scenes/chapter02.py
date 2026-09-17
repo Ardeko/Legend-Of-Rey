@@ -503,6 +503,12 @@ class Chapter02Scene(PlayScene):
         self.scenes.push(ChapterEndScene, result=result,
                          save_data=self.save_data, on_continue=_continue)
 
+    def after_restart(self, room: str) -> None:
+        """Mini-boss odasinda olduysak kapi yine insin."""
+        if room != "miniboss" or self.boss_defeated or self.boss is None:
+            return
+        self._seal_arena()
+
     # --- Kancalar -----------------------------------------------------------
     def on_player_died(self, player) -> None:
         # Arenada olen oyuncu kilitli kalmasin - ama odulu de almasin.

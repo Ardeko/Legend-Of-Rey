@@ -166,15 +166,35 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 - tr: "Aşağıda neyin yattığını biliyorum. Onu o karanlıkta bırakamam."
 - en: "I know what lies below. I won't leave them in that darkness."
 
+### ch01_ardo_emre
+**ARDO**
+- tr: "Emre."
+- en: "Emre."
+
 ### ch01_ardo_jet
 **ARDO**
 - tr: "Sen de hiç değişmemişsin."
 - en: "You have not changed either."
 
+### ch01_ardo_jet2
+**ARDO**
+- tr: "Bana bunu mu söylüyorsun cidden?"
+- en: "You are really saying that to me?"
+
+### ch01_ardo_leave
+**ARDO**
+- tr: "Sen de."
+- en: "You too."
+
 ### ch01_ardo_name
 **ARDO**
-- tr: "Berke'yi hâlâ anıyorsun demek."
-- en: "So you still think of Berke."
+- tr: "Berke'yi hâlâ yanında taşıyorsun."
+- en: "You still carry Berke with you."
+
+### ch01_ardo_names
+**ARDO**
+- tr: "Bazı isimler unutulmaz."
+- en: "Some names do not fade."
 
 ### ch01_ardo_rift
 **ARDO**
@@ -221,20 +241,55 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 - tr: "Gördün mü? Burada perde inceliyor."
 - en: "Do you feel it? The veil is thin here."
 
+### ch01_jet_both
+**JET**
+- tr: "Bilmiyorum. Belki ikisi de."
+- en: "I do not know. Maybe both."
+
+### ch01_jet_changed
+**JET**
+- tr: "Değiştim. Sadece bazı şeyleri değiştirmedim."
+- en: "I have. I just did not change some things."
+
+### ch01_jet_east
+**JET**
+- tr: "Ben doğuya gidiyorum."
+- en: "I am heading east."
+
 ### ch01_jet_leave
 **JET**
-- tr: "Kendine iyi bak. Ben doğuya gidiyorum."
-- en: "Look after yourself. I am heading east."
+- tr: "Kendine iyi bak, Rey. Ben doğuya gidiyorum."
+- en: "Look after yourself, Rey. I am heading east."
+
+### ch01_jet_leave_ardo
+**ARDO**
+- tr: "Kendine iyi bak, Ardo."
+- en: "Look after yourself, Ardo."
+
+### ch01_jet_must
+**JET**
+- tr: "Birinin söylemesi lazım."
+- en: "Someone has to."
 
 ### ch01_jet_name
 **JET**
-- tr: "Bana köyümde arkadaşım Berke ne derdi biliyor musun? Emre."
-- en: "Know what my friend Berke back home called me? Emre."
+- tr: "Köyde bir arkadaşım vardı. Berke. Bana hep "Emre" derdi."
+- en: "I had a friend in the village. Berke. He always called me "Emre.""
 
 ### ch01_jet_name2
 **JET**
-- tr: "Takma adı başkaları verir. Adını, seni tanıyan söyler."
-- en: "Others give you a nickname. Your name is said by someone who knows you."
+- tr: "Jet… başkalarının verdiği isim. Adımıysa, beni gerçekten tanıyanlar söyler."
+- en: "Jet… that is the name others give. My name is what the people who know me say."
+
+### ch01_jet_name2_ardo
+**ARDO**
+- tr: "Jet'i herkes söyler. Emre'yi… beni gerçekten tanıyanlar."
+- en: "Everyone says Jet. Emre… that is for the ones who actually know me."
+
+### ch01_jet_name_ardo
+**ARDO**
+- tr: "Köyde Berke vardı. Bana ne derdi, biliyor musun?"
+- en: "There was Berke, back in the village. You know what he called me?"
 
 ### ch01_jet_offer
 **JET**
@@ -243,13 +298,28 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch01_jet_offer_ardo
 **ARDO**
-- tr: "Yine mi yola çıkıyorsun? Al şunu."
-- en: "On the road again? Take this."
+- tr: "Yine yollardasın demek. Al şunu."
+- en: "On the road again, then. Take this."
+
+### ch01_jet_offer_ardo2
+**ARDO**
+- tr: "Bu gece dışarıda kalma istersen."
+- en: "Do not stay out tonight, if you can help it."
+
+### ch01_jet_remember
+**JET**
+- tr: "Hatırlıyorsun."
+- en: "You remember."
+
+### ch01_jet_stay
+**JET**
+- tr: "Bazı insanlar gitse de insanın içinde kalır."
+- en: "Some people leave and still stay inside you."
 
 ### ch01_rey_jet
 **REY**
-- tr: "Neden bana veriyorsun? Kimse yaklaşmıyor bile."
-- en: "Why give it to me? No one even comes near."
+- tr: "Neden bana veriyorsun? Kimse bana yaklaşmıyor bile."
+- en: "Why give it to me? No one even comes near me."
 
 ### ch01_rey_name
 **REY**
@@ -260,6 +330,11 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 **REY**
 - tr: "Teşekkürler, Cemo. Bunu yanımda taşıyacağım."
 - en: "Thank you, Cemo. I'll keep it with me."
+
+### ch01_rey_which
+**REY**
+- tr: "Peki sen hangisisin?"
+- en: "So which one are you?"
 
 ## BOLUM 2 - Ilk Inis
 
@@ -468,13 +543,33 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch06_ardo_kalachev
 **ARDO**
-- tr: "Sen hâlâ buralarda mısın?"
-- en: "You're still down here?"
+- tr: "Kalachev. Sen hâlâ buralarda mısın?"
+- en: "Kalachev. You're still down here?"
 
 ### ch06_ardo_plates
 **ARDO**
 - tr: "İki plaka. Tek kişiyle çalışmaz."
 - en: "Two plates. One person won't be enough."
+
+### ch06_kalachev_ardo_intro
+**ARDO**
+- tr: "Kalachev. Bekleme. Açıklama yapmaz."
+- en: "Kalachev. Don't wait. He doesn't explain."
+
+### ch06_kalachev_ardo_know
+**ARDO**
+- tr: "Kalachev. Yine sen, yine kapıdan önce."
+- en: "Kalachev. You again. Always ahead of the door."
+
+### ch06_kalachev_ardo_stay
+**ARDO**
+- tr: "Kalmaz. Hiç kalmadı."
+- en: "He doesn't stay. He never has."
+
+### ch06_kalachev_rey_ask
+**REY**
+- tr: "Sizinle birlikte mi iniyor?"
+- en: "Is he going down with us?"
 
 ### ch06_meet_ardo_first
 **ARDO**
@@ -704,6 +799,11 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 - tr: "Yalnız. Tanıdık bir şey — ama artık rahatsız edici."
 - en: "Alone. Familiar — but it doesn't sit right any more."
 
+### ch10_ardo_kalachev
+**ARDO**
+- tr: "Kalachev. Tuzak senin işin miydi, yoksa yolun mu?"
+- en: "Kalachev. Was the trap your work, or just your path?"
+
 ### ch10_echo_ignored
 **YANKI**
 - tr: "...Aşağıdan mı? Peki. Nasıl istersen."
@@ -788,6 +888,11 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 **REY**
 - tr: "Yalnızım. Sesler her zamankinden yüksek."
 - en: "Alone. The voices are louder than they've ever been."
+
+### ch10_rey_kalachev
+**REY**
+- tr: "Kalachev. Yine açıklama yok."
+- en: "Kalachev. Still no explanation."
 
 ### ch10_trace_ignored
 **ARDO**
@@ -1137,8 +1242,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch13_rey_kalachev
 **REY**
-- tr: "Kapı iniyordu. O altından geçti."
-- en: "The gate was coming down. He went under it."
+- tr: "Kalachev. Kapı iniyordu. O altından geçti."
+- en: "Kalachev. The gate was coming down. He went under it."
 
 ### ch13_rey_lever
 **REY**
@@ -1687,8 +1792,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_rey_kalachev
 **REY**
-- tr: "O da geldi. Demek bu kapıdan herkes geçiyor."
-- en: "He came too. Everyone passes through this door."
+- tr: "Kalachev. O da geldi. Demek bu kapıdan herkes geçiyor."
+- en: "Kalachev. He came too. Everyone passes through this door."
 
 ### ch18_rey_lookback
 **REY**

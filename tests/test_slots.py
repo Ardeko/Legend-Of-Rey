@@ -236,6 +236,60 @@ def test_empty_slot_needs_no_confirm() -> None:
         game.quit()
 
 
+# --- 5. DEVAM ET kayitli bolumu acar ----------------------------------------
+def test_continue_opens_saved_chapter() -> None:
+    """Yolculuk bitince Bolum 1 DEGIL, kayittaki bolum acilir."""
+    print("\n--- DEVAM ET kayitli bolume iner ---")
+    clear_all()
+    set_active_slot(1)
+    write_save(SaveData(chapter=6, gold=200, character="ardo"))
+
+    game = Game()
+    try:
+        from src.scenes.chapter01 import Chapter01Scene
+        from src.scenes.chapter06 import Chapter06Scene
+        from src.scenes.vertical_journey import VerticalJourneyScene
+
+        game.scenes.set_root(VerticalJourneyScene, transition=False,
+                             direction="down", chapter=6, character="ardo")
+        game.scenes._flush()
+        game.scenes.current.on_finished()
+        game.scenes._flush()
+        name = type(game.scenes.current).__name__
+        check(isinstance(game.scenes.current, Chapter06Scene),
+              "asagi inis kayitli bolumu aciyor", name)
+        check(not isinstance(game.scenes.current, Chapter01Scene),
+              "Bolum 1 acilmadi - yeni oyun gibi baslamiyor")
+        check(game.scenes.current.character == "ardo",
+              "karakter kayittan geliyor",
+              game.scenes.current.character)
+    finally:
+        game.quit()
+
+
+def test_playing_stamps_current_chapter() -> None:
+    """Bolume girmek kayittaki numarayi gunceller - orta bolum kaydi."""
+    print("\n--- bolume girmek kaydi damgalar ---")
+    clear_all()
+    set_active_slot(1)
+    write_save(SaveData(chapter=2, gold=80, character="rey"))
+
+    game = Game()
+    try:
+        from src.scenes.chapter06 import Chapter06Scene
+        game.scenes.set_root(Chapter06Scene, transition=False,
+                             character="rey")
+        game.scenes._flush()
+        data, _ = read_save()
+        check(data is not None and data.chapter == 6,
+              "oyanan bolum kayda yazildi",
+              f"bolum {data.chapter}" if data else "YOK")
+        check(data is not None and data.gold == 80,
+              "altin korunuyor", f"altin {data.gold if data else '-'}")
+    finally:
+        game.quit()
+
+
 def main() -> int:
     test_slots_are_independent()
     test_legacy_save_migrates()
@@ -243,6 +297,8 @@ def main() -> int:
     test_continue_skips_screen_for_single_save()
     test_overwrite_defaults_to_cancel()
     test_empty_slot_needs_no_confirm()
+    test_continue_opens_saved_chapter()
+    test_playing_stamps_current_chapter()
 
     print("\n=== SONUC ===")
     if failures:
@@ -250,7 +306,7 @@ def main() -> int:
         for item in failures:
             print(f"  - {item}")
         return 1
-    print("Iki yuva bagimsiz, eski kayit goc ediyor, yikici eylem soruyor.")
+    print("Iki yuva bagimsiz, eski kayit goc ediyor, DEVAM ET kayitli bolume iner.")
     return 0
 
 

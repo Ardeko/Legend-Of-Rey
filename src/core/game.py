@@ -18,11 +18,11 @@ from pathlib import Path
 
 import pygame
 
-from src.art import palette, postfx
+from src.art import brightness, palette, postfx
 from src.audio import synth
 from src.audio.mixer import AudioMixer
 from src.config import (
-    FPS, INTERNAL_HEIGHT, INTERNAL_WIDTH, MAX_CATCHUP_FRAMES,
+    BRIGHTNESS_DEFAULT, FPS, INTERNAL_HEIGHT, INTERNAL_WIDTH, MAX_CATCHUP_FRAMES,
 )
 from src.core import display
 from src.core.input import Action, InputManager
@@ -568,9 +568,11 @@ class Game:
             return
         self.canvas.fill(palette.color("void"))
         self.scenes.draw(self.canvas)
-        # Post-fx sahneden SONRA, hata ayiklama/imlecten ONCE: vinyet
-        # oyunu cerceveler ama arayuzu ve imleci karartmamali.
+        # Post-fx sahneden SONRA, parlaklik ondan da sonra: vinyet
+        # bolumun atmosferi, parlaklik oyuncunun monitoru. Imlec ve
+        # hata ayiklama ikisinin de ustunde kalmali - karartilmaz.
         self._apply_postfx()
+        self._apply_brightness()
         if self.debug_overlay:
             self._draw_debug()
         self._draw_cursor()
@@ -619,6 +621,17 @@ class Game:
             return
         strength = float(self.settings.get("postfx", 1.0))
         postfx.apply(self.canvas, grade, strength)
+
+    def _apply_brightness(self) -> None:
+        """Monitor parlakligi. 1.0 = tasarlandigi gibi, hic dokunulmaz.
+
+        Bolum 3'un mesale maskesi sahne ciziminde; postfx vinyeti ondan
+        sonra. Parlaklik en sonda oldugu icin karanlik odayi da, gece
+        koyunu da ayni oranda acar/kapatir - atmosferi silmez.
+        """
+        brightness.apply(
+            self.canvas,
+            float(self.settings.get("brightness", BRIGHTNESS_DEFAULT)))
 
     def _draw_cursor(self) -> None:
         """Ozel imlec - yalnizca fare **son kullanilan** girdiyse gorunur.

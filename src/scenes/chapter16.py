@@ -72,6 +72,15 @@ ENEMY_CLASSES = {
 # Kaldirma halkasinin yaricapi (piksel) - yoldasin ustunde.
 RING_RADIUS = 11
 
+# "Donus"ten sonraki odalar. Ilk oda (yalniz) yoldassiz.
+COMPANION_ROOMS = frozenset({
+    "kapi", "birlikte", "dusus", "koridor", "sirt", "cikis",
+})
+# Kaldirma ogretilen oda ve sonrasi.
+RESCUE_UNLOCK_ROOMS = frozenset({
+    "dusus", "koridor", "sirt", "cikis",
+})
+
 
 def _load(path: str):
     module_name, class_name = path.split(":")
@@ -388,6 +397,24 @@ class Chapter16Scene(PlayScene):
                          save_data=self.save_data,
             on_continue=lambda: self.scenes.set_root(
                 Chapter17Scene, character=self.character))
+
+    def after_restart(self, room: str) -> None:
+        """Olumden sonra yoldas oyuncunun yaninda baslar.
+
+        `setup()` onu None yapiyor; "Donus" sahnesi bir daha
+        oynanmiyor. Arenasiz bolumde bile oda girisinde tek basina
+        uyanmak, bolumun tezini (sirt sirta) siler.
+        """
+        if room not in COMPANION_ROOMS:
+            return
+        companion = self.summon_companion()
+        x, y = self.free_spot_near(self.player.body.center_x - 22,
+                                   self.player.body.feet[1],
+                                   companion.body)
+        companion.body.set_feet(x, y)
+        companion.release()
+        if room in RESCUE_UNLOCK_ROOMS:
+            self.rescue.unlocked = True
 
     # --- Cizim --------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:

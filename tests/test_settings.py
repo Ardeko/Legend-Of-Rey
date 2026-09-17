@@ -69,7 +69,7 @@ from src.core.game import Game  # noqa: E402
 from src.core.input import DEFAULT_KEYBOARD, Action  # noqa: E402
 from src.systems import bindings as binds  # noqa: E402
 from src.systems.bindings import ResetBindings  # noqa: E402
-from src.systems.settings import ALL_ENTRIES, TABS, Option  # noqa: E402
+from src.systems.settings import ALL_ENTRIES, DISPLAY_OPTIONS, TABS, Option, Slider  # noqa: E402
 from src.ui.i18n import t  # noqa: E402
 from src.ui.settings_scene import CONTROL_ROWS, SettingsScene  # noqa: E402
 
@@ -153,6 +153,7 @@ def main() -> int:
         game.shutdown()
 
     test_bindings()
+    test_brightness()
 
     print("\n=== SONUC ===")
     if failures:
@@ -263,6 +264,103 @@ def test_bindings() -> None:
         check("uzun tus listesi kisaltiliyor",
               long_label.count("/") < len(DEFAULT_KEYBOARD[Action.JUMP]) - 1,
               long_label)
+    finally:
+        game.shutdown()
+
+
+def test_brightness() -> None:
+    """Parlaklik kaydiricisi gercekten acar ve karartir.
+
+    Onceki Slider 0-1'di, varsayilan 1.0 cubugu dolduruyordu ve
+    'acmak' imkansizdi. Bu test o tuzagi kapatir.
+    """
+    print("\n=== parlaklik ===")
+    import json
+
+    from src.art import brightness
+    from src.config import (
+        BRIGHTNESS_DEFAULT, BRIGHTNESS_MAX, BRIGHTNESS_MIN, BRIGHTNESS_STEP,
+        INTERNAL_HEIGHT, INTERNAL_WIDTH,
+    )
+    from src.systems.save import SETTINGS_NAME, user_data_dir
+    from src.systems.settings import Settings
+
+    slider = next(entry for entry in ALL_ENTRIES
+                  if isinstance(entry, Slider) and entry.key == "brightness")
+    check("aralik 0.75-1.25",
+          slider.lo == BRIGHTNESS_MIN and slider.hi == BRIGHTNESS_MAX,
+          f"{slider.lo}-{slider.hi}")
+    check("varsayilan 1.0 cubugun ORTASI",
+          abs(slider.fill_ratio(slider.default) - 0.5) < 1e-6,
+          str(slider.fill_ratio(slider.default)))
+    check("ses hâlâ 0-1",
+          next(e for e in ALL_ENTRIES
+               if isinstance(e, Slider) and e.key == "volume_master").hi
+          == 1.0)
+
+    game = Game()
+    try:
+        game.settings.set("brightness", BRIGHTNESS_DEFAULT)
+        low = game.settings.adjust(slider, -100)
+        check("asagi 0.75'te durur", low == BRIGHTNESS_MIN, str(low))
+        high = game.settings.adjust(slider, 100)
+        check("yukari 1.25'te durur", high == BRIGHTNESS_MAX, str(high))
+        # Adimla geri 1.0'a.
+        ticks = int(round((BRIGHTNESS_MAX - BRIGHTNESS_DEFAULT)
+                           / BRIGHTNESS_STEP))
+        mid = game.settings.adjust(slider, -ticks)
+        check("geri 1.0", abs(mid - BRIGHTNESS_DEFAULT) < 1e-6, str(mid))
+
+        sample = pygame.Surface((INTERNAL_WIDTH, INTERNAL_HEIGHT)).convert()
+        sample.fill((80, 80, 80))
+        identity = sample.copy()
+        brightness.apply(identity, BRIGHTNESS_DEFAULT)
+        check("1.0 pikseli degistirmez",
+              pygame.transform.average_color(identity)
+              == pygame.transform.average_color(sample))
+
+        dimmed = sample.copy()
+        brightness.apply(dimmed, BRIGHTNESS_MIN)
+        lifted = sample.copy()
+        brightness.apply(lifted, BRIGHTNESS_MAX)
+        dim_avg = pygame.transform.average_color(dimmed)[0]
+        lift_avg = pygame.transform.average_color(lifted)[0]
+        base_avg = pygame.transform.average_color(sample)[0]
+        check("0.75 karartir", dim_avg < base_avg, f"{dim_avg} < {base_avg}")
+        check("1.25 acar", lift_avg > base_avg, f"{lift_avg} > {base_avg}")
+
+        # Eski 0-1 kayitlari yeni araliga cekilir.
+        path = user_data_dir() / SETTINGS_NAME
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        raw["brightness"] = 0.2
+        path.write_text(json.dumps(raw), encoding="utf-8")
+        reloaded = Settings()
+        check("eski 0.2 kayit 0.75'e cekilir",
+              reloaded.get("brightness") == BRIGHTNESS_MIN,
+              str(reloaded.get("brightness")))
+
+        # Cubuk + sahne: 0.75 / 1.0 / 1.25 yan yana kanit.
+        from src.ui.settings_scene import SettingsScene
+        game.scenes.push(SettingsScene)
+        game.scenes._flush()
+        scene = game.scenes.current
+        assert scene is not None
+        scene.row = next(
+            i for i, entry in enumerate(DISPLAY_OPTIONS)
+            if isinstance(entry, Slider) and entry.key == "brightness")
+        shot_dir = Path(__file__).resolve().parents[1] / "build" / "testshots"
+        shot_dir.mkdir(parents=True, exist_ok=True)
+        for value, name in (
+            (BRIGHTNESS_MIN, "brightness_dim.png"),
+            (BRIGHTNESS_DEFAULT, "brightness_default.png"),
+            (BRIGHTNESS_MAX, "brightness_lift.png"),
+        ):
+            game.settings.set("brightness", value)
+            game._render()
+            scaled = pygame.transform.scale(
+                game.canvas,
+                (game.canvas.get_width() * 2, game.canvas.get_height() * 2))
+            pygame.image.save(scaled, str(shot_dir / name))
     finally:
         game.shutdown()
 

@@ -14,6 +14,9 @@ import json
 from dataclasses import dataclass
 from typing import Any, Callable
 
+from src.config import (
+    BRIGHTNESS_DEFAULT, BRIGHTNESS_MAX, BRIGHTNESS_MIN, BRIGHTNESS_STEP,
+)
 from src.systems.save import SETTINGS_NAME, user_data_dir
 from src.ui.i18n import t
 
@@ -59,12 +62,20 @@ class Option:
 
 @dataclass
 class Slider:
-    """Surekli deger - ses seviyeleri ve parlaklik."""
+    """Surekli deger - ses seviyeleri ve parlaklik.
+
+    Ses 0-1 kalir. Parlaklik 0.75-1.25: 1.0 tasarlandigi gibi, cubuk
+    ortada, hem karartma hem acma mumkun. `adjust` eskiden her seyi
+    0-1'e kistiriyordu - parlaklik cubugu varsayilanda dolu durur ve
+    acmak imkansiz olurdu.
+    """
 
     key: str
     label_key: str
     default: float = 1.0
     step: float = 0.05
+    lo: float = 0.0
+    hi: float = 1.0
     note_key: str = ""
 
     @property
@@ -74,6 +85,20 @@ class Slider:
     @property
     def note(self) -> str:
         return t(self.note_key) if self.note_key else ""
+
+    def clamp(self, value: float) -> float:
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return self.default
+        return max(self.lo, min(self.hi, number))
+
+    def fill_ratio(self, value: float) -> float:
+        """Cubuk dolulugu 0-1. Degeri degil, araliktaki yerini gosterir."""
+        span = self.hi - self.lo
+        if span <= 1e-9:
+            return 1.0
+        return (self.clamp(value) - self.lo) / span
 
 
 # --- Sekme tanimlari --------------------------------------------------------
@@ -105,7 +130,9 @@ DISPLAY_OPTIONS: tuple[Option | Slider, ...] = (
     Option("flash_limit", "settings.flash_limit", (False, True),
            ("common.off", "common.on"),
            note_key="settings.flash_limit_note"),
-    Slider("brightness", "settings.brightness", default=1.0,
+    Slider("brightness", "settings.brightness",
+           default=BRIGHTNESS_DEFAULT, step=BRIGHTNESS_STEP,
+           lo=BRIGHTNESS_MIN, hi=BRIGHTNESS_MAX,
            note_key="settings.brightness_note"),
 )
 
@@ -233,8 +260,9 @@ class Settings:
         return value
 
     def adjust(self, slider: Slider, direction: int) -> float:
-        value = float(self.get(slider.key, slider.default))
-        value = max(0.0, min(1.0, value + direction * slider.step))
+        value = slider.clamp(
+            float(self.get(slider.key, slider.default))
+            + direction * slider.step)
         self.set(slider.key, round(value, 3))
         return value
 
@@ -250,9 +278,15 @@ class Settings:
             return          # Ilk calistirma ya da bozuk dosya - varsayilanlar
         if not isinstance(raw, dict):
             return
+        by_key = {entry.key: entry for entry in ALL_ENTRIES}
         for key in self._values:
-            if key in raw:
-                self._values[key] = raw[key]
+            if key not in raw:
+                continue
+            value = raw[key]
+            entry = by_key.get(key)
+            if isinstance(entry, Slider):
+                value = round(entry.clamp(value), 3)
+            self._values[key] = value
 
     def save(self) -> None:
         try:

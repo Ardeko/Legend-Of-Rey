@@ -64,6 +64,12 @@ from src.config import (
 from src.entities.actor import Actor
 
 
+def fighter_sprite(character: str) -> str:
+    """Yoldas kilicli gorunur - oyuncu Bolum 1'de silahsiz baslar."""
+    armed = f"{character}_armed"
+    return armed if armed in CHARACTERS else character
+
+
 def other_character(character: str) -> str:
     """Oynanmayan karakter. Kanon: yoldas her zaman bu.
 
@@ -98,8 +104,9 @@ class Companion(Actor):
     def __init__(self, scene, x: float, y: float, character: str) -> None:
         super().__init__(scene, x, y)
         self.character = character
-        self.animator = Animator(character)
-        self.sprite_foot_y = CHARACTERS[character].foot_y
+        sprite = fighter_sprite(character)
+        self.animator = Animator(sprite)
+        self.sprite_foot_y = CHARACTERS[sprite].foot_y
         self.attack_frames = 0        # bir sonraki vurusa kalan
         self.tell_frames = 0          # savurma oncesi okunur an
         self.down_frames = 0          # diz cokmus

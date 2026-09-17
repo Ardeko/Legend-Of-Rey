@@ -32,6 +32,14 @@ TILE_DRAW_MARGIN: Final[int] = 2
 # Ayni anda ekranda azami parcacik (docs/derinlestirme.md 8.4).
 MAX_PARTICLES: Final[int] = 200
 
+# Parlaklik kaydiricisi. 1.0 = tasarlandigi gibi; alta karartir, uste acar.
+# Aralik dar: 0-1 yalnizca karartirdi (varsayilan cubugu da doldururdu),
+# 1.25 ustu piksel arti yikar. Adim 0.05 - her tik hissedilir.
+BRIGHTNESS_MIN: Final[float] = 0.75
+BRIGHTNESS_MAX: Final[float] = 1.25
+BRIGHTNESS_STEP: Final[float] = 0.05
+BRIGHTNESS_DEFAULT: Final[float] = 1.0
+
 
 # =============================================================================
 # OYUNCU AFFI  (docs/dovus-sistemi.md 7 - oyuncuya asla soylenmez)

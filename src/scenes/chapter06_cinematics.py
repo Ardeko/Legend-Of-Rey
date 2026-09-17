@@ -211,7 +211,9 @@ class ArdoEntranceCinematic(StagedScene):
                     palette.color("bone"), align="center", outline=True)
 
     def on_finished(self) -> None:
-        self.scenes.pop()
+        from src.scenes.kalachev_cinematics import KalachevCinematic
+        self.scenes.replace(KalachevCinematic, character=self.character,
+                            beat="meet", transition=False)
 
 
 def _draw_corner(surface: pygame.Surface, frame: int) -> None:

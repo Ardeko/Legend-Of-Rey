@@ -16,7 +16,7 @@ vermiyor (CLAUDE.md: sirasi gelmemis icerik yazilmaz).
 
 ## Sprite eksigi bilerek boyle
 
-`src/art/animation.py`'de yalnizca `rey`/`rey_armed`/`ardo` var - Hancer ve
+`src/art/animation.py`'de `rey`/`rey_armed`/`ardo`/`ardo_armed` var - Hancer ve
 Balta'nin kendi sprite'i yok, o yuzden `sprite_suffix="_armed"` ile
 kilicla ayni gorunumu kullaniyorlar (numaralar farkli, silüet ayni).
 Gercek sanat Gorev 9'un devami olarak gelecek - **acikca** boyle, sessiz
@@ -61,5 +61,5 @@ def get(key: str) -> Weapon:
 
 
 def starting_weapon(character: str) -> str:
-    """Rey yumrukla baslar; Ardo egitimli bir yabanci, kilicla gelir."""
-    return SWORD if character == "ardo" else FISTS
+    """Ikisi de yumrukla baslar; kilici Bolum 1'de Jet verir."""
+    return FISTS

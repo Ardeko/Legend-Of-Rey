@@ -119,7 +119,9 @@ def step(game, scene, frames: int = 1) -> None:
         game.input.end_frame()
         game.scenes.update()
         game.frame += 1
-        if game.scenes.current is not scene and not scene.finished:
+        # Iki sinematik ust uste binebiliyor (Kalachev + Ad). Bir pop
+        # yetmez; yigini bosalt.
+        while game.scenes.current is not scene and not scene.finished:
             game.scenes.pop()
             game.scenes._flush()
 
@@ -187,11 +189,54 @@ def test_player_and_boss_share_the_arena() -> None:
         scene._fire_trigger(trigger.tile_x)
         edge = (ARENA_SEAL_COLUMN + 1) * TILE_SIZE
         check(scene.arena_sealed, "muhur indi")
+        # Kalachev sinematigi kuyruga girdi; konum kontrolu oynanisi
+        # ilgilendiriyor, sahne yiginini degil.
+        while game.scenes.current is not scene:
+            game.scenes.pop()
+            game.scenes._flush()
         check(scene.player.body.x >= edge, "oyuncu muhurun saginda",
               f"x={scene.player.body.x:.0f} edge={edge}")
         check(scene.boss.body.center_x >= edge, "boss ayni tarafta")
         check(not scene.tilemap.solid_overlap(scene.player.body.rect),
               "oyuncu duvara gomulmedi")
+    finally:
+        game.quit()
+
+
+def test_arena_death_keeps_followers_inside() -> None:
+    """Olumden sonra yoldas ve Kalachev muhurun arkasinda kalmamali."""
+    print("\n--- olum sonrasi yoldas ve Kalachev icerde ---")
+    game = Game()
+    try:
+        scene = start(game)
+        walk_to_arena(game, scene)
+        start_tile = ZONE_STARTS[2][1]
+        feet = scene.player.body.feet[1]
+        scene.player.body.set_feet((start_tile + 1) * TILE_SIZE, feet)
+        scene.player.body.grounded = True
+        scene.room = "arena"
+        scene._update_checkpoint()
+        scene.player.body.set_feet((start_tile + 8) * TILE_SIZE, feet)
+        scene.player.health = 0
+        scene.player.die()
+        scene.restart()
+        while game.scenes.current is not scene:
+            game.scenes.pop()
+            game.scenes._flush()
+        # restart ayni nesneyi kuruyor; yigin degismis olabilir.
+        scene = game.scenes.current
+        edge = (ARENA_SEAL_COLUMN + 1) * TILE_SIZE
+        check(scene.arena_sealed, "muhur indi")
+        check(scene.player.body.x >= edge, "oyuncu muhurun ICINDE",
+              f"x={scene.player.body.x:.1f}")
+        check(scene.companion is not None, "yoldas yaninda")
+        if scene.companion is not None:
+            check(scene.companion.body.x >= edge, "yoldas muhurun ICINDE",
+                  f"x={scene.companion.body.x:.1f}")
+        check(scene.kalachev is not None, "Kalachev geri geldi")
+        if scene.kalachev is not None:
+            check(scene.kalachev.body.x >= edge, "Kalachev muhurun ICINDE",
+                  f"x={scene.kalachev.body.x:.1f}")
     finally:
         game.quit()
 
@@ -603,6 +648,7 @@ def test_phase_two_takes_no_skill() -> None:
 def main() -> int:
     test_caller_cannot_die_while_echo_is_open()
     test_player_and_boss_share_the_arena()
+    test_arena_death_keeps_followers_inside()
     test_both_death_paths_are_refused()
     test_three_phases()
     test_phase_two_takes_no_skill()

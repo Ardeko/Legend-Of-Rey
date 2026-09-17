@@ -20,7 +20,8 @@ B3'te alevi bulunca fark eder.
 
 DEVAM ET ayni gecisin tersi: kamera alevden **asagi** iner, kaldigin bolume
 kadar. Ne kadar ilerlediysen o kadar uzun dusersin - ilerlemeyi bedavaya
-hissettiren bir gecis.
+hissettiren bir gecis. Varis `catalog.chapter_scene_class` ile kayittaki
+bolum; Bolum 1'e duserse yolculuk yalan soylemis olur.
 
 ## Teknik
 
@@ -212,12 +213,19 @@ class VerticalJourneyScene(CinematicScene):
 
     # --- Gecis -------------------------------------------------------------
     def on_finished(self) -> None:
-        # Yukari cikis koye varir - Bolum 1. Asagi inis kaldigin bolume;
-        # su an yalnizca Bolum 1 var, ileri bolumler geldikce burasi
-        # bolum numarasina bakacak.
-        from src.scenes.chapter01 import Chapter01Scene
-        self.scenes.replace(Chapter01Scene, transition=False,
-                            character=self.character)
+        # Yukari cikis koye varir (yeni oyun). Asagi inis kayittaki
+        # bolume - numara yolculugun suresini zaten belirliyor, varis
+        # da ayni numarayi kullanmali. Aksi halde kart "Bolum 13"
+        # derken koy acilir.
+        if self.direction == "up":
+            from src.scenes.chapter01 import Chapter01Scene
+            self.scenes.replace(Chapter01Scene, transition=False,
+                                character=self.character)
+            return
+        from src.scenes.catalog import chapter_scene_class
+        scene_cls = chapter_scene_class(self.chapter)
+        self.scenes.replace(scene_cls, transition=False,
+                            character=self.character, resume_save=True)
 
     def debug_lines(self) -> list[str]:
         return super().debug_lines() + [

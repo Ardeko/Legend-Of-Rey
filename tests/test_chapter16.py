@@ -565,6 +565,33 @@ def test_chapter_shape() -> None:
           "ilk odada tetikleyici yok - yalnizlik perdesi yasaniyor")
 
 
+def test_death_restores_companion() -> None:
+    """"Donus"ten sonra olmek yoldasi silmemeli."""
+    print("\n--- olum sonrasi yoldas ---")
+    from src.world.rooms.chapter16 import FLOOR_TOP
+
+    game = Game()
+    try:
+        scene = start(game)
+        together = dict(ROOM_STARTS)["birlikte"]
+        feet = FLOOR_TOP * TILE_SIZE
+        scene.player.body.set_feet((together + 4) * TILE_SIZE, feet)
+        scene.player.body.grounded = True
+        scene.room = "birlikte"
+        scene._update_checkpoint()
+        scene.player.health = 0
+        scene.player.die()
+        scene.restart()
+        check(scene.companion is not None, "yoldas geri geldi")
+        if scene.companion is not None:
+            gap = abs(scene.companion.body.center_x
+                      - scene.player.body.center_x)
+            check(gap < 90, "yoldas oyuncunun YANINDA", f"{gap:.0f}px")
+        check(scene.room == "birlikte", "ayni odada devam", scene.room)
+    finally:
+        game.quit()
+
+
 def main() -> int:
     test_passable_without_companion()
     test_all_triggers_fire()
@@ -582,6 +609,7 @@ def main() -> int:
     test_heart_appears_for_every_gesture()
     test_lift_reward_is_visible()
     test_chapter_shape()
+    test_death_restores_companion()
 
     print("\n=== SONUC ===")
     if failures:
