@@ -58,9 +58,9 @@ def main() -> int:
         game.scenes.update()
         game.frame += 1
 
-    game.canvas.fill((0, 0, 0, 255))
-    game.scenes.draw(game.canvas)
-
+    # `Game._render` ile ayni boru: sahne, postfx, parlaklik.
+    # Elle `scenes.draw` parlaklik kaydiricisini atliyordu.
+    game._render()
     surface = game.canvas
     if args.scale > 1:
         surface = pygame.transform.scale(

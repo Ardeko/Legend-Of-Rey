@@ -404,11 +404,13 @@ class SettingsScene(Scene):
                 text.draw(surface, "<", VALUE_X - 8, y, color=colour)
                 text.draw(surface, ">", VALUE_X + width + 4, y, color=colour)
         else:
-            ratio = float(self.settings.get(entry.key, entry.default))
+            value = float(self.settings.get(entry.key, entry.default))
             value_bar(surface, pygame.Rect(VALUE_X, y + 3, BAR_WIDTH, 5),
-                      ratio, colour=palette.color("violet_bright")
+                      entry.fill_ratio(value),
+                      colour=palette.color("violet_bright")
                       if selected else None)
-            text.draw(surface, t("settings.percent", value=int(ratio * 100)),
+            text.draw(surface, t("settings.percent",
+                                 value=int(round(value * 100))),
                       VALUE_X + BAR_WIDTH + 6, y, color=colour)
             if selected:
                 text.draw(surface, "<", VALUE_X - 8, y, color=colour)

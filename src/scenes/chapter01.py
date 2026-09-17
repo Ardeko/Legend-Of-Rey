@@ -120,18 +120,11 @@ class Chapter01Scene(PlayScene):
         # yoksa Cemo'nun kacirilisi bir dovusun icinde kayboluyor.
         self.creatures_released = False
 
-        # Kilic: yaratiklardan once duruyor. Rey silahsiz basliyor ve ilk
-        # yaratigi gorunce kacacak yeri yok - kilici alma ani bir rahatlama
-        # oluyor. Once ihtiyaci hissettiriyoruz, sonra veriyoruz.
-        #
-        # **Ardo icin YOK** - o zaten kilicla basliyor (egitimli yabanci,
-        # weapons.starting_weapon). Prop yine de cizilseydi Ardo, elinde
-        # zaten kilic varken yerde "al beni" diyen ikinci bir kilica
-        # bakardi - Arda'nin bildirdigi tam bu celiskiydi ("karakter
-        # kilici almadan once de kilici oluyor").
+        # Kilic: yaratiklardan once duruyor. Ikisi de silahsiz basliyor;
+        # Jet orada veriyor. Once ihtiyac, sonra silah.
         sword_at = LEVEL.first("pickup_sword")
         self.sword_pos = ((sword_at.x, sword_at.feet_y - 10)
-                          if sword_at and self.character != "ardo" else None)
+                          if sword_at else None)
 
         # Koyluler: her evin onunde bir tane, kapisi kendi evi.
         # Arda'nin istegi - "olaylar patlak verdiginde koyluler evlerine
@@ -408,9 +401,9 @@ class Chapter01Scene(PlayScene):
         bir karakter olsun."*
 
         Sira degismedi ve degismemeli: kilic hala yaratiklardan ONCE
-        ama Rey'in silahsiz yurudugu bir bolumden SONRA geliyor.
-        Tasarim notu hakliydi - once ihtiyac hissettiriliyor, sonra
-        veriliyor. Degisen tek sey kilici KIMIN verdigi.
+        ama silahsiz yurunen bir bolumden SONRA geliyor. Once ihtiyac,
+        sonra silah - Rey ve Ardo icin ayni. Degisen tek sey kilici
+        KIMIN verdigi.
 
         Yerden alinan bir kilic bir **kaynak**; uzatilan bir kilic bir
         **karar**: birisi koyun "Lanetli" dedigi kiza silah vermeyi
@@ -423,9 +416,9 @@ class Chapter01Scene(PlayScene):
         self.on_ability_gained(abilities.SWORD)
         from src.scenes.chapter01_cinematics import SwordCinematic
         self.scenes.push(SwordCinematic, character=self.character)
-        # Yanki sahneden SONRA konusuyor - sinematik kapaninca ekranda
-        # kalan tek ses o oluyor.
-        self.say(Line("echo", "line.ch01_echo_sword_given"))
+        # Yanki sahneden SONRA konusuyor. Ardo'nun Yanki'si yok.
+        if self.has_echo:
+            self.say(Line("echo", "line.ch01_echo_sword_given"))
 
     def _watch_player(self) -> None:
         if abs(self.player.body.vx) > 0.2:
@@ -475,7 +468,7 @@ class Chapter01Scene(PlayScene):
         `None` - play.py::on_enter); eskiden bu kontrol hic yoktu ve Ardo
         da "Yanki Gorusu kazandin" bildirimini goruyordu - kazanmadigi,
         hicbir mekanik karsiligi olmayan bir gucu acmasi isteniyordu. Ardo
-        duvari sezgiyle degil, sozun kendisiyle: kilici zaten elinde,
+        duvari sezgiyle degil, sozun kendisiyle: Jet'in verdigi kilicla
         vurup kirar.
         """
         if self.echo is None:

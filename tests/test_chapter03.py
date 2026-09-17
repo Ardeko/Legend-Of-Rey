@@ -308,6 +308,22 @@ def main() -> int:
     check(scene9.boss_defeated, "boss olunce arena acildi")
     check(charms.FENER in scene9.player.charms, "Fener tilsimi verildi")
 
+    print("\n--- olum odul vermez ---")
+    scene_d = make_scene(game)
+    teleport(scene_d, ARENA_DOOR_COLUMN + 2)
+    idle(game, scene_d, 2)
+    check(scene_d.arena_sealed, "esigi gecince muhurlu")
+    gold_before = scene_d.save_data.gold if scene_d.save_data else 0
+    scene_d.player.health = 0
+    scene_d.player.die()
+    check(charms.FENER not in scene_d.player.charms, "olum Fener VERMEZ")
+    if scene_d.save_data is not None:
+        check(scene_d.save_data.gold == gold_before, "olum altin VERMEZ")
+    scene_d.restart()
+    check(scene_d.room == "sonmus_olan", "mini-boss odasinda devam",
+          scene_d.room)
+    check(scene_d.arena_sealed, "muhur geri geldi")
+
     # --- 11. Bolum sonu ekraninda Mor Alev satiri ---------------------------------
     print("\n--- bolum sonu ---")
     taken = ChapterResult("chapter.torch_crypt", 100, 5, 50, 1, 1,

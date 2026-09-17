@@ -193,6 +193,87 @@ def _attack_thrust(t: float) -> Pose:
     )
 
 
+def _ardo_attack_rise(t: float) -> Pose:
+    """Alcak muhafazadan yukari capraz - Ardo'nun 1. vurusu.
+
+    Rey yatay savurur; Ardo kilici kalcadan omza ceker. Ayni kare
+    butcesi, baska bir siluet.
+    """
+    if t < 0.35:
+        k = t / 0.35
+        angle = 1.15 - k * 0.55
+        lean = -0.35 * k
+        dip = 0.8 * k
+    else:
+        k = (t - 0.35) / 0.65
+        angle = 0.60 - k * 3.15
+        lean = -0.35 + k * 1.45
+        dip = 0.8 - k * 1.4
+    return Pose(
+        dy=dip, lean=lean, head_dx=lean * 0.55, squash=1.0 + 0.06 * (1.0 - t),
+        leg_front=(math.pi / 2 + 0.55, 0.55),
+        leg_back=(math.pi / 2 - 0.40, 0.70),
+        arm_front=(angle, 0.20),
+        arm_back=(angle + 0.85, 0.35),
+        weapon_angle=angle + 0.35,
+        weapon_hand="front",
+        cape_sway=lean * 0.8,
+    )
+
+
+def _ardo_attack_cleave(t: float) -> Pose:
+    """Iki elli yatay bicis - Ardo'nun 2. vurusu.
+
+    Rey tepeden indirir; Ardo govdeyi cevirip yatay tarar.
+    """
+    if t < 0.35:
+        k = t / 0.35
+        angle = -0.35 - k * 1.1
+        lean = -0.85 * k
+    else:
+        k = (t - 0.35) / 0.65
+        angle = -1.45 + k * 3.4
+        lean = -0.85 + k * 2.0
+    return Pose(
+        dy=-0.2, lean=lean, head_dx=lean * 0.7,
+        leg_front=(math.pi / 2 - 0.15, 0.40),
+        leg_back=(math.pi / 2 + 0.70, 0.25),
+        arm_front=(angle - 0.15, 0.08),
+        arm_back=(angle + 0.55, 0.12),
+        weapon_angle=angle,
+        weapon_hand="both",
+        cape_sway=lean * 1.5,
+    )
+
+
+def _ardo_attack_crash(t: float) -> Pose:
+    """Iki elli asagi ezme - Ardo'nun bitiricisi.
+
+    Rey ileri saplar; Ardo ayagini eker ve ustten cokertir. `dx`
+    neredeyse yok - ayni hitbox, baska bir agirlik.
+    """
+    if t < 0.40:
+        k = t / 0.40
+        angle = -math.pi / 2 - 1.15 * k
+        lean = -0.7 * k
+        lift = -1.4 * k
+    else:
+        k = (t - 0.40) / 0.60
+        angle = -math.pi / 2 - 1.15 + k * 3.4
+        lean = -0.7 + k * 1.8
+        lift = -1.4 + k * 2.2
+    return Pose(
+        dx=0.15, dy=lift, lean=lean, squash=1.0 + 0.08 * max(0.0, t - 0.4),
+        leg_front=(math.pi / 2 - 0.55, 0.90),
+        leg_back=(math.pi / 2 + 0.35, 0.40),
+        arm_front=(angle, 0.05),
+        arm_back=(angle + 0.25, 0.12),
+        weapon_angle=angle + 0.15,
+        weapon_hand="both",
+        cape_sway=lean * 1.3,
+    )
+
+
 def _land(t: float) -> Pose:
     """Inis - dizler bukulur, govde cokup toparlanir.
 
@@ -249,6 +330,22 @@ ANIMATIONS: dict[str, tuple] = {
     "attack3": (_attack_thrust, 5, False),
 }
 
+# Ardo'nun vurusu Rey'inki degil: ayni zincir kareleri, baska siluet.
+# Tablolar `pose_table` ile secilir; kare sayisi degismez (CLAUDE.md 7).
+ARDO_ANIMATIONS: dict[str, tuple] = {
+    **ANIMATIONS,
+    "attack1": (_ardo_attack_rise, 5, False),
+    "attack2": (_ardo_attack_cleave, 5, False),
+    "attack3": (_ardo_attack_crash, 5, False),
+}
+
+
+def pose_table(name: str) -> dict[str, tuple]:
+    """Karaktere gore animasyon tablosu."""
+    if name.startswith("ardo"):
+        return ARDO_ANIMATIONS
+    return ANIMATIONS
+
 
 # --- Ikincil hareket: sallanma varyantlari ----------------------------------
 # Pelerin/sac/etek gercek ikincil harekette govdeyi GERIDEN takip eder ve
@@ -267,7 +364,7 @@ SWAY_NEUTRAL = 1                      # SWAY_BIASES icindeki notr indeks
 def build_animation(spec: CharSpec, state: str,
                     sway_bias: float = 0.0) -> list[pygame.Surface]:
     """Bir durumun tum karelerini uretir (saga bakar halde)."""
-    pose_fn, count, looping = ANIMATIONS.get(state, ANIMATIONS["idle"])
+    pose_fn, count, looping = pose_table(spec.name).get(state, ANIMATIONS["idle"])
     frames: list[pygame.Surface] = []
     for index in range(count):
         # Donguseller [0,1) tarar (son kare ilkine esit olmasin);
@@ -381,8 +478,12 @@ ARDO_SPEC = replace(
     # koyu "steel" zirhtan siluette hemen ayrisir. Ayni tonda olsaydi
     # omuzluk zirhla birlesip kurk hissi kayboluyordu.
     shoulder_chain="bone_pale",
-    weapon="sword",
+    weapon="none",
 )
+
+# Kilicli Ardo. Bolum 1'de o da silahsiz basliyor; kilici Jet veriyor.
+# Ayni iskelet, tek fark silah - ve vurus pozlari `ARDO_ANIMATIONS`.
+ARDO_ARMED_SPEC = replace(ARDO_SPEC, name="ardo_armed", weapon="sword")
 
 # Ardo da ayni secimi yapiyor - Bolum 2 iki karakterle de oynanabiliyor.
 ARDO_DAGGER_SPEC = replace(ARDO_SPEC, name="ardo_dagger", weapon="knife")
@@ -704,7 +805,9 @@ VILLAGER_SPEC = CharSpec(
 # Uc fark yetiyor:
 #
 #   omuz cantasi (shoulder_pads)  yolcu - burada yasamiyor, geciyor
-#   kisa kilic (weapon)           veren adam silahli, verdigi bir yedek
+#   kisa kilic (weapon)           varsayilan `jet` silahli: veren adam
+#                                 silahli, verdigi bir yedek - portre
+#                                 ve siluet icin duruyor
 #   acik kas egimi (brow_tilt +1) koyde Rey'e ters bakmayan tek yuz
 #
 # Sonuncusu en onemlisi: `brow_tilt` tek sayiyla ifade degistiriyor
@@ -724,6 +827,13 @@ JET_SPEC = CharSpec(
     brow_tilt=1,                 # Acik, sempatik - koyde tek dost yuz
     weapon="sword",
 )
+
+# Kilic sahnesi. Varsayilan `jet` belinde kilic tasiyor; ayni kilic
+# bir de prop olarak uzatilinca teslimden sonra IKI namlu kaliyordu.
+# Sahne `jet_unarmed` kullanir: veren el bos, kilic yalnizca prop
+# (sonra oyuncunun armed sprite'i). Ayni iskelet, tek fark silah.
+JET_UNARMED_SPEC = replace(JET_SPEC, name="jet_unarmed", weapon="none")
+
 
 
 # Kalachev - Ardo'nun eski dostu, serseri maceraci (`docs/kalachev.md`).
@@ -903,12 +1013,14 @@ CHARACTERS: dict[str, CharSpec] = {
     "rey_dagger": REY_DAGGER_SPEC,
     "rey_axe": REY_AXE_SPEC,
     "ardo": ARDO_SPEC,
+    "ardo_armed": ARDO_ARMED_SPEC,
     "ardo_dagger": ARDO_DAGGER_SPEC,
     "ardo_axe": ARDO_AXE_SPEC,
     "cemo": CEMO_SPEC,
     "villager": VILLAGER_SPEC,
     # Jet - Bolum 1'de kilici veren arkadas.
     "jet": JET_SPEC,
+    "jet_unarmed": JET_UNARMED_SPEC,
     # Kalachev - Ardo'nun dostu, B5'ten itibaren beliriyor.
     "kalachev": KALACHEV_SPEC,
     # Katman 1 - Curuyenler (B1-B6)

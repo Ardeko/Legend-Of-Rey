@@ -79,8 +79,7 @@ class Player(Actor):
         # hep 0.0 kaliyor.
         self.water_ratio = 0.0
 
-        # Silah: Rey yumrukla baslar (kilici Bolum 1'de bulur), Ardo
-        # egitimli bir yabanci - kilicla gelir (src/combat/weapons.py).
+        # Silah: ikisi de yumrukla baslar, kilici Bolum 1'de Jet verir.
         # `self.animator`/`self.chain` bu silaha gore kuruluyor; ayri ayri
         # ilklendirilselerdi biri diger degisince unutulurdu.
         self.weapon = weapons.starting_weapon(stats.name.lower())

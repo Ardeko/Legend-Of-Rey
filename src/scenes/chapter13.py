@@ -402,7 +402,7 @@ class Chapter13Scene(PlayScene):
         Ardo icin eski dostun yine ayni hatayi yapmasi.
         """
         self.juice.shake.add(ImpactWeight.FINISHER, (0.0, 1.0))
-        self.say_player("line.ch13_rey_kalachev", "line.ch13_ardo_kalachev")
+        self.present_kalachev("gate")
 
     def on_boss_phase(self, boss, phase: int) -> None:
         """Faz 1: Zindanci onu yakaliyor. **Senaryolu** - kacinilmaz.

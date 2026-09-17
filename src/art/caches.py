@@ -38,13 +38,14 @@ def invalidate_all() -> None:
     kalkarsa patlar. Ayrica cagri seyrek (yalnizca ayar degisiminde),
     yani import maliyeti onemsiz.
     """
-    from src.art import animator, portrait, postfx, tileset
+    from src.art import animator, brightness, portrait, postfx, tileset
     from src.scenes import staging
     from src.ui import echo_view, text
 
     animator.clear_cache()
     tileset.clear_cache()
     postfx.clear_cache()
+    brightness.clear_cache()
     portrait.clear_cache()
     echo_view.clear_cache()
     text.clear_cache()

@@ -485,6 +485,83 @@ def test_seal_does_not_embed_player() -> None:
         game.quit()
 
 
+def test_restart_spawns_inside_sealed_arena() -> None:
+    """Boss'ta olunce muhurun ARKASINDA degil ICINDE dogmali.
+
+    Kontrol noktasi odaya ilk giriste aliniyor; after_restart muhru
+    o noktanin sagina indiriyordu. Oyuncu bosluktaydi (gomulu degil)
+    bu yuzden `_eject_from_solids` yardim etmiyordu.
+    """
+    print("\n--- olum sonrasi muhurun icinde ---")
+    game = Game()
+    try:
+        scene = start(game)
+        start_tile, _ = scene._room_span("zindan")
+        feet_y = FLOOR_TOP * TILE_SIZE
+        scene.player.body.set_feet((start_tile + 1) * TILE_SIZE, feet_y)
+        scene.player.body.grounded = True
+        scene.room = "zindan"
+        scene._update_checkpoint()
+        scene._enter_room("zindan")
+        scene.player.body.set_feet((start_tile + 8) * TILE_SIZE, feet_y)
+        scene.player.health = 0
+        scene.player.die()
+        scene.restart()
+        check(scene.room == "zindan", "arenada devam")
+        check(scene.arena_sealed, "muhur indi")
+        check(not scene.tilemap.solid_overlap(scene.player.body.rect),
+              "oyuncu kati tile'da degil")
+        check(scene.player.body.x >= (start_tile + 4) * TILE_SIZE,
+              "muhrun ICINDE, arkasinda degil",
+              f"x={scene.player.body.x:.1f}")
+        check(scene.boss is not None and not scene.boss.dead,
+              "boss geri geldi")
+        check(scene.allies, "Kalachev de iceri suzuluyor")
+        if scene.allies:
+            ally = scene.allies[0]
+            check(ally.body.x >= (start_tile + 4) * TILE_SIZE,
+                  "Kalachev muhurun ICINDE, arkasinda degil",
+                  f"x={ally.body.x:.1f}")
+            check(not scene.tilemap.solid_overlap(ally.body.rect),
+                  "Kalachev kati tile'da degil")
+    finally:
+        game.quit()
+
+
+def test_continue_restores_arena_checkpoint() -> None:
+    """DEVAM ET kayittaki odaya doner; `main.py bolum13` donmez."""
+    print("\n--- DEVAM ET boss odasina doner ---")
+    start_tile = dict(ROOM_STARTS)["zindan"]
+    feet_y = float(FLOOR_TOP * TILE_SIZE)
+    write_save(SaveData(
+        chapter=13, character="rey",
+        abilities=["sword", "dodge", "echo_sight", "echo_ask"],
+        checkpoint="zindan",
+        checkpoint_x=float((start_tile + 8) * TILE_SIZE),
+        checkpoint_y=feet_y,
+    ))
+    game = Game()
+    try:
+        game.scenes.set_root(Chapter13Scene, transition=False,
+                             character="rey", resume_save=True)
+        game.scenes._flush()
+        scene = game.scenes.current
+        check(scene.room == "zindan", "kayitli odaya donuldu", scene.room)
+        check(scene.arena_sealed, "arena muhurlu")
+        check(scene.player.body.x >= (start_tile + 4) * TILE_SIZE,
+              "muhrun ICINDE", f"x={scene.player.body.x:.1f}")
+
+        game.scenes.set_root(Chapter13Scene, transition=False,
+                             character="rey")
+        game.scenes._flush()
+        fresh = game.scenes.current
+        check(fresh.room != "zindan",
+              "dogrudan acilis kayittaki odaya ISINLAMAZ",
+              fresh.room)
+    finally:
+        game.quit()
+
+
 def test_after_restart_respawns_boss() -> None:
     """Arenada olen oyuncu BOS bir arenada uyanmamali (`DEVIR.md` B6)."""
     print("\n--- olumden sonra arena ---")
@@ -642,6 +719,8 @@ def main() -> int:
     test_brazier_lit_by_sword()
     test_arena_and_exit()
     test_seal_does_not_embed_player()
+    test_restart_spawns_inside_sealed_arena()
+    test_continue_restores_arena_checkpoint()
     test_after_restart_respawns_boss()
     test_cinematics()
     test_kalachev_dives_in_and_is_wounded()

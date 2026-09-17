@@ -161,23 +161,32 @@ def main() -> int:
     check(rey.player.has(abilities.ECHO_SIGHT),
           "Rey ogretiyle Yanki Gorusu'nu kazaniyor")
 
-    # --- Ardo zaten kilicla basliyor - yerde ikinci bir kilic gormemeli -----
-    # Arda'nin bildirdigi celiski: "karakter kilici almadan once de kilici
-    # oluyor" - Ardo zaten silahli baslarken sahne yine de bir "al beni"
-    # kilic prop'u gosteriyordu.
-    print("\n--- Ardo zaten silahli - yerde ikinci kilic YOK ---")
-    ardo2 = make_scene(game, "ardo")
-    check(ardo2.player.has(abilities.SWORD),
-          "Ardo basta zaten kilica sahip")
-    check(ardo2.sword_pos is None,
-          "Ardo icin yerde kilic prop'u YOK (celiskili gorunmesin)")
-
-    print("\n--- Rey icin yerde kilic prop'u hala var ---")
-    rey2 = make_scene(game, "rey")
-    check(not rey2.player.has(abilities.SWORD),
-          "Rey basta kilica sahip degil")
-    check(rey2.sword_pos is not None,
-          "Rey icin yerde kilic prop'u duruyor (bulunacak)")
+    # --- Ikisi de silahsiz basliyor; kilici Jet veriyor ---------------------
+    print("\n--- ikisi de silahsiz; Jet kilici veriyor ---")
+    from src.scenes.chapter01_cinematics import SwordCinematic
+    for who in ("rey", "ardo"):
+        scene = make_scene(game, who)
+        check(not scene.player.has(abilities.SWORD),
+              f"{who} basta kilica sahip degil")
+        check(scene.sword_pos is not None,
+              f"{who} icin Jet'in kilici sahneye konmus")
+        sx, sy = scene.sword_pos
+        scene.player.body.set_feet(sx, sy + 11)
+        idle(game, scene, 5)
+        game.scenes._flush()
+        check(scene.player.has(abilities.SWORD),
+              f"{who} Jet'ten kilici aldi")
+        check(scene.player.animator.character == f"{who}_armed",
+              f"{who} kilic kusaninca armed sprite'a gecti",
+              scene.player.animator.character)
+        check(isinstance(game.scenes.current, SwordCinematic),
+              f"{who} kilic sohbeti acildi")
+        if who == "ardo":
+            cur = scene.dialogue.current
+            check(cur is None or cur.speaker != "echo",
+                  "Ardo kilic alinca Yanki konusmuyor")
+            check(scene.player.has(abilities.DODGE),
+                  "Ardo kacinmayla basliyor (egitimli yabanci)")
 
     # --- Prolog: replikler OYUNCUYU BEKLIYOR --------------------------------
     # Arda, canli oynanis (31.08.2026): *"ilk sahnede koyde Rey ile Cemo
@@ -359,6 +368,9 @@ def main() -> int:
 
     game.shutdown()
 
+    test_ardo_jet_talks_like_rey()
+    test_sword_handoff()
+
     print("\n=== SONUC ===")
     if failures:
         print(f"{len(failures)} BASARISIZ:")
@@ -367,6 +379,232 @@ def main() -> int:
         return 1
     print("Bolum 1 karakter-ozel ogreti kurallarina uyuyor.")
     return 0
+
+
+def test_ardo_jet_talks_like_rey() -> None:
+    """Kilici verirken Ardo da isim sohbetini yasar - kisa selam degil."""
+    print("\n--- Ardo-Jet kilic sohbeti ---")
+    from src.scenes.chapter01_cinematics import SwordCinematic
+
+    game = Game()
+    try:
+        game.scenes.set_root(Chapter01Scene, transition=False, character="ardo")
+        game.scenes._flush()
+        game.scenes.push(SwordCinematic, character="ardo")
+        game.scenes._flush()
+        top = game.scenes.current
+        check(isinstance(top, SwordCinematic), "Ardo kilic sinematigi acildi")
+        if not isinstance(top, SwordCinematic):
+            return
+        isim = next(p for p in top.panels if p.name == "isim")
+        keys = [line.key for line in isim.dialogue_lines]
+        check("line.ch01_ardo_emre" in keys,
+              "Ardo Emre adini kendisi soyluyor", str(keys))
+        check("line.ch01_jet_name2_ardo" in keys,
+              "Ardo da adi seven soyler vurusunu duyuyor", str(keys))
+        check(len(isim.dialogue_lines) >= 5,
+              "isim paneli kisa selam degil",
+              str(len(isim.dialogue_lines)))
+        uzatma = next(p for p in top.panels if p.name == "uzatma")
+        check(len(uzatma.dialogue_lines) >= 5,
+              "uzatma sohbet, iki satirlilik selam degil",
+              str(len(uzatma.dialogue_lines)))
+        ayrilik = next(p for p in top.panels if p.name == "ayrilik")
+        leave = [line.key for line in ayrilik.dialogue_lines]
+        check("line.ch01_ardo_leave" in leave,
+              "Ardo veda ediyor", str(leave))
+    finally:
+        game.shutdown()
+
+
+def step_game(game: Game, frames: int = 1) -> None:
+    for _ in range(frames):
+        game.input.begin_frame()
+        game.input.end_frame()
+        game.scenes.update()
+        game.frame += 1
+
+
+def press_confirm(game: Game) -> None:
+    game.input.begin_frame()
+    game.input.handle_event(
+        pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN))
+    game.input.handle_event(
+        pygame.event.Event(pygame.KEYUP, key=pygame.K_RETURN))
+    game.input.end_frame()
+    game.scenes.update()
+    game.frame += 1
+
+
+def wait_line_ready(game: Game, scene, limit: int = 240) -> None:
+    for _ in range(limit):
+        if (scene.dialogue.active and scene.dialogue.complete
+                and scene.dialogue.lock <= 0):
+            return
+        step_game(game)
+
+
+def save_canvas(game: Game, name: str) -> Path:
+    game.canvas.fill((0, 0, 0, 255))
+    game.scenes.draw(game.canvas)
+    path = ROOT / "build" / "testshots" / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    scaled = pygame.transform.scale(
+        game.canvas, (game.canvas.get_width() * 2, game.canvas.get_height() * 2))
+    pygame.image.save(scaled, str(path))
+    return path
+
+
+def _save_brightness_variants(game: Game, stem: str) -> None:
+    """Ayni kare 0.75 / 1.0 / 1.25 - kaydiricinin oyunu da actigini gosterir."""
+    from src.art import brightness
+    from src.config import BRIGHTNESS_DEFAULT, BRIGHTNESS_MAX, BRIGHTNESS_MIN
+
+    base = game.canvas.copy()
+    for value, suffix in (
+        (BRIGHTNESS_MIN, "dim"),
+        (BRIGHTNESS_DEFAULT, "default"),
+        (BRIGHTNESS_MAX, "lift"),
+    ):
+        frame = base.copy()
+        brightness.apply(frame, value)
+        path = ROOT / "build" / "testshots" / f"{stem}_{suffix}.png"
+        scaled = pygame.transform.scale(
+            frame, (frame.get_width() * 2, frame.get_height() * 2))
+        pygame.image.save(scaled, str(path))
+
+
+def test_sword_handoff() -> None:
+    """Jet kilici elinde tutar; ilk onayda teslim, sonra oyuncu kusaniyor."""
+    print("\n--- Jet kilic teslimi ---")
+    from src.art import palette
+    from src.config import HITSTOP_FINISHER
+    from src.scenes.chapter01_cinematics import (
+        APPROACH_FRAMES, SWORD_REACH, SWORD_SCALE, SwordCinematic,
+    )
+    from src.scenes.chapter01_render import blit_sword
+
+    blade = pygame.Surface((48, 48), pygame.SRCALPHA)
+    blit_sword(blade, 16, 4, scale=SWORD_SCALE)
+    stone = palette.color("stone_light")
+    # Uç kemik rengi; namluyu ortasından say.
+    mid_y = 4 + 8
+    width = sum(1 for x in range(48) if blade.get_at((x, mid_y))[:3] == stone)
+    check(width == SWORD_SCALE, "sinematik kilic 2px namlu, 1px cizgi degil",
+          str(width))
+
+    game = Game()
+    try:
+        game.scenes.set_root(Chapter01Scene, transition=False, character="rey")
+        game.scenes._flush()
+        game.scenes.push(SwordCinematic, character="rey")
+        game.scenes._flush()
+        cin = game.scenes.current
+        assert isinstance(cin, SwordCinematic)
+
+        step_game(game, APPROACH_FRAMES + 2)
+        check(cin.panel is not None and cin.panel.name == "uzatma",
+              "uzatma panosuna ulasildi",
+              cin.panel.name if cin.panel else "yok")
+        player = cin.actor("player")
+        jet = cin.actor("jet")
+        check(player is not None and player.animator.character == "rey",
+              "uzatmada oyuncu hâlâ silahsiz",
+              player.animator.character if player else "yok")
+        check(jet is not None and jet.animator.character == "jet_unarmed",
+              "uzatmada Jet bel kilici tasimiyor",
+              jet.animator.character if jet else "yok")
+        from src.art.animation import CHARACTERS
+        from src.art.animator import Animator as _Animator
+        check(CHARACTERS["jet_unarmed"].weapon == "none",
+              "jet_unarmed spec silahsiz")
+        check(CHARACTERS["jet"].weapon == "sword",
+              "varsayilan jet silueti silahli kalir")
+        armed = _Animator("jet")
+        armed.play("idle")
+        bare = _Animator("jet_unarmed")
+        bare.play("idle")
+        assert armed.image is not None and bare.image is not None
+        armed_px = pygame.mask.from_surface(armed.image).count()
+        bare_px = pygame.mask.from_surface(bare.image).count()
+        check(armed_px > bare_px,
+              "silahsiz Jet'te bel namlusu yok (daha az piksel)",
+              f"jet {armed_px} unarmed {bare_px}")
+        check(cin.actor("jet") is jet,
+              "cue adi hâlâ jet - yakin plan portreyi bulur")
+        pos = cin.sword_screen_pos()
+        check(pos is not None, "kilic Jet'in elinde gorunuyor")
+        if pos is not None:
+            jet_x = int(round(cin.JET_X)) - SWORD_REACH
+            mid_x = int(round((cin.JET_X + cin.PLAYER_X) * 0.5))
+            check(abs(pos[0] - jet_x) <= 1,
+                  "kilic iki govdenin ortasinda degil, Jet'te",
+                  f"x={pos[0]} jet={jet_x} mid={mid_x}")
+            check(abs(pos[0] - mid_x) > 8,
+                  "eski 1px orta-cizgi konumundan uzak")
+        wait_line_ready(game, cin)
+        save_canvas(game, "jet_sword_offer.png")
+        _save_brightness_variants(game, "jet_sword_offer")
+
+        press_confirm(game)
+        check(cin._passing and not cin._handed,
+              "ilk onay teslimi baslatti",
+              f"passing={cin._passing} handed={cin._handed}")
+        check(cin.freeze_frames > 0,
+              "teslim hitstop (bitirici 7 kare)",
+              str(cin.freeze_frames))
+        pass_pos = cin.sword_screen_pos()
+        check(pass_pos is not None, "freeze karesinde kilic havada")
+        if pos is not None and pass_pos is not None:
+            check(pass_pos[0] < pos[0],
+                  "kilic Jet'ten oyuncuya dogru kaydi",
+                  f"{pos[0]} -> {pass_pos[0]}")
+        check(player is not None and player.animator.character == "rey",
+              "freeze bitmeden armed sprite yok",
+              player.animator.character if player else "yok")
+        save_canvas(game, "jet_sword_pass.png")
+
+        step_game(game, HITSTOP_FINISHER + 1)
+        check(cin._handed and not cin._passing,
+              "freeze bitince teslim tamam",
+              f"handed={cin._handed} passing={cin._passing}")
+        check(player is not None and player.animator.character == "rey_armed",
+              "oyuncu kusanmis sprite'a gecti",
+              player.animator.character if player else "yok")
+        check(jet is not None and jet.animator.character == "jet_unarmed",
+              "teslimden sonra Jet silahsiz kalir",
+              jet.animator.character if jet else "yok")
+        check(cin.sword_screen_pos() is None,
+              "sahte kilic kayboldu (cift namlu yok)")
+        step_game(game, 24)
+        save_canvas(game, "jet_sword_armed.png")
+
+        # Fotosensitivite: olay olur, beyaz kare cizilmez.
+        game.settings.set("flash_limit", True)
+        game.scenes.pop()
+        game.scenes._flush()
+        game.scenes.push(SwordCinematic, character="ardo")
+        game.scenes._flush()
+        cin2 = game.scenes.current
+        assert isinstance(cin2, SwordCinematic)
+        step_game(game, APPROACH_FRAMES + 2)
+        wait_line_ready(game, cin2)
+        press_confirm(game)
+        check(cin2._passing, "flash_limit teslimi iptal etmez")
+        check(cin2.flash_strength <= 0.01,
+              "flash_limit acikken parlama yok",
+              str(cin2.flash_strength))
+        ardo = cin2.actor("player")
+        step_game(game, HITSTOP_FINISHER + 1)
+        check(ardo is not None and ardo.animator.character == "ardo_armed",
+              "Ardo da teslimde armed sprite'a gecer",
+              ardo.animator.character if ardo else "yok")
+        jet2 = cin2.actor("jet")
+        check(jet2 is not None and jet2.animator.character == "jet_unarmed",
+              "Ardo sahnesinde de Jet silahsiz",
+              jet2.animator.character if jet2 else "yok")
+    finally:
+        game.shutdown()
 
 
 raise SystemExit(main())

@@ -22,11 +22,13 @@ Spec'ler: `src/art/animation.py :: CHARACTERS`
 | `rey_dagger` | 48x40 | 34 | 50 | Rey + Hancer (Bolum 2 mini-boss odulu) |
 | `rey_axe` | 48x40 | 34 | 50 | Rey + Balta (Bolum 2 mini-boss odulu) |
 | `ardo` | 48x40 | 34 | 50 | Oynanabilir - yabanci |
+| `ardo_armed` | 48x40 | 34 | 50 | Ardo, kilic kusanmis (Bolum 1 sonrasi) |
 | `ardo_dagger` | 48x40 | 34 | 50 | Ardo + Hancer (Bolum 2 mini-boss odulu) |
 | `ardo_axe` | 48x40 | 34 | 50 | Ardo + Balta (Bolum 2 mini-boss odulu) |
 | `cemo` | 40x32 | 27 | 50 | Rey'in kucuk kardesi - menu 5. asama |
 | `villager` | 40x38 | 32 | 50 | Bolum 1 koylusu - olay patlayinca evine kaciyor |
 | `jet` | 44x40 | 34 | 50 | B1'de kilici veren arkadas |
+| `jet_unarmed` | 44x40 | 34 | 50 | Jet, kilicsiz - hediye sahnesi (prop tasiyor) |
 | `kalachev` | 48x40 | 34 | 50 | Onceki maceraci (docs/kalachev.md) - B4/B5/B6/B10/B12/B13/B15, B18'de olur |
 | `shambler` | 40x36 | 31 | 50 | Katman 1 - Suruklenen |
 | `climber` | 44x34 | 28 | 50 | Katman 1 - Tirmanan |

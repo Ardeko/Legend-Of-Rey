@@ -31,6 +31,7 @@ ROLES = {
     "rey_dagger": "Rey + Hancer (Bolum 2 mini-boss odulu)",
     "rey_axe": "Rey + Balta (Bolum 2 mini-boss odulu)",
     "ardo": "Oynanabilir - yabanci",
+    "ardo_armed": "Ardo, kilic kusanmis (Bolum 1 sonrasi)",
     "ardo_dagger": "Ardo + Hancer (Bolum 2 mini-boss odulu)",
     "ardo_axe": "Ardo + Balta (Bolum 2 mini-boss odulu)",
     "cemo": "Rey'in kucuk kardesi - menu 5. asama",
@@ -57,6 +58,7 @@ ROLES = {
     "source": "BOSS 3 - Kaynak (B14), twist'in kendisi",
     # Anlati varliklari - dusman degil
     "jet": "B1'de kilici veren arkadas",
+    "jet_unarmed": "Jet, kilicsiz - hediye sahnesi (prop tasiyor)",
     "kalachev": "Onceki maceraci (docs/kalachev.md) - B4/B5/B6/B10/"
                 "B12/B13/B15, B18'de olur",
     "watcher": "Izleyen (docs/korku.md 5.2) - saldirmaz, bakar. "

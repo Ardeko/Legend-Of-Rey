@@ -111,7 +111,11 @@ class SaveData:
     # Bolum adi dil anahtari tutar - kayit dosyasi dilden bagimsiz olmali.
     # Turkce kaydi acan Ingilizce oyuncu "Village" gormeli, "Koy" degil.
     chapter_name: str = "chapter.village"
+    # Oda adi. Bos = bolum basindan. `checkpoint_x/y` o odadaki ayak
+    # noktasi; eski kayitlarda 0 kalir ve sahne oda basina duser.
     checkpoint: str = ""
+    checkpoint_x: float = 0.0
+    checkpoint_y: float = 0.0
     playtime_frames: int = 0
 
     # Karakter

@@ -149,8 +149,11 @@ class Chapter18Scene(PlayScene):
         self.boss_defeated = False
 
         self.zone = ""
+        self.room = ""
         self.frames = 0
         self.entered_zones: set[str] = set()
+        # Kontrol noktasi `entered_rooms` tasiyor; bolgeler onun yerini tutar.
+        self.entered_rooms = self.entered_zones
         self.fired_triggers: set[str] = set()
         self.finished = False
         self.silence_hinted = False
@@ -178,10 +181,34 @@ class Chapter18Scene(PlayScene):
 
     def _enter_zone(self, name: str) -> None:
         self.zone = name
+        # Kontrol noktasi `self.room` okuyor; bolge adi oda yerine gecer.
+        self.room = name
         if name in self.entered_zones:
             return
         self.entered_zones.add(name)
         self._narrate_zone(name)
+
+    def _room_span(self, name: str) -> tuple[int, int]:
+        """Bolgenin tile araligi - muhur icine cekmek icin."""
+        for index, (zone_name, start) in enumerate(ZONE_STARTS):
+            if zone_name != name:
+                continue
+            end = (ZONE_STARTS[index + 1][1] if index + 1 < len(ZONE_STARTS)
+                   else self.tilemap.width)
+            return start, end
+        return 0, self.tilemap.width
+
+    def after_restart(self, room: str) -> None:
+        """Arenada olduysak boss ve muhur geri gelmeli."""
+        # `entered_rooms` setup'ta `entered_zones` ile AYNI kume.
+        # Kopyalayip yeniden baglamak takma adi kirar; olum retry'si
+        # bir sonraki oda girisini "ilk kez" sanirdi.
+        if room != "arena":
+            return
+        self._spawn_boss()
+        self._seal_arena()
+        if self.phase == PHASE_TOGETHER:
+            self._summon_kalachev()
 
     def _narrate_zone(self, name: str) -> None:
         """Anahtarlar **duz dize** - f-string ile kurulani test goremiyor."""
@@ -353,7 +380,7 @@ class Chapter18Scene(PlayScene):
         cagrilmadan gelmesi (`docs/kalachev.md` 3).
         """
         self.juice.shake.add(ImpactWeight.FINISHER, (0.0, 1.0))
-        self.say_player("line.ch18_rey_kalachev", "line.ch18_ardo_kalachev")
+        self.present_kalachev("last")
 
     def _seal_arena(self) -> None:
         """Arena muhurleniyor - oyuncu ICERI alindiktan sonra.

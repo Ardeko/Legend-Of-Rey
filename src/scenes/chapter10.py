@@ -298,8 +298,9 @@ class Chapter10Scene(PlayScene):
         self.show_toast(t("chapter10.trap_broken"), frames=180)
 
     def on_kalachev_arrived(self, ally) -> None:
-        """Kamera bir an oraya bakiyor. Replik yok - tanisma B6'daydi."""
+        """Kamera bir an oraya bakiyor. Adi yakin planda soylenir."""
         self.camera.linger(40)
+        self.present_kalachev("trap")
 
     def _update_trap(self) -> None:
         """Ust yolun ortasinda zemin cokuyor.

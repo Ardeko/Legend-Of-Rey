@@ -275,6 +275,8 @@ def main() -> int:
     game.shutdown()
 
     test_entrance()
+    test_kalachev_named()
+    test_arena_death_keeps_companion_inside()
 
     print("\n=== SONUC ===")
     if failures:
@@ -354,6 +356,79 @@ def test_entrance() -> None:
             check(painted, f"{played}: sahne ekrana ciziliyor")
         finally:
             game.shutdown()
+
+
+def test_kalachev_named() -> None:
+    """Yururken adi soylenir ve yuzu gorunur (`docs/kalachev.md` 3)."""
+    print("\n--- Kalachev tanisma sinematigi ---")
+    from src.scenes.chapter06_cinematics import ArdoEntranceCinematic
+    from src.scenes.kalachev_cinematics import KalachevCinematic
+    from src.ui.i18n import t
+
+    for played in ("rey", "ardo"):
+        game = Game()
+        try:
+            game.scenes.set_root(Chapter06Scene, transition=False,
+                                 character=played)
+            game.scenes._flush()
+            scene = game.scenes.current
+            scene._rescue()
+            game.scenes._flush()
+            top = game.scenes.current
+            check(isinstance(top, ArdoEntranceCinematic),
+                  f"{played}: once havali giris")
+            top.on_finished()
+            game.scenes._flush()
+            meet = game.scenes.current
+            check(isinstance(meet, KalachevCinematic),
+                  f"{played}: Kalachev sinematigi aciliyor",
+                  type(meet).__name__)
+            if not isinstance(meet, KalachevCinematic):
+                continue
+            check(meet.actor("kalachev") is not None, "Kalachev sahnede")
+            check(any(p.closeup == "kalachev" for p in meet.panels),
+                  "yakin plan onun yuzu")
+            blob = " ".join(
+                t(line.key) for p in meet.panels for line in p.dialogue_lines)
+            check("Kalachev" in blob, f"{played}: adi soyleniyor", blob[:80])
+        finally:
+            game.shutdown()
+
+
+def test_arena_death_keeps_companion_inside() -> None:
+    """Boss'ta olunce yoldas muhurun ARKASINDA kalmamali."""
+    print("\n--- olum sonrasi yoldas icerde ---")
+    from src.world.rooms.chapter06 import ARENA_DOOR_TILE, FLOOR_TOP
+
+    game = Game()
+    try:
+        game.scenes.set_root(Chapter06Scene, transition=False, character="rey")
+        game.scenes._flush()
+        scene = game.scenes.current
+        scene._rescue()
+        game.scenes._flush()
+        while game.scenes.current is not scene:
+            game.scenes.pop()
+            game.scenes._flush()
+        start, _ = scene._room_span("arena")
+        feet = FLOOR_TOP * TILE_SIZE
+        scene.player.body.set_feet((start + 1) * TILE_SIZE, feet)
+        scene.player.body.grounded = True
+        scene.room = "arena"
+        scene._update_checkpoint()
+        scene.player.body.set_feet((start + 8) * TILE_SIZE, feet)
+        scene.player.health = 0
+        scene.player.die()
+        scene.restart()
+        check(scene.companion is not None, "yoldas geri geldi")
+        check(scene.arena_sealed, "muhur indi")
+        door = (ARENA_DOOR_TILE + 1) * TILE_SIZE
+        check(scene.player.body.x >= door, "oyuncu muhurun ICINDE",
+              f"x={scene.player.body.x:.1f}")
+        check(scene.companion.body.x >= door, "yoldas muhurun ICINDE",
+              f"x={scene.companion.body.x:.1f}")
+    finally:
+        game.shutdown()
 
 
 raise SystemExit(main())

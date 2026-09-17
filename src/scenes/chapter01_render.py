@@ -23,6 +23,31 @@ from src.world.rooms.chapter01 import (
 
 HINT_Y = 244          # INTERNAL_HEIGHT - 26
 
+# Kilic geometrisi - yerdeki esya ve Jet'in uzattigi ayni pikseller.
+# Olcek tam sayi (CLAUDE.md 4/12); sinematik aktorler 2x.
+SWORD_BLADE_H = 14
+SWORD_TIP_H = 3
+SWORD_GUARD_W = 7
+SWORD_GUARD_Y = 11
+SWORD_HANDLE_Y = 12
+SWORD_HANDLE_H = 3
+
+
+def blit_sword(surface: pygame.Surface, x: int, y: int,
+               scale: int = 1) -> None:
+    """Kilicin pikselleri. `(x, y)` namlunun ust ucu.
+
+    Yerdeki esya 1x, Jet'in uzattigi 2x - ayni namlu/balcak/kabza,
+    ayni palet. Iki kopya durursa biri 1px cizgi kalir, oteki unutulur.
+    """
+    s = max(1, int(scale))
+    surface.fill(palette.color("stone_light"), (x, y, s, SWORD_BLADE_H * s))
+    surface.fill(palette.color("bone"), (x, y, s, SWORD_TIP_H * s))
+    surface.fill(palette.color("gold"),
+                 (x - 3 * s, y + SWORD_GUARD_Y * s, SWORD_GUARD_W * s, s))
+    surface.fill(palette.color("earth_dark"),
+                 (x, y + SWORD_HANDLE_Y * s, s, SWORD_HANDLE_H * s))
+
 
 def draw_sword(scene, surface: pygame.Surface, offset) -> None:
     """Yerde duran kilic - hafif suzulur ve parildar.
@@ -40,12 +65,7 @@ def draw_sword(scene, surface: pygame.Surface, offset) -> None:
     glow = radial_glow(14, palette.color("gold"), peak=0.30)
     surface.blit(glow, (x - 14, y - 14),
                  special_flags=pygame.BLEND_RGB_ADD)
-    # Kilic: dikey namlu + capraz balcak.
-    surface.fill(palette.color("stone_light"), (x, y - 9, 1, 14))
-    surface.fill(palette.color("bone"), (x, y - 9, 1, 3))
-    surface.fill(palette.color("gold"),
-                 (x - 3, y + 2, 7, 1))
-    surface.fill(palette.color("earth_dark"), (x, y + 3, 1, 3))
+    blit_sword(surface, x, y - 9, scale=1)
 
 
 def draw_necklace(scene, surface: pygame.Surface, offset) -> None:

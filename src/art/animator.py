@@ -43,7 +43,9 @@ _sprite_cache: dict[tuple[str, int], dict[str, list[pygame.Surface]]] = {}
 # Sallanma varyanti YALNIZCA bu karakterlere uretiliyor. Oyuncu her karede
 # ekranda ve kontrol edilen sey o; dusman/NPC icin ek 2x sprite bellegi
 # gorunmeyecek bir kazanc icin odenirdi.
-SWAY_CHARACTERS: frozenset[str] = frozenset({"rey", "rey_armed", "ardo"})
+SWAY_CHARACTERS: frozenset[str] = frozenset({
+    "rey", "rey_armed", "ardo", "ardo_armed",
+})
 _flipped_cache: dict[int, pygame.Surface] = {}
 _silhouette_cache: dict[int, pygame.Surface] = {}
 _tint_cache: dict[tuple, pygame.Surface] = {}

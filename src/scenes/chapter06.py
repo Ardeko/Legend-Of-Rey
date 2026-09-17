@@ -304,7 +304,8 @@ class Chapter06Scene(PlayScene):
         """
         ally.facing = -1
         self.camera.linger(40)
-        self.say_player("line.ch06_rey_kalachev", "line.ch06_ardo_kalachev")
+        # Adi ve yuzu ArdoEntranceCinematic bitince oynuyor.
+        # Retry'de sinematik yok (`present_kalachev` `_resuming`).
 
     def _open_corner(self) -> None:
         for row in CORNER_WALL_ROWS:
@@ -442,13 +443,16 @@ class Chapter06Scene(PlayScene):
         Kurtarma sahnesi TEKRARLANMIYOR - o bir kez yasanan bir andir.
         Yalnizca yoldas, oyuncunun yaninda, sessizce geri kuruluyor.
         """
-        if room == "kose" or self.companion is not None:
-            return
-        x, y = self.free_spot_near(self.player.body.center_x - 24,
-                                   self.player.body.feet[1],
-                                   self.player.body)
-        self.companion = Companion(self, x, y, self.companion_key)
-        self.rescued = True
+        if room != "kose" and self.companion is None:
+            x, y = self.free_spot_near(self.player.body.center_x - 24,
+                                       self.player.body.feet[1],
+                                       self.player.body)
+            self.companion = Companion(self, x, y, self.companion_key)
+            self.rescued = True
+        if room == "arena" and not self.boss_defeated:
+            # Tek cagrida kapanmali: grace per-kare, after_restart degil.
+            self.seal_wait = SEAL_GRACE_FRAMES
+            self._seal_arena()
 
     def _finish_boss(self) -> None:
         self.boss_defeated = True

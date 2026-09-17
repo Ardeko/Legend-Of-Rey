@@ -10,7 +10,7 @@ zaten ayri bir sorumluluk - **hangi animasyon**, **hangi karede**.
 """
 from __future__ import annotations
 
-from src.art.animation import ANIMATIONS, CHARACTERS
+from src.art.animation import CHARACTERS, pose_table
 from src.art.spritegen import weapon_tip
 from src.combat.combo import AttackPhase
 from src.config import DODGE_TOTAL_FRAMES, PLAYER_RUN_SPEED
@@ -94,7 +94,7 @@ def _feed_trail(player, state: str, progress: float) -> None:
     spec = CHARACTERS.get(player.animator.character)
     if spec is None:
         return
-    pose_fn, count, looping = ANIMATIONS.get(state, (None, 1, False))
+    pose_fn, count, looping = pose_table(spec.name).get(state, (None, 1, False))
     if pose_fn is None:
         return
     tip = weapon_tip(spec, pose_fn(max(0.0, min(1.0, progress))))
