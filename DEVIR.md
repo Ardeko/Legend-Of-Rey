@@ -7,7 +7,57 @@ Okuma sırası: **1) `CLAUDE.md`** (bağlayıcı kurallar — anayasa) → **2) 
 dosya** (nerede kaldık) → 3) gerekirse `docs/` altındaki ilgili tasarım
 belgesi.
 
-Son güncelleme: **08.09.2026** (korku katmanı, kayıt hatası, uzaktan dövüş, Jet, **Kalachev bitti — B18 üç fazlı final dahil**) · Ardeko Studios · Arda Güner
+Son güncelleme: **18.09.2026** (WAV ithali, boss girişinde Kalachev, kayıt regresyonları, diyaloglar ve Jet'in dönüşleri) · Ardeko Studios · Arda Güner
+
+## 18.09.2026 — Oynanış geri bildirimi ve ses ithali
+
+- **Kalachev'in duvar sorunu yeniden üretildi ve düzeltildi.** Görseldeki
+  Zindancı savaşı kodda B13'tür; B11 Ayna Salonu'nda boss/Kalachev yok.
+  Önceki ölüm/DEVAM ET düzeltmesi altı arenada zaten çalışıyordu.
+  Eksik yol ilk girişti: kapı kapanınca Kalachev oyuncunun 34 piksel
+  arkasında, mühür dışında doğuyordu. `PlayScene.summon_kalachev` artık
+  mühürlü arenada bütün gövdeyi iç tarafa yerleştiriyor. Rey/Ardo ve iki
+  bakış yönü gerçek fizikle test edildi; mevcut final ayrılığı korunuyor.
+- **Kayıt → menü → DEVAM ET doğrulandı.** `test_save_resume.py` B2/B11/B13,
+  iki karakter, tek/çift dolu yuva ile 18 gerçek menü rotasını yürütüyor;
+  bölüm, oda, altın, ekipman, yetenek ve diğer yuva korunuyor. Ek düzeltme:
+  başarısız yazmada sahte başarı bildirimi/menüye çıkış yok; bozuk ana
+  kayıt sağlam yedeği ezmiyor. Testler geçici `LORE_SAVE_DIR` kullanıyor.
+- **10 gerçek WAV bağlandı.** `assets/audio/sfx/` özgün dosya adlarını
+  taşır. `recordings.py` kaçınma, kusursuz kaçınma, hafif isabet (3),
+  öldürücü isabet (2), ağır savuruş (3) eşlemesini tutar. 48 kHz stereo
+  24-bit dosyalar SDL ile açılır; perde varyantları ve Yankı filtresi
+  açılışta hazırlanır. Eksik/bozuk dosyada sentez yedeği var. Orijinaller
+  değişmedi. `test_recordings.py` gerçek örnek verisini de doğruluyor.
+- **Kalachev metinleri TR/EN yenilendi.** B6/B10/B13/B18 karşılaşmalarında
+  artık kendi kısa karşılıklarını söylüyor. Rey'e mesafeli; Ardo'yla eski
+  dostluk, yaralanma ve final arasında devam eden bir konuşma var.
+  B5 ve B15'teki sessizliği korunuyor.
+- **Jet B4/B9/B15 çıkışlarında tekrar görünüyor.** `jet_cinematics.py`:
+  geliş, konuşma, mevcut portresiyle yakın plan, ayrılış. Bölümün bulmacası
+  bittikten sonra oynar. Görüldü bayrağı tamamlanınca kayda yazılır;
+  yeniden yükleme ve bölüm tekrarında yinelenmez. Rey/Ardo ve TR/EN
+  akışları `test_story_returns.py` ile oynatılıp çizildi.
+- **Doğrulama:** 54 test betiği geçti. İlk tam koşudaki B4/B9 testleri yeni
+  çıkış sahnesini tamamlayacak şekilde güncellendi; taşan bir İngilizce
+  replik kısaltıldı ve ilgili testler yeniden geçti. Loglar
+  `build/verification/`, görseller `build/testshots/` altında.
+- **Belgeler:** `docs/diyaloglar.md` yeniden üretildi (382 replik);
+  `tools/registry.py` artık gerçek ses eşlemesini de kaydediyor.
+  `assets/audio/sfx/OKU.md` dosya yerleşimini açıklar.
+
+Kullanım: `oyna.bat` kaynak sürümü; kökteki mevcut kısayol
+`dist/Legend of Rey.exe` dosyasını açar. Eski 10 Eylül exe'sinin yedeği
+`build/release-backup/Legend of Rey.before-2026-09-18.exe` altında.
+Yeni exe 18 Eylül'de üretildi (85.375.461 bayt). İç arşivinde 10 WAV,
+9 MP3, 5 portre ve yeni sahne/ses modülleri doğrulandı; WAV içerikleri
+kaynaklarla bayt bayt eşit. Kaynak klasörü dışından ve geçici kayıtla
+menü/B13/B15 ayrı ayrı 6 saniye çalıştırıldı; erken kapanma görülmedi.
+288 güncel Python dosyası sözdizimi taramasından geçti.
+
+Kalan insan değerlendirmesi: yeni seslerin müzikle dengesi ve üç Jet
+karşılaşmasının baştan sona oynanıştaki ritmi. Otomatik testler dört
+saatlik insan oynanışının yerine geçmez.
 
 > `GOREVLER.md` **silindi** (23.08.2026, Arda'nın isteği: "bir devir.md
 > olsun diğerlerini sil kafa karıştırmasın"). İçindeki canlı bilgi bu

@@ -102,34 +102,48 @@ class KalachevCinematic(StagedScene):
         )
 
     def _meet_beats(self) -> dict[str, tuple[Line, ...]]:
-        """B6 tanisma: Ardo adi soyler, Rey sorar."""
+        """B6: Rey bir yabanciyla, Ardo eski dostuyla karsilasir."""
         if self.character == "ardo":
             return {
-                "bakisma": (Line("ardo", "line.ch06_ardo_kalachev"),),
-                "isim": (Line("ardo", "line.ch06_kalachev_ardo_know"),),
+                "bakisma": (
+                    Line("ardo", "line.ch06_ardo_kalachev"),
+                    Line("kalachev", "line.ch06_kalachev_familiar"),
+                ),
+                "isim": (
+                    Line("ardo", "line.ch06_kalachev_ardo_know"),
+                    Line("kalachev", "line.ch06_kalachev_debt"),
+                ),
             }
         return {
             "bakisma": (Line("ardo", "line.ch06_kalachev_ardo_intro"),),
             "isim": (
                 Line("rey", "line.ch06_kalachev_rey_ask"),
                 Line("ardo", "line.ch06_kalachev_ardo_stay"),
-                Line("echo", "line.ch06_rey_kalachev"),
+                Line("kalachev", "line.ch06_kalachev_meet"),
+                Line("echo", "line.ch06_echo_kalachev"),
             ),
         }
 
     def _walk_beats(self) -> dict[str, tuple[Line, ...]]:
-        """B10 / B13 / B18: yuz ve ad, kisa."""
+        """B10 / B13 / B18: gozlem yerine kisa bir karsilik."""
         ardo = self.character == "ardo"
         if self.beat == "trap":
             line = (Line("ardo", "line.ch10_ardo_kalachev") if ardo
                     else Line("rey", "line.ch10_rey_kalachev"))
+            reply = ("line.ch10_kalachev_detour" if ardo
+                     else "line.ch10_kalachev_crack")
         elif self.beat == "gate":
             line = (Line("ardo", "line.ch13_ardo_kalachev") if ardo
                     else Line("rey", "line.ch13_rey_kalachev"))
+            reply = ("line.ch13_kalachev_late" if ardo
+                     else "line.ch13_kalachev_child")
         else:
             line = (Line("ardo", "line.ch18_ardo_kalachev") if ardo
                     else Line("rey", "line.ch18_rey_kalachev"))
-        return {"isim": (line,)}
+            reply = ("line.ch18_kalachev_debt" if ardo
+                     else "line.ch18_kalachev_gate")
+        return {"bakisma": (line,),
+                "isim": (Line("kalachev", reply),)}
 
     def draw_stage_background(self, surface: pygame.Surface, panel: Panel,
                               progress: float,

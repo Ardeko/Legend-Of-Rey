@@ -38,6 +38,7 @@ class PauseScene(Scene):
         self.save_data = save_data
         self.confirm_quit: Menu | None = None
         self.saved_notice = 0
+        self._save_succeeded = False
         self._blurred: pygame.Surface | None = None
 
         self.menu = Menu([
@@ -78,26 +79,33 @@ class PauseScene(Scene):
     def _ask_quit(self) -> None:
         # Once kaydet, sonra sor. Oyuncu "kaydedildi" yazisini gordugunde
         # bu gercekten olmus olmali.
-        self._save_progress()
+        self._save_succeeded = self._save_progress()
         self.confirm_quit = Menu([
             MenuItem("common.cancel", self._cancel_quit),
-            MenuItem("pause.quit_confirm", self._to_main_menu, danger=True),
+            MenuItem("pause.quit_confirm", self._to_main_menu, danger=True,
+                     enabled=self._save_succeeded),
         ], INTERNAL_WIDTH // 2, INTERNAL_HEIGHT // 2 + 18, width=140,
             centered=True, on_sound=self.game.play_sound)
 
     def _cancel_quit(self) -> None:
         self.confirm_quit = None
 
-    def _save_progress(self) -> None:
+    def _save_progress(self) -> bool:
         data = self.save_data
         if data is None:
             data, _ = read_save()
-        if data is not None:
-            write_save(data)
-            self.saved_notice = 180
-            self.game.play_sound("save_written")
+        self.saved_notice = 0
+        if data is None or not write_save(data):
+            return False
+        self.saved_notice = 180
+        self.game.play_sound("save_written")
+        return True
 
     def _to_main_menu(self) -> None:
+        # Yazma basarisizsa canli ilerlemeyi terk etme; IPTAL ile
+        # oyuna donup ANA MENU'yu yeniden secmek yazmayi tekrar dener.
+        if not self._save_succeeded:
+            return
         from src.ui.menu import MainMenuScene
         self.scenes.set_root(MainMenuScene)
 
@@ -165,9 +173,11 @@ class PauseScene(Scene):
         panel(surface, rect)
         text.draw(surface, t("pause.quit_question"), INTERNAL_WIDTH // 2, rect.y + 10,
                   color=palette.role("ui_text"), align="center")
-        # Belirsizlik birakmiyoruz - kaydedildigini acikca soyluyoruz.
-        text.draw(surface, t("pause.quit_saved"), INTERNAL_WIDTH // 2,
-                  rect.y + 24, color=palette.color("echo_bright"),
+        notice = (t("pause.quit_saved") if self._save_succeeded
+                  else t("pause.quit_failed"))
+        color = "echo_bright" if self._save_succeeded else "danger_bright"
+        text.draw(surface, notice, INTERNAL_WIDTH // 2,
+                  rect.y + 24, color=palette.color(color),
                   align="center")
         self.confirm_quit.draw(surface)
 

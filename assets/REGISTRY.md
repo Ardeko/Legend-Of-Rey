@@ -28,7 +28,7 @@ Spec'ler: `src/art/animation.py :: CHARACTERS`
 | `cemo` | 40x32 | 27 | 50 | Rey'in kucuk kardesi - menu 5. asama |
 | `villager` | 40x38 | 32 | 50 | Bolum 1 koylusu - olay patlayinca evine kaciyor |
 | `jet` | 44x40 | 34 | 50 | B1'de kilici veren arkadas |
-| `jet_unarmed` | 44x40 | 34 | 50 | Jet, kilicsiz - hediye sahnesi (prop tasiyor) |
+| `jet_unarmed` | 44x40 | 34 | 50 | Jet, kilicsiz - B1 hediye; B4/B9/B15 donus sahneleri |
 | `kalachev` | 48x40 | 34 | 50 | Onceki maceraci (docs/kalachev.md) - B4/B5/B6/B10/B12/B13/B15, B18'de olur |
 | `shambler` | 40x36 | 31 | 50 | Katman 1 - Suruklenen |
 | `climber` | 44x34 | 28 | 50 | Katman 1 - Tirmanan |
@@ -89,9 +89,22 @@ sessizce dusmez, konsola rapor edilir.
 
 ## Ses
 
-`src/audio/sfx.py :: SFX` - **81 efekt**, hepsi calisma zamaninda 
-sentezleniyor (numpy). Sprite'lar gibi: diskte dosya yok, kaynak koddur. 
+`src/audio/sfx.py :: SFX` - **81 efekt anahtari**.
+Bes olayda `assets/audio/sfx/` altindaki 10 gercek WAV kullanilir;
+digerleri ve eksik dosya yedegi numpy ile sentezlenir.
 Her tekrarli ses +-%8 rastgele perdeyle calinir (`CLAUDE.md` 7).
+
+Esleme: `src/audio/recordings.py :: RECORDINGS`.
+48 kHz/stereo/24-bit kaynaklar mixer bicimine acilista cevrilir;
+Yanki filtresi ve perde varyantlari onbellekte hazirlanir.
+
+| Olay | Kaynak dosyalar |
+|---|---|
+| `dodge` | `dash.wav` |
+| `dodge_perfect` | `dash perfect.wav` |
+| `hit_light` | `Light Hit V1.wav`, `Light Hit V2.wav`, `Light Hit V3.wav` |
+| `hit_kill` | `Light Hit Kill.wav`, `Light Hit Kill V2.wav` |
+| `swing_heavy` | `swing heavy.wav`, `swing heavy v2.wav`, `swing heavy v3.wav` |
 
 Donguli/surekli **efektler** bilerek kaldirildi (Arda: *"cizirti gibi, 
 rahatsiz edici"*); altyapi (`play_loop`/`stop_loop`) duruyor.
@@ -99,7 +112,7 @@ rahatsiz edici"*); altyapi (`play_loop`/`stop_loop`) duruyor.
 ## Muzik
 
 `src/audio/music.py :: TRACKS` - **gercek kayit**, sentez degil. 
-Diskteki tek asset kategorisi bu.
+Dosyalar `assets/audio/music/` altindadir.
 
 | Baglam | Parca | Nerede |
 |---|---|---|

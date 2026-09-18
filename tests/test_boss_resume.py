@@ -217,7 +217,47 @@ def test_continue_from_pause_every_boss() -> None:
             game.quit()
 
 
+def test_kalachev_first_entry() -> None:
+    """Kapinin ilk kapanisi retry yoluna ugramaz; iki yonu de dene."""
+    print("\n--- Zindanci: Kalachev ilk giriste muhrun icinde ---")
+    for character in ("rey", "ardo"):
+        for facing in (1, -1):
+            game = Game()
+            try:
+                write_save(SaveData(chapter=13, character=character,
+                                    abilities=list(ABILITIES)))
+                game.scenes.set_root(Chapter13Scene, transition=False,
+                                     character=character)
+                game.scenes._flush()
+                scene = game.scenes.current
+                start, _ = scene._room_span("zindan")
+                edge = (start + 4) * TILE_SIZE
+                scene.player.body.set_feet(
+                    edge + scene.player.body.width * 0.5, 14 * TILE_SIZE)
+                scene.player.body.grounded = True
+                scene.player.facing = facing
+                scene._enter_room("zindan")
+                scene._update_arena()
+                drain(game, scene)
+                label = f"B13 ilk giris {character} yon={facing}"
+                check(bool(scene.allies), f"{label}: Kalachev geldi")
+                assert_inside(scene, label)
+                ally = scene.allies[0]
+                # Ilk karede dogru gorunmesi yetmez: fizik onu geri
+                # itmemeli ve boss'a dogru gercekten ilerleyebilmeli.
+                origin = ally.body.center_x
+                for _ in range(45):
+                    ally.update()
+                check(ally.body.center_x > origin,
+                      f"{label}: Kalachev boss'a ilerliyor")
+                check(not scene.tilemap.solid_overlap(ally.body.rect),
+                      f"{label}: fizik sonrasi duvarda degil")
+            finally:
+                game.quit()
+
+
 def main() -> int:
+    test_kalachev_first_entry()
     test_death_inside_every_boss()
     test_continue_from_pause_every_boss()
     print("\n=== SONUC ===")

@@ -58,7 +58,7 @@ ROLES = {
     "source": "BOSS 3 - Kaynak (B14), twist'in kendisi",
     # Anlati varliklari - dusman degil
     "jet": "B1'de kilici veren arkadas",
-    "jet_unarmed": "Jet, kilicsiz - hediye sahnesi (prop tasiyor)",
+    "jet_unarmed": "Jet, kilicsiz - B1 hediye; B4/B9/B15 donus sahneleri",
     "kalachev": "Onceki maceraci (docs/kalachev.md) - B4/B5/B6/B10/"
                 "B12/B13/B15, B18'de olur",
     "watcher": "Izleyen (docs/korku.md 5.2) - saldirmaz, bakar. "
@@ -121,6 +121,7 @@ def build() -> str:
     pygame.display.set_mode((64, 64))
     from src.art.animation import ANIMATIONS, CHARACTERS
     from src.art import palette
+    from src.audio.recordings import RECORDINGS
 
     total_frames = sum(count for _, count, _ in ANIMATIONS.values())
     anims = " · ".join(f"{k} ({c})"
@@ -204,12 +205,20 @@ def build() -> str:
         "",
         "## Ses",
         "",
-        f"`src/audio/sfx.py :: SFX` - **{_sound_count()} efekt**, hepsi "
-        "calisma zamaninda ",
-        "sentezleniyor (numpy). Sprite'lar gibi: diskte dosya yok, kaynak "
-        "koddur. ",
+        f"`src/audio/sfx.py :: SFX` - **{_sound_count()} efekt anahtari**.",
+        "Bes olayda `assets/audio/sfx/` altindaki 10 gercek WAV kullanilir;",
+        "digerleri ve eksik dosya yedegi numpy ile sentezlenir.",
         "Her tekrarli ses +-%8 rastgele perdeyle calinir "
         "(`CLAUDE.md` 7).",
+        "",
+        "Esleme: `src/audio/recordings.py :: RECORDINGS`.",
+        "48 kHz/stereo/24-bit kaynaklar mixer bicimine acilista cevrilir;",
+        "Yanki filtresi ve perde varyantlari onbellekte hazirlanir.",
+        "",
+        "| Olay | Kaynak dosyalar |",
+        "|---|---|",
+        *(f"| `{key}` | " + ", ".join(f"`{name}`" for name in names) + " |"
+          for key, names in RECORDINGS.items()),
         "",
         "Donguli/surekli **efektler** bilerek kaldirildi (Arda: "
         "*\"cizirti gibi, ",
@@ -218,7 +227,7 @@ def build() -> str:
         "## Muzik",
         "",
         "`src/audio/music.py :: TRACKS` - **gercek kayit**, sentez degil. ",
-        "Diskteki tek asset kategorisi bu.",
+        "Dosyalar `assets/audio/music/` altindadir.",
         "",
         "| Baglam | Parca | Nerede |",
         "|---|---|---|",

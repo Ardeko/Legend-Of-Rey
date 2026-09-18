@@ -315,7 +315,9 @@ def write_save(data: SaveData) -> bool:
             encoding="utf-8")
         # Yeni kayit diske yazildiktan SONRA eskisini yedekle - once
         # yedekleyip sonra yazmak, yazma coktuğunde iki bozuk dosya birakir.
-        if target.is_file():
+        # Yedekten kurtarildiktan sonra bozuk ana dosya, eldeki tek
+        # saglam yedegi ezmesin. Atomik degisim de basarisiz olabilir.
+        if target.is_file() and _read(target) is not None:
             shutil.copy2(target, backup)
         temp.replace(target)         # Atomik
         return True
@@ -332,6 +334,8 @@ def _read(path: Path) -> SaveData | None:
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
+        return None
+    if not isinstance(raw, dict):
         return None
     try:
         return SaveData.from_dict(raw)

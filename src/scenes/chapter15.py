@@ -408,6 +408,9 @@ class Chapter15Scene(PlayScene):
         odul verir."* Ek altin bir sayidan fazlasi: bolumun sana ne
         sorduğunun cevabi.
         """
+        from src.scenes.jet_cinematics import play_jet_once
+        if play_jet_once(self, self._end_chapter):
+            return
         self.game.play_sound("chapter_end")
         ghost = self.ghost
         gold = self.earned_gold

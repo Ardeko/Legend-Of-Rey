@@ -1203,6 +1203,16 @@ class PlayScene(Scene):
                     and self.save_data.flags.get(KALACHEV_WOUND_FLAG))
         ally = Kalachev(self, x, feet_y, stay=stay or DEFAULT_STAY,
                         wounded=hurt, silent=silent)
+        # Ilk giris retry yoluna ugramaz. Oyuncunun arkasindaki
+        # istenen nokta kapanmis muhrun disinda kalabilir (B13).
+        # Yalniz merkezin degil, govdenin tamaminin icerde olmasi gerek.
+        if getattr(self, "arena_sealed", False):
+            x, feet_y = self._interior_feet(
+                x, feet_y, self.room, float(ally.body.width))
+            x, feet_y = self.free_spot_near(x, feet_y, ally.body)
+            x, feet_y = self._interior_feet(
+                x, feet_y, self.room, float(ally.body.width))
+            ally.body.set_feet(x, feet_y)
         self.allies.append(ally)
         self.on_kalachev_arrived(ally)
         return ally

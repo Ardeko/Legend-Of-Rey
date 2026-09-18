@@ -484,6 +484,9 @@ class Chapter04Scene(PlayScene):
         self._end_chapter()
 
     def _end_chapter(self) -> None:
+        from src.scenes.jet_cinematics import play_jet_once
+        if play_jet_once(self, self._end_chapter):
+            return
         self.game.play_sound("chapter_end")
         result = ChapterResult(
             chapter_key="chapter.record_room",

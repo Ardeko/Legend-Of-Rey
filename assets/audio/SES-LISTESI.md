@@ -1,5 +1,12 @@
 # SES LİSTESİ — Legend of Rey
 
+> **18.09.2026:** İlk 10 gerçek WAV oyuna bağlandı. `assets/audio/sfx/`
+> içindeki dash, dash perfect, üç hafif vuruş, iki öldürücü vuruş ve üç
+> ağır savuruş kaydı kullanılıyor. Özgün adlar ve 48 kHz/stereo/24-bit
+> dosyalar korunuyor; dönüştürme, perde varyasyonu ve Yankı filtresi kodda.
+> Güncel eşleme `src/audio/recordings.py`, kullanım `sfx/OKU.md`.
+> Aşağıdaki OGG/mono biçimi ilk üretim planıdır; WAV ithali için şart değildir.
+
 Bu liste **kodun gerçekten çağırdığı** olaylardan ve tasarım belgelerinden
 türetildi; uydurma değil. Her satırın karşılığı ya `src/` içinde bir kanca
 ya da `docs/` içinde bağlayıcı bir madde.

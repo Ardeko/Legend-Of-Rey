@@ -312,6 +312,11 @@ def main() -> int:
     check(scene.finished, "cikisa varinca bolum bitti")
     game.scenes._flush()
     end = game.scenes.current
+    from src.scenes.jet_cinematics import JetReturnCinematic
+    check(isinstance(end, JetReturnCinematic), "ozetten once Jet ile karsilasma")
+    end.on_finished()
+    game.scenes._flush()
+    end = game.scenes.current
     rows = end._rows()
     check(any(r[0] == "chapter_end.gold" for r in rows),
           "bolum sonu ekrani acildi")

@@ -104,8 +104,8 @@ SPEAKER_COLOURS = {
     # degil - `palette.color` PaletteError firlatiyor. Ayni tuzaga
     # magara arka planinda "soot" ile de dusulmustu.)
     "jet": "ember_light",
-    # Kalachev - B18 faz 2'de **tek bir replik** soyluyor ve o replik
-    # son sozu. Renk "bone": otekilerin hicbiri gibi degil ve zaten
+    # Kalachev - kisa, keskin karsiliklar; B18'de son sozu da ayni
+    # renkte. Renk "bone": otekilerin hicbiri gibi degil ve zaten
     # yipranmis bir sey soyluyor. ("blood_bright" denendi - tehlike
     # rengiyle karisiyordu, oysa konusan bir dusman degil.)
     "kalachev": "bone",

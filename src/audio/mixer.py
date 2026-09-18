@@ -20,11 +20,12 @@ rastgele birini secer - maliyet sifira iner.
 from __future__ import annotations
 
 import random
+from pathlib import Path
 
 import numpy as np
 import pygame
 
-from src.audio import sfx, synth
+from src.audio import recordings, sfx, synth
 from src.config import ECHO_MUFFLE_VOLUME, SOUND_PITCH_VARIANCE
 
 PITCH_VARIANTS = 5
@@ -33,8 +34,10 @@ PITCH_VARIANTS = 5
 class SoundBank:
     """Anahtar -> (normal, bogulmus) perde varyant listeleri. Tembel/lazy."""
 
-    def __init__(self) -> None:
+    def __init__(self, recording_dir: Path = recordings.SFX_DIR) -> None:
         self._cache: dict[tuple[str, bool], list[pygame.mixer.Sound]] = {}
+        self._recording_dir = recording_dir
+        self._recordings: dict[str, list[np.ndarray]] = {}
 
     def variants(self, name: str, muffled: bool = False
                 ) -> list[pygame.mixer.Sound]:
@@ -55,7 +58,17 @@ class SoundBank:
         wave_fn = sfx.SFX.get(name)
         if wave_fn is None:
             return []
-        base = wave_fn()
+        if name not in self._recordings:
+            self._recordings[name] = recordings.load(name, self._recording_dir)
+        bases = self._recordings[name] or [wave_fn()]
+        variants: list[pygame.mixer.Sound] = []
+        for base in bases:
+            variants.extend(self._pitch_variants(name, base, muffled))
+        return variants
+
+    def _pitch_variants(self, name: str, base: np.ndarray,
+                        muffled: bool) -> list[pygame.mixer.Sound]:
+        """Her kaydın perde ve Yankı sürümleri yalnızca bir kez hazırlanır."""
         if muffled:
             base = synth.normalize(synth.lowpass(base, sfx.MUFFLE_CUTOFF_HZ))
         if name in sfx.LOOP_KEYS:
@@ -87,6 +100,12 @@ class AudioMixer:
         self.settings = settings
         self.bank = _BANK
         self.enabled = pygame.mixer.get_init() is not None
+        # WAV çözümü ve filtreleme ilk darbenin karesini geciktirmesin.
+        if self.enabled:
+            for name in recordings.RECORDINGS:
+                self.bank.variants(name)
+                if name in sfx.MUFFLED_KEYS:
+                    self.bank.variants(name, muffled=True)
         # Kanal adi -> (calinan anahtar, Channel). Ayni donguyu iki kez
         # baslatmamak icin (crossfade/degistirme burada karar verilir).
         self._loops: dict[str, tuple[str, pygame.mixer.Channel]] = {}

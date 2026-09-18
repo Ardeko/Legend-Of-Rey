@@ -285,6 +285,13 @@ def test_chapter_end() -> None:
         scene.solved = True
         scene._check_exit()
         check(scene.finished, "cozulunce cikis calisiyor")
+        game.scenes._flush()
+        from src.scenes.jet_cinematics import JetReturnCinematic
+        encounter = game.scenes.current
+        check(isinstance(encounter, JetReturnCinematic),
+              "ozetten once Jet ile karsilasma")
+        encounter.on_finished()
+        game.scenes._flush()
         check(scene.save_data.chapter == 9, "kayda bolum 9 yaziliyor")
         check(scene.save_data.flags.get("boost") is True,
               "firlatma kayda yaziliyor - sonraki bolumlerde duruyor")
