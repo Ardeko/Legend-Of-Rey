@@ -16,13 +16,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### prologue_ardo_1
 **ARDO**
-- tr: "Yıllardır yollardaki izleri okurum. Buda benim bir lanetim sanırım."
-- en: "I've read trails for years. Guess that's my curse, too."
+- tr: "Yıllardır iz okurum. Kim geçmiş, nereye gitmiş, ne kadar yorulmuş. Benim lanetim de bu herhâlde."
+- en: "I've read tracks for years. Who passed, where they went, how tired they were. I suppose that's my curse."
 
 ### prologue_ardo_2
 **ARDO**
-- tr: "Buradan biri geçmiş..."
-- en: "Someone came through here..."
+- tr: "Buradan biri geçmiş. Acele etmemiş... bile bile inmiş."
+- en: "Someone came through here. No hurry... he knew where he was going."
 
 ### prologue_ardo_3
 **ARDO**
@@ -31,28 +31,28 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### prologue_ardo_4
 **ARDO**
-- tr: "Derinlerde neyin beklediğini biliyorum."
-- en: "I know what waits below."
+- tr: "Aşağıda ne beklediğini biliyorum."
+- en: "I know what waits down there."
 
 ### prologue_ardo_5
 **ARDO**
-- tr: "Onu orada bırakmayacağım."
-- en: "I won't leave them down there."
+- tr: "Bir kere geç kaldım. Onu orada bırakmayacağım."
+- en: "I was too late once. I won't leave him down there."
 
 ### prologue_echo_1
 **YANKI**
-- tr: "Bizi duyabiliyor musun, Rey?"
+- tr: "Bizi duyuyor musun, Rey?"
 - en: "Can you hear us, Rey?"
 
 ### prologue_echo_10
 **YANKI**
 - tr: "Kork."
-- en: "Fear."
+- en: "Be afraid."
 
 ### prologue_echo_11
 **YANKI**
-- tr: "Çünkü korku, yaklaşanı herkesten önce hisseder."
-- en: "Because fear senses what is coming before anyone else."
+- tr: "Korkmasaydın, bizi dinler miydin?"
+- en: "If you weren't afraid, would you listen to us?"
 
 ### prologue_echo_12
 **YANKI**
@@ -66,13 +66,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### prologue_echo_2
 **YANKI**
-- tr: "Onlar bizi duyamaz. Sadece sen duyabilirsin."
-- en: "They cannot hear us. Only you can."
+- tr: "Onlar bizi duyamaz. Yalnızca sen duyarsın."
+- en: "They can't hear us. Only you can."
 
 ### prologue_echo_3
 **YANKI**
-- tr: "İnsanlar anlamadıkları şeyden korkar."
-- en: "People fear what they cannot understand."
+- tr: "Bırak korksunlar. Hiçbiri sana yaklaşamıyor. Böylesi daha iyi değil mi?"
+- en: "Let them be afraid. None of them can come near you. Isn't that better?"
 
 ### prologue_echo_4
 **YANKI**
@@ -86,8 +86,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### prologue_echo_5b
 **YANKI**
-- tr: "Etin ötesini... taşın ardını... gölgelerin sakladığı gerçeği."
-- en: "Beyond the flesh... behind the stone... the truth hidden in the shadows."
+- tr: "Taşın ardını... kapının öbür yüzünü... kimsenin bakmaya cesaret edemediği yeri."
+- en: "Behind the stone... past the door... where no one else dares to look."
 
 ### prologue_echo_6
 **YANKI**
@@ -96,8 +96,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### prologue_echo_7
 **YANKI**
-- tr: "Biz sana sadece kapıyı açıyoruz."
-- en: "We only open the door."
+- tr: "Biz yalnızca kapıyı açıyoruz. Bakan sensin."
+- en: "We only open the door. You're the one who looks."
 
 ### prologue_echo_8
 **YANKI**
@@ -111,8 +111,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### prologue_rey_1
 **REY**
-- tr: "Yine başladılar... Zihnimdeki fısıltılar. Başka kimsenin duyamadığı sesler."
-- en: "They're back... The whispers in my head. Voices no one else can hear."
+- tr: "Yine başladılar... Kafamın içindeki sesler. Benden başka kimse duymuyor."
+- en: "They're back... The voices in my head. No one else can hear them."
 
 ### prologue_rey_10
 **REY**
@@ -121,13 +121,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### prologue_rey_2
 **REY**
-- tr: "Bu yüzden mi köydekiler benden korktu? Bana tek bir ad verdiler... Lanetli."
-- en: "Is that why the villagers feared me? They gave me a single name... Cursed."
+- tr: "Köydekiler bu yüzden mi benden korkuyor? Bana bir ad taktılar... Lanetli."
+- en: "Is that why the village is afraid of me? They gave me a name... Cursed."
 
 ### prologue_rey_3
 **REY**
 - tr: "Bazen sizden nefret ediyorum... Bazen de sizi kaybetmekten korkuyorum."
-- en: "Sometimes I hate you... And sometimes, I'm afraid of losing you."
+- en: "Sometimes I hate you... And sometimes I'm afraid of losing you."
 
 ### prologue_rey_4
 **REY**
@@ -141,8 +141,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### prologue_rey_6
 **REY**
-- tr: "Duvarın arkasını görebiliyorum."
-- en: "I can see what's behind the wall."
+- tr: "Duvarın arkasını görüyorum... Bu nasıl oluyor?"
+- en: "I can see behind the wall... How is this happening?"
 
 ### prologue_rey_7
 **REY**
@@ -163,8 +163,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch01_ardo_alone
 **ARDO**
-- tr: "Aşağıda neyin yattığını biliyorum. Onu o karanlıkta bırakamam."
-- en: "I know what lies below. I won't leave them in that darkness."
+- tr: "Aşağıda ne olduğunu biliyorum. Çocuğu orada bırakamam."
+- en: "I know what's down there. I can't leave the boy to it."
 
 ### ch01_ardo_emre
 **ARDO**
@@ -173,13 +173,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch01_ardo_jet
 **ARDO**
-- tr: "Sen de hiç değişmemişsin."
-- en: "You have not changed either."
+- tr: "Sen de hiç değişmemişsin. Hâlâ herkese bir şey veriyorsun."
+- en: "You haven't changed a bit. Still handing things out to everyone."
 
 ### ch01_ardo_jet2
 **ARDO**
-- tr: "Bana bunu mu söylüyorsun cidden?"
-- en: "You are really saying that to me?"
+- tr: "Bunu bana mı söylüyorsun? Benim evim yol."
+- en: "You're telling me that? The road is my home."
 
 ### ch01_ardo_leave
 **ARDO**
@@ -193,33 +193,33 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch01_ardo_names
 **ARDO**
-- tr: "Bazı isimler unutulmaz."
-- en: "Some names do not fade."
+- tr: "Bazı adlar unutulmaz."
+- en: "Some names don't fade."
 
 ### ch01_ardo_rift
 **ARDO**
-- tr: "Bu yarığı daha önce gördüm. Taş bile içeriden yarılmış."
-- en: "I've seen a wound like this before. Even the stone was torn from within."
+- tr: "Bu yarığı daha önce de gördüm. Taş dışarıdan değil, içeriden yarılmış."
+- en: "I've seen a rift like this before. The stone didn't break from above. It was torn open from below."
 
 ### ch01_ardo_thanks
 **ARDO**
-- tr: "Sağ ol evlat. Bu koruma belki işime yarar."
-- en: "Thank you, kid. This might keep me alive."
+- tr: "Sağ ol, evlat. En son ne zaman hediye aldım, hatırlamıyorum bile."
+- en: "Thanks, kid. I can't even remember the last time someone gave me a gift."
 
 ### ch01_cemo_gift
 **CEMO**
-- tr: "Bunu senin için yaptım... Belki karanlık sana yaklaşırken iki kez düşünür."
-- en: "I made this for you... Maybe it'll make the darkness think twice."
+- tr: "Bunu senin için yaptım... Belki karanlık sana yaklaşmadan önce iki kere düşünür."
+- en: "I made this for you... Maybe the dark will think twice before it comes near you."
 
 ### ch01_echo_alone
 **YANKI**
-- tr: "Onu geri istiyorsun... değil mi?"
-- en: "You want them back... don't you?"
+- tr: "Onu geri istiyorsun, değil mi? Biz yolu biliyoruz."
+- en: "You want him back, don't you? We know the way."
 
 ### ch01_echo_first
 **YANKI**
-- tr: "Uyan... Karanlık çoktan uyandı."
-- en: "Wake up... The dark is already awake."
+- tr: "Uyan, Rey. Bu gece uyumanın sırası değil."
+- en: "Wake up, Rey. This is no night for sleeping."
 
 ### ch01_echo_gift
 **YANKI**
@@ -228,82 +228,82 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch01_echo_rift
 **YANKI**
-- tr: "Aşağıda bir şey seni çağırıyor."
-- en: "Something below is waiting for you..."
+- tr: "Bak... Kapı açıldı."
+- en: "Look... The door is open."
 
 ### ch01_echo_sword_given
 **YANKI**
-- tr: "Sana bir şey verdi. Bunu unutma."
-- en: "He gave you something. Do not forget it."
+- tr: "Sana bir kılıç verdi. Biz sana çok daha fazlasını vereceğiz."
+- en: "He gave you a sword. We will give you so much more."
 
 ### ch01_echo_wall
 **YANKI**
-- tr: "Gördün mü? Burada perde inceliyor."
-- en: "Do you feel it? The veil is thin here."
+- tr: "Duvarın yorulduğu yeri görüyor musun? Vur."
+- en: "Do you see where the wall has grown tired? Strike."
 
 ### ch01_jet_both
 **JET**
-- tr: "Bilmiyorum. Belki ikisi de."
-- en: "I do not know. Maybe both."
+- tr: "Bilmiyorum. Belki ikisi de. Sana taktıkları ad da seni anlatmıyor, bunu unutma."
+- en: "I do not know. Perhaps both. And the name they gave you does not say who you are. Remember that."
 
 ### ch01_jet_changed
 **JET**
-- tr: "Değiştim. Sadece bazı şeyleri değiştirmedim."
-- en: "I have. I just did not change some things."
+- tr: "Değiştim. Yalnızca bazı şeyleri değiştirmemeyi seçtim."
+- en: "I have changed. There are just some things I chose to keep."
 
 ### ch01_jet_east
 **JET**
-- tr: "Ben doğuya gidiyorum."
-- en: "I am heading east."
+- tr: "Ben doğu yolundan gideceğim."
+- en: "I am taking the eastern road."
 
 ### ch01_jet_leave
 **JET**
-- tr: "Kendine iyi bak, Rey. Ben doğuya gidiyorum."
-- en: "Look after yourself, Rey. I am heading east."
+- tr: "Kendine iyi bak, Rey. Ben doğu yolundan gideceğim."
+- en: "Take care of yourself, Rey. I am taking the eastern road."
 
 ### ch01_jet_leave_ardo
 **ARDO**
 - tr: "Kendine iyi bak, Ardo."
-- en: "Look after yourself, Ardo."
+- en: "Take care of yourself, Ardo."
 
 ### ch01_jet_must
 **JET**
-- tr: "Birinin söylemesi lazım."
-- en: "Someone has to."
+- tr: "Biliyorum. Yine de birinin söylemesi gerek."
+- en: "I know. Someone still has to say it."
 
 ### ch01_jet_name
 **JET**
-- tr: "Köyde bir arkadaşım vardı. Berke. Bana hep "Emre" derdi."
-- en: "I had a friend in the village. Berke. He always called me "Emre.""
+- tr: "Bu köyde bir arkadaşım vardı, Berke. Bana hep Emre derdi."
+- en: "I had a friend in this village. Berke. He always called me Emre."
 
 ### ch01_jet_name2
 **JET**
-- tr: "Jet… başkalarının verdiği isim. Adımıysa, beni gerçekten tanıyanlar söyler."
-- en: "Jet… that is the name others give. My name is what the people who know me say."
+- tr: "Jet, başkalarının taktığı ad. Asıl adımı yalnızca beni gerçekten tanıyanlar söyler."
+- en: "Jet is the name others gave me. My real name is spoken only by those who truly know me."
 
 ### ch01_jet_name2_ardo
 **ARDO**
-- tr: "Jet'i herkes söyler. Emre'yi… beni gerçekten tanıyanlar."
-- en: "Everyone says Jet. Emre… that is for the ones who actually know me."
+- tr: "Jet'i herkes söyler. Emre'yi... yalnızca beni gerçekten tanıyanlar."
+- en: "Anyone can say Jet. Emre... that is for the ones who truly know me."
 
 ### ch01_jet_name_ardo
 **ARDO**
-- tr: "Köyde Berke vardı. Bana ne derdi, biliyor musun?"
-- en: "There was Berke, back in the village. You know what he called me?"
+- tr: "Köyde Berke vardı. Bana ne derdi, hatırlıyor musun?"
+- en: "There was Berke, back in the village. Do you remember what he called me?"
 
 ### ch01_jet_offer
 **JET**
-- tr: "Bunu al. Bu gece dışarıda kalma."
-- en: "Take this. Do not stay out tonight."
+- tr: "Bunu al. Bu gece dışarıda kalma, Rey. Kalacaksan da elin boş olmasın."
+- en: "Take this. Do not stay out tonight, Rey. And if you must, do not stay out empty-handed."
 
 ### ch01_jet_offer_ardo
 **ARDO**
-- tr: "Yine yollardasın demek. Al şunu."
-- en: "On the road again, then. Take this."
+- tr: "Yine yollardasın demek. Al şunu; bu gece elin boş kalmasın."
+- en: "On the road again, I see. Take this. Your hands should not be empty tonight."
 
 ### ch01_jet_offer_ardo2
 **ARDO**
-- tr: "Bu gece dışarıda kalma istersen."
+- tr: "Bu gece dışarıda kalma, istersen."
 - en: "Do not stay out tonight, if you can help it."
 
 ### ch01_jet_remember
@@ -313,13 +313,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch01_jet_stay
 **JET**
-- tr: "Bazı insanlar gitse de insanın içinde kalır."
-- en: "Some people leave and still stay inside you."
+- tr: "Bazı insanlar gider ama insanın içinde kalır."
+- en: "Some people leave, and still they stay with you."
 
 ### ch01_rey_jet
 **REY**
-- tr: "Neden bana veriyorsun? Kimse bana yaklaşmıyor bile."
-- en: "Why give it to me? No one even comes near me."
+- tr: "Neden bana? Köyde kimse yanıma bile yaklaşmaz."
+- en: "Why me? No one in the village even comes near me."
 
 ### ch01_rey_name
 **REY**
@@ -328,8 +328,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch01_rey_thanks
 **REY**
-- tr: "Teşekkürler, Cemo. Bunu yanımda taşıyacağım."
-- en: "Thank you, Cemo. I'll keep it with me."
+- tr: "Çok güzel olmuş, Cemo. Hiç çıkarmayacağım, söz."
+- en: "It's beautiful, Cemo. I'll never take it off, I promise."
 
 ### ch01_rey_which
 **REY**
@@ -340,269 +340,269 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch02_ardo_boss
 **ARDO**
-- tr: "Zaman onu değiştirmiş. Karanlık da geriye kalan ne varsa büyütmüş."
-- en: "Time changed it. The darkness fed on what remained."
+- tr: "Bir zamanlar insanmış. Şimdi içi başka bir şeyle dolu."
+- en: "That was a man once. Now it's full of something else."
 
 ### ch02_ardo_claw2
 **ARDO**
-- tr: "Tırnak izleri... Son ana kadar direnmiş."
-- en: "Claw marks... They fought until the very end."
+- tr: "Tırnak izi, çocuk boyunda. Sürüklenirken duvara tutunmaya çalışmış."
+- en: "Nail marks, a child's height. He clawed at the wall while they dragged him."
 
 ### ch02_ardo_exit
 **ARDO**
-- tr: "İzler daha derine gidiyor. Onu buradan öteye götürmüşler."
-- en: "The trail goes deeper. They took them beyond this place."
+- tr: "Sürükleme izi aşağı iniyor. Onu daha derine götürmüşler."
+- en: "The drag marks lead down. They took him deeper."
 
 ### ch02_ardo_secret
 **ARDO**
-- tr: "Buradan daha önce biri geçmiş. Ama geri dönüş izi yok."
-- en: "Someone came through here before. There are no tracks leading back."
+- tr: "Kemikler eski, çizmeler sağlam. Hazırlıklı gelmiş. Yetmemiş."
+- en: "Old bones, good boots. He came prepared. It wasn't enough."
 
 ### ch02_echo_bones
 **YANKI**
-- tr: "Senden önce biri gelmiş. Adını sonra öğreneceksin."
-- en: "Someone came before you. You will learn his name later."
+- tr: "Aşağı inen ilk kişi sen değilsin. Öncekilerin izine yakında rastlarsın."
+- en: "You're not the first to come down here. You'll find the others' traces soon enough."
 
 ### ch02_echo_boss
 **YANKI**
-- tr: "Bu yaratık seni bekliyordu... sanki geleceğini biliyordu."
-- en: "This creature was waiting for you... as if it knew you would come."
+- tr: "Ne kadar da doymuş... Neyle beslendiğini sormayalım."
+- en: "So well fed... Let's not ask what it ate."
 
 ### ch02_echo_exit
 **YANKI**
-- tr: "Henüz bitmedi."
-- en: "Not yet."
+- tr: "Hâlâ direniyor. Onu duyuyoruz."
+- en: "He's still fighting. We can hear him."
 
 ### ch02_echo_fall
 **YANKI**
-- tr: "Güzel... Bırak kendini. Karanlık seni taşıyacak."
-- en: "Good... Let yourself fall. The darkness will carry you."
+- tr: "Güzel. Düşmek o kadar da zor değilmiş, değil mi? Gerisi daha kolay."
+- en: "Good. Falling wasn't so hard, was it? The rest is easier."
 
 ### ch02_echo_secret
 **YANKI**
-- tr: "Senden önce biri de bu sırrı aradı... sonra sesi kesildi."
-- en: "Someone searched for this secret before you... then their voice went silent."
+- tr: "Bu sırrı senden önce de biri buldu... sonra sesi kesildi."
+- en: "Someone found this secret before you... and then went silent."
 
 ### ch02_echo_wall
 **YANKI**
-- tr: "Dinle... Taşın altında hâlâ bir şey nefes alıyor."
-- en: "Listen... Something is still breathing beneath the stone."
+- tr: "Biz konuşunca sen görüyorsun. Adil bir alışveriş, değil mi?"
+- en: "When we speak, you see. A fair trade, isn't it?"
 
 ### ch02_rey_claw2
 **REY**
-- tr: "Bu izler... Son ana kadar direnmiş."
-- en: "These marks... They fought until the end."
+- tr: "Bu izler... Cemo'nun boyunda. Tutunmaya çalışmış."
+- en: "These marks... Cemo's height. He tried to hold on."
 
 ## BOLUM 3 - Mesale Mahzeni
 
 ### ch03_ardo_boss
 **ARDO**
-- tr: "İçindeki ışık sönmüş. Geriye sadece çürümüş bir kabuk kalmış."
-- en: "The light inside it is gone. Only a rotting shell remains."
+- tr: "Bu da bir zamanlar ışık taşıyormuş. Şimdi ışığa saldırıyor."
+- en: "This one used to carry light. Now it goes after it."
 
 ### ch03_ardo_enter
 **ARDO**
-- tr: "Karanlık burada yoğun. Ateş olmadan ilerleyemeyiz."
-- en: "The darkness is thick here. We won't get far without fire."
+- tr: "Burada iz bile görünmüyor. Önce ateş, sonra yol."
+- en: "Can't even see tracks in here. Fire first, then the road."
 
 ### ch03_ardo_keeper
 **ARDO**
-- tr: "Saldırmaya hazırlanmıyor. Bir şey istiyor."
-- en: "It's not preparing to attack. It wants something."
+- tr: "Saldırmıyor. Mumlarına bakılırsa epeydir burada... ve bir şey istiyor."
+- en: "It isn't attacking. By the look of its candles, it's been here a long time... and it wants something."
 
 ### ch03_ardo_purple
 **ARDO**
-- tr: "Bu alev doğal değil. Yüzyıllardır aynı şekilde yanıyor."
-- en: "This flame isn't natural. It's burned the same way for centuries."
+- tr: "Bu alev odun yakmıyor. Ne is var ne kül. Neyi yaktığını bilmek istemiyorum."
+- en: "This flame burns no wood. No soot, no ash. I don't want to know what it's burning."
 
 ### ch03_echo_boss
 **YANKI**
-- tr: "Bu beden bir zamanlar ışık taşıyordu... şimdi yalnızca kabuğu kalmış."
-- en: "This vessel once carried light... now only the shell remains."
+- tr: "O da bir zamanlar ateş taşıyordu. Söndüğünde yanında kimse yoktu."
+- en: "It carried fire once, too. When it went out, no one was there."
 
 ### ch03_echo_enter
 **YANKI**
-- tr: "Gözlerimiz bile bu karanlığı delemez. Bir kıvılcım lazım."
-- en: "Even our sight cannot pierce this darkness. We need a spark."
+- tr: "Burada bizim gözlerimiz de kör. Ateş bul."
+- en: "Even our eyes are blind here. Find fire."
 
 ### ch03_echo_keeper
 **YANKI**
-- tr: "Bana bakmıyor... seni tanıyor."
-- en: "It isn't looking at me... It recognizes you."
+- tr: "Bize değil, sana bakıyor. Seni tanıyor."
+- en: "Not at us. It's looking at you. It knows you."
 
 ### ch03_echo_purple
 **YANKI**
 - tr: "Evet... Bu alev yalnızca bizi beslemiyor."
-- en: "Yes... This flame feeds more than us."
+- en: "Yes... This flame feeds more than just us."
 
 ## BOLUM 4 - Kayit Odasi
 
 ### ch04_ardo_camp
 **ARDO**
-- tr: "Burada durmuşlar. Sonra biri tek başına devam etmiş."
-- en: "They stopped here. Then one went on alone."
+- tr: "İki yatak, tek ateş. Biri burada kalmış, öbürü tek başına devam etmiş."
+- en: "Two bedrolls, one fire. One stayed here. The other went on alone."
 
 ### ch04_ardo_enter
 **ARDO**
-- tr: "Burada kan yok. Sadece bekleyişin izleri var."
-- en: "No blood here. Only signs of someone waiting."
+- tr: "Kan yok, dövüş izi yok. Yalnızca birinin burada beklediği belli."
+- en: "No blood, no sign of a fight. Only signs that someone waited here."
 
 ### ch04_ardo_exit
 **ARDO**
-- tr: "Dinlenmek için fazla derindeyiz."
-- en: "We're too deep to stop now."
+- tr: "Fazla oyalandım. İz soğumadan inmeliyim."
+- en: "I've lingered too long. Need to move before the trail goes cold."
 
 ### ch04_ardo_jet_return
 **ARDO**
-- tr: "Doğuya gidiyordun. Yine kestirme mi buldun?"
-- en: "You were heading east. Another shortcut?"
+- tr: "Doğuya gidiyordun hani? Yine kestirme mi buldun?"
+- en: "Weren't you heading east? Found another shortcut?"
 
 ### ch04_ardo_map
 **ARDO**
-- tr: "Haritanın yarısını çizmiş. Gerisini çizmeye vakti olmamış."
-- en: "He drew half the map. Never had time for the rest."
+- tr: "Efe hep yarım harita çizer; gerisini gidince görürüm der."
+- en: "Efe always draws half a map. Says he'll see the rest when he gets there."
 
 ### ch04_ardo_name
 **ARDO**
-- tr: "Kalachev'in kampı. İki kişi gelmişler. Giden tek bir çift ayak izi."
-- en: "Kalachev's camp. Two came in. Only one set of tracks leads out."
+- tr: "Efe'nin kampı. Kemikler onun değil; dışarı çıkan tek iz onun. Yaşıyor, inatçı keçi."
+- en: "Efe's camp. Those aren't his bones; the only trail out is his. He's alive, the stubborn mule."
 
 ### ch04_echo_camp
 **YANKI**
 - tr: "Burada birileri kamp kurmuş. İkisi inmiş, biri kalkmış."
-- en: "Someone camped here. Two came down, one got up."
+- en: "Someone made camp here. Two came down. One got up."
 
 ### ch04_echo_enter
 **YANKI**
-- tr: "Burada yaşam çoktan sustu."
-- en: "Life went silent here long ago."
+- tr: "Burası çoktan sustu. Adımlarını duyuyor musun? Başka ses yok."
+- en: "This place went quiet long ago. Hear your footsteps? There's no other sound."
 
 ### ch04_echo_exit
 **YANKI**
-- tr: "Yeterince bekledin. Artık yol seni bekliyor."
-- en: "You've waited long enough. The path is waiting."
+- tr: "Yeterince dinlendin. Aşağıdakiler bu kadar sabırlı değil."
+- en: "You've rested enough. What waits below is not so patient."
 
 ### ch04_echo_map
 **YANKI**
-- tr: "Eksik olan yer... haritanın göstermeye korktuğu yer."
-- en: "The missing part... is the place the map was afraid to show."
+- tr: "Harita yarıda bitiyor. Gerisini biz biliyoruz."
+- en: "The map stops halfway. We know the rest."
 
 ### ch04_echo_name
 **YANKI**
-- tr: "Günlük Kalachev'in. Ama neyse ki kemikler onun değil; geride bıraktığı dostunun."
-- en: "Kalachev's journal. Thankfully, those bones belong to the friend he left behind."
+- tr: "Kalachev. Günlük onun, kemikler değil. Dostunu burada bırakıp yoluna devam etmiş."
+- en: "Kalachev. The journal is his; the bones are not. He left his friend here and walked on."
 
 ### ch04_echo_seed
 **YANKI**
-- tr: "İki kez düşündü mü?"
-- en: "Did it think twice?"
+- tr: "Peki... iki kere düşündü mü?"
+- en: "So... did it think twice?"
 
 ### ch04_jet_promise
 **JET**
-- tr: "Çocuğu bulunca birlikte dönün. İp sağlam."
-- en: "When you find the child, come back together. The rope will hold."
+- tr: "Çocuğu bulduğunda birlikte dönün. İp ikinizi de taşır."
+- en: "When you find the boy, come back together. The rope will carry you both."
 
 ### ch04_jet_return
 **JET**
-- tr: "Doğu yolu buraya çıkıyormuş. Dönüş için ip bıraktım."
-- en: "The eastern path led here. I left a rope for the way back."
+- tr: "Doğu yolu beni buraya indirdi. Yukarı çıkmak isteyen olursa diye bir ip bağladım."
+- en: "The eastern road brought me down here. I tied a rope, in case anyone needs the way up."
 
 ### ch04_jet_route
 **JET**
-- tr: "Senin yolun aşağıdan. Merak etme. Ben yukarıyı açık tutarım."
-- en: "Your way is down below. Don't worry. I'll keep the way up clear."
+- tr: "Aşağı inen yol senin. Ben yukarıyı tutarım; döndüğünde ip yerinde olacak."
+- en: "The way down is yours. I will hold the way up, and the rope will be there when you return."
 
 ### ch04_rey_jet_return
 **REY**
-- tr: "Geri dön, Jet. Burası sandığın gibi değil."
-- en: "Go back, Jet. This place is worse than you think."
+- tr: "Geri dön, Jet. Burası sandığın gibi bir yer değil."
+- en: "Go back, Jet. This place isn't what you think."
 
 ## BOLUM 5 - Sular
 
 ### ch05_ardo_block
 **ARDO**
-- tr: "Kalkanı ağır. Önünden değil, arkasından vur."
-- en: "The shield is heavy. Don't fight it from the front. Get behind it."
+- tr: "Kalkan ağır, dönüşü yavaş. Arkasına geç."
+- en: "Heavy shield, slow turn. Get behind it."
 
 ### ch05_ardo_enter
 **ARDO**
-- tr: "Zindanları su basmış. Mekanizmaların çoğu paslanmış."
-- en: "The dungeons are flooded. Most of the mechanisms have rusted shut."
+- tr: "Su basmış. Duvardaki çizgilere bakılırsa bir yükseliyor, bir alçalıyor."
+- en: "Flooded. By the lines on the wall, it rises and falls."
 
 ### ch05_ardo_guard
 **ARDO**
-- tr: "Eski bir muhafız. Karanlık onu yeniden ayağa kaldırmış."
-- en: "An old guardian. The darkness brought it back."
+- tr: "Muhafız zırhı, eski arma. Kalkanını hiç indirmemiş; önünden girmem."
+- en: "Guard's armour, old crest. It never lowered that shield. I won't take it from the front."
 
 ### ch05_ardo_kalachev_back
 **ARDO**
-- tr: "Sana arkanı kollayacak biri lazım."
-- en: "You need someone watching your back."
+- tr: "Arkanı kollayacak biri lazım sana. Hep lazımdı."
+- en: "You need someone watching your back. You always did."
 
 ### ch05_ardo_kalachev_call
 **ARDO**
-- tr: "Efe! Seni gördüğümde sevinsem mi üzülsem mi bilemedim haha! Seni bulmak için gürültüyü izlemek yetiyor."
-- en: "Efe! Can't tell if I'm glad to see you, haha! All I have to do is follow the noise."
+- tr: "Efe! Yaşıyorsun. Seni bulmak zor olmadı; bu zindanda en çok ceset bırakan sensin."
+- en: "Efe! You're alive. Wasn't hard to find you; nobody down here leaves more bodies behind."
 
 ### ch05_ardo_kalachev_pack
 **ARDO**
-- tr: "Üçüne birden mi dalacaksın?"
-- en: "All three at once?"
+- tr: "Üçüne birden mi? Hâlâ saymayı öğrenmemişsin."
+- en: "All three at once? You still never learned to count."
 
 ### ch05_ardo_valve
 **ARDO**
-- tr: "Eski bir vana. Hâlâ çalışıyorsa suyun yönünü değiştirebiliriz."
-- en: "An old valve. If it still works, we can redirect the water."
+- tr: "Eski bir vana. Pası yeni silinmiş; buradan biri geçmiş."
+- en: "An old valve. The rust's been freshly wiped off. Someone's been through here."
 
 ### ch05_echo_block
 **YANKI**
-- tr: "Kalkanına güveniyor. Bu onun zayıflığı."
-- en: "It trusts its shield. That's its weakness."
+- tr: "Kalkanı önünde. Peki ya arkası?"
+- en: "Its shield is in front. And its back?"
 
 ### ch05_echo_enter
 **YANKI**
-- tr: "Su her şeyi saklar. Sırları bile."
-- en: "Water hides everything. Even secrets."
+- tr: "Su sabırlıdır. Senden çok daha sabırlı."
+- en: "Water is patient. Far more patient than you."
 
 ### ch05_echo_guard
 **YANKI**
-- tr: "Bu sadece bir ceset değil... içinde hâlâ bir şey uyanık."
-- en: "This is more than a corpse... something inside is still awake."
+- tr: "Bu muhafız ölmüş. Ama nöbetini bırakmamış."
+- en: "This guard is dead. It just never left its post."
 
 ### ch05_echo_valve
 **YANKI**
-- tr: "Çevir onu... Su bazen yol açar. Bazen de mezar."
-- en: "Turn it... Water can open a path. Or become a grave."
+- tr: "Çevir onu. Su kimine yol açar, kimine mezar."
+- en: "Turn it. Water opens a road for some, a grave for others."
 
 ### ch05_kalachev_below
 **KALACHEV**
-- tr: "O zaman buradan canlı kurtulmaya çalış bence haha. Aşağıda görüşürüz."
-- en: "Then try getting out of here alive, haha. See you below."
+- tr: "Arkamı kollamak mı? Aramızda su var, koca ayı. Sen kendi arkana bak. Aşağıda görüşürüz; ilk içki benden!"
+- en: "Watch my back? There's water between us, big bear. Mind your own. See you below; first drink's on me!"
 
 ### ch05_kalachev_count
 **KALACHEV**
-- tr: "Saymayı bırak da üst vanaya git."
-- en: "Stop counting. Get to the upper valve."
+- tr: "Saymak korkaklara göre. Vana benim tarafımda; bunları temizleyince yüzüp gel, çevir."
+- en: "Counting's for cowards. The valve's on my side; once I've cleared these, swim over and turn it."
 
 ### ch05_kalachev_late
 **KALACHEV**
-- tr: "İş bittikten sonra gelmenin ne anlamı var lanet adam?"
-- en: "What's the point of showing up when the work's done, you damn fool?"
+- tr: "Ayı! Geç kaldın, her zamanki gibi. Epeydir buradayım; bir sen eksiktin."
+- en: "Bear! Late as always. I've been down here a good while; you were the only thing missing."
 
 ### ch05_kalachev_pack
 **KALACHEV**
-- tr: "Önce şu üçüyle ufak bir işim var *sinsice sırıtır*."
-- en: "I've got a little business with those three first. *grins slyly*"
+- tr: "Üç mü? Geçen hafta yedi taneydiler, yemin ederim hepsi benden iriydi. Bunlar ısınma turu. İzle de öğren!"
+- en: "Three? Last week it was seven, I swear, every one bigger than me. This is a warm-up. Watch and learn!"
 
 ### ch05_kalachev_quiet
 **KALACHEV**
-- tr: "Şimdilik. Şimdi kes o lanet sesini!şu piçler de duyuyor."
-- en: "For now. Shut your damn mouth! Those bastards can hear you."
+- tr: "Şimdilik! Bağırma ama; bunlar sese gelir, Kırmızı Başlıklı. Önce de seni yerler."
+- en: "For now! Don't shout, though. These things come to noise, Red Riding Hood, and you'd be the first they eat."
 
 ### ch05_kalachev_valve
 **KALACHEV**
-- tr: "Görmedim. Üst vanaya çık. Geçit oradan açılır."
-- en: "Haven't seen him. The upper valve opens the passage."
+- tr: "Kardeşin mi? Görmedim. Vana benim tarafımda; şunları temizleyince yüzüp gel, çevir. Su çekilince aşağı yol açılır."
+- en: "Your brother? Haven't seen him. The valve's on my side; once I clear these, swim over and turn it. Water drops, the way down opens."
 
 ### ch05_rey_kalachev_call
 **REY**
@@ -611,65 +611,65 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch05_rey_kalachev_child
 **REY**
-- tr: "Bir çocuk arıyorum. Buralardan geçti mi?"
-- en: "I'm looking for a child. Did he come this way?"
+- tr: "Kardeşimi arıyorum. Küçük bir oğlan... Buradan geçtiğini gördün mü?"
+- en: "I'm looking for my brother. A little boy... Did you see him come through here?"
 
 ### ch05_rey_kalachev_stay
 **REY**
-- tr: "Ya sen? Kafasındaki seslerle konuşan ben değilim"
-- en: "What about you? I'm not the one talking to voices in my head."
+- tr: "Ya sen? Onlar üç tane, sen tek başınasın."
+- en: "What about you? There are three of them. You're alone."
 
 ## BOLUM 6 - ARDO
 
 ### ch06_ardo_arena
 **ARDO**
-- tr: "Bunun izi yok. Hiçbir yerden gelmemiş — burada mı büyümüş lan?."
-- en: "No trail. It didn't come from anywhere — did it grow here, damn it?"
+- tr: "Bunun izi yok. Bir yerden gelmemiş... burada büyümüş."
+- en: "No tracks. It didn't come from anywhere... it grew here."
 
 ### ch06_ardo_kalachev
 **ARDO**
-- tr: "Kalachev. SAnırım kurtarma konusunda ödeşmiş olduk ha?"
-- en: "Kalachev. Guess that makes us even on the rescues, huh?"
+- tr: "Efe. Bu sefer geç kalan sensin. Ödeştik."
+- en: "Efe. This time you're the late one. We're even."
 
 ### ch06_ardo_plates
 **ARDO**
-- tr: "İki plaka. Tek kişiyle çalışmaz."
-- en: "Two plates. One person won't be enough."
+- tr: "İki plaka. Kim yaptıysa bunu tek kişi açsın diye yapmamış."
+- en: "Two plates. Whoever built this never meant it for one."
 
 ### ch06_echo_kalachev
 **YANKI**
-- tr: "Ardo'yu tanıyor. Seni değil."
-- en: "He knows Ardo. Not you."
+- tr: "Ardo için geldi. Senin için değil. Bunu unutma."
+- en: "He came for Ardo. Not for you. Remember that."
 
 ### ch06_kalachev_ardo_intro
 **ARDO**
-- tr: "Kalachev. Eski dostum. Yolundan çekil."
-- en: "Kalachev. Old friend. Get out of his way."
+- tr: "Rahat ol. Bu Kalachev, Efe. Eski dostum. Yolundan çekil; kılıcını sallarken önüne bakmaz."
+- en: "Easy. That's Kalachev. Efe. An old friend. Stay out of his way; he doesn't look where he swings."
 
 ### ch06_kalachev_ardo_know
 **ARDO**
-- tr: "Hâlâ borçlusun bana. Unutmadım."
-- en: "You still owe me. I haven't forgotten."
+- tr: "Anlatırsın. Önce borcunu öde; unutmadım."
+- en: "Tell it all you want. Pay me what you owe first. I haven't forgotten."
 
 ### ch06_kalachev_ardo_stay
 **ARDO**
-- tr: "Yolumuz kesişirse artık. Bu ibne de kimseyi beklemez."
-- en: "If our paths cross. That fucker doesn't wait for anyone."
+- tr: "Yolumuz kesişirse. Efe kimseyi beklemez; kimse de onu bekletemez."
+- en: "If our paths cross. Efe waits for no one, and no one keeps him waiting."
 
 ### ch06_kalachev_debt
 **KALACHEV**
-- tr: "Yukarıda hallederiz. Önce buradan çık."
-- en: "We'll settle up topside. Get out of here first."
+- tr: "Borç mu? Hangi borç? Tamam, tamam... Yukarıda hallederiz, söz. Önce şu boktan delikten sağ çık da alacaklı kalacak adam olsun."
+- en: "Debt? What debt? Fine, fine... We'll settle it topside, I swear. Get out of this shithole alive first, so there's someone left to collect."
 
 ### ch06_kalachev_familiar
 **KALACHEV**
-- tr: "O kadar bekleyemem."
-- en: "Can't wait that long."
+- tr: "Ödeşmek mi? Bir kızın seni kurtardığını gördüm, Ayı. Bunu yıllarca anlatacağım, her seferinde yaratıklar biraz daha büyüyecek."
+- en: "Even? I just watched a girl save your hide, Bear. I'll be telling this for years, and the monsters get bigger every time."
 
 ### ch06_kalachev_meet
 **KALACHEV**
-- tr: "Tanışma bittiyse yol açık."
-- en: "Done talking? The way's clear."
+- tr: "Tanışma faslı bittiyse yol açık, Kırmızı Başlıklı. Ayı'ya iyi bak; kendine bakmayı hiç bilmez, ben de bıktım."
+- en: "If we're done with introductions, the road's clear, Red. Keep an eye on the Bear. He never looks after himself, and I'm sick of doing it."
 
 ### ch06_kalachev_rey_ask
 **REY**
@@ -678,28 +678,28 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch06_meet_ardo_below
 **ARDO**
-- tr: "O zaman aşağıya bakacağız."
-- en: "Then we'll look below."
+- tr: "Cemo... Bu kolyeyi bana o verdi. O zaman aynı çocuğun peşindeyiz."
+- en: "Cemo... He's the one who gave me this necklace. Then we're after the same boy."
 
 ### ch06_meet_ardo_child
 **ARDO**
-- tr: "Kardeşin... Adı ne?"
-- en: "Your brother... What's his name?"
+- tr: "Kardeşin mi? Adı ne?"
+- en: "Your brother? What's his name?"
 
 ### ch06_meet_ardo_choice
 **ARDO**
-- tr: "Biliyorum. Ama şu an ikimiz de aynı yöne gidiyoruz."
-- en: "I know. But we're heading the same way for now."
+- tr: "Biliyorum. Ama ikimiz de aşağı iniyoruz; ayrı ayrı inmek aptallık olur."
+- en: "I know. But we're both headed down. Doing it separately would be stupid."
 
 ### ch06_meet_ardo_first
 **ARDO**
-- tr: "Üçü de arkandaydı. Arkanı hiç kollamıyorsun."
-- en: "All three were behind you. You never watch your back."
+- tr: "Üçü de arkandaydı. Arkana hiç bakmaz mısın sen?"
+- en: "All three were behind you. Do you ever look back?"
 
 ### ch06_meet_ardo_name
 **ARDO**
-- tr: "Ardo. Ve buraya kadar inen tek şey ben değilim."
-- en: "Ardo. And I'm not the only thing that came down this far."
+- tr: "Ardo. Ve bu kadar derine inen tek şey ben değilim."
+- en: "Ardo. And I'm not the only thing that's come down this deep."
 
 ### ch06_meet_ardo_reason
 **ARDO**
@@ -708,38 +708,38 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch06_meet_ardo_together
 **ARDO**
-- tr: "Yanımda kal. Birinin de benim arkamı kollaması lazım."
-- en: "Stay beside me. Someone has to watch my back, too."
+- tr: "Arkamda değil, yanımda. Benim arkamı da birinin kollaması lazım."
+- en: "Not behind me. Beside me. Someone has to watch my back, too."
 
 ### ch06_meet_ardo_trail
 **ARDO**
-- tr: "İzini buraya kadar mı sürdün?"
-- en: "You followed his trail down here?"
+- tr: "Onun izini buraya kadar tek başına mı sürdün?"
+- en: "You tracked him this far? On your own?"
 
 ### ch06_meet_ardo_who
 **ARDO**
-- tr: "Sen kimsin?"
-- en: "Who are you?"
+- tr: "Sen de nereden düştün?"
+- en: "And where did you drop from?"
 
 ### ch06_meet_rey_below
 **REY**
-- tr: "Buraya kadar. Aşağıda olduğunu biliyorum."
-- en: "This far. I know he's below us."
+- tr: "Buraya kadar. Daha aşağıda. Nereden bildiğimi sorma."
+- en: "This far. He's further down. Don't ask me how I know."
 
 ### ch06_meet_rey_child
 **REY**
-- tr: "Ben Rey. Kardeşim Cemo'yu götürdüler. Onu kurtarmaya gidiyorum!"
-- en: "I'm Rey. They took my brother, Cemo. I'm going to save him!"
+- tr: "Rey. Kardeşimi, Cemo'yu götürdüler. Onu almadan çıkmayacağım."
+- en: "Rey. They took my brother, Cemo. I'm not leaving without him."
 
 ### ch06_meet_rey_first
 **REY**
-- tr: "Üçü de arkandaydı. Bir tanesini duymadın bile."
-- en: "All three were behind you. You didn't even hear one of them."
+- tr: "Üçü de arkandaydı. Birini bile duymadın."
+- en: "All three were behind you. You didn't hear a single one."
 
 ### ch06_meet_rey_follow
 **REY**
-- tr: "Önden gidersen yetişirim."
-- en: "Go ahead. I'll keep up."
+- tr: "Önden git o zaman. Ben yetişirim."
+- en: "Then lead. I'll keep up."
 
 ### ch06_meet_rey_help
 **REY**
@@ -753,28 +753,28 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch06_meet_rey_reason
 **REY**
-- tr: "Sen ne arıyorsun burada?"
-- en: "What are you looking for down here?"
+- tr: "Peki ya sen? Seni buraya ne getirdi?"
+- en: "And you? What brought you down here?"
 
 ### ch06_meet_rey_trail
 **REY**
-- tr: "Cemo. İzini bu kata kadar sürdüm."
-- en: "Cemo. I followed his trail to this floor."
+- tr: "Cemo. İzini buraya kadar sürdüm. Daha aşağıda."
+- en: "Cemo. I followed his trail this far. He's further down."
 
 ### ch06_meet_rey_who
 **REY**
-- tr: "Sen kimsin?"
-- en: "Who are you?"
+- tr: "Sen de kimsin?"
+- en: "And who are you?"
 
 ### ch06_rey_arena
 **REY**
-- tr: "Bu varlık diğerlerine benzemiyor..."
-- en: "This thing isn't like the others..."
+- tr: "Bu ötekilere benzemiyor... Bir şey onu koruyor."
+- en: "This one isn't like the others... Something is shielding it."
 
 ### ch06_rey_plates
 **REY**
-- tr: "İki plaka... Birinin diğerine yardım etmesi gerekiyor."
-- en: "Two plates... Someone has to hold the other one."
+- tr: "İki plaka... Bunu tek başıma yapamam."
+- en: "Two plates... I can't do this alone."
 
 ## BOLUM 7 - Dar Gecit
 
@@ -795,18 +795,18 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch07_ardo_together
 **ARDO**
-- tr: "Beraber daha hızlı gideriz."
-- en: "We move faster together."
+- tr: "Beraberken daha hızlıyız. Bunu yüksek sesle söylemem ama."
+- en: "We're faster together. Not that I'd say it out loud."
 
 ### ch07_rey_alone
 **REY**
-- tr: "Öbür taraftayım. Sesler hâlâ benimle... ama o değil."
-- en: "I'm on the other side. The voices are still with me... but he isn't."
+- tr: "Öbür taraftayım. Sesler benimle geldi... o gelemedi."
+- en: "I'm through. The voices came with me... he couldn't."
 
 ### ch07_rey_door
 **REY**
-- tr: "Kapı açılmıyor. Ama duvar çatlamış — orada bir aralık var."
-- en: "The door won't open. But the wall is cracked — there's a gap."
+- tr: "Kapı açılmıyor. Ama şu çatlak... Oradan ancak ben sığarım."
+- en: "The door won't budge. But that crack... Only I could fit through there."
 
 ### ch07_rey_seal
 **REY**
@@ -815,75 +815,75 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch07_rey_together
 **REY**
-- tr: "Yine yanımda."
-- en: "Beside me again."
+- tr: "Yine yan yanayız. İyi."
+- en: "Side by side again. Good."
 
 ## BOLUM 8 - Ates Basi
 
 ### ch08_ardo_gate
 **ARDO**
-- tr: "Mandal duvarın ardında. Elimiz yetmez — sesimiz yeter."
-- en: "The latch is behind the wall. Our hands won't reach — our voice will."
+- tr: "Mandal duvarın ardında. Elimiz yetişmez ama sesimiz yetişir."
+- en: "The latch is behind the wall. Our hands won't reach it. Our voices will."
 
 ### ch08_ardo_learn
 **ARDO**
-- tr: "Kristal ses tutuyor. Doğru perdede kırılır."
-- en: "The crystal holds sound. It breaks at the right pitch."
+- tr: "Kristal sesi içinde tutuyor. Doğru perdeyi bulursam kırılır."
+- en: "The crystal holds sound. Hit the right note and it breaks."
 
 ### ch08_echo_ardo
 **ARDO**
-- tr: "O da bizim gibi çağrıldı... ama onu çağıran şey senin duyduğun değil."
-- en: "He was called down too... but the thing calling him isn't the one you hear."
+- tr: "Onu da biri aşağı çağırdı. Ama bizim sesimizle değil."
+- en: "Something called him down too. Not with our voice, though."
 
 ### ch08_echo_rey_react
 **REY**
-- tr: "Kes sesini. Onun hakkında konuşmanı istemedim."
-- en: "Be quiet. I didn't ask you about him."
+- tr: "Sus. Onu bu işe karıştırma."
+- en: "Quiet. Leave him out of this."
 
 ### ch08_fire_ardo_necklace
 **ARDO**
-- tr: "Yukarıda bekleyen kimse yok. Bu yüzden aşağı inmek kolay oldu."
-- en: "There's no one waiting up there. That made coming down easy."
+- tr: "Yukarıda beni bekleyen kimse yoktu; inmek kolaydı. Sonra bir çocuk bana bunu verdi."
+- en: "Nobody was waiting for me up there, so coming down was easy. Then a kid gave me this."
 
 ### ch08_fire_ardo_teach
 **ARDO**
-- tr: "Bağırmak değil. Taşın kendi perdesini bulacaksın."
-- en: "Not shouting. You find the stone's own pitch."
+- tr: "Bağırmakla olmaz. Her taşın kendi sesi var; onu bulup aynı sesle karşılık vereceksin."
+- en: "Shouting won't do it. Every stone has its own note. Find it, and answer in the same voice."
 
 ### ch08_fire_ardo_wound
 **ARDO**
-- tr: "Omzum. Düşerken taşa çarpmışım — önemli değil."
-- en: "My shoulder. Caught a rock on the way down — it's nothing."
+- tr: "Omuz. Aşağı atlarken bir taş benden hızlı davrandı. Geçer."
+- en: "Shoulder. On the way down, a rock was quicker than me. It'll heal."
 
 ### ch08_fire_rey_learn
 **REY**
-- tr: "Kafamdaki sesler bunu zaten biliyordu. Bana hiç söylemediler."
-- en: "The voices in my head already knew that. They never told me."
+- tr: "Kafamdaki sesler bunu biliyordu. Hiç söylemediler... Neden?"
+- en: "The voices in my head knew this. They never told me... Why?"
 
 ### ch08_fire_rey_necklace
 **REY**
-- tr: "Cemo bunu bana verdi. Karanlık yaklaşırken iki kez düşünsün diye."
-- en: "Cemo gave me this. So the dark would think twice."
+- tr: "Cemo yaptı bunu. Karanlık bana yaklaşmadan önce iki kere düşünsün diye."
+- en: "Cemo made this. So the dark would think twice before coming near me."
 
 ### ch08_fire_rey_wound
 **REY**
-- tr: "Omzum. Düşerken taşa çarpmışım — önemli değil."
-- en: "My shoulder. Caught a rock on the way down — it's nothing."
+- tr: "Bir şey yok. Düşerken omzumu taşa vurdum, o kadar. Öyle bakma."
+- en: "It's nothing. I hit my shoulder on a rock when I dropped, that's all. Stop looking at me like that."
 
 ### ch08_rey_gate
 **REY**
-- tr: "Yol kapalı. Ve kolun olduğu yere ulaşamıyorum."
-- en: "The way's blocked. And I can't reach the lever."
+- tr: "Yol kapalı. Mandal duvarın öbür yanında, elim yetişmiyor."
+- en: "The way's shut. The latch is behind the wall, and I can't reach it."
 
 ### ch08_rey_learn
 **REY**
-- tr: "Şu kristal... titriyor. Sanki bir şey bekliyor."
-- en: "That crystal... it's humming. Like it's waiting for something."
+- tr: "Şu kristal titriyor. Doğru sesi bekliyor gibi."
+- en: "That crystal is trembling. Like it's waiting for the right note."
 
 ### ch08_trace_ardo
 **ARDO**
 - tr: "İzinin arkasında ikinci bir iz var. Takip etmiyor — bekliyor."
-- en: "There's a second trail behind hers. Not following — waiting."
+- en: "There's a second trail behind hers. It isn't following. It's waiting."
 
 ### ch08_trace_ardo_react
 **ARDO**
@@ -894,8 +894,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch09_ardo_jet_return
 **ARDO**
-- tr: "Senin de bir gün söz dinlediğini göreceğim."
-- en: "One day you might actually listen."
+- tr: "Bir gün senin de söz dinlediğini göreceğim."
+- en: "One day I'll see you actually listen to someone."
 
 ### ch09_ardo_top
 **ARDO**
@@ -904,13 +904,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch09_ardo_tower
 **ARDO**
-- tr: "Çan kulesi. Yukarısı çökmüş ama merdiven yok — hiç olmamış."
-- en: "A bell tower. The top has fallen in — and there were never any stairs."
+- tr: "Çan kulesi. Merdiveni yok, hiç de olmamış; duvarda basamak izi bile yok."
+- en: "A bell tower. No stairs, and there never were. Not even marks where they'd have been."
 
 ### ch09_echo_locked
 **YANKI**
-- tr: "Kapı üç çan bekliyor. Hiçbiri çalmadı — aşağı in."
-- en: "The door is waiting for three bells. None have rung — go back down."
+- tr: "Kapı üç çanı bekliyor. Hiçbiri çalmadı. Sıra aşağıda, duvarda çizili."
+- en: "The door is waiting for three bells. None has rung. The order is below, painted on the wall."
 
 ### ch09_echo_seed
 **YANKI**
@@ -919,23 +919,23 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch09_jet_promise
 **JET**
-- tr: "Acele etmeyin. Birinin beklediğini bilin yeter."
-- en: "Take your time. Just know someone is waiting."
+- tr: "Acele etmeyin. Yukarıda birinin beklediğini bilmeniz yeter."
+- en: "Do not rush. It is enough that you know someone is waiting above."
 
 ### ch09_jet_return
 **JET**
-- tr: "Çanları yukarıdan da duydum. İp hâlâ yerinde."
-- en: "I heard the bells from above. The rope is still there."
+- tr: "Çanları ta yukarıdan duydum. Merak etmeyin, ip hâlâ yerinde duruyor."
+- en: "I heard the bells from far above. Do not worry, the rope is still where I left it."
 
 ### ch09_jet_route
 **JET**
-- tr: "Bu galeriden yukarı çıkılıyor. Bir taş düşmüş; kaldırdım."
-- en: "This gallery leads up. A stone had fallen. I moved it."
+- tr: "Bu galeri yukarı çıkıyor. Yolu bir taş kapatmıştı; kaldırdım."
+- en: "This gallery leads up. A fallen stone was blocking it. I moved it."
 
 ### ch09_rey_jet_return
 **REY**
-- tr: "Bizi beklemeni istemedim."
-- en: "I never asked you to wait for us."
+- tr: "Bizi beklemek zorunda değilsin, Jet."
+- en: "You don't have to wait for us, Jet."
 
 ### ch09_rey_top
 **REY**
@@ -949,45 +949,45 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch09_trace_locked
 **ARDO**
-- tr: "Kapıda üç yuva var, üçü de boş. Çanlar aşağıda kaldı."
-- en: "Three sockets in the door, all empty. The bells are below."
+- tr: "Kapıda üç yuva var, üçü de boş. Sıra aşağıdaki freskte olmalı."
+- en: "Three sockets in the door, all empty. The order must be in the fresco below."
 
 ### ch09_trust_accept_ardo
 **ARDO**
-- tr: "Tamam. Sıkı tut."
-- en: "All right. Hold tight."
+- tr: "Peki. Ama ağırımdır, haberin olsun."
+- en: "Fine. Fair warning: I'm heavy."
 
 ### ch09_trust_accept_rey
 **REY**
-- tr: "Tamam. Bırakmazsın, değil mi?"
-- en: "All right. You won't let go, will you?"
+- tr: "Tamam... Sana güveniyorum. Sanırım."
+- en: "All right... I trust you. I think."
 
 ### ch09_trust_offer_ardo
 **ARDO**
-- tr: "Buradan atlayamazsın. Elimi basamak yap — seni ben kaldırırım."
-- en: "You can't make that jump. Use my hands as a step — I'll lift you."
+- tr: "Buradan atlayarak çıkamazsın. Ayağını ellerime koy; seni yukarı atarım."
+- en: "You won't make that jump. Put your foot in my hands. I'll throw you up."
 
 ### ch09_trust_offer_rey
 **REY**
-- tr: "Buradan atlayamazsın. Elimi basamak yap — seni ben kaldırırım."
-- en: "You can't make that jump. Use my hands as a step — I'll lift you."
+- tr: "Oraya atlayamazsın. Ellerime bas, seni ben kaldırırım. Evet, ben."
+- en: "You can't make that jump. Step on my hands. I'll lift you. Yes, me."
 
 ## BOLUM 10 - Ayrilik
 
 ### ch10_ardo_after
 **ARDO**
 - tr: "İzler yalan söylemez. Ama biri onları bırakabilir."
-- en: "Trails don't lie. But someone can leave one."
+- en: "Tracks don't lie. But someone can lay them."
 
 ### ch10_ardo_alone
 **ARDO**
-- tr: "Yalnız. Tanıdık bir şey — ama artık rahatsız edici."
-- en: "Alone. Familiar — but it doesn't sit right any more."
+- tr: "Yalnız. Eskiden sessizlik iyi gelirdi. Şimdi arkamda ayak sesi arıyorum."
+- en: "Alone. Silence used to suit me. Now I keep listening for footsteps behind me."
 
 ### ch10_ardo_kalachev
 **ARDO**
-- tr: "Kalachev. Yol aç dedim, uçurum değil."
-- en: "Kalachev. I said clear a path, not dig a pit."
+- tr: "Efe. Yol aç dedim, uçurum değil."
+- en: "Efe. I said clear a path, not dig a pit."
 
 ### ch10_echo_ignored
 **YANKI**
@@ -996,33 +996,33 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch10_echo_lure
 **YANKI**
-- tr: "Yukarıdan. Yol açık — güven bana, hep açtım."
-- en: "Up there. The way is clear — trust me, it always was."
+- tr: "Yukarıdan git. Yol açık. Bize güven; seni hiç yanıltmadık."
+- en: "Go up there. The way is clear. Trust us; we've never led you wrong."
 
 ### ch10_echo_rises
 **YANKI**
-- tr: "Gitti. Şimdi daha net duyuyorsun, değil mi?"
-- en: "He's gone. You hear me more clearly now, don't you?"
+- tr: "Gitti. Şimdi bizi daha iyi duyuyorsun, değil mi?"
+- en: "He's gone. You hear us better now, don't you?"
 
 ### ch10_kalachev_crack
 **KALACHEV**
-- tr: "Şimdi nereye basmayacağını biliyorsun."
-- en: "Now you know where not to step."
+- tr: "Rica ederim, Kırmızı Başlıklı. O zemin çürüktü; basan aşağıdaki itlere kahvaltı olurdu. Bir dahakine önce taş at, sonra yürü."
+- en: "You're welcome, Red. That floor was rotten; whoever stepped on it would be breakfast for the bastards below. Throw a stone first next time."
 
 ### ch10_kalachev_detour
 **KALACHEV**
-- tr: "Geçersin. Daha kötülerinden geçtin."
-- en: "You'll get across. You've crossed worse."
+- tr: "Uçurum da yoldur, Ayı; biraz dikey, o kadar. Hem daha beterinden geçtin; bir keresinde beni sırtında taşıdın, unuttun mu?"
+- en: "A pit's a road too, Bear, just a bit vertical. And you've crossed worse; you once carried me out on your back, remember?"
 
 ### ch10_lie_ignored
 **YANKI**
-- tr: "Beni dinlemedin. Uzun yoldan geldin ve yoruldun."
-- en: "You didn't listen. You took the long way and tired yourself."
+- tr: "Bizi dinlemedin. Uzun yoldan geldin; yoruldun, değil mi?"
+- en: "You didn't listen to us. You took the long way. Tired, aren't you?"
 
 ### ch10_lie_ignored_react
 **OYUNCU**
 - tr: "Ama geldim. Kendi ayaklarımla."
-- en: "But I got here. On my own feet."
+- en: "But I got here. On my own two feet."
 
 ### ch10_lie_neutral
 **YANKI**
@@ -1031,63 +1031,63 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch10_lie_neutral_react
 **OYUNCU**
-- tr: "Bana öyle gelmiyor."
-- en: "It does to me."
+- tr: "Nasıl geldiğim önemli. Hep önemliydi."
+- en: "How I got here matters. It always did."
 
 ### ch10_lie_sprung
 **YANKI**
-- tr: "Zemin çürüktü. Bunu bilemezdim."
-- en: "The floor was rotten. I couldn't have known."
+- tr: "Zemin çürüktü. Bunu bilemezdik."
+- en: "The floor was rotten. We couldn't have known."
 
 ### ch10_lie_sprung_react
 **OYUNCU**
-- tr: "Bilemez miydin? Sen bu taşın altını görüyorsun."
-- en: "Couldn't you? You see through stone."
+- tr: "Biri beni o çukura bile bile yürüttü."
+- en: "Someone walked me into that pit on purpose."
 
 ### ch10_lie_survived
 **YANKI**
-- tr: "Gördün mü? Geçtin işte. Ben yanılmam."
-- en: "See? You made it. I'm never wrong."
+- tr: "Gördün mü? Geçtin işte. Biz yanılmayız."
+- en: "See? You made it across. We are never wrong."
 
 ### ch10_lie_survived_react
 **OYUNCU**
-- tr: "Zemin çöktü. Az kalsın altında kalıyordum."
-- en: "The floor gave way. It nearly took me with it."
+- tr: "O zemin çürüktü. Biri önden çökertmeseydi, şimdi aşağıdaydım."
+- en: "That floor was rotten. If someone hadn't caved it in first, I'd be down there now."
 
 ### ch10_part_ardo
 **ARDO**
-- tr: "Yol ikiye ayrılıyor. Ben soldan bakarım, sen sağdan."
-- en: "The path splits. I'll take the left, you take the right."
+- tr: "Yol ikiye ayrılıyor. Ben bu taraftan inerim, sen öbüründen. Aşağıda buluşuruz."
+- en: "The path splits. I'll take this way down, you take the other. We meet below."
 
 ### ch10_part_look_ardo
 **ARDO**
-- tr: "...Tamam."
-- en: "...All right."
+- tr: "...Dikkat et kendine."
+- en: "...Watch yourself."
 
 ### ch10_part_look_rey
 **REY**
-- tr: "...Tamam."
-- en: "...All right."
+- tr: "...Git hadi. Ben iyiyim."
+- en: "...Go on. I'm fine."
 
 ### ch10_part_rey
 **REY**
-- tr: "Yol ikiye ayrılıyor. Ben soldan bakarım, sen sağdan."
-- en: "The path splits. I'll take the left, you take the right."
+- tr: "Yol ikiye ayrılıyor... Sen oradan, ben buradan. Aşağıda buluşuruz, değil mi?"
+- en: "The path splits... You go that way, I'll go this way. We'll meet below, won't we?"
 
 ### ch10_rey_after
 **REY**
-- tr: "Bir daha o sesin gösterdiği yerden gitmeyeceğim."
+- tr: "Bir daha o sesin gösterdiği yoldan gitmeyeceğim."
 - en: "I won't take the way that voice points to again."
 
 ### ch10_rey_alone
 **REY**
-- tr: "Yalnızım. Sesler her zamankinden yüksek."
-- en: "Alone. The voices are louder than they've ever been."
+- tr: "Yalnızım. Sesler hiç bu kadar yüksek olmamıştı."
+- en: "Alone. The voices have never been this loud."
 
 ### ch10_rey_kalachev
 **REY**
-- tr: "Kalachev? Az önce oraya basacaktım."
-- en: "Kalachev? I was about to step there."
+- tr: "Kalachev! Az kalsın oraya basıyordum."
+- en: "Kalachev! I was about to step right there."
 
 ### ch10_trace_ignored
 **ARDO**
@@ -1102,17 +1102,17 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 ### ch10_trace_lure
 **ARDO**
 - tr: "İz yukarıyı gösteriyor. Taze, net, davetkâr."
-- en: "The trail points up. Fresh, clear, inviting."
+- en: "The trail points up. Fresh, clear... inviting."
 
 ### ch10_trace_neutral
 **ARDO**
-- tr: "Bir iz daha. Ama artık hepsine iki kez bakıyorum."
-- en: "Another trail. I look at all of them twice now."
+- tr: "Bir iz daha. Artık hiçbirine ilk bakışta inanmıyorum."
+- en: "Another trail. I don't trust any of them at first glance anymore."
 
 ### ch10_trace_rises
 **ARDO**
-- tr: "İzi soldan gidiyor. Benimki sağa dönüyor."
-- en: "Her trail goes left. Mine turns right."
+- tr: "Onun izi bir yana gidiyor, benimki öbür yana. Alışkınım buna... alışkındım."
+- en: "Her trail goes one way, mine the other. I'm used to this... I was."
 
 ### ch10_trace_sprung
 **ARDO**
@@ -1121,8 +1121,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch10_trace_survived
 **ARDO**
-- tr: "Zemin çöktü. O iz oraya bir sebeple bırakılmış."
-- en: "The floor gave way. That trail was left there for a reason."
+- tr: "Zemin çökmüştü. O iz oraya bir sebeple bırakılmıştı."
+- en: "The floor had caved in. That trail was left there for a reason."
 
 ## BOLUM 11 - Ayna Salonu
 
@@ -1134,7 +1134,7 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 ### ch11_ardo_hall
 **ARDO**
 - tr: "Ayna salonu. Buradan geçen herkesin izi var — ama hiçbiri çıkmamış."
-- en: "A hall of mirrors. Everyone who came through left a trail — none of them left."
+- en: "A hall of mirrors. Everyone who came through left tracks. None of them left."
 
 ### ch11_ardo_mirror
 **ARDO**
@@ -1158,8 +1158,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch11_rey_mirror
 **REY**
-- tr: "Işık aynadan dönüyor. Onu çevirebilirim."
-- en: "The light turns off the mirror. I can rotate it."
+- tr: "Işık aynadan sekiyor. Aynayı çevirebilirim."
+- en: "The light bounces off the mirror. I can turn it."
 
 ### ch11_trace_lie
 **ARDO**
@@ -1180,8 +1180,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch12_after_few
 **REY**
-- tr: "Bir dahakine yavaşlarım."
-- en: "Next time I'll slow down."
+- tr: "Bir dahakine yavaş inerim. Bir dahaki olursa."
+- en: "Next time I'll go slower. If there is a next time."
 
 ### ch12_after_few_ardo
 **ARDO**
@@ -1206,27 +1206,27 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 ### ch12_cine_fire_ardo
 **ARDO**
 - tr: "Küller ılık. Beni bekleyip vazgeçmiş."
-- en: "The ash is warm. He waited for me and gave up."
+- en: "The ash is warm. She waited for me, then gave up."
 
 ### ch12_cine_pack
 **REY**
 - tr: "Denk açık. İçindekini ikiye bölmüş."
-- en: "The pack is open. He split what was inside in two."
+- en: "The pack is open. He split everything in it down the middle."
 
 ### ch12_cine_pack_ardo
 **ARDO**
 - tr: "Denği açmış, karıştırmış, hiçbir şey almamış."
-- en: "He opened the pack, went through it, took nothing."
+- en: "She opened the pack, went through it, took nothing."
 
 ### ch12_echo_deeper
 **YANKI**
-- tr: "Aşağı iniyorsun. Güzel. Ben de aşağıdayım."
-- en: "You're going down. Good. I'm down there too."
+- tr: "Aşağı iniyorsun. Güzel. Biz de aşağıdayız."
+- en: "You're going down. Good. We're down there too."
 
 ### ch12_echo_rig
 **YANKI**
-- tr: "Bunu kurmak vakit almış. Seni bekleyecek vakti yokmuş — kuracak vakti varmış."
-- en: "This took time to build. He had no time to wait — but time to build."
+- tr: "Bunu kurmak vakit ister. Seni beklemeye vakti yokmuş ama bunu kurmaya varmış."
+- en: "This took time to build. No time to wait for you, but time enough for this."
 
 ### ch12_keeper
 **REY**
@@ -1245,8 +1245,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch12_letter_all_ardo
 **ARDO**
-- tr: "Hepsini gördüm. Yalnız olduğunu bir kere bile yazmamış."
-- en: "I saw all of it. Not once did he write that he was alone."
+- tr: "Hepsini okudum. Korkmuş ama bir kere bile geri dönmemiş."
+- en: "I read every one. She was scared, and not once did she turn back."
 
 ### ch12_letter_few
 **REY**
@@ -1255,8 +1255,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch12_letter_few_ardo
 **ARDO**
-- tr: "Bakmadım. Bakmak için zamanım yok sanmıştım."
-- en: "I didn't look. I thought I had no time to look."
+- tr: "Bakmadım. Ömrüm iz okumakla geçti; en önemlisinin yanından geçip gittim."
+- en: "I didn't look. A lifetime of reading tracks, and I walked right past the one that mattered."
 
 ### ch12_letter_some
 **REY**
@@ -1276,7 +1276,7 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 ### ch12_mark_arrow_ardo
 **ARDO**
 - tr: "Ayak izi. Burada durup iki yana bakmış — yolu bilmiyormuş."
-- en: "A footprint. He stood here and looked both ways — he didn't know the road."
+- en: "A footprint. She stood here and looked both ways. She didn't know the way."
 
 ### ch12_mark_cache
 **REY**
@@ -1285,8 +1285,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch12_mark_cache_ardo
 **ARDO**
-- tr: "Bıraktığım erzağa dokunmamış. Ya bulmamış, ya almaya utanmış."
-- en: "He never touched the food I left. Missed it, or was ashamed to take it."
+- tr: "Erzağının yarısını buraya bırakmış. Arkadan biri gelecekmiş gibi."
+- en: "She left half her food here. As if someone were coming after her."
 
 ### ch12_mark_camp
 **REY**
@@ -1296,7 +1296,7 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 ### ch12_mark_camp_ardo
 **ARDO**
 - tr: "Burada uyumamış. Oturmuş, kalkmış, tekrar oturmuş."
-- en: "He didn't sleep here. Sat down, got up, sat down again."
+- en: "She didn't sleep here. Sat down, got up, sat down again."
 
 ### ch12_mark_count
 **REY**
@@ -1306,27 +1306,27 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 ### ch12_mark_count_ardo
 **ARDO**
 - tr: "Duvarda çentikler var. Sayarken elleri titremiş."
-- en: "Notches on the wall. His hand shook while he counted."
+- en: "Notches on the wall. Her hand shook while she counted."
 
 ### ch12_mark_figure
 **REY**
-- tr: "Bu... ben'im. Beni çizmiş."
+- tr: "Bu... benim. Beni çizmiş."
 - en: "That's... me. He drew me."
 
 ### ch12_mark_figure_ardo
 **ARDO**
 - tr: "Beni çizmiş. Kaba, acele — ama gözlerini doğru yapmış."
-- en: "He drew me. Rough, rushed — but he got the eyes right."
+- en: "She drew me. Rough, rushed, but she got the eyes right."
 
 ### ch12_mark_pair
 **REY**
-- tr: "İki çift ayak izi. Biri önden gidiyor, öteki her durduğunda beklemiş."
-- en: "Two sets of tracks. The one in front waited whenever the other stopped."
+- tr: "İki çift ayak izi. Yalnız değilmiş. O her durduğunda öbürü de beklemiş."
+- en: "Two sets of tracks. He wasn't alone. Every time he stopped, the other one waited."
 
 ### ch12_mark_pair_ardo
 **ARDO**
-- tr: "Kalachev. Burada beni beklemişti. Söylesem inkâr eder."
-- en: "Kalachev. He waited for me here. He'd deny it if I asked."
+- tr: "Efe. Burada beni beklemişti. Söylesem inkâr eder."
+- en: "Efe. He waited for me here. He'd deny it if I asked."
 
 ### ch12_mark_pencil
 **REY**
@@ -1336,17 +1336,17 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 ### ch12_mark_pencil_ardo
 **ARDO**
 - tr: "Kömür tozu. Bir şey çizmiş, sonra silmeye çalışmış."
-- en: "Charcoal dust. He drew something, then tried to rub it out."
+- en: "Charcoal dust. She drew something, then tried to rub it out."
 
 ### ch12_trace_deeper
 **ARDO**
-- tr: "İzler burada bitiyor. Bundan sonrası benim."
-- en: "The tracks end here. What comes next is mine."
+- tr: "Onun izleri burada bitiyor. Bundan sonrası bana kalmış."
+- en: "Her tracks end here. The rest is up to me."
 
 ### ch12_trace_rig
 **ARDO**
-- tr: "Düzenek sağlam. Acele etmemiş — inen kişi düşmesin diye."
-- en: "The rig is solid. He didn't rush it — so whoever came down wouldn't fall."
+- tr: "Düzenek sağlam. Acele etmemiş; arkadan inen düşmesin diye."
+- en: "The rig is solid. She didn't rush it, so whoever came down after wouldn't fall."
 
 ## BOLUM 13 - Cemo
 
@@ -1362,8 +1362,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch13_ardo_kalachev
 **ARDO**
-- tr: "Kalachev! Bir an daha geciksen..."
-- en: "Kalachev! A second later and..."
+- tr: "Efe! Bir an daha geciksen..."
+- en: "Efe! One more second and..."
 
 ### ch13_ardo_lever
 **ARDO**
@@ -1372,13 +1372,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch13_ardo_mark
 **ARDO**
-- tr: "Bir çocuk burada durup duvara bir şey kazımış."
-- en: "A child stood here and cut something into the wall."
+- tr: "Çocuk boyunda bir kazıma. Acele etmemiş; biri bulsun diye yapmış."
+- en: "A carving at a child's height. He took his time. He wanted it found."
 
 ### ch13_ardo_reach
 **ARDO**
-- tr: "Dur! Dur, geliyorum —"
-- en: "Wait! Wait, I'm coming —"
+- tr: "Dayan, Cemo! Geliyorum!"
+- en: "Hold on, Cemo! I'm coming!"
 
 ### ch13_ardo_run
 **ARDO**
@@ -1402,23 +1402,23 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch13_echo_blood
 **YANKI**
-- tr: "Kan taze değil. Ama korkusu taze."
-- en: "The blood isn't fresh. His fear is."
+- tr: "Kan kurumuş. Korkusu kurumamış."
+- en: "The blood has dried. His fear hasn't."
 
 ### ch13_echo_cage
 **YANKI**
-- tr: "Görüyorsun. Yaşıyor. Şimdi daha hızlı ineceksin."
-- en: "You see. He's alive. Now you'll come down faster."
+- tr: "Gördün. Yaşıyor. Artık daha hızlı ineceksin, değil mi?"
+- en: "You saw. He's alive. Now you'll come down faster, won't you?"
 
 ### ch13_echo_deeper
 **YANKI**
-- tr: "Aşağıda. Hep aşağıdaydı. Artık beni duyduğun yere yakınsın."
-- en: "Below. It was always below. You're close to where you hear me now."
+- tr: "Aşağıda. Hep aşağıdaydı. Sesimizin geldiği yere artık çok yakınsın."
+- en: "Below. He was always below. You're very close now to where our voice comes from."
 
 ### ch13_echo_gaoler
 **YANKI**
-- tr: "İşte bu odanın sahibi. Fenerini bırakmaz."
-- en: "There. The one this room belongs to. He never sets down the lantern."
+- tr: "İşte bu odanın sahibi. Fenerini hiç elinden bırakmaz."
+- en: "There. The one this room belongs to. He never lets go of the lantern."
 
 ### ch13_echo_seed
 **YANKI**
@@ -1427,13 +1427,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch13_kalachev_child
 **KALACHEV**
-- tr: "Gördüm. Sen çocuğa bak."
-- en: "I saw. Keep your eyes on the boy."
+- tr: "Gördüm, gördüm! Lanet kapılar beni sever, hep son anda. Sen veledin peşinden git, Kırmızı Başlıklı; koca fenerliyi ben oyalarım."
+- en: "I saw, I saw! Damn doors love me, always last second. Go after the kid, Red. I'll keep the big lantern bastard busy."
 
 ### ch13_kalachev_late
 **KALACHEV**
-- tr: "Gecikmedim."
-- en: "I wasn't late."
+- tr: "...ne olurdu? Kapı bensiz kapanırdı, sen de yalnız başına ağlardın. Gecikmedim, Ayı; kapı erken davrandı."
+- en: "...and what? The gate shuts without me and you cry all alone? I wasn't late, Bear. The gate was early."
 
 ### ch13_rey_empty
 **REY**
@@ -1452,13 +1452,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch13_rey_lever
 **REY**
-- tr: "Bir kol. Ve ötesinde inen bir demir."
-- en: "A lever. And beyond it, iron coming down."
+- tr: "Bir kol. Ötede de inmeye hazır bir demir kapı."
+- en: "A lever. And past it, an iron gate waiting to drop."
 
 ### ch13_rey_mark
 **REY**
-- tr: "Bu çizgiyi tanıyorum."
-- en: "I know this mark."
+- tr: "Bu işareti tanıyorum. Evde her yere bunu çizerdi."
+- en: "I know this mark. He used to draw it on everything at home."
 
 ### ch13_rey_reach
 **REY**
@@ -1472,8 +1472,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch13_rey_sign
 **REY**
-- tr: "Benim için bıraktı. Yolu işaretlemiş."
-- en: "He left it for me. He marked the way."
+- tr: "Benim için bırakmış. Geleceğimi biliyor."
+- en: "He left it for me. He knows I'm coming."
 
 ### ch13_rey_wound
 **REY**
@@ -1487,8 +1487,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch13_trace_cage
 **ARDO**
-- tr: "Yaşıyor. Bunu bilmek her şeyi kolaylaştırmıyor."
-- en: "He's alive. Knowing that doesn't make it easier."
+- tr: "Yaşıyor. Bu iyi. Ama bilmek, yetişmek demek değil."
+- en: "He's alive. Good. But knowing isn't reaching him."
 
 ### ch13_trace_deeper
 **ARDO**
@@ -1504,8 +1504,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch14_ardo_arena
 **ARDO**
-- tr: "Onu bırak. Konuşacaksan benimle konuş."
-- en: "Leave him out of it. If you're talking, talk to me."
+- tr: "Çocuğu nereye götürdün? Onun izi de sende bitiyor."
+- en: "Where did you take the boy? His trail ends with you too."
 
 ### ch14_ardo_decide
 **ARDO**
@@ -1524,8 +1524,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch14_ardo_split
 **ARDO**
-- tr: "Kılıcım işe yaramıyor — işi kolaylaştırıyor."
-- en: "My blade isn't working — it's helping."
+- tr: "Kılıcım işe yaramıyor; üstelik onların işine yarıyor."
+- en: "My blade's no use. Worse, it's working for them."
 
 ### ch14_ardo_turned
 **ARDO**
@@ -1554,8 +1554,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch14_cine_open
 **REY**
-- tr: "Bir şey var. Sorayım."
-- en: "Something's there. Let me ask."
+- tr: "Burada bir şey var. Seslere sorayım."
+- en: "Something's here. I'll ask the voices."
 
 ### ch14_cine_open_ardo
 **ARDO**
@@ -1574,28 +1574,28 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch14_echo_arena
 **YANKI**
-- tr: "Geldin. Ne kadar da uzun sürdü."
-- en: "You came. It took you so long."
+- tr: "Geldin. Seni ne kadar bekledim."
+- en: "You came. I have waited so long for you."
 
 ### ch14_rey_arena
 **REY**
-- tr: "Kardeşim nerede?"
-- en: "Where is my brother?"
+- tr: "Kardeşim nerede? Söyle!"
+- en: "Where is my brother? Tell me!"
 
 ### ch14_rey_decide
 **REY**
 - tr: "Öyleyse seni dinlemeyi bırakıyorum."
-- en: "Then I stop listening to you."
+- en: "Then I'm done listening to you."
 
 ### ch14_rey_empty
 **REY**
-- tr: "Oda boş görünüyor. Ama boş hissettirmiyor."
-- en: "The room looks empty. It doesn't feel empty."
+- tr: "Oda boş görünüyor... ama değil."
+- en: "The room looks empty... but it isn't."
 
 ### ch14_rey_quiet
 **REY**
 - tr: "Bitti mi?"
-- en: "Is that it?"
+- en: "Is it over?"
 
 ### ch14_rey_split
 **REY**
@@ -1604,18 +1604,18 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch14_rey_turned
 **REY**
-- tr: "Açtığım an başlarını çevirdiler. Bana mı baktılar?"
-- en: "They turned the moment I opened it. Did they look at me?"
+- tr: "Yankı'yı açtığım an bana döndüler. Artık onlar da beni görüyor."
+- en: "The moment I opened the Echo, they turned to me. Now they can see me too."
 
 ### ch14_trace_again
 **ARDO**
-- tr: "İzler hâlâ aşağı gidiyor. Yendiğim şey duruyordu."
-- en: "The tracks still go down. What I beat was standing still."
+- tr: "Yendiğim şeyin izi yok. Asıl iz hâlâ aşağı iniyor."
+- en: "What I beat left no tracks. The real trail still goes down."
 
 ### ch14_trace_answer
 **ARDO**
-- tr: "İzler taze. Ve tek yöne gitmiyorlar — biri geri gelmiş."
-- en: "The tracks are fresh. And they don't go one way — someone came back."
+- tr: "İzler taze ve tek yöne gitmiyor. Biri inmiş, geri çıkmış... defalarca."
+- en: "The tracks are fresh, and they don't go one way. Someone went down and came back... again and again."
 
 ### ch14_trace_arena
 **ARDO**
@@ -1626,13 +1626,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch15_ardo_drip
 **ARDO**
-- tr: "Damla düştükçe kımıldıyorlar. Ritmi var."
-- en: "They stir with each drop. There's a rhythm to it."
+- tr: "Her damlada kımıldıyorlar. Ritmi var; aralarda yürürüm."
+- en: "They shift at every drop. There's a rhythm. I'll walk between the beats."
 
 ### ch15_ardo_ghost
 **ARDO**
 - tr: "Hiçbiri kalkmadı. Buradan geçtiğimi bilmiyorlar."
-- en: "Not one of them stirred. They don't know I came through."
+- en: "Not one of them moved. They don't know I came through."
 
 ### ch15_ardo_ghost_face
 **ARDO**
@@ -1641,8 +1641,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch15_ardo_jet_return
 **ARDO**
-- tr: "Bir adım daha atma. Arkandakiler uyuyor."
-- en: "Stay there. The things behind you are asleep."
+- tr: "Emre, olduğun yerde kal. Arkandakiler uyuyor."
+- en: "Emre, stay right where you are. The things behind you are asleep."
 
 ### ch15_ardo_narrow
 **ARDO**
@@ -1651,13 +1651,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch15_ardo_sleep
 **ARDO**
-- tr: "Uyuyorlar. Ayak sesim onlardan yüksek."
-- en: "They're asleep. My footsteps are louder than they are."
+- tr: "Uyuyorlar. Bu çizmelerle aralarından geçmek kolay olmayacak."
+- en: "They're asleep. Getting past them in these boots won't be easy."
 
 ### ch15_ardo_woke
 **ARDO**
 - tr: "Gürültü yaptım. Yine de arkamda kaldılar."
-- en: "I made noise. They're still behind me."
+- en: "I made noise. Still, I left them behind."
 
 ### ch15_ardo_woke_face
 **ARDO**
@@ -1666,33 +1666,33 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch15_echo_kalachev
 **YANKI**
-- tr: "Bak, beklemeyi öğrenmiş. İnsan neler öğreniyor burada."
-- en: "Look. He's learned to wait. This place teaches so much."
+- tr: "Şuna bak. Beklemeyi öğrenmiş. Burası herkese bir şey öğretiyor."
+- en: "Look at him. He's learned to wait. This place teaches everyone something."
 
 ### ch15_echo_kalachev_wakes
 **YANKI**
-- tr: "Yine öne atıldı. Yarasını unuttu mu dersin?"
-- en: "There he goes again. Think he's forgotten the wound?"
+- tr: "Yine en öne atıldı. Yarasını unuttu mu sence?"
+- en: "Out in front again. Do you think he's forgotten his wound?"
 
 ### ch15_jet_promise
 **JET**
-- tr: "Dönüşte seslenmene gerek yok. Burada olacağım."
-- en: "You will not have to call out on the way back. I will be here."
+- tr: "Dönüşte bağırmana gerek yok. Adımı söylemen yeter; burada olacağım."
+- en: "You will not need to shout on the way back. Just say my name. I will be here."
 
 ### ch15_jet_return
 **JET**
-- tr: "Yavaş. Şu kapının ötesinden geldim. Ses buraya taşınıyor."
-- en: "Easy. I came through that gate. Sound carries here."
+- tr: "Yavaş. O kapıdan geldim. Burada bir nefes bile duvardan duvara gidiyor."
+- en: "Slowly. I came through that gate. Here, even a breath carries from wall to wall."
 
 ### ch15_jet_route
 **JET**
-- tr: "Tamam. Kapıyı sessizce kapatırım. Sen devam et."
-- en: "All right. I will close the gate quietly. Keep going."
+- tr: "Bana Emre dedin... Peki. Kapıyı arkamdan sessizce kapatırım. Sen devam et."
+- en: "You called me Emre... Very well. I will close the gate quietly behind me. Go on."
 
 ### ch15_rey_drip
 **REY**
-- tr: "Su damlıyor. Onlar da her damlada başlarını çeviriyor."
-- en: "Water is dripping. They turn their heads at every drop."
+- tr: "Her damlada başlarını çeviriyorlar. Bunu kullanabilirim."
+- en: "They turn their heads at every drop. I can use that."
 
 ### ch15_rey_ghost
 **REY**
@@ -1706,13 +1706,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch15_rey_jet_return
 **REY**
-- tr: "Jet... Sesini duyunca bir an korktum."
-- en: "Jet... Your voice scared me for a moment."
+- tr: "Emre... Seni duyunca yüreğim ağzıma geldi."
+- en: "Emre... When I heard you, my heart jumped into my throat."
 
 ### ch15_rey_narrow
 **REY**
-- tr: "Burada çan yok. Sadece yavaş."
-- en: "No bells here. Only slow."
+- tr: "Burada çalacak çan yok. Tek çare yavaş yürümek."
+- en: "No bell to ring here. The only way is slow."
 
 ### ch15_rey_sleep
 **REY**
@@ -1726,8 +1726,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch15_rey_woke_face
 **REY**
-- tr: "Bir dahakine daha yavaş."
-- en: "Slower, next time."
+- tr: "Sessiz olmayı öğreneceğim. Kendi başıma."
+- en: "I'll learn to be quiet. On my own."
 
 ## BOLUM 16 - Sirt Sirta
 
@@ -1738,8 +1738,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch16_ardo_back
 **ARDO**
-- tr: "İkiye bölündüler. Sırtını bana ver."
-- en: "They've split in two. Put your back to mine."
+- tr: "İki yandan geliyorlar. Sırtını bana daya."
+- en: "Both sides. Put your back to mine."
 
 ### ch16_ardo_corridor
 **ARDO**
@@ -1748,13 +1748,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch16_ardo_fell
 **ARDO**
-- tr: "Yere indi. Kalkmasını bekleyemem."
-- en: "She's down. I can't wait for her to rise."
+- tr: "Yere düştü. Kalkmasını bekleyecek vakit yok."
+- en: "She's down. No time to wait for her to get up."
 
 ### ch16_ardo_hold
 **ARDO**
-- tr: "Kolundan tut. Bırakma."
-- en: "Take her arm. Don't let go."
+- tr: "Kolundan tut. Bu sefer bırakma."
+- en: "Take her arm. Don't let go this time."
 
 ### ch16_ardo_many
 **ARDO**
@@ -1778,8 +1778,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch16_rey_back
 **REY**
-- tr: "İki yandan geliyorlar. Sırtımı sana veriyorum."
-- en: "They're coming from both sides. I'm giving you my back."
+- tr: "İki yandan geliyorlar. Sırtım sana emanet."
+- en: "They're coming from both sides. My back is yours."
 
 ### ch16_rey_corridor
 **REY**
@@ -1788,13 +1788,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch16_rey_fell
 **REY**
-- tr: "Düştü. Bu sefer kendi kalkmıyor."
-- en: "Down. This time they're not getting up alone."
+- tr: "Düştü. Bu sefer kendi başına kalkamıyor."
+- en: "He's down. This time he can't get up on his own."
 
 ### ch16_rey_hold
 **REY**
-- tr: "Elimi uzatıyorum. Tutana kadar bırakmayacağım."
-- en: "I'm reaching out. I won't let go until they take it."
+- tr: "Tut elimi. Tutana kadar bir yere gitmiyorum."
+- en: "Take my hand. I'm not going anywhere until you do."
 
 ### ch16_rey_many
 **REY**
@@ -1804,7 +1804,7 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 ### ch16_rey_return_face
 **REY**
 - tr: "Geldin. Sormadan geldin."
-- en: "You came. You didn't even ask."
+- en: "You came. Nobody even asked you to."
 
 ### ch16_rey_stand
 **REY**
@@ -1850,13 +1850,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch17_rey_held_face
 **REY**
-- tr: "Bütün kule bunu öğretiyormuş."
-- en: "The whole tower was teaching me this."
+- tr: "Bütün kule bana bunu öğretmeye çalışıyormuş."
+- en: "The whole tower was trying to teach me this."
 
 ### ch17_rey_split
 **REY**
-- tr: "Yol ikiye ayrılıyor. Sen o tarafta, ben bu tarafta."
-- en: "The path splits. You on that side, me on this one."
+- tr: "Yine ayrı yollar. Bu sefer en azından birbirimizi görebiliyoruz."
+- en: "Separate paths again. At least this time we can see each other."
 
 ### ch17_rey_top
 **REY**
@@ -1867,8 +1867,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_ally_after
 **YOLDAS**
-- tr: "Geri dur! Onu buradan çıkaracağım!"
-- en: "Stay back! I'm getting him out!"
+- tr: "Sen geride kal! Onu ben çıkarırım!"
+- en: "Stay back! I'll get him out!"
 
 ### ch18_ardo_alone
 **ARDO**
@@ -1877,8 +1877,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_ardo_ask
 **ARDO**
-- tr: "Yankı açıkken kalkıyor. Bağ o."
-- en: "It rises while the Echo is open. That's the tie."
+- tr: "Ses sürdükçe kalkıyor. Susturmam gerek."
+- en: "It keeps getting up as long as the voice goes on. I have to silence it."
 
 ### ch18_ardo_ask_face
 **ARDO**
@@ -1892,18 +1892,18 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_ardo_dawn
 **ARDO**
-- tr: "Onu ablasına götürdüm. Kolye de yanında."
-- en: "I brought him back to his sister. The necklace too."
+- tr: "Bunu bana sen vermiştin. Geri getirdim."
+- en: "You gave me this. I brought it back."
 
 ### ch18_ardo_deep
 **ARDO**
-- tr: "Aşağı inmek kolaydı. Asıl soru neden çağırdığı."
-- en: "Going down was easy. The question is why it called."
+- tr: "İnmek kolaydı. Asıl soru, beni neden çağırdığı."
+- en: "Coming down was easy. The real question is why it called me."
 
 ### ch18_ardo_deep_face
 **ARDO**
-- tr: "Onu bulacağım. Sonra buradan çıkarız."
-- en: "I'll find him. Then we get out."
+- tr: "Çocuğu bulacağım. Sonra hep birlikte çıkarız."
+- en: "I'll find the boy. Then we all get out together."
 
 ### ch18_ardo_empty
 **ARDO**
@@ -1922,8 +1922,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_ardo_kalachev
 **ARDO**
-- tr: "Kalachev. Şu işi bitirelim. Hesabımız kaldı."
-- en: "Kalachev. Let's finish this. You still owe me."
+- tr: "Efe. Bunu da bitirelim. Hesabımız hâlâ kapanmadı."
+- en: "Efe. Let's finish this one too. We still haven't settled up."
 
 ### ch18_ardo_lookback
 **ARDO**
@@ -1937,8 +1937,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_ardo_name_face
 **ARDO**
-- tr: "Ona güvenmiştim. O da bunu biliyordu."
-- en: "I trusted it. And it knew that."
+- tr: "İzlerine güvendim. O da güveneceğimi biliyordu."
+- en: "I trusted its tracks. And it knew I would."
 
 ### ch18_ardo_quiet
 **ARDO**
@@ -1957,8 +1957,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_ardo_voice
 **ARDO**
-- tr: "Bir çocuk sesi. Ama duvarlar da fısıldıyor."
-- en: "A child's voice. But the walls whisper too."
+- tr: "Bir çocuk sesi. Ben ses duymam... ama bunu duyuyorum."
+- en: "A child's voice. I don't hear voices... but I hear this one."
 
 ### ch18_cemo_call
 **CEMO**
@@ -1967,13 +1967,13 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_kalachev_debt
 **KALACHEV**
-- tr: "Yukarıda, Ardo. Buradan çıkınca."
-- en: "Topside, Ardo. Once we're out."
+- tr: "Yukarıda, Ayı. Buradan çıkınca ödeyeceğim, yemin ederim. Hem de faiziyle; şu çirkini de hikâyeye katarız."
+- en: "Topside, Bear. I'll pay once we're out, I swear. With interest, and we'll put this ugly thing in the story."
 
 ### ch18_kalachev_gate
 **KALACHEV**
-- tr: "Biliyorum. Çocuğu al, gerisini bana bırak."
-- en: "I know. Get the boy. Leave the rest to me."
+- tr: "Dönüş mü? Ben hiç geri dönmem, Kırmızı Başlıklı; yol beni takip eder. Sen veledi kap, gerisini bana bırak."
+- en: "Back? I never go back, Red; the road follows me. You grab the kid. Leave the rest to me."
 
 ### ch18_kalachev_last
 **KALACHEV**
@@ -1982,8 +1982,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_rey_alone
 **REY**
-- tr: "Bir kişiyi daha alamayacaksın."
-- en: "You don't get to take anyone else."
+- tr: "Bir kişiyi daha alamayacaksın. Beni duyuyor musun?"
+- en: "You don't get to take anyone else. Can you hear me?"
 
 ### ch18_rey_ask
 **REY**
@@ -2002,23 +2002,23 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_rey_dawn
 **REY**
-- tr: "Kolyen. Sende kalsın."
-- en: "Your necklace. Keep it."
+- tr: "Kolyen. Artık sende kalsın... İşe yaradı."
+- en: "Your necklace. You keep it now... It worked."
 
 ### ch18_rey_deep
 **REY**
-- tr: "On sekiz kat indim. Sesler hep buraya çağırdı."
-- en: "Eighteen floors down. The voices called me here the whole way."
+- tr: "Bunca kat indim. Sesler baştan beri beni buraya çağırıyormuş."
+- en: "All these floors. The voices were calling me here from the very start."
 
 ### ch18_rey_deep_face
 **REY**
-- tr: "Neredeyse geldim Cemo."
-- en: "I'm almost there, Cemo."
+- tr: "Geldim sayılır, Cemo. Biraz daha dayan."
+- en: "I'm nearly there, Cemo. Hold on a little longer."
 
 ### ch18_rey_empty
 **REY**
-- tr: "...boş. Hiç kimse yok."
-- en: "...empty. There's no one here."
+- tr: "...Kimse yok. Burada kimse yok."
+- en: "...No one. There's no one here."
 
 ### ch18_rey_empty_face
 **REY**
@@ -2027,8 +2027,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_rey_hear
 **REY**
-- tr: "Cemo! Duyuyorum seni!"
-- en: "Cemo! I can hear you!"
+- tr: "Cemo! Seni duyuyorum! Geliyorum!"
+- en: "Cemo! I hear you! I'm coming!"
 
 ### ch18_rey_kalachev
 **REY**
@@ -2037,38 +2037,38 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_rey_lookback
 **REY**
-- tr: "Ardo?.. Tamam. Seni bekliyoruz."
-- en: "Ardo?.. All right. We'll wait."
+- tr: "Ardo?.. Tamam. Acele etme, bekleriz."
+- en: "Ardo...? All right. Take your time. We'll wait."
 
 ### ch18_rey_name
 **REY**
-- tr: "Sen değildin. Hiç sen olmamışsın."
-- en: "It was never you. It was never you at all."
+- tr: "Cemo değildi. Hiçbir zaman o değildi."
+- en: "It wasn't Cemo. It never was."
 
 ### ch18_rey_name_face
 **REY**
-- tr: "Kafamdaki ses. Hep senmişsin."
-- en: "The voice in my head. It was always you."
+- tr: "Kafamdaki ses... Baştan beri sendin."
+- en: "The voice in my head... It was you from the start."
 
 ### ch18_rey_quiet
 **REY**
-- tr: "Kafamda hiçbir şey yok. İlk kez."
-- en: "There's nothing in my head. For the first time."
+- tr: "Kafamın içi sessiz. İlk kez."
+- en: "It's quiet in my head. For the first time."
 
 ### ch18_rey_stop
 **REY**
-- tr: "Kalachev, dur! Kardeşim orada değil!"
-- en: "Kalachev, stop! My brother isn't over there!"
+- tr: "Kalachev, dur! Orada kimse yok, bu bir tuzak!"
+- en: "Kalachev, stop! There's no one there. It's a trap!"
 
 ### ch18_rey_three
 **REY**
-- tr: "Üçümüz. Yukarı."
-- en: "The three of us. Upward."
+- tr: "Üçümüz. Yukarı, eve."
+- en: "The three of us. Up, and home."
 
 ### ch18_rey_voice
 **REY**
-- tr: "Cemo? — Sesi bu taraftan geliyor."
-- en: "Cemo? — The voice is coming from over there."
+- tr: "Cemo? Sesi... şuradan geliyor."
+- en: "Cemo? His voice... it's coming from over there."
 
 ## BOLUM DISI
 
