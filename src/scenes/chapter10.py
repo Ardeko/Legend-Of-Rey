@@ -275,6 +275,14 @@ class Chapter10Scene(PlayScene):
             return
         if self.room != "catal":
             return
+        # **Yalnizca Yanki'nin yolunda** (25.09.2026). Satir denetimi
+        # yoktu: alt yoldan - dogru yoldan - giden oyuncuya da cikip
+        # ustteki tuzagi kiriyordu ve Rey "Az kalsin oraya basiyordum"
+        # diyordu; oysa oraya hic yaklasmamisti. Kalachev'in B10'u artik
+        # secime bagli: yalana inanana gelir, inanmayana gerek yok.
+        row = int(self.player.body.feet[1]) // TILE_SIZE
+        if row > UPPER_ROW + 1:
+            return
         trap_x = ALLY_TRAP_COLUMN * TILE_SIZE
         gap = trap_x - self.player.body.center_x
         # Oyuncu tuzagin SOLUNDA ve yaklasiyor olmali. Sagindaysa

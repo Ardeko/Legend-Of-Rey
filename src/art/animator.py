@@ -140,6 +140,9 @@ class Animator:
         self.index = 0
         self.hold = 0
         self.finished = False
+        # Kare bekleme carpani: 1.0 normal. Sessiz yuruyuste kosu dongusu
+        # yavasliyor - yavas kayan govde tam hizda kosuyor gibi gorunmesin.
+        self.hold_scale = 1.0
 
     def play(self, state: str, restart: bool = False) -> None:
         if state not in self.frames:
@@ -161,7 +164,8 @@ class Animator:
             return
 
         self.hold += 1
-        if self.hold < HOLD_OVERRIDES.get(self.state, DEFAULT_HOLD_FRAMES):
+        limit = HOLD_OVERRIDES.get(self.state, DEFAULT_HOLD_FRAMES)
+        if self.hold < limit * self.hold_scale:
             return
         self.hold = 0
         self.index += 1

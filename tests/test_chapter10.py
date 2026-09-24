@@ -164,6 +164,32 @@ def test_spearman() -> None:
         game.shutdown()
 
 
+# --- 2b. Kalachev yalnizca yalanin yolunda ----------------------------------
+def test_kalachev_only_on_the_lie() -> None:
+    """Tuzak ust yolda; Kalachev yalnizca oraya giden oyuncuya gelir.
+
+    Satir denetimi yoktu: alt yoldaki oyuncu yatayda yaklasinca da
+    cikip ustteki tuzagi kiriyordu ve Rey "Az kalsin oraya
+    basiyordum" diyordu - oraya hic yaklasmamisti.
+    """
+    print("\n--- Kalachev yalnizca yalanin yolunda ---")
+    from src.scenes.chapter10 import ALLY_TRAP_COLUMN
+    near = (ALLY_TRAP_COLUMN - 5) * TILE_SIZE
+    for row, expected, label in (
+            (LOWER_ROW, False, "alt yol: Kalachev GELMIYOR, tuzak saglam"),
+            (UPPER_ROW, True, "ust yol: Kalachev gelip tuzagi kiriyor")):
+        game = Game()
+        try:
+            scene = start(game)
+            enter_fork(scene)
+            scene.player.body.set_feet(near, row * TILE_SIZE)
+            scene.update_scene()
+            check(scene.trap_broken == expected, label,
+                  f"kirildi={scene.trap_broken} muttefik={len(scene.allies)}")
+        finally:
+            game.shutdown()
+
+
 # --- 3. Yalan bir secim ------------------------------------------------------
 def test_lie_is_a_choice() -> None:
     print("\n--- yalan ---")
@@ -292,6 +318,7 @@ def main() -> int:
     test_alone()
     test_spearman()
     test_lie_is_a_choice()
+    test_kalachev_only_on_the_lie()
     test_trap()
     test_lie_scene_variants()
     test_chapter_end()

@@ -13,7 +13,9 @@ from __future__ import annotations
 from src.art.animation import CHARACTERS, pose_table
 from src.art.spritegen import weapon_tip
 from src.combat.combo import AttackPhase
-from src.config import DODGE_TOTAL_FRAMES, PLAYER_RUN_SPEED
+from src.config import (
+    DODGE_TOTAL_FRAMES, PLAYER_RUN_SPEED, SNEAK_ANIM_HOLD_SCALE, SNEAK_CROUCH,
+)
 
 
 def update_animation(player) -> None:
@@ -24,6 +26,13 @@ def update_animation(player) -> None:
     asla kaydiramaz.
     """
     _update_sway(player)
+
+    # Sessiz yuruyus: kosu dongusu yavas akiyor, govde hafifce comeliyor.
+    # Yeni kare yok - bekleme carpani ve squash (`CLAUDE.md` 7).
+    sneaking = getattr(player, "sneaking", False)
+    player.animator.hold_scale = SNEAK_ANIM_HOLD_SCALE if sneaking else 1.0
+    if sneaking and player.land_frames <= 0:
+        player.squash.trigger(SNEAK_CROUCH, 2)
 
     if player.dead:
         player.animator.play("death")

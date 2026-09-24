@@ -203,6 +203,12 @@ def test_lie() -> None:
         check(scene.lie_told, "salonda Yanki konusuyor")
         check(scene.doubt_told,
               "guvenmeyen oyuncu kendi supheyle uyariliyor")
+        # **Once yalan, sonra cevabi.** Iki ayri `say()` ikincisini
+        # birincinin yerine koyuyordu: supheli oyuncu yalani hic gormeden
+        # "Gecen sefer de boyle soylemistin" okuyordu.
+        keys = [line.key for line in scene.dialogue.lines]
+        check(keys == ["line.ch11_echo_lie", "line.ch11_rey_doubt"],
+              "yalan ve cevabi SIRAYLA - cevap yalani silmiyor", str(keys))
     finally:
         game.shutdown()
 

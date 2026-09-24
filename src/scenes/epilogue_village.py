@@ -46,7 +46,7 @@ from src.world import village_backdrop
 from src.world.resonant import Bell
 from src.world.rooms.epilogue import (
     BELL_TILE, EPILOGUE_SCENERY, HOLE_TILES, HOME_INDEX, HOUSES, JET_TILE,
-    ROPE_POST_TILE, SCAR_TILES, VILLAGE_LEVEL, VILLAGERS,
+    ROPE_POST_TILE, SCAR_TILES, SIGN_TILE, VILLAGE_LEVEL, VILLAGERS,
 )
 from src.world.tilemap import TileMap
 
@@ -68,8 +68,11 @@ SCAR_REACH = 26.0
 HOME_REACH = 58.0
 # Cemo'nun resmi bu kadar karede tamamlaniyor (~2.5 sn).
 DRAW_FRAMES = 150
-# Oyun sonrasi: batida bu x'in gerisine gecen menuye doner.
-POSTGAME_EXIT_X = 12.0
+# Oyun sonrasi: tabelaya bu kadar yaklasinca "Yola cik" beliriyor.
+# Eskiden bati kenarina yurumek sessizce menuye atiyordu - kesif yapan
+# oyuncu kazara cikabiliyordu ve cikisin nerede oldugu hic
+# soylenmiyordu (Arda, 25.09.2026: "Koye isaret gerekiyor").
+SIGN_REACH = 22.0
 
 
 def _door_x(house: tuple) -> float:
@@ -138,11 +141,11 @@ class EpilogueVillageScene(PlayScene):
     def _build_villagers(self) -> None:
         """Her rol bir kapi. Epilogda iceride dogarlar; oyun sonrasi disarida."""
         self.villagers: list[Villager] = []
-        for index, (house_index, role, stand) in enumerate(VILLAGERS):
+        for index, (house_index, role, stand, look) in enumerate(VILLAGERS):
             door_x = _door_x(HOUSES[house_index])
             villager = Villager(door_x + stand, self.ground_y, door_x,
                                 seed=index, inside=not self.postgame,
-                                role=role)
+                                role=role, look=look)
             if self.postgame:
                 villager.greet()
             self.villagers.append(villager)
@@ -165,8 +168,8 @@ class EpilogueVillageScene(PlayScene):
         self._update_talk(px)
         self._update_scar(px)
         self._update_home(px)
-        if self.postgame and px < POSTGAME_EXIT_X:
-            self._leave_to_menu()
+        if self.postgame:
+            self._update_exit(px)
         self._dialogue_was_open = not self.dialogue.done
 
     @property
@@ -362,6 +365,20 @@ class EpilogueVillageScene(PlayScene):
         self.scenes.set_root(HomecomingFireCinematic,
                              character=self.character,
                              homecoming=self.homecoming)
+
+    @property
+    def sign_x(self) -> float:
+        """Yol tabelasinin kazigi (dunya x)."""
+        return SIGN_TILE * TILE_SIZE + 10
+
+    def _update_exit(self, px: float) -> None:
+        """Oyun sonrasi: tabelada "Yola cik" - ana menuye donus."""
+        if abs(px - self.sign_x) > SIGN_REACH or not self.free_to_talk:
+            return
+        self.prompts.offer("leave", self.sign_x, self.ground_y - 30,
+                           verb_key="prompt.leave")
+        if self.game.input.pressed(Action.INTERACT):
+            self._leave_to_menu()
 
     def _leave_to_menu(self) -> None:
         self.finished = True

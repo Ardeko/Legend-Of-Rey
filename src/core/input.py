@@ -29,6 +29,11 @@ class Action(Enum):
     JUMP = auto()
     ATTACK = auto()
     DODGE = auto()
+    # Sessiz yuruyus - basili tutulur (25.09.2026). Arda: *"Sessiz
+    # gecmeye calistigimiz bolumde sessiz yurume imkansiz."* Klavyede yon
+    # tusu hep TAM hiz veriyor; B15'in "yuruyerek gec"i yalnizca kolun
+    # analog cubuguyla mumkundu. Bu tus hizi kirpiyor (`PLAYER_SNEAK_RATIO`).
+    SNEAK = auto()
     ECHO = auto()           # Yanki - basili tutulur
     ECHO_ASK = auto()       # Yanki'ya soru sor
     INTERACT = auto()
@@ -79,6 +84,7 @@ DEFAULT_KEYBOARD: dict[Action, tuple[int, ...]] = {
     Action.JUMP: (pygame.K_SPACE, pygame.K_w, pygame.K_UP, pygame.K_z),
     Action.ATTACK: (pygame.K_j, pygame.K_x),
     Action.DODGE: (pygame.K_LSHIFT, pygame.K_l, pygame.K_c),
+    Action.SNEAK: (pygame.K_LCTRL, pygame.K_RCTRL),
     Action.ECHO: (pygame.K_k, pygame.K_q),
     Action.ECHO_ASK: (pygame.K_f,),
     Action.INTERACT: (pygame.K_e,),
@@ -102,6 +108,9 @@ DEFAULT_GAMEPAD: dict[Action, tuple[int, ...]] = {
     Action.JUMP: (0,),          # A
     Action.ATTACK: (2,),        # X
     Action.DODGE: (1, 5),       # B / RB
+    # Sol cubuga basmak (L3) - dokuzuncu dugme bos. Kolda cubugu yarim
+    # egmek de yavas yurutuyor; L3 klavyedekiyle ayni sozu veriyor.
+    Action.SNEAK: (8,),
     Action.ECHO: (4,),          # LB
     Action.ECHO_ASK: (3,),      # Y
     Action.INTERACT: (0,),
@@ -132,6 +141,7 @@ DEFAULT_GAMEPAD: dict[Action, tuple[int, ...]] = {
 # cozumleyicide "bu anahtar mi, metin mi?" tahmini gerektirirdi.
 KEY_LABELS: dict[int, str] = {
     pygame.K_LSHIFT: "keys.shift", pygame.K_RSHIFT: "keys.shift",
+    pygame.K_LCTRL: "keys.ctrl", pygame.K_RCTRL: "keys.ctrl",
     pygame.K_SPACE: "keys.space", pygame.K_RETURN: "keys.enter",
     pygame.K_ESCAPE: "keys.esc", pygame.K_TAB: "keys.tab",
     pygame.K_LEFT: "keys.left", pygame.K_RIGHT: "keys.right",
@@ -140,6 +150,7 @@ KEY_LABELS: dict[int, str] = {
 
 GAMEPAD_LABELS: dict[int, str] = {
     0: "A", 1: "B", 2: "X", 3: "Y", 4: "LB", 5: "RB", 6: "Back", 7: "Start",
+    8: "L3", 9: "R3",
 }
 
 

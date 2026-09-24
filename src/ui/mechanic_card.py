@@ -71,6 +71,7 @@ TITLES: dict[str, str] = {
     "hint.weapon_whisper": "hint.weapon_whisper_title",
     "hint.weapon_spear": "hint.weapon_spear_title",
     "hint.weapon_sickle": "hint.weapon_sickle_title",
+    "hint.sneak": "hint.sneak_title",
 }
 
 
@@ -216,6 +217,7 @@ class MechanicCard:
             "inventory": _icon_inventory,
             "throw": _icon_throw,
             "weapon": _icon_weapon,
+            "sneak": _icon_sneak,
         }.get(self.icon, _icon_generic)
         drawer(card, cx, cy, progress, self.frames)
 
@@ -234,6 +236,22 @@ def _icon_resonance(card, cx: int, cy: int, progress: float,
         radius = int(4 + phase * 12)
         tone = "violet_bright" if index == 0 else "violet"
         pygame.draw.circle(card, palette.color(tone), (cx, cy), radius, 1)
+
+
+def _icon_sneak(card, cx: int, cy: int, progress: float, frame: int) -> None:
+    """Comelmis bir siluet ve arkasinda sonen, KUCUK ayak izleri.
+
+    Uc iz nokta nokta beliriyor: yavas adim. Halka yok - ses yok.
+    """
+    body = palette.color("stone_light")
+    card.fill(body, (cx - 3, cy - 4, 5, 4))          # sirt, one egik
+    card.fill(body, (cx + 1, cy - 6, 3, 3))          # bas
+    card.fill(body, (cx - 3, cy, 2, 5))              # arka bacak
+    card.fill(body, (cx + 1, cy + 1, 2, 4))          # on bacak
+    steps = int(3 * progress + (frame // 24) % 2 * progress)
+    for index in range(min(3, steps)):
+        x = cx - 8 - index * 5
+        card.fill(palette.color("stone_dark"), (x, cy + 5, 2, 1))
 
 
 def _icon_boost(card, cx: int, cy: int, progress: float, frame: int) -> None:

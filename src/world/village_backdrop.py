@@ -196,6 +196,8 @@ def draw(surface: pygame.Surface, offset, frame: int,
             _draw_well(surface, frame, x, base, width, height)
         elif kind == "bellframe":
             _draw_bellframe(surface, x, base, width, height)
+        elif kind == "signpost":
+            _draw_signpost(surface, x, base)
         else:
             _draw_fence(surface, frame, x, base, width, height)
 
@@ -343,6 +345,31 @@ def _draw_well(surface: pygame.Surface, frame: int, x: int, base: int,
                  (x + width - 2, top - 9, 1, 9))
     surface.fill(palette.color("earth"), (x, top - 10, width, 1))
     surface.fill(palette.color("stone"), (x + width // 2, top - 8, 1, 4))
+
+def _draw_signpost(surface: pygame.Surface, x: int, base: int) -> None:
+    """Yol tabelasi: kazik ve BATIYI gosteren sivri bir tahta.
+
+    Epilogun bati yolu (25.09.2026). Oyun sonrasinda koyden cikis
+    burasi; tabela olmadan oyuncu bati ucunu bir duvar sanirdi. Yazi yok
+    (`docs/menu-ui.md`: diyegetik once) - tahtanin ucu yonu soyluyor.
+    Isik sol ustten: tahtanin ust kenari acik, alti koyu.
+    """
+    post = palette.color("earth_dark")
+    board = palette.color("earth")
+    edge = palette.color("flesh_dark")
+    surface.fill(post, (x + 9, base - 22, 2, 22))
+    # Tahta: sola sivrilen bes satir - ok ucu.
+    top = base - 20
+    for row in range(6):
+        tip = abs(row - 2.5)
+        left = x + int(tip)
+        surface.fill(board, (left, top + row, 17 - int(tip), 1))
+    surface.fill(edge, (x + 3, top, 13, 1))              # ust kenar: isik
+    surface.fill(post, (x + 3, top + 5, 13, 1))          # alt kenar: golge
+    # Oyulmus iki cizgi: tahtanin uzerinde yolun yonu.
+    surface.fill(post, (x + 5, top + 2, 7, 1))
+    surface.fill(post, (x + 5, top + 3, 5, 1))
+
 
 def _draw_fence(surface: pygame.Surface, frame: int, x: int, base: int,
                 width: int, height: int) -> None:

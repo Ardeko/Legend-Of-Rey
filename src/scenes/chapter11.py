@@ -40,6 +40,7 @@ from src.systems import beam, loyalty
 from src.systems.beam import Mirror
 from src.systems.light import LightState
 from src.ui.chapter_end import ChapterEndScene, ChapterResult
+from src.ui.dialogue import Line
 from src.ui.i18n import t
 from src.world import cave_backdrop
 from src.world.pickups import Chest
@@ -278,14 +279,21 @@ class Chapter11Scene(PlayScene):
         if self.lie_told or self.room != "salon":
             return
         self.lie_told = True
-        self.say(self._voice("line.ch11_echo_lie", "line.ch11_trace_lie"))
+        lines = [self._voice("line.ch11_echo_lie", "line.ch11_trace_lie")]
         self.game.play_sound("echo_reveal")
 
         # Bolum 10'da Yanki'yi dinlememis oyuncu supheli - **sayac
         # gosterilmiyor**, yalnizca bir replik degisiyor.
+        #
+        # Iki replik **tek** `say()` ile (25.09.2026): ayri cagrildiginda
+        # ikincisi kuyrugu degistiriyordu ve supheli oyuncu yalani hic
+        # gormeden ona verilen cevabi goruyordu.
         if loyalty.read(self.save_data) < 0 and not self.doubt_told:
             self.doubt_told = True
-            self.say_player("line.ch11_rey_doubt", "line.ch11_ardo_doubt")
+            doubt = ("line.ch11_ardo_doubt" if self.character == "ardo"
+                     else "line.ch11_rey_doubt")
+            lines.append(Line(self.character, doubt))
+        self.say(*lines)
 
     def _voice(self, echo_key: str, ardo_key: str):
         from src.ui.dialogue import Line

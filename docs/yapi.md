@@ -94,6 +94,7 @@ Her mekanik bir bölümde tanıtılır, sonraki bölümlerde birleşir. Kural: *
 
 **★B15 — Sessizlik.** Yankı'yı kapalı oynamak zorundasın. Uyuyan sürü. Koşarsan uyanırlar.
 *Bulmaca:* Gürültü kaynaklarını (düşen taş, çan, su damlası) kullanarak dikkat dağıtma. Tamamen dövüşsüz geçilebilir — ve daha iyi ödül verir.
+*25.09.2026 (Arda: "sessiz yürüme imkânsız… hızlı geçersek cezalandıran bir şey yok"):* **Sessiz yürüyüş** tuşu eklendi (Ctrl / L3, basılı tut): klavyede yavaş yürümenin yolu yoktu, yön tuşu hep tam hız veriyordu. İlk yaklaşmada "SESSİZ YÜRÜ" kartı, kıpırdanan uyuyanda tuşu söyleyen uyarı. **Koşmanın bedeli:** uyanan avlanır. Çığlığı yanındakileri uyandırır, koşunun %80'i hızla kovalar, kolay iz bırakmaz, ayak sesi önündekileri kaldırır. Koşarak geçen büyüyen bir sürüyle can kaybeder; sessiz yürüyen hiçbirini görmez.
 
 **B16 — Sırt Sırta.** Ardo geri döner, havalı giriş. Ama bu sefer **Rey de onu kurtarır.** Karşılıklı.
 *Mekanik:* En uzun team-up. Asist kombolar zirvede. Bölüm sonu: kalp balonu.

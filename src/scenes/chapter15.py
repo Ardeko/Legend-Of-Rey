@@ -45,7 +45,9 @@ from src.config import (
     NOISE_ATTACK, NOISE_CHIME, NOISE_DODGE, NOISE_LAND, NOISE_RESONATE,
     NOISE_RUN, NOISE_WALK, PLAYER_RUN_SPEED, TILE_SIZE,
 )
+from src.core.input import Action
 from src.scenes.play import PlayScene
+from src.systems.herd import HerdHunt
 from src.systems.noise import Chime, NoiseField
 from src.systems.resonance import ResonanceState
 from src.ui.dialogue import ECHO, Line
@@ -132,6 +134,10 @@ class Chapter15Scene(PlayScene):
         self.kills = 0
         self.chime_hinted = False
         self.walk_hinted = False
+        self.stir_hinted = False
+        self.hunt_hinted = False
+        # Uyananlarin avi (25.09.2026) - bkz. `src/systems/herd.py`.
+        self.hunt = HerdHunt()
         self.kalachev_noticed = False
         self.kalachev_woke = False
 
@@ -229,6 +235,8 @@ class Chapter15Scene(PlayScene):
         self._update_drip()
         self._update_chimes()
         self.noise.update()
+        for _x, _y in self.hunt.update(self._emit):
+            self.game.play_sound("shambler_tell")
         self._update_hints()
         self._update_kalachev()
         self._update_triggers()
@@ -246,8 +254,13 @@ class Chapter15Scene(PlayScene):
 
     def on_player_step(self, player) -> None:
         super().on_player_step(player)
-        speed = abs(player.body.vx) / max(0.1, PLAYER_RUN_SPEED)
-        loud = NOISE_RUN if speed > RUN_THRESHOLD else NOISE_WALK
+        # Oran oyuncunun KENDI tam hizina gore: yetenek/karakter carpani
+        # (Rey 1.15) taban hiza bolununce sessiz yuruyus kosu sayilabilirdi.
+        # Sessiz yuruyen (`Action.SNEAK`) her zaman yuruyor sayiliyor.
+        top = PLAYER_RUN_SPEED * getattr(player.stats, "move_multiplier", 1.0)
+        speed = abs(player.body.vx) / max(0.1, top)
+        quiet = getattr(player, "sneaking", False) or speed <= RUN_THRESHOLD
+        loud = NOISE_WALK if quiet else NOISE_RUN
         self._emit(player.body.center_x, player.body.center_y, loud)
 
     def on_player_land(self, player, air_frames: int) -> None:
@@ -271,6 +284,21 @@ class Chapter15Scene(PlayScene):
 
     def _emit(self, x: float, y: float, strength: float) -> None:
         self.noise.emit(self.enemies, x, y, strength)
+
+    def _sneak_label(self) -> str:
+        """Sessiz yuruyusun atanmis tusu - "Ctrl" diye sabit yazilmiyor."""
+        from src.systems import bindings as binds
+        return binds.labels_for(binds.read(self.game.settings), Action.SNEAK)
+
+    def on_herd_wake(self, enemy) -> None:
+        """Uyanan av oluyor (`Enemy.wake` cagiriyor).
+
+        Ilk uyanista oyuncuya soyleniyor: ne oldugunu bilmeden kovalanan
+        oyuncu cezayi haksizlik sanar.
+        """
+        if self.hunt.on_wake(enemy) and not self.hunt_hinted:
+            self.hunt_hinted = True
+            self.show_toast(t("chapter15.hunt"), frames=220)
 
     def _update_resonance(self) -> None:
         """Darbe **kendi sesini de** cikariyor.
@@ -319,16 +347,38 @@ class Chapter15Scene(PlayScene):
             chime.update()
 
     def _update_hints(self) -> None:
-        """Iki kural, iki ipucu, **her biri bir kez**."""
+        """Uc kural, uc ipucu, **her biri bir kez**.
+
+        25.09.2026: yurumek ogretiliyor ama klavyede yavas yurumenin
+        yolu yoktu - "Yuru" diyen ipucu yerine getirilemiyordu. Artik
+        tusunu soyluyor (`Action.SNEAK`, atanmis tus tablodan). Ilk
+        yaklasmada yeni mekanik karti; kart gorulmusse kisa bildirim.
+        """
         if not self.walk_hinted and self.room == "uyku":
             near = any(e.asleep and e.distance_to(self.player) < 140
                        for e in self.enemies if not e.dead)
             if near:
                 self.walk_hinted = True
-                self.show_toast(t("chapter15.walk"), frames=240)
+                seen = bool(self.save_data and
+                            self.save_data.flags.get("hint_sneak"))
+                if seen:
+                    self.show_toast(t("chapter15.walk",
+                                      key=self._sneak_label()), frames=240)
+                else:
+                    self.hint_once("hint_sneak", "hint.sneak", Action.SNEAK,
+                                   icon="sneak")
+        # Kimildanan bir uyuyan: **uyari**, henuz ceza degil. Tus burada
+        # da soyleniyor - oyuncunun ogrenecegi an bu.
+        # Av basladiysa kimildanma surunun cigligindan: "yavas yuru" demek
+        # yanlis olur ve av uyarisinin ustune yazardi.
+        if not self.stir_hinted and not self.hunt.started:
+            if any(e.asleep and e.stirring and not e.dead
+                   for e in self.enemies):
+                self.stir_hinted = True
+                self.show_toast(t("chapter15.stir", key=self._sneak_label()),
+                                frames=200)
         if not self.chime_hinted and self.room == "can":
             self.chime_hinted = True
-            from src.core.input import Action
             self.hint_once("hint_chime", "hint.chime", Action.RESONATE)
 
     # --- Kalachev ------------------------------------------------------------
@@ -352,7 +402,9 @@ class Chapter15Scene(PlayScene):
         if ally.silent and any(e.aware and not e.dead for e in self.enemies):
             ally.silent = False
             self.kalachev_woke = True
-            self.say(Line(ECHO, "line.ch15_echo_kalachev_wakes"))
+            # Yorum Rey'in kafasindaki ses - Ardo'da yok.
+            if self.has_echo:
+                self.say(Line(ECHO, "line.ch15_echo_kalachev_wakes"))
             return
 
         if ally.silent and not self.kalachev_noticed:
@@ -360,7 +412,17 @@ class Chapter15Scene(PlayScene):
                     <= KALACHEV_NOTICE_TILES * TILE_SIZE)
             if near:
                 self.kalachev_noticed = True
-                self.say(Line(ECHO, "line.ch15_echo_kalachev"))
+                if self.has_echo:
+                    self.say(Line(ECHO, "line.ch15_echo_kalachev"))
+                else:
+                    # **Ardo sesi ilk kez burada duyuyor** (25.09.2026).
+                    # Kaynak'tan (B14) sonra asagidaki sey yalnizca Rey'e
+                    # konusmuyor; B18'de Cagiran herkese konusacak. Arda:
+                    # "hikayeye uygun 1-2 Yanki duyabilir." Tek replik,
+                    # hemen ardindan Ardo'nun kendi cevabi - aciklanmayan
+                    # bir mor ses hata gibi okunurdu.
+                    self.say(Line(ECHO, "line.ch15_echo_kalachev"),
+                             Line("ardo", "line.ch15_ardo_hears"))
 
         # Oda gecildi: kalirsa bir yoldas olur. Odayi gecen oyuncu
         # arkasina baktiginda orada olmamali.

@@ -7,7 +7,60 @@ Okuma sırası: **1) `CLAUDE.md`** (bağlayıcı kurallar — anayasa) → **2) 
 dosya** (nerede kaldık) → 3) gerekirse `docs/` altındaki ilgili tasarım
 belgesi.
 
-Son güncelleme: **24.09.2026** (epilog "Eve Dönüş", diyalogların yeniden yazımı, oyun sonu kaydı hatası; önceki: tuş göstergeleri, Kalachev yerçekimi, gezgin dükkân, derinlik temaları/lav, yeni silahlar, ışıma/sis/kenar ışığı, senaryo akışı belgesi) · Ardeko Studios · Arda Güner
+Son güncelleme: **25.09.2026** (Efe/Kalachev, B9-B11 düzeltmeleri, Ardo'nun Yankı'ları, B15 sessiz yürüyüş ve av, B14 jumpscare, epiloga Mum Bekçisi/tabela/köylü kıyafetleri, kol titreşimi, üç plan belgesi) · Ardeko Studios · Arda Güner
+
+## ▶ BAŞKA BİLGİSAYARDAN DEVRALAN: ÖNCE BURASI (25.09.2026)
+
+Kod `main`'de ve `origin`'e itildi. Aşağıdaki sıra önerim; her maddenin
+ayrıntısı altta ve ilgili belgede.
+
+### Arda'nın kararını bekleyenler
+
+| # | Karar | Belge |
+|---|---|---|
+| K1 | **Yetenek ağacı** — puan kaynağı, 3. kademe seçimi, İZ dalı, 5 soru. Onaylanınca önce Aşama A+B | `docs/plan-yetenek-agaci.md` §10 |
+| K2 | **Koruyucu Mum** — fiyat 60?, taşıma 1?, tuzak/lav?, **Sönmez Fitil ne olsun** | `docs/plan-koruyucu-mum.md` §9 |
+| K3 | **Görsel/his** — 8 FPS kuralı hızlı eylemlerde gevşesin mi | `docs/plan-gorsel-his.md` §9 |
+| K4 | Boşluk hem ZIPLA hem ONAY (konuşmayı geçerken zıplama). Arda: *"sonra ilgileneceğim"* | bu dosya, 23-24.09 madde 4 |
+| K5 | `docs/senaryo-oneriler.md`'deki 22 öneri | o belge |
+| K6 | `echo_alone_voice` ulaşılamıyor (sadakat en çok 1, eşik 3) | `docs/senaryo-akisi.md` Denetim 2 |
+
+### Kararsız yapılabilecekler
+
+1. **Exe'yi yeniden derle** — yalnızca müziğin olduğu makinede (`assets/audio/music/` git'te yok; bu makinede PyInstaller da kurulu değildi). `dist/` hâlâ 19.09 sürümü.
+2. **Baştan sona oyna.** Yeni olanlar özellikle: B15'in sessiz yürüyüşü ve avı, B14'ün yeni jumpscare'i (**sesleri kulakla dinle** — başsız testte dinlenemedi), epilogun tamamı.
+3. **Gerçek bir kolla dene:** titreşim (`RUMBLE_*`) ve L3 ile sessiz yürüyüş.
+4. **Ok/bomba sanatı:** `docs/prompt-ok-bomba.md`'deki promptlarla üret, içe aktar, bağla (§5).
+5. `docs/plan-gorsel-his.md` Aşama 1 (vuruş kıvılcımı, düşman tepki eğrisi, bitirici yumruğu, öldürme anı, vurulma nabzı, temas gölgesi) — kural dışı, onay gerektirmiyor.
+6. `graphify` bu makinede kurulu değildi; kuruluysa `graphify update .`
+
+### Keşifte bulunan ama plana bırakılan hatalar
+
+- **B3 Bekçi tezgâhı iki ölü ürün satıyor (320 altın):** Sönmez Fitil (meşaleler zaten sönmüyor) ve Koruyucu Mum (ölünce altın kaybı yok — `DEATH_GOLD_LOSS_RATIO` hiç kullanılmıyor). Çözüm `plan-koruyucu-mum.md`'de.
+- **Yetenek ağacı fiilen yok:** tek puan (B4) ve ekran yalnızca B4'te. Çözüm `plan-yetenek-agaci.md`'de.
+
+## 25.09.2026 — Arda'nın ikinci listesi
+
+**Kaynak değişti, exe YENİDEN ÜRETİLMEDİ.**
+
+1. **Efe / Kalachev.** Arda: *"bazen Efe bazen Kalachev desin; göbek adı olduğunu bir yerde iletelim."* Dokuz replik değişti. Kural: Ardo içten anlarda **Efe** (B12 iz, B13 yara, B18 dur/yalnız/bakış, epilog kadeh), takılırken ve başkasına anlatırken **Kalachev** (B4 kamp, B6 buluşma, B10 tuzak, B18 hesap, Cemo'ya resim). Göbek adını **Kalachev kendisi** söylüyor: Ardo'nun oynanışında B5'te (*"Göbek adımı bağırma, burada herkes Kalachev der"*), Rey'in oynanışında B6'da (*"Efe mi? Göbek adım; bir tek bu ayı öyle der. Sen Kalachev de"*). Rey ona **bir kez**, B18'de onu durdurmaya çalışırken "Efe" diyor. `test_chapter06` "ardo: adi soyleniyor" artık geçiyor.
+2. **B9:** tepe katın sözü çanlara bağlandı. Çözmeden çıkana ipucu, çözünce "Fresk doğruydu"; ikisi de açık konuşmanın üstüne yazmıyor.
+3. **B10:** Kalachev'in tetikleyicisine yol denetimi. Yalnızca Yankı'nın üst yolunu seçene geliyor. Arda'nın sorusu (*"Yankı'yı zorunlu dinletmek çözüm olur mu?"*) — **hayır:** B10'un anlamı seçim; zorlasaydık B11'in şüphe repliği ve sadakat sayacı anlamsızlaşırdı. Sorun iki küçük kod hatasıydı.
+4. **B11:** yalan ve şüphe cevabı tek `say()` ile sırayla.
+5. **Ardo'nun Yankı'ları:** B2'nin alayı ve B15'in ikinci yorumu Ardo'da yok. B15'teki ilk yorum **bilerek** kaldı: Ardo sesi ilk kez orada duyuyor ve cevap veriyor (`ch15_ardo_hears`: *"Bu ses... Rey yıllardır bununla mı yaşıyor?"*).
+6. **Yakın plan portresi** tek yerde: `StoryScene._start_panel` yakın planda portreyi kapatıyor (41 panel). Prolog `portraits = False`.
+7. **B15 — sessiz yürüyüş ve av.** Teşhis: klavyede yavaş yürümenin yolu yoktu (yön tuşu hep tam hız); uyanan 0.45 hızla kovalıyordu, koşan oyuncu 2.0.
+   - `Action.SNEAK` (Ctrl / kol L3, yeniden atanabilir): hız %40, koşu döngüsü yavaş, hafif çömelme.
+   - İpuçları: ilk yaklaşmada "SESSİZ YÜRÜ" kartı, kıpırdanan uyuyanda tuşu söyleyen uyarı.
+   - **Av** (`src/systems/herd.py`): uyanan çığlık atıyor (`NOISE_CRY` 5.0 — sürü aralığından hesaplandı), koşunun %80'iyle kovalıyor, kolay iz bırakmıyor, ayak sesi önündekileri uyandırıyor.
+   - "Koşuyor" ölçüsü oyuncunun **kendi** tam hızına göre (Rey'in 1.15 çarpanı sessiz yürüyüşü koşu saydırabilirdi).
+8. **B14 jumpscare** (`docs/korku.md` 6.1 güncellendi): ~1,8 sn sessizlik ve kenardan sızan karartma, koddan çizilen yüz (`src/art/horror_face.py`) 5 karede kameraya atılıyor, 18 kare titreyerek duruyor, kesme, karanlıkta kalan gözler, kalp atışı. İhanet bildirimi şokun sonuna alındı.
+9. **Epilog:** Mum Bekçisi son mumunu söndürüyor (B12'deki sorunun cevabı). Batı yolunda tabela ve "Yola çık" (kenardan kazayla çıkış kalktı). Köylülere **altı kıyafet** (`VILLAGER_VARIANTS`): epilogda rolüne göre, B1'de tohuma göre.
+10. **Kol titreşimi bağlandı** — ayar ve `InputManager.rumble` vardı, hiçbir yer çağırmıyordu. Artık `Juice.on_hit`'te, ağırlığa göre.
+11. Tuş etiketi tekilleşti ("Ctrl / Ctrl" yazıyordu).
+12. Yeni belgeler: `docs/plan-yetenek-agaci.md`, `docs/plan-koruyucu-mum.md`, `docs/plan-gorsel-his.md` (üçü de **onay bekliyor**), `docs/prompt-ok-bomba.md`.
+
+**Doğrulama:** yeni testler `tests/test_voices.py`; `test_chapter09/10/11/15/combat/epilogue`'a eklemeler (B9 tepe, B10 yol, B11 sıra, klavyeyle sessiz yürüyüş, av, çığlık, Bekçi, tabela, titreşim). Görseller `build/testshots/yeni/`, `jumpscare_after.png`, `horror_face.png`.
 
 ## 24.09.2026 — Epilog "Eve Dönüş" + diyaloglar yeniden yazıldı
 

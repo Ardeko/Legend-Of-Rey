@@ -46,6 +46,9 @@ SHAFT_ROWS: list[str] = [
 SHAFT_LEVEL = parse("epilog-kuyu", SHAFT_ROWS)
 # Ipin kuyunun agzindan sarktigi sutun.
 ROPE_COLUMN = 22
+# Mum Bekcisi: girisle ip arasinda, duvarin dibinde - ipe giden herkes
+# onun onunden geciyor. Son mumu yaniyor (B3'te bes, B16'da iki).
+KEEPER_TILE = 14
 # Kuyu agzi sutunlari - isik huzmesi bunlarin genisliginde.
 SHAFT_MOUTH = (21, 24)
 
@@ -83,19 +86,23 @@ ROPE_POST_TILE = WEST_MARGIN + 60
 HOLE_TILES = (WEST_MARGIN + 61, 2)
 JET_TILE = WEST_MARGIN + 55
 
-# Bati yolu: evin bahce citi. B1'de burasi sahnenin disiydi.
-WEST_SCENERY = ((WEST_MARGIN - 7, 11, 4, 1, "fence"),)
+# Bati yolu: evin bahce citi ve koyden cikan yolun tabelasi. B1'de
+# burasi sahnenin disiydi. Oyun sonrasinda cikis tabelada ("Yola cik").
+SIGN_TILE = 1
+WEST_SCENERY = ((WEST_MARGIN - 7, 11, 4, 1, "fence"),
+                (SIGN_TILE, 11, 1, 1, "signpost"))
 
-# Koyluler: (ev indeksi, rol, kapidan uzaklik px). Rol, sahnede
-# repliege donusuyor (`epilogue_village.py`). Rey'lerin evinden kimse
-# cikmiyor - o ev bos, sahipleri disarida.
-VILLAGERS: tuple[tuple[int, str, float], ...] = (
-    (1, "elder", -14.0),
-    (1, "falls", 16.0),
-    (INN_INDEX, "inn", 12.0),
-    (3, "seven", -12.0),
-    (3, "rooster", 14.0),
-    (4, "door", 12.0),
+# Koyluler: (ev indeksi, rol, kapidan uzaklik px, kiyafet). Rol, sahnede
+# repliege donusuyor (`epilogue_village.py`); kiyafet rolu destekliyor -
+# yasli agarmis, hanci keten gomlekli. Rey'lerin evinden kimse cikmiyor -
+# o ev bos, sahipleri disarida.
+VILLAGERS: tuple[tuple[int, str, float, str], ...] = (
+    (1, "elder", -14.0, "villager_elder"),
+    (1, "falls", 16.0, "villager_worker"),
+    (INN_INDEX, "inn", 12.0, "villager_linen"),
+    (3, "seven", -12.0, "villager"),
+    (3, "rooster", 14.0, "villager_red"),
+    (4, "door", 12.0, "villager_scarf"),
 )
 
 

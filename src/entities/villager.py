@@ -79,11 +79,12 @@ class Villager:
 
     __slots__ = ("home_x", "x", "feet_y", "door_x", "state", "facing",
                  "frame", "seed", "animator", "sprite_foot_y", "startle",
-                 "stand_x", "delay", "role")
+                 "stand_x", "delay", "role", "look")
 
     def __init__(self, x: float, feet_y: float, door_x: float,
-                 seed: int = 0, inside: bool = False, role: str = "") -> None:
-        from src.art.animation import CHARACTERS
+                 seed: int = 0, inside: bool = False, role: str = "",
+                 look: str = "") -> None:
+        from src.art.animation import CHARACTERS, VILLAGER_VARIANTS
         self.home_x = x
         self.x = door_x if inside else x
         self.feet_y = feet_y
@@ -98,9 +99,12 @@ class Villager:
         self.delay = 0
         # Konusulunca ne diyecegi - sahne bu etiketi repliege ceviriyor.
         self.role = role
-        self.animator = Animator("villager")
+        # Kiyafet: sahne verdiyse o (epilogda rol - hanci keten
+        # gomlekli), vermediyse tohumdan. Ayni tohum ayni kiyafet.
+        self.look = look or VILLAGER_VARIANTS[seed % len(VILLAGER_VARIANTS)]
+        self.animator = Animator(self.look)
         self.animator.play("idle")
-        self.sprite_foot_y = CHARACTERS["villager"].foot_y
+        self.sprite_foot_y = CHARACTERS[self.look].foot_y
 
     # --- Sorgular -----------------------------------------------------------
     @property

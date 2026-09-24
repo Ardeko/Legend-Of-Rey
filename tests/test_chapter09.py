@@ -246,6 +246,57 @@ def test_bells() -> None:
         game.shutdown()
 
 
+# --- 3b. Tepe kat: ipucu ya da fresk sozu ------------------------------------
+def test_top_floor() -> None:
+    """Cozmeden tepeye cikana ipucu; cozunce "Fresk dogruydu".
+
+    Ikisi ayni karede tetikleniyordu ve ipucu fresk sozunun ustune
+    yaziyordu. Kat anlatimi yalnizca ilk giriste oynadigi icin, cozmeden
+    tepeye cikan oyuncu cozdukten sonra fresk sozunu **hic** duymuyordu.
+    """
+    print("\n--- tepe kat: ipucu / fresk sozu ---")
+    cases = (("rey", "line.ch09_echo_locked", "line.ch09_rey_top"),
+             ("ardo", "line.ch09_trace_locked", "line.ch09_ardo_top"))
+    for character, hint, fresco in cases:
+        game = Game()
+        try:
+            scene = start(game, character)
+
+            def run(frames: int) -> None:
+                for _ in range(frames):
+                    game.input.begin_frame()
+                    game.input.end_frame()
+                    game.scenes.update()
+                    game.frame += 1
+                    while game.scenes.current is not scene:
+                        game.scenes.pop()
+                        game.scenes._flush()
+
+            scene.dialogue.stop()
+            scene.player.body.set_feet(200.0, FLOOR_ROWS[-1] * TILE_SIZE)
+            run(3)
+            line = scene.dialogue.current
+            check(line is not None and line.key == hint,
+                  f"{character}: cozmeden tepede ipucu", line and line.key)
+
+            scene.dialogue.stop()
+            for index in BELL_ORDER:
+                scene.bells[index].reset()
+                scene._ring(scene.bells[index])
+            check(scene.solved, f"{character}: canlar cozuldu")
+            for _ in range(4):
+                scene.dialogue.stop()
+                run(2)
+                line = scene.dialogue.current
+                if line is not None and line.key == fresco:
+                    break
+            check(line is not None and line.key == fresco,
+                  f"{character}: cozunce tepede fresk sozu - once "
+                  f"cikilmis olsa da", line and line.key)
+        finally:
+            game.shutdown()
+
+
 # --- 4. Yoldas kaybolmuyor ---------------------------------------------------
 def test_catchup() -> None:
     print("\n--- yoldas tirmaniyor ---")
@@ -304,6 +355,7 @@ def main() -> int:
     test_vertical()
     test_boost()
     test_bells()
+    test_top_floor()
     test_catchup()
     test_chapter_end()
 

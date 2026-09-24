@@ -124,10 +124,6 @@ class JetReturnCinematic(StagedScene):
                   )),
         )
 
-    def on_stage_panel(self, panel: Panel) -> None:
-        # Yakın planda aynı yüzü diyalog kutusunda ikinci kez çizme.
-        self.dialogue.show_portrait = not bool(panel.closeup)
-
     def draw_stage_background(self, surface: pygame.Surface, panel: Panel,
                               progress: float,
                               offset: tuple[int, int]) -> None:

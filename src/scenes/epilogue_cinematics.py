@@ -49,6 +49,9 @@ PLAYER_X = FIRE_X - 88.0
 CEMO_X = FIRE_X - 46.0
 JET_X = FIRE_X + 50.0
 VILLAGER_XS = (FIRE_X + 96.0, FIRE_X + 140.0, FIRE_X - 196.0)
+# Ates basindaki koylulerin kiyafetleri - hepsi ayni tunigi giyince
+# 2x olcekte klon gibi okunuyordu.
+FIRE_LOOKS = ("villager_red", "villager_elder", "villager_scarf")
 # Yoldas oyuncunun gerisinde; B16 jestine gore ne kadar geride.
 ALLY_BEHIND = 18.0
 # Atesten kivilcim - bu kadar karede bir, kucuk bir demet.
@@ -109,8 +112,8 @@ class HomecomingFireCinematic(StagedScene):
         ]
         for index, x in enumerate(VILLAGER_XS):
             facing = -1 if x > FIRE_X else 1
-            actors.append(ActorSpec(f"koylu{index}", "villager", x, GROUND_Y,
-                                    facing=facing, scale=2))
+            actors.append(ActorSpec(f"koylu{index}", FIRE_LOOKS[index], x,
+                                    GROUND_Y, facing=facing, scale=2))
         return tuple(actors)
 
     def _panels(self) -> tuple[Panel, ...]:

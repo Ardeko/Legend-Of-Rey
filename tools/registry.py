@@ -36,6 +36,11 @@ ROLES = {
     "ardo_axe": "Ardo + Balta (Bolum 2 mini-boss odulu)",
     "cemo": "Rey'in kucuk kardesi - menu 5. asama",
     "villager": "Bolum 1 koylusu - olay patlayinca evine kaciyor",
+    "villager_elder": "Koylu varyanti - yasli, gri cuppe (epilog: ad soyleyen)",
+    "villager_scarf": "Koylu varyanti - yesil basortu, uzun etek",
+    "villager_worker": "Koylu varyanti - mavi kisa tunik, pantolon",
+    "villager_linen": "Koylu varyanti - keten gomlek (epilog: hanci)",
+    "villager_red": "Koylu varyanti - kirmizi uzun elbise",
     # Katman 1 - Curuyenler (B1-B6): combo KURMAYI ogretiyor
     "shambler": "Katman 1 - Suruklenen",
     "climber": "Katman 1 - Tirmanan",

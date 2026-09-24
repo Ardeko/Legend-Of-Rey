@@ -59,6 +59,15 @@ MAX_FALL_SPEED: Final[float] = 7.0      # piksel / kare
 TERMINAL_FALL_SPEED: Final[float] = 9.5
 
 PLAYER_RUN_SPEED: Final[float] = 2.0    # piksel / kare  (~120 px/sn)
+# Sessiz yuruyus (`Action.SNEAK`): kosu hizinin bu orani. B15'in
+# "kosuyor" esigi 0.55 - bunun altinda kalmali ki adim sesi
+# `NOISE_WALK` sayilsin (kosu `NOISE_RUN`in 15'te biri).
+PLAYER_SNEAK_RATIO: Final[float] = 0.40
+# Sessiz yururken kosu dongusu bu kadar yavas akiyor (kare bekleme
+# carpani) ve govde hafifce comeliyor (genislik, yukseklik). Yeni kare
+# cizilmiyor - `CLAUDE.md` 7 squash & stretch ile ayni arac.
+SNEAK_ANIM_HOLD_SCALE: Final[float] = 2.2
+SNEAK_CROUCH: Final[tuple[float, float]] = (1.04, 0.93)
 PLAYER_GROUND_ACCEL: Final[float] = 0.25
 PLAYER_AIR_ACCEL: Final[float] = 0.17
 PLAYER_GROUND_FRICTION: Final[float] = 0.32
@@ -245,6 +254,16 @@ HITSTOP_NORMAL: Final[int] = 3
 HITSTOP_FINISHER: Final[int] = 7
 HITSTOP_BOSS: Final[int] = 9
 HITSTOP_KILL: Final[int] = 12
+
+# Kol titresimi (dusuk motor, yuksek motor, milisaniye) - darbe agirligina
+# gore. 25.09.2026: ayarlarda "Titresim" secenegi ve `InputManager.rumble`
+# vardi ama oyunun **hicbir yeri** onu cagirmiyordu; oyuncu titresimi acik
+# goruyor, vurusta kol hic titremiyordu. Uclu senkronun (`CLAUDE.md` 7)
+# dorduncu ayagi: ayni `on_hit` karesinde.
+RUMBLE_NORMAL: Final[tuple[float, float, int]] = (0.12, 0.28, 60)
+RUMBLE_FINISHER: Final[tuple[float, float, int]] = (0.40, 0.55, 110)
+RUMBLE_BOSS: Final[tuple[float, float, int]] = (0.55, 0.45, 150)
+RUMBLE_KILL: Final[tuple[float, float, int]] = (0.75, 0.60, 170)
 
 
 # =============================================================================
@@ -1323,3 +1342,36 @@ INVESTIGATE_FRAMES: Final[int] = 260
 # Kosmaktan (0.30) az, yurumekten (0.06) cok: acele etmekten sessiz,
 # yurumekten gurultulu.
 NOISE_RESONATE: Final[float] = 0.18
+
+
+# --- Avlanan suru (Bolum 15, 25.09.2026) ---------------------------------------
+# Arda: *"Hizli gecersek oyuncuyu cezalandiran bir sey de yok."* Olculdu:
+# uyanan Suruklenen 0.45, Sessiz 0.40 hizla kovaliyordu - kosan oyuncu
+# (2.0) her birini geride birakiyordu. Uyandirmanin tek bedeli
+# gorunmeyen bir odul kaybiydi.
+#
+# Artik uyanan bir **avci** oluyor:
+#
+#   * Cigliyor (`CRY_DELAY_FRAMES` sonra, `NOISE_CRY`): yanindaki
+#     uyuyanlar da uyaniyor - suru tek tek degil kume kume kalkiyor.
+#   * Hizli kovaliyor (`HUNT_CHASE_SPEED`, kosunun %80'i): kacilabilir
+#     ama rahat degil; onde uyanan biri yolu kesiyor.
+#   * Izini kolay birakmiyor (`HUNT_LOSE_RANGE`).
+#   * Kosarken ses cikariyor (`NOISE_HUNT` her `HUNT_NOISE_EVERY`
+#     karede): onundeki uyuyanlari o uyandiriyor. Kosarak gecen oyuncu
+#     buyuyen bir suruyle - en cok dar koridorda - can kaybediyor.
+#
+# Sessiz yuruyen oyuncu bunlarin **hicbirini** gormuyor. Ceza hic
+# uyandirmayana degil, kosana.
+HUNT_CHASE_SPEED: Final[float] = 1.6
+HUNT_LOSE_RANGE: Final[float] = 900.0
+CRY_DELAY_FRAMES: Final[int] = 24
+# Ciglik en gurultulu sey. Deger **suru araligindan** hesaplandi: B15'in
+# suru odasinda uyuyanlar 112 ve 128 piksel arayla duruyor, gurultu
+# `NOISE_RANGE` (150) icinde dogrusal soluyor. 1.3 ile ciglik kimseyi
+# uyandirmiyordu (112 px'te 0.33). 5.0 ile uyandirma yaricapi 120 px
+# (5.0 x (1 - 120/150) = 1.0), 150'ye kadar kimildatiyor - yani suru
+# KUME KUME kalkiyor, oda odaya degil.
+NOISE_CRY: Final[float] = 5.0
+NOISE_HUNT: Final[float] = 0.32
+HUNT_NOISE_EVERY: Final[int] = 36

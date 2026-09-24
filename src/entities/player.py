@@ -9,6 +9,8 @@ eglenceli mi?" sorusunu sprite'lari atmadan sormaya yarar.
 """
 from __future__ import annotations
 
+import math
+
 import pygame
 
 from src.combat.combo import (
@@ -21,7 +23,8 @@ from src.config import (
     APEX_GRAVITY_SCALE, APEX_SPEED_THRESHOLD, COYOTE_FRAMES, DODGE_SPEED,
      JUMP_CUT_MULTIPLIER, PLAYER_AIR_ACCEL,
     PLAYER_AIR_FRICTION, PLAYER_GROUND_ACCEL, PLAYER_GROUND_FRICTION,
-    PLAYER_JUMP_SPEED, PLAYER_RUN_SPEED, STEP_DISTANCE_PX,
+    PLAYER_JUMP_SPEED, PLAYER_RUN_SPEED, PLAYER_SNEAK_RATIO,
+    STEP_DISTANCE_PX,
 )
 from src.art.animation import CHARACTERS
 from src.art.animator import Animator
@@ -104,6 +107,9 @@ class Player(Actor):
         # sarsintinin Rey'i yere sermesi). Girdi **yok sayilir**, fizik
         # surer - oyuncu dusup yuvarlanir, ekran donmaz.
         self.control_locked = 0
+        # Sessiz yuruyor mu (`Action.SNEAK`) - bu kare. Animasyon ve
+        # B15'in gurultusu okuyor.
+        self.sneaking = False
         self.last_hit_was_counter = False
         # Adim sesi - kare sayisi degil, alinan **mesafeye** gore tetiklenir
         # (STEP_DISTANCE_PX): yavas yuruyus de hizli kosu da dogal sikilikta
@@ -171,6 +177,7 @@ class Player(Actor):
         if self.combo.update():
             self.scene.on_combo_reset()
 
+        self.sneaking = False
         if self.control_locked > 0:
             self.control_locked -= 1
             self.hurt_frames = max(self.hurt_frames, 1)   # yerde
@@ -214,6 +221,13 @@ class Player(Actor):
         move = inp.axis_x
         if abs(move) < 0.2:
             move = 0.0
+
+        # Sessiz yuruyus: yon ayni, hiz kirpik. Havada degil - ziplamanin
+        # yayini kisaltmak platformlari bozardi.
+        self.sneaking = (move != 0.0 and self.body.grounded
+                         and inp.held(Action.SNEAK))
+        if self.sneaking:
+            move = math.copysign(min(abs(move), PLAYER_SNEAK_RATIO), move)
 
         # Saldiri sirasinda yon kontrolu kisitli - tamamen kilitlemek kotu
         # hissettirir, serbest birakmak vurusu anlamsizlastirir.

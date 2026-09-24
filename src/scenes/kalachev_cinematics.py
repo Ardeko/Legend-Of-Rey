@@ -180,10 +180,6 @@ class KalachevCinematic(StagedScene):
             ),
         }
 
-    def on_stage_panel(self, panel: Panel) -> None:
-        if self.beat == "sighting":
-            self.dialogue.show_portrait = not bool(panel.closeup)
-
     def _meet_beats(self) -> dict[str, tuple[Line, ...]]:
         """B6: Rey bir yabanciyla, Ardo eski dostuyla karsilasir."""
         if self.character == "ardo":

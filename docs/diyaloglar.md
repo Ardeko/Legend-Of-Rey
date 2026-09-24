@@ -464,8 +464,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch04_ardo_name
 **ARDO**
-- tr: "Efe'nin kampı. Kemikler onun değil; dışarı çıkan tek iz onun. Yaşıyor, inatçı keçi."
-- en: "Efe's camp. Those aren't his bones; the only trail out is his. He's alive, the stubborn mule."
+- tr: "Kalachev'in kampı. Kemikler onun değil; dışarı çıkan tek iz onun. Yaşıyor, inatçı keçi."
+- en: "Kalachev's camp. Those aren't his bones; the only trail out is his. He's alive, the stubborn mule."
 
 ### ch04_echo_camp
 **YANKI**
@@ -586,8 +586,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch05_kalachev_late
 **KALACHEV**
-- tr: "Ayı! Geç kaldın, her zamanki gibi. Epeydir buradayım; bir sen eksiktin."
-- en: "Bear! Late as always. I've been down here a good while; you were the only thing missing."
+- tr: "Ayı! Göbek adımı bağırma, burada herkes Kalachev der. Geç kaldın, her zamanki gibi; bir sen eksiktin."
+- en: "Bear! Don't go shouting my birth name; down here I'm Kalachev to everyone. Late as always. You were the only thing missing."
 
 ### ch05_kalachev_pack
 **KALACHEV**
@@ -628,8 +628,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch06_ardo_kalachev
 **ARDO**
-- tr: "Efe. Bu sefer geç kalan sensin. Ödeştik."
-- en: "Efe. This time you're the late one. We're even."
+- tr: "Kalachev. Bu sefer geç kalan sensin. Ödeştik."
+- en: "Kalachev. This time you're the late one. We're even."
 
 ### ch06_ardo_plates
 **ARDO**
@@ -643,8 +643,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch06_kalachev_ardo_intro
 **ARDO**
-- tr: "Rahat ol. Bu Kalachev, Efe. Eski dostum. Yolundan çekil; kılıcını sallarken önüne bakmaz."
-- en: "Easy. That's Kalachev. Efe. An old friend. Stay out of his way; he doesn't look where he swings."
+- tr: "Rahat ol. Bu Kalachev. Eski dostum. Yolundan çekil; kılıcını sallarken önüne bakmaz."
+- en: "Easy. That's Kalachev. An old friend. Stay out of his way; he doesn't look where he swings."
 
 ### ch06_kalachev_ardo_know
 **ARDO**
@@ -668,8 +668,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch06_kalachev_meet
 **KALACHEV**
-- tr: "Tanışma faslı bittiyse yol açık, Kırmızı Başlıklı. Ayı'ya iyi bak; kendine bakmayı hiç bilmez, ben de bıktım."
-- en: "If we're done with introductions, the road's clear, Red. Keep an eye on the Bear. He never looks after himself, and I'm sick of doing it."
+- tr: "Efe mi? Göbek adım; bir tek bu ayı öyle der. Sen Kalachev de, Kırmızı Başlıklı. Ayı'ya iyi bak; kendine bakmayı hiç bilmez."
+- en: "Efe? That's my birth name. Only the bear calls me that. You call me Kalachev, Red. And look after him; he never looks after himself."
 
 ### ch06_kalachev_rey_ask
 **REY**
@@ -986,8 +986,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch10_ardo_kalachev
 **ARDO**
-- tr: "Efe. Yol aç dedim, uçurum değil."
-- en: "Efe. I said clear a path, not dig a pit."
+- tr: "Kalachev! Yol aç dedim, uçurum değil."
+- en: "Kalachev! I said clear a path, not dig a pit."
 
 ### ch10_echo_ignored
 **YANKI**
@@ -1639,6 +1639,11 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 - tr: "Kılıç her sorunun cevabı değilmiş."
 - en: "So the blade isn't the answer to everything."
 
+### ch15_ardo_hears
+**ARDO**
+- tr: "Bu ses... Rey yıllardır bununla mı yaşıyor?"
+- en: "That voice... Has Rey been living with this for years?"
+
 ### ch15_ardo_jet_return
 **ARDO**
 - tr: "Emre, olduğun yerde kal. Arkandakiler uyuyor."
@@ -1927,8 +1932,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_ardo_kalachev
 **ARDO**
-- tr: "Efe. Bunu da bitirelim. Hesabımız hâlâ kapanmadı."
-- en: "Efe. Let's finish this one too. We still haven't settled up."
+- tr: "Kalachev. Bunu da bitirelim. Hesabımız hâlâ kapanmadı."
+- en: "Kalachev. Let's finish this one too. We still haven't settled up."
 
 ### ch18_ardo_lookback
 **ARDO**
@@ -2072,8 +2077,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch18_rey_stop
 **REY**
-- tr: "Kalachev, dur! Orada kimse yok, bu bir tuzak!"
-- en: "Kalachev, stop! There's no one there. It's a trap!"
+- tr: "Efe, dur! Orada kimse yok, bu bir tuzak!"
+- en: "Efe, stop! There's no one there. It's a trap!"
 
 ### ch18_rey_three
 **REY**
@@ -2099,8 +2104,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### epi_ardo_drawing
 **ARDO**
-- tr: "Doğru çizmişsin. Efe görse çerçeve isterdi."
-- en: "You got him right. Efe would want it framed."
+- tr: "Doğru çizmişsin. Kalachev görse çerçeve isterdi."
+- en: "You got him right. Kalachev would want it framed."
 
 ### epi_ardo_efe
 **ARDO**
@@ -2111,6 +2116,16 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 **ARDO**
 - tr: "Yol bekler. Bu ateş de beklerse... dönerim."
 - en: "The road can wait. And if this fire waits too... I'll be back."
+
+### epi_ardo_keeper
+**ARDO**
+- tr: "Sonuncusu. Ne olacağını hep merak etmiştim."
+- en: "The last one. I always wondered what would happen."
+
+### epi_ardo_keeper_gone
+**ARDO**
+- tr: "Işık yukarıda artık. Mumuna gerek kalmadı."
+- en: "The light's up top now. No need for his candle."
 
 ### epi_ardo_rang
 **ARDO**
@@ -2146,6 +2161,11 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 **CEMO**
 - tr: "Bu sensin, bu Ardo, bu ben, bu Emre abi. Bu da bağıran amca; en büyük o, çünkü en çok o bağırdı."
 - en: "That's you, that's Ardo, that's me, that's Emre. And that's the shouting man. He's biggest, because he shouted the most."
+
+### epi_cemo_keeper
+**CEMO**
+- tr: "Mumlu amca nereye gitti?"
+- en: "Where did the candle man go?"
 
 ### epi_cemo_leaving
 **CEMO**
@@ -2241,6 +2261,16 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 **REY**
 - tr: "Hayır. Kafamın içi sessiz. Ama etrafım çok gürültülü."
 - en: "No. My head is quiet. Everything around me is loud, though."
+
+### epi_rey_keeper
+**REY**
+- tr: "Tek mum kalmış. Bizi çıkışa kadar mı bekledin?"
+- en: "One candle left. Did you wait here to see us out?"
+
+### epi_rey_keeper_gone
+**REY**
+- tr: "Artık mumu gerekmiyor. Yukarıda güneş var."
+- en: "He doesn't need his candle now. There's sun up there."
 
 ### epi_rey_rang
 **REY**

@@ -31,6 +31,11 @@ Spec'ler: `src/art/animation.py :: CHARACTERS`
 | `ardo_sickle` | 48x40 | 34 | 50 | - |
 | `cemo` | 40x32 | 27 | 50 | Rey'in kucuk kardesi - menu 5. asama |
 | `villager` | 40x38 | 32 | 50 | Bolum 1 koylusu - olay patlayinca evine kaciyor |
+| `villager_elder` | 40x38 | 32 | 50 | Koylu varyanti - yasli, gri cuppe (epilog: ad soyleyen) |
+| `villager_scarf` | 40x38 | 32 | 50 | Koylu varyanti - yesil basortu, uzun etek |
+| `villager_worker` | 40x38 | 32 | 50 | Koylu varyanti - mavi kisa tunik, pantolon |
+| `villager_linen` | 40x38 | 32 | 50 | Koylu varyanti - keten gomlek (epilog: hanci) |
+| `villager_red` | 40x38 | 32 | 50 | Koylu varyanti - kirmizi uzun elbise |
 | `jet` | 44x40 | 34 | 50 | B1'de kilici veren arkadas |
 | `jet_unarmed` | 44x40 | 34 | 50 | Jet, kilicsiz - B1 hediye; B4/B9/B15 donus sahneleri |
 | `kalachev` | 48x40 | 34 | 50 | Onceki maceraci (docs/kalachev.md) - B4/B5/B6/B10/B12/B13/B15, B18'de olur |
@@ -93,7 +98,7 @@ sessizce dusmez, konsola rapor edilir.
 
 ## Ses
 
-`src/audio/sfx.py :: SFX` - **81 efekt anahtari**.
+`src/audio/sfx.py :: SFX` - **82 efekt anahtari**.
 Bes olayda `assets/audio/sfx/` altindaki 10 gercek WAV kullanilir;
 digerleri ve eksik dosya yedegi numpy ile sentezlenir.
 Her tekrarli ses +-%8 rastgele perdeyle calinir (`CLAUDE.md` 7).

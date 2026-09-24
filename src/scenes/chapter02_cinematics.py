@@ -84,6 +84,14 @@ class DescentCinematic(StagedScene):
 
     def on_enter(self, character: str = "rey", **kwargs: object) -> None:
         self.character = character
+        if character == "ardo":
+            # **Ardo'nun Yanki'si yok** (`docs/gdd.md` 4): dehlizdeki alay
+            # Rey'in kafasindaki ses. Ardo'da panel ayni, ses yok - sessiz
+            # bir dehliz. (Denetim, 25.09.2026: Ardo mor sesi duyuyordu.)
+            self.PANELS = self.PANELS[:-1] + (
+                Panel(SETTLE_FRAMES, "dehliz", cues=(
+                    Cue("player", state="idle", delay=20),
+                )),)
         self.ACTORS = (
             # 2x: dusen bir govde 32 pikselde bir leke; sinematikte
             # okunmali. Ayni gerekce Bolum 7'nin "El" sahnesinde.

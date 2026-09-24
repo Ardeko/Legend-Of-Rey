@@ -118,6 +118,7 @@ class Chapter09Scene(PlayScene):
         self.trust_played = False
         self.wrong_hinted = False
         self.top_hinted = False
+        self.top_said = False
 
         self._enter_floor(self._floor_at(self.player.body.feet[1]))
 
@@ -144,11 +145,15 @@ class Chapter09Scene(PlayScene):
         self._narrate(name)
 
     def _narrate(self, name: str) -> None:
-        """Anahtarlar **duz dize** - f-string ile kurulani test goremiyor."""
+        """Anahtarlar **duz dize** - f-string ile kurulani test goremiyor.
+
+        Tepe katin sozu ("Fresk dogruydu") burada DEGIL, `_update_top`'ta:
+        kat anlatimi yalnizca ilk giriste oynuyor, oysa o soz canlarin
+        cozulmesine bagli. Cozmeden cikan oyuncu onu yanlis anda duyuyor
+        (ayni karede kilit ipucu ustune yaziyordu), cozunce hic duymuyordu.
+        """
         if name == "taban":
             self.say_player("line.ch09_rey_tower", "line.ch09_ardo_tower")
-        elif name == "tepe":
-            self.say_player("line.ch09_rey_top", "line.ch09_ardo_top")
 
     # --- Dongu --------------------------------------------------------------
     def update_scene(self) -> None:
@@ -164,7 +169,7 @@ class Chapter09Scene(PlayScene):
         self._update_bell_hint()
         self._update_bells()
         self._update_chests()
-        self._update_top_hint()
+        self._update_top()
         self._check_exit()
 
         if self.companion is not None:
@@ -282,8 +287,10 @@ class Chapter09Scene(PlayScene):
             return Line("ardo", ardo_key)
         return Line("echo", echo_key)
 
-    def _update_top_hint(self) -> None:
-        """Tepeye cozmeden cikan oyuncuya **bir kez** ne eksik oldugunu soyle.
+    def _update_top(self) -> None:
+        """Tepe kat: cozulmediyse **bir kez** ipucu, cozulduyse fresk sozu.
+
+        Ikisi de acik bir konusmanin ustune yazmiyor - bekliyor.
 
         Arda, canli oynanis (31.08.2026): *"9. bolumde en uste ciktiktan
         sonra bisey yapamiyoruz."*
@@ -301,9 +308,14 @@ class Chapter09Scene(PlayScene):
         kanali bu, ayri bir arayuz ogesi eklemek gerekmedi. Bir kez:
         her tepeye ciktiginda tekrarlanan bir replik ogut olur.
         """
-        if self.solved or self.top_hinted:
+        if self.floor != FLOOR_NAMES[-1] or not self.dialogue.done:
             return
-        if self.floor != FLOOR_NAMES[-1]:
+        if self.solved:
+            if not self.top_said:
+                self.top_said = True
+                self.say_player("line.ch09_rey_top", "line.ch09_ardo_top")
+            return
+        if self.top_hinted:
             return
         self.top_hinted = True
         self.say(self._voice("line.ch09_echo_locked",

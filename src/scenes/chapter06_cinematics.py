@@ -219,7 +219,6 @@ class ArdoEntranceCinematic(StagedScene):
             for p in self.panels)
 
     def on_stage_panel(self, panel: Panel) -> None:
-        self.dialogue.show_portrait = not bool(panel.closeup)
         if panel.name == "dusus":
             # **Ardo.mp3** - Arda'nin talimati: oteki karakterin
             # girislerinde bu parca. Girise ait, karaktere degil.

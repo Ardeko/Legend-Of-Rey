@@ -98,6 +98,12 @@ class ReyPrologue(StoryScene):
     # KONUSMA; okuma hizi oyuncunun. Diger sinematikler (Bolum 1->2 inisi
     # gibi) beat, orada zamanlayici dogru.
     wait_for_input = True
+    # Diyalog kutusunun kucuk portresi KAPALI: paneller zaten yuzu tam
+    # ekran gosteriyor. Ayni yuzu iki olcekte ayni anda gostermek
+    # anlatimi degil karmasayi artiriyor - ilk surumde tam oyle
+    # gorunuyordu. (Sinif anahtari: `StoryScene._start_panel` her
+    # panelde portreyi yeniden ayarliyor.)
+    portraits = False
 
     PANELS = (
         # 1. Once SES, sonra goruntu. Oyunun ilk yasattigi sey Yanki
@@ -156,11 +162,6 @@ class ReyPrologue(StoryScene):
         # Prolog bastan sona Yanki'nin ne oldugunu anlatiyor; parcanin
         # ait oldugu yer tam burasi.
         self.game.music.play("echo")
-        # Diyalog kutusunun kucuk portresi KAPALI: paneller zaten yuzu
-        # tam ekran gosteriyor. Ayni yuzu iki olcekte ayni anda gostermek
-        # anlatimi degil karmasayi artiriyor - ilk surumde tam oyle
-        # gorunuyordu.
-        self.dialogue.show_portrait = False
         self.houses = tuple(
             (
                 (index * 71 + 23) % (INTERNAL_WIDTH - 40) + 20,

@@ -106,6 +106,7 @@ REBINDABLE: tuple[Binding, ...] = (
     Binding(Action.JUMP, "controls.jump"),
     Binding(Action.ATTACK, "controls.attack"),
     Binding(Action.DODGE, "controls.dodge"),
+    Binding(Action.SNEAK, "controls.sneak"),
     Binding(Action.ECHO, "controls.echo"),
     Binding(Action.ECHO_ASK, "controls.echo_ask"),
     Binding(Action.INTERACT, "controls.interact"),
@@ -151,8 +152,11 @@ def labels_for(bindings: dict[Action, tuple[int, ...]], action: Action,
     if not codes:
         return "—"
     render = pad_label if gamepad else key_label
-    shown = " / ".join(render(code) for code in codes[:MAX_SHOWN])
-    return shown + "…" if len(codes) > MAX_SHOWN else shown
+    # Ayni adi tasiyan tuslar tek kez: sol ve sag Ctrl ikisi de "Ctrl"
+    # ve kart "Ctrl / Ctrl basili tut" yaziyordu (25.09.2026).
+    labels = list(dict.fromkeys(render(code) for code in codes))
+    shown = " / ".join(labels[:MAX_SHOWN])
+    return shown + "…" if len(labels) > MAX_SHOWN else shown
 
 
 # --- Okuma ------------------------------------------------------------------

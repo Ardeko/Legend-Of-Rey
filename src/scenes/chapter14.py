@@ -32,7 +32,7 @@ import math
 import pygame
 
 from src.art import palette
-from src.config import INTERNAL_HEIGHT, INTERNAL_WIDTH, TILE_SIZE
+from src.config import TILE_SIZE
 from src.core.juice import ImpactWeight
 from src.scenes.play import PlayScene
 from src.systems import jumpscare
@@ -99,6 +99,7 @@ class Chapter14Scene(PlayScene):
         # Oyunun tek jumpscare'i (`docs/korku.md` 6.1). Ihanet aninda
         # kuruluyor - kurulum on bolum surdu, karsiligi burada.
         self.jumpscare = Jumpscare()
+        self.betrayal_note_pending = False
         # Kac kez duyu yuzunden ele verildi - anlatim degil, olcum.
         self.betrayal_wakes = 0
 
@@ -213,16 +214,29 @@ class Chapter14Scene(PlayScene):
         data = self.save_data
         if data is not None:
             data.flags["sense_betrayed"] = True
-        self.show_toast(t("chapter14.betrayed"), frames=260)
         # **Jumpscare tam burada** (`docs/korku.md` 6.1): *"Rey'in
         # Yanki'nin ne oldugunu anladigi karede."* Sozlesme degisti;
         # on bolumdur uzak duran sey artik uzak durmuyor, cunku artik
         # saklanmasina gerek yok.
-        if jumpscare.allowed(self.game.settings):
-            self.jumpscare.arm(self.player)
+        #
+        # Bildirim sokun SONUNA kaliyor (25.09.2026): sessizlik sirasinda
+        # ekranda yazi durursa gerilim dagiliyordu. Sok kapaliysa hemen.
+        if (jumpscare.allowed(self.game.settings)
+                and self.jumpscare.arm(self.player)):
+            self.betrayal_note_pending = True
+        else:
+            self.show_toast(t("chapter14.betrayed"), frames=260)
 
     def _update_jumpscare(self) -> None:
-        self.jumpscare.update(self.game, self.player)
+        scare = self.jumpscare
+        scare.update(self.game, self.player)
+        if scare.running and scare.frames == jumpscare.APPEAR_AT:
+            # Radyal sarsinti: yonu yok, her yere. Sarsinti ayari
+            # `ScreenShake.add` icinde okunuyor (`CLAUDE.md` 10).
+            self.juice.shake.add(ImpactWeight.KILL, (0.0, 0.0))
+        if self.betrayal_note_pending and scare.done:
+            self.betrayal_note_pending = False
+            self.show_toast(t("chapter14.betrayed"), frames=260)
 
     def on_betrayal_wake(self, enemy) -> None:
         """Duyu yuzunden bir dusman uyandi - **gorunur olmali.**
@@ -355,45 +369,28 @@ class Chapter14Scene(PlayScene):
             chest.draw(surface, offset, self.game.frame)
 
     def _draw_jumpscare(self, surface: pygame.Surface) -> None:
-        """Izleyen ekranin ortasinda, **tam onunde.**
+        """Izleyen'in yuzu, **tam onunde** (`docs/korku.md` 6.1).
 
-        `docs/korku.md` 6.1: *"oyuncunun 2 tile onunde, ekranin %70'ini
-        kaplayacak olcekte."*
+        Cizim `src/art/jumpscare_view.py`'de, zamanlama
+        `src/systems/jumpscare.py`'de. Eski hali 32 piksellik govdeyi 6x
+        buyutuyordu: koyu zemin ustunde koyu bir sutun, yuz yoktu
+        (25.09.2026'da bakilip olculdu).
 
-        ## Neden burada ciziliyor, `Watcher` sinifinda degil
-
-        Sahnedeki Izleyen'ler dunyanin icinde duruyor: kameraya gore
-        kayiyorlar, tilemap'e carpiyorlar, yaklasinca cekiliyorlar. Bu
-        onlardan biri **degil** - ekranin ortasinda duran bir goruntu.
-        Ayni sinifa iki farkli uzay bindirmek onu bozardi.
-
-        ## Olcek TAM SAYI
-
-        `CLAUDE.md` 4: piksel art kesirli olcekte bulaniklasir. Ekranin
-        %70'i 189 piksel; 32 piksellik sprite icin en yakin tam kat 6
-        (192 piksel, %71). `smoothscale` degil `scale`.
+        Sahnedeki Izleyen'ler dunyanin icinde duruyor; bu onlardan biri
+        **degil** - ekranin onunde duran bir goruntu. Ayni sinifa iki
+        farkli uzay bindirmek onu bozardi.
         """
         scare = self.jumpscare
-        if not scare.visible:
+        if not scare.running:
             return
-        from src.art.animator import Animator
-        image = Animator("watcher").render(-scare.facing)
-        if image is None:
-            return
-        factor = max(1, scare.height // image.get_height())
-        big = pygame.transform.scale(
-            image, (image.get_width() * factor, image.get_height() * factor))
-        x = INTERNAL_WIDTH // 2 - big.get_width() // 2
-        y = INTERNAL_HEIGHT - big.get_height() - 8
-        surface.blit(big, (x, y))
-
-        # Tek kare parlama - `flash_limit` acikken atlaniyor.
-        strength = scare.flash(self.game.settings)
-        if strength > 0.0:
-            veil = pygame.Surface((INTERNAL_WIDTH, INTERNAL_HEIGHT))
-            veil.fill(palette.color("white_flash"))
-            veil.set_alpha(int(235 * strength))
-            surface.blit(veil, (0, 0))
+        from src.art import jumpscare_view
+        shake = self.juice.shake
+        player_x = self.player.body.center_x - self.camera.offset[0]
+        jumpscare_view.draw(
+            surface, scare, player_x, scare.facing,
+            flash=scare.flash(self.game.settings),
+            shake_on=shake.enabled and shake.intensity_scale > 0.0,
+            frame=self.game.frame)
 
     def draw_overlay(self, surface: pygame.Surface) -> None:
         """Cerceve **en uste** ciziliyor - `draw_foreground`a degil.

@@ -13,6 +13,14 @@ seslenmek. Oyuncu kontrolu geri aliyor - kapanis boyunca izleyen biri
 ilk kez yeniden yuruyor. `chapter_number` 0: bolum karti ve ilerleme
 damgasi yok, cunku bu bir bolum degil kapanisin devami.
 
+## Mum Bekcisi'nin son mumu (25.09.2026)
+
+B3'te bes mumla oturuyordu, her gorunuste bir eksik: B7 dort, B12 uc,
+B16 iki. B12'de Ardo sordu: *"Her indigimde bir mum eksik. Sonuncusunda
+ne olacak?"* Cevap burada: ipe giden yolda **tek mumuyla** oturuyor,
+oyuncu yaklasinca son mumu kendisi sonduruyor ve karanliga karisiyor.
+Konusmuyor - hic konusmadi. Yukarida gunes var; mumuna gerek kalmadi.
+
 ## Yanki yok
 
 `self.echo = None` (vinyet de gidiyor). Rey sesi B18'de susturdu;
@@ -30,7 +38,10 @@ from src.scenes.play import PlayScene
 from src.systems.homecoming import Homecoming
 from src.ui.dialogue import Line
 from src.world import cave_backdrop
-from src.world.rooms.epilogue import ROPE_COLUMN, SHAFT_LEVEL, SHAFT_MOUTH
+from src.entities.candle_keeper import CandleKeeper
+from src.world.rooms.epilogue import (
+    KEEPER_TILE, ROPE_COLUMN, SHAFT_LEVEL, SHAFT_MOUTH,
+)
 from src.world.tilemap import TileMap
 
 # Cemo isigi gorunce konusuyor - oyuncu once bir iki adim atsin.
@@ -41,6 +52,12 @@ ROPE_REACH = 22.0
 GATHER_FRAMES = 50
 # Ip, Jet cevap verince bu kadar sallaniyor ve bu hizla duruluyor.
 TUG_DECAY = 0.012
+# Bekci: bu kadar yaklasinca oyuncu onu fark ediyor (piksel).
+KEEPER_REACH = 44.0
+# Soz bittikten bu kadar sonra son mumu sonduruyor, sonra bu kadar
+# karede karanliga karisiyor.
+KEEPER_SNUFF_AT = 24
+KEEPER_FADE_FRAMES = 72
 
 
 class EpilogueShaftScene(PlayScene):
@@ -81,6 +98,12 @@ class EpilogueShaftScene(PlayScene):
         self.rope_bottom = int(rope.feet_y) - 12
         self.floor_y = int(rope.feet_y)
 
+        keeper_x = KEEPER_TILE * TILE_SIZE + TILE_SIZE // 2
+        self.keeper = CandleKeeper(keeper_x, self.floor_y, candles=1)
+        # wait -> seen -> snuff -> fade -> gone
+        self.keeper_state = "wait"
+        self.keeper_frames = 0
+
         self.frames = 0
         self.light_said = False
         self.called = False
@@ -103,6 +126,7 @@ class EpilogueShaftScene(PlayScene):
             self.light_said = True
             self.say(Line("cemo", "line.epi_cemo_light"))
 
+        self._update_keeper()
         if not self.called:
             self._offer_call()
         else:
@@ -119,9 +143,52 @@ class EpilogueShaftScene(PlayScene):
             self.cemo.follow(self.player.body.center_x, self.player.facing)
         self.cemo.update()
 
+    def _update_keeper(self) -> None:
+        """Son mum: fark et, sondur, karis, sor."""
+        keeper = self.keeper
+        keeper.update()
+        state = self.keeper_state
+        if state == "wait":
+            near = (abs(self.player.body.center_x - keeper.x)
+                    < KEEPER_REACH)
+            if near and self.light_said and self.dialogue.done:
+                self.keeper_state = "seen"
+                self.say_player("line.epi_rey_keeper", "line.epi_ardo_keeper")
+        elif state == "seen":
+            if self.dialogue.done:
+                self.keeper_state = "snuff"
+                self.keeper_frames = 0
+        elif state == "snuff":
+            self.keeper_frames += 1
+            if self.keeper_frames >= KEEPER_SNUFF_AT:
+                keeper.lit = 0
+                x, y = keeper.candle_point()
+                self.particles.burst(x, y, 6, path="soot",
+                                     speed=(0.2, 0.7))
+                self.game.play_sound("phantom_fade")
+                self.keeper_state = "fade"
+                self.keeper_frames = 0
+        elif state == "fade":
+            self.keeper_frames += 1
+            keeper.fade = max(0.0, 1.0 - self.keeper_frames
+                              / KEEPER_FADE_FRAMES)
+            if keeper.fade <= 0.0 and self.dialogue.done:
+                self.keeper_state = "gone"
+                self.say(Line("cemo", "line.epi_cemo_keeper"),
+                         Line(self.character,
+                              "line.epi_ardo_keeper_gone"
+                              if self.homecoming.ardo
+                              else "line.epi_rey_keeper_gone"))
+
+    @property
+    def keeper_busy(self) -> bool:
+        """Bekcinin ani suruyor mu - Jet'e seslenmek o bitince."""
+        return self.keeper_state not in ("wait", "gone")
+
     def _offer_call(self) -> None:
         near = abs(self.player.body.center_x - self.rope_x) < ROPE_REACH
-        if not near or not self.dialogue.done or self._dialogue_was_open:
+        if (not near or not self.dialogue.done or self._dialogue_was_open
+                or self.keeper_busy):
             return
         self.prompts.offer("rope", self.rope_x, self.rope_bottom - 24,
                            verb_key="prompt.call")
@@ -177,6 +244,7 @@ class EpilogueShaftScene(PlayScene):
             SHAFT_MOUTH[1] * TILE_SIZE, 0, self.floor_y)
 
     def draw_foreground(self, surface, offset) -> None:
+        self.keeper.draw(surface, offset)
         epilogue_render.draw_rope(surface, offset, self.rope_x, 0,
                                   self.rope_bottom, self.game.frame, self.tug)
         self.companion.draw(surface, offset)

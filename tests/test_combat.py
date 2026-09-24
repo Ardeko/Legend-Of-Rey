@@ -153,7 +153,45 @@ def phase_lengths(harness: Harness) -> dict[str, int]:
     return lengths
 
 
+def check_rumble() -> None:
+    """Kol titresimi vurusla AYNI karede ve agirliga gore (25.09.2026).
+
+    Ayar ve `InputManager.rumble` vardi ama hicbir yer cagirmiyordu.
+    """
+    print("\n--- kol titresimi ---")
+    from src.config import RUMBLE_KILL
+    from src.core.juice import ImpactEvent, ImpactWeight, Juice
+
+    class _Pad:
+        gamepad_enabled = True
+
+        def __init__(self) -> None:
+            self.calls: list[tuple] = []
+
+        def rumble(self, low, high, ms) -> None:
+            self.calls.append((low, high, ms))
+
+    class _Game:
+        def __init__(self, on: bool) -> None:
+            self.settings = {"rumble": on}
+            self.input = _Pad()
+
+        def hitstop(self, frames: int) -> None:
+            pass
+
+    event = ImpactEvent(0.0, 0.0, (1.0, 0.0), weight=ImpactWeight.KILL)
+    game = _Game(True)
+    Juice(game).on_hit(event)
+    check(game.input.calls == [RUMBLE_KILL],
+          "ayar acikken oldurucu vurusta guclu titresim",
+          str(game.input.calls))
+    game = _Game(False)
+    Juice(game).on_hit(event)
+    check(game.input.calls == [], "ayar kapaliyken titresim YOK")
+
+
 def main() -> int:
+    check_rumble()
     h = Harness()
     player = h.player
 

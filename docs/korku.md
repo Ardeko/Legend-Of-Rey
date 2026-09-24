@@ -344,14 +344,23 @@ oyuncunun **tam önünde** belirir.
 
 Ayrıntı — kare kare:
 
+> **25.09.2026 — güncellendi (Arda: *"Jumpscare'li bölüm daha korkunç olsun"*).**
+> Eski tablo ölçülüp bakıldı: İzleyen **altı kare** (0,1 sn) ekrandaydı ve göz onu
+> korku değil aksaklık olarak okuyordu. Görüntü 32 piksellik gövdenin 6× büyütülmüş
+> haliydi: koyu zeminde koyu bir sütun, yüz yok. 0,75 saniyelik sessizlik gerilimin
+> birikmesine yetmiyordu. Kural değişmedi (şok sesin **gelmemesiyle** kuruluyor);
+> süreler ve görüntü değişti. Eski değerler: belirme 45, kaybolma 52, bitiş 65.
+
 | Kare | Ne olur |
 |---|---|
-| 0 | Yankı repliği biter. **Müzik ve bütün ortam sesi kesilir** (`music_hush = 1.0`) |
-| 1–44 | Hiçbir şey. Yaklaşık 0.75 saniye tam sessizlik. Oyuncu oynamaya devam edebiliyor |
-| 45 | İzleyen ekranın **ortasında** belirir, oyuncunun 2 tile önünde, ekranın %70'ini kaplayacak ölçekte. Tek kare `white_flash`, tek sert ses |
-| 46–51 | Altı kare orada durur. Gözler oyuncuda |
-| 52 | Yok olur. Ses geri gelmez — **B14'ün geri kalanı sessiz oynanır** |
-| — | `player.control_locked = 20` yalnızca 45–65 arası: Rey donar (irkilme), oyun donmaz |
+| 0 | Yankı repliği biter. **Müzik ve bütün ortam sesi kesilir** (`music_hush = 1.0`). İhanet bildirimi **gösterilmez** — şokun sonuna kalır |
+| 1–109 | Yaklaşık 1,8 saniye tam sessizlik. 50'den sonra ekranın kenarları **yavaşça kararır**. Oyuncu oynamaya devam edebiliyor |
+| 110–114 | İzleyen'in **yüzü** (`src/art/horror_face.py`, koddan çizilir, büyütülmez) oyuncunun baktığı yandan ekranın ortasına **atılır**: beş boy, 5 kare. Tek kare `white_flash`, tek sert ses, radyal sarsıntı |
+| 115–127 | Yüz ekranı doldurur (~%86), titrer. İğne ucu gözler oyuncuda: mor halka, tehlike çekirdek |
+| 128–135 | **Kesme**: tam karanlık |
+| 136–177 | Karanlık çekilir, dünya geri gelir; iki göz bir süre daha orada kalıp söner. Kalp atışı (136, 160) |
+| 180 | Bitti. İhanet bildirimi şimdi. Ses geri gelmez — **B14'ün geri kalanı sessiz oynanır** |
+| — | `player.control_locked = 20` yalnızca 110–130 arası: Rey donar (irkilme), oyun donmaz |
 
 Kurallara uyum:
 

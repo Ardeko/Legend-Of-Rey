@@ -167,6 +167,13 @@ class StoryScene(CinematicScene):
     # Panellerin varsayilani: replik oyuncuyu bekler mi. KAPALI - her
     # sinematik bir konusma degil. Konusma olan sahneler (prolog) acar.
     wait_for_input: bool = False
+    # Diyalog kutusunda konusanin kucuk portresi. **Yakin plan
+    # panelinde her zaman kapali** (`_start_panel`): yuz zaten tam
+    # ekranda; ayni yuzu iki olcekte ayni anda gostermek karmasa.
+    # Bu kural bir donem uc sahnede ayri ayri yaziliydi, 41 yakin
+    # plan panelinin cogunda yuz iki kez gorunuyordu (25.09.2026).
+    # Prolog gibi paneli zaten yuz olan sahneler tamamen kapatir.
+    portraits: bool = True
 
     # --- Kurulum ------------------------------------------------------------
     def on_enter(self, **kwargs: object) -> None:
@@ -211,6 +218,7 @@ class StoryScene(CinematicScene):
         if panel is None:
             return
         self.panel_frames = 0
+        self.dialogue.show_portrait = self.portraits and not panel.closeup
         lines = panel.dialogue_lines
         if lines:
             # Repligi olan panel **oyuncuyu bekler**. Bir donem

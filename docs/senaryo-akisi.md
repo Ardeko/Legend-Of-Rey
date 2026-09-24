@@ -922,8 +922,8 @@ _Mini-boss ölünce_
 
 #### ch04_ardo_name
 **ARDO**
-- tr: "Efe'nin kampı. Kemikler onun değil; dışarı çıkan tek iz onun. Yaşıyor, inatçı keçi."
-- en: "Efe's camp. Those aren't his bones; the only trail out is his. He's alive, the stubborn mule."
+- tr: "Kalachev'in kampı. Kemikler onun değil; dışarı çıkan tek iz onun. Yaşıyor, inatçı keçi."
+- en: "Kalachev's camp. Those aren't his bones; the only trail out is his. He's alive, the stubborn mule."
 
 ### 4. Yarım harita
 
@@ -1135,8 +1135,8 @@ _Sandık açılınca_
 
 #### ch05_kalachev_late
 **KALACHEV**
-- tr: "Ayı! Geç kaldın, her zamanki gibi. Epeydir buradayım; bir sen eksiktin."
-- en: "Bear! Late as always. I've been down here a good while; you were the only thing missing."
+- tr: "Ayı! Göbek adımı bağırma, burada herkes Kalachev der. Geç kaldın, her zamanki gibi; bir sen eksiktin."
+- en: "Bear! Don't go shouting my birth name; down here I'm Kalachev to everyone. Late as always. You were the only thing missing."
 
 *Yakın plan*
 
@@ -1357,8 +1357,8 @@ _Gizli sandık açılınca_
 
 #### ch06_kalachev_ardo_intro
 **ARDO**
-- tr: "Rahat ol. Bu Kalachev, Efe. Eski dostum. Yolundan çekil; kılıcını sallarken önüne bakmaz."
-- en: "Easy. That's Kalachev. Efe. An old friend. Stay out of his way; he doesn't look where he swings."
+- tr: "Rahat ol. Bu Kalachev. Eski dostum. Yolundan çekil; kılıcını sallarken önüne bakmaz."
+- en: "Easy. That's Kalachev. An old friend. Stay out of his way; he doesn't look where he swings."
 
 *Yakın plan*
 
@@ -1374,8 +1374,8 @@ _Gizli sandık açılınca_
 
 #### ch06_kalachev_meet
 **KALACHEV**
-- tr: "Tanışma faslı bittiyse yol açık, Kırmızı Başlıklı. Ayı'ya iyi bak; kendine bakmayı hiç bilmez, ben de bıktım."
-- en: "If we're done with introductions, the road's clear, Red. Keep an eye on the Bear. He never looks after himself, and I'm sick of doing it."
+- tr: "Efe mi? Göbek adım; bir tek bu ayı öyle der. Sen Kalachev de, Kırmızı Başlıklı. Ayı'ya iyi bak; kendine bakmayı hiç bilmez."
+- en: "Efe? That's my birth name. Only the bear calls me that. You call me Kalachev, Red. And look after him; he never looks after himself."
 
 #### ch06_echo_kalachev
 **YANKI**
@@ -1388,8 +1388,8 @@ _Gizli sandık açılınca_
 
 #### ch06_ardo_kalachev
 **ARDO**
-- tr: "Efe. Bu sefer geç kalan sensin. Ödeştik."
-- en: "Efe. This time you're the late one. We're even."
+- tr: "Kalachev. Bu sefer geç kalan sensin. Ödeştik."
+- en: "Kalachev. This time you're the late one. We're even."
 
 #### ch06_kalachev_familiar
 **KALACHEV**
@@ -2062,8 +2062,8 @@ _Üç çan doğru sırayla çalınınca_
 
 #### ch10_ardo_kalachev
 **ARDO**
-- tr: "Efe. Yol aç dedim, uçurum değil."
-- en: "Efe. I said clear a path, not dig a pit."
+- tr: "Kalachev! Yol aç dedim, uçurum değil."
+- en: "Kalachev! I said clear a path, not dig a pit."
 
 #### ch10_kalachev_detour
 **KALACHEV**
@@ -3202,19 +3202,28 @@ _Kaynak yenilince_
 
 ### 2. Sürü — sessiz Kalachev
 
-> Ne oluyor: Üçüncü odada (sürü) Kalachev sessizce durur ve hiç konuşmaz. Oyuncu ona yaklaşınca Yankı yorum yapar; sürü uyanırsa Kalachev öne atılır ve Yankı ikinci yorumu yapar. ⚠ Bu iki Yankı repliğinde karakter kontrolü yok — Ardo ile de çıkıyor (bkz. Denetim).
+> Ne oluyor: Üçüncü odada (sürü) Kalachev sessizce durur ve hiç konuşmaz. Oyuncu ona yaklaşınca Yankı yorum yapar; sürü uyanırsa Kalachev öne atılır ve Yankı ikinci yorumu yapar (yalnızca Rey'de). **Ardo sesi ilk kez burada duyuyor** (25.09.2026): Kaynak'tan sonra aşağıdaki şey yalnızca Rey'e konuşmuyor — B18'de Çağıran herkese konuşacak. Ardo'da ilk yorum çıkıyor ve hemen ardından Ardo'nun kendi cevabı; ikinci yorum yok.
 
 *Kalachev'e yaklaşınca*
 
+**İki karakterde de:**
+
 #### ch15_echo_kalachev
-**YANKI** — _Ardo ile de oynuyor_
+**YANKI** — _Ardo'nun duyduğu ilk ve tek Yankı (B18'den önce)_
 - tr: "Şuna bak. Beklemeyi öğrenmiş. Burası herkese bir şey öğretiyor."
 - en: "Look at him. He's learned to wait. This place teaches everyone something."
 
-*Sürü uyanırsa (koşullu)*
+**Ardo ile oynarken:**
+
+#### ch15_ardo_hears
+**ARDO**
+- tr: "Bu ses... Rey yıllardır bununla mı yaşıyor?"
+- en: "That voice... Has Rey been living with this for years?"
+
+*Sürü uyanırsa (koşullu, yalnızca Rey)*
 
 #### ch15_echo_kalachev_wakes
-**YANKI** — _koşullu; Ardo ile de oynuyor_
+**YANKI** — _koşullu; yalnızca Rey_
 - tr: "Yine en öne atıldı. Yarasını unuttu mu sence?"
 - en: "Out in front again. Do you think he's forgotten his wound?"
 
@@ -3355,9 +3364,29 @@ _Bölüm kartı / kayıt yuvası adı_
 - en: "Silence"
 
 #### chapter15.walk
-_Uyuyan bir düşmana ilk yaklaşınca_
-- tr: "Yürü. Koşarsan duyarlar."
-- en: "Walk. They'll hear you if you run."
+_Uyuyan bir düşmana ilk yaklaşınca (kart daha önce görüldüyse). {key} = sessiz yürüyüş tuşu_
+- tr: "Uyuyanların yanında {key} basılı tut. Koşarsan duyarlar."
+- en: "Hold {key} near the sleepers. Run, and they'll hear you."
+
+#### hint.sneak_title
+_Yeni mekanik kartının başlığı — sessiz yürüyüş (25.09.2026)_
+- tr: "SESSİZ YÜRÜ"
+- en: "SNEAK"
+
+#### hint.sneak
+_Kartın metni — uyuyana ilk yaklaşınca, bir kez. En uzun tuş adıyla 2 satır_
+- tr: "{key} basılı tut — uyuyanlar duymaz"
+- en: "Hold {key} to walk unheard"
+
+#### chapter15.stir
+_Bir uyuyan ilk kez kıpırdanınca — uyarı, henüz ceza değil_
+- tr: "Kımıldandı! Dur, ya da {key} ile yavaş yürü."
+- en: "It stirred! Freeze, or hold {key} to creep."
+
+#### chapter15.hunt
+_İlk uyanışta — uyanan avlanıyor, çığlığı yanındakileri kaldırıyor_
+- tr: "Uyandı — çığlığı sürüyü de kaldırır!"
+- en: "It's awake — its cry will raise the herd!"
 
 #### hint.chime
 _İkinci odaya girişte bir kez (bildirim)_
@@ -3835,8 +3864,8 @@ _Bölüm biterken — az karakter değişimiyle çözüldüyse_
 
 #### ch18_ardo_kalachev
 **ARDO**
-- tr: "Efe. Bunu da bitirelim. Hesabımız hâlâ kapanmadı."
-- en: "Efe. Let's finish this one too. We still haven't settled up."
+- tr: "Kalachev. Bunu da bitirelim. Hesabımız hâlâ kapanmadı."
+- en: "Kalachev. Let's finish this one too. We still haven't settled up."
 
 #### ch18_kalachev_debt
 **KALACHEV**
@@ -3860,8 +3889,8 @@ _Bölüm biterken — az karakter değişimiyle çözüldüyse_
 
 #### ch18_rey_stop
 **REY**
-- tr: "Kalachev, dur! Orada kimse yok, bu bir tuzak!"
-- en: "Kalachev, stop! There's no one there. It's a trap!"
+- tr: "Efe, dur! Orada kimse yok, bu bir tuzak!"
+- en: "Efe, stop! There's no one there. It's a trap!"
 
 **Ardo ile oynarken:**
 
@@ -4076,7 +4105,44 @@ _Ses susturulunca_
 - tr: "Işık! Bak, yukarıda ışık var!"
 - en: "Light! Look, there's light up there!"
 
-*Seslen*
+*Mum Bekçisi'nin son mumu — ipe giden yolda tek mumuyla oturuyor. Yaklaşınca söz; sonra son mumu kendisi söndürüyor ve karanlığa karışıyor (hiç konuşmuyor). B12'de Ardo'nun sorusunun cevabı: "Sonuncusunda ne olacak?"*
+
+**Rey ile oynarken:**
+
+#### epi_rey_keeper
+**REY**
+- tr: "Tek mum kalmış. Bizi çıkışa kadar mı bekledin?"
+- en: "One candle left. Did you wait here to see us out?"
+
+**Ardo ile oynarken:**
+
+#### epi_ardo_keeper
+**ARDO**
+- tr: "Sonuncusu. Ne olacağını hep merak etmiştim."
+- en: "The last one. I always wondered what would happen."
+
+**İki karakterde de:** _(bekçi kaybolunca)_
+
+#### epi_cemo_keeper
+**CEMO**
+- tr: "Mumlu amca nereye gitti?"
+- en: "Where did the candle man go?"
+
+**Rey ile oynarken:**
+
+#### epi_rey_keeper_gone
+**REY**
+- tr: "Artık mumu gerekmiyor. Yukarıda güneş var."
+- en: "He doesn't need his candle now. There's sun up there."
+
+**Ardo ile oynarken:**
+
+#### epi_ardo_keeper_gone
+**ARDO**
+- tr: "Işık yukarıda artık. Mumuna gerek kalmadı."
+- en: "The light's up top now. No need for his candle."
+
+*Seslen — bekçinin anı bitince*
 
 **Rey ile oynarken:**
 
@@ -4323,8 +4389,8 @@ _(Bu anda replik yok.)_
 
 #### epi_ardo_drawing
 **ARDO**
-- tr: "Doğru çizmişsin. Efe görse çerçeve isterdi."
-- en: "You got him right. Efe would want it framed."
+- tr: "Doğru çizmişsin. Kalachev görse çerçeve isterdi."
+- en: "You got him right. Kalachev would want it framed."
 
 ### 4. Ateş başı
 
@@ -4397,6 +4463,11 @@ _İpucu kartları, bildirimler, adlar. Aynı biçimde düzenlenir; anahtar nokta
 _Tuş göstergesi — Jet'in ipinin dibinde_
 - tr: "Seslen"
 - en: "Call out"
+
+#### prompt.leave
+_Tuş göstergesi — oyun sonrası köyde, batı yolunun tabelasında (ana menüye)_
+- tr: "Yola çık"
+- en: "Head out"
 
 #### prompt.talk
 _Tuş göstergesi — köylünün ve Jet'in üstünde_
@@ -4697,9 +4768,9 @@ Kaynak taraması (`src/**/*.py` içinde düz `"line.…"` dizesi; `tests/test_la
 
 ### Dil tablosunda olup kodda bulunamayan diyalog anahtarları
 
-**Yok.** `line.` ad alanındaki 453 anahtarın hepsi kodda düz dize olarak geçiyor ve bu belgede yerleştirildi. Hesaplanmış (f-string) anahtar da yok.
+**Yok.** `line.` ad alanındaki 459 anahtarın hepsi kodda düz dize olarak geçiyor ve bu belgede yerleştirildi. Hesaplanmış (f-string) anahtar da yok.
 
-_24.09.2026: epilogla 47 anahtar eklendi (44 `epi_*`, kapanışta 3 `ch18_*_dawn*`); hepsi **Epilog** ve **Kapanış** altında._
+_24.09.2026: epilogla 47 anahtar eklendi (44 `epi_*`, kapanışta 3 `ch18_*_dawn*`); hepsi **Epilog** ve **Kapanış** altında. 25.09.2026: +6 (`ch15_ardo_hears`, Mum Bekçisi'nin son mumu: 5 `epi_*keeper*`)._
 
 Sahne dosyası dışında (ama kullanılan) yerlerde duranlar:
 
@@ -4729,9 +4800,9 @@ Anahtar tabloda ve kodda var, test geçiyor — ama oyuncu repliği ya hiç gör
 
 1. ✅ **Düzeltildi (23.09.2026).** **`ch04_echo_name`, `ch04_ardo_name` — hiç görünmüyordu (hata).** `src/scenes/chapter04.py` iskelet hatırasında `self.say(self._voice("line.ch04_echo_name", "line.ch04_ardo_name"))` diyor. `_voice` repliği kendisi başlatıyor ve `None` döndürüyor; ardından gelen `say(None)` diyalog kuyruğunu `(None,)` ile değiştiriyor ve replik aynı karede siliniyor. Oyun başsız çalıştırılarak doğrulandı: iki karakterde de hatıra belirdiği karede `dialogue.lines == (None,)`. Düzeltme tek satır: dış `self.say(...)` kaldırılmalı. (Aynı yolda Yankı o an susturulmuşsa `say(None)` `None.speaker` yüzünden çöker.)
 2. **`echo_alone_voice` — ulaşılamıyor.** `PlayScene._watch_intimacy` sadakat ≥ 3 olunca oynatıyor (`loyalty.INTIMACY_THRESHOLD`). Sadakat yalnızca B10'da değişiyor (`loyalty.followed` / `ignored`, ±1) ve 0'dan başlıyor; en fazla 1 olabiliyor.
-3. **`ch10_lie_sprung`, `ch10_lie_sprung_react`, `ch10_trace_sprung` (ve `chapter10.creak`, `chapter10.trap` bildirimleri) — normal oyunda ulaşılamıyor.** `Chapter10Scene._update_ally` oyuncu tuzağın 11 tile soluna gelince Kalachev'i çağırıp zemini önceden çökertiyor; satır kontrolü olmadığı için bu **alt yolda da** oluyor. Başsız simülasyonla doğrulandı: iki yolda da 61. sütunda `trap_broken=True`, `trap_sprung` hiç True olmuyor. Aynı nedenle Kalachev'in B10 sahnesi seçime bağlı değil, her oynayışta çıkıyor. (`tests/test_chapter10.py` tuzağı `_update_trap()`'i doğrudan çağırarak sınıyor, bu yüzden yakalamıyor.)
-4. **`ch09_rey_top`, `ch09_ardo_top` — koşullu; çanları tepeye çıkmadan çözmeyen oyuncu hiç görmez.** Tepe katına ilk girişte `_narrate` bu repliği başlatıyor, ama çanlar çözülmemişse aynı karede `_update_top_hint` `ch09_echo_locked` / `ch09_trace_locked` ile üstüne yazıyor. Kat anlatımı yalnızca ilk girişte oynadığı için çanları sonra çözen oyuncu tepe repliğini hiç görmüyor. (Metin "Fresk doğruydu..." olduğundan, çözülmeden görünmesi zaten yanlış olurdu.)
-5. **`ch11_echo_lie`, `ch11_trace_lie` — sadakat < 0 iken görünmüyor.** `Chapter11Scene._update_lie` yalanı `say()` ile başlatıp aynı karede `say_player("line.ch11_rey_doubt", ...)` çağırıyor; `say()` kuyruğu değiştirdiği için B10'da alt yolu seçen oyuncu yalanı hiç görmeden ona verilen cevabı ("Geçen sefer de böyle söylemiştin.") görüyor. `chapter18.py`'deki not aynı tuzağı anlatıyor: iki replik tek `say()` çağrısında verilmeli.
-6. **Yankı replikleri Ardo ile de çıkıyor (karakter kontrolü yok):** `ch02_echo_fall` (B2 düşüş sahnesinin paneli, `chapter02_cinematics.py`), `ch15_echo_kalachev` ve `ch15_echo_kalachev_wakes` (`chapter15.py` `Line(ECHO, …)`, `has_echo` denetimi yok). Tasarım gereği Ardo Yankı'yı duymaz (`docs/gdd.md` §4).
+3. ✅ **Kısmen düzeltildi (25.09.2026)** — Kalachev'in tetikleyicisine yol (satır) denetimi eklendi: artık **yalnızca Yankı'nın üst yolunu seçene** geliyor, B10'daki gelişi seçime bağlı. Alt yoldan giden oyuncu "Az kalsın oraya basıyordum" duymuyor. "Tuzak patladı" replikleri korku katmanı kapalıyken (müttefik yok) oynuyor; normal akışta hâlâ yok — bu bilinçli (Kalachev tuzağı kırıyor). Eski kayıt: **`ch10_lie_sprung`, `ch10_lie_sprung_react`, `ch10_trace_sprung` (ve `chapter10.creak`, `chapter10.trap` bildirimleri) — normal oyunda ulaşılamıyor.** `Chapter10Scene._update_ally` oyuncu tuzağın 11 tile soluna gelince Kalachev'i çağırıp zemini önceden çökertiyor; satır kontrolü olmadığı için bu **alt yolda da** oluyor. Başsız simülasyonla doğrulandı: iki yolda da 61. sütunda `trap_broken=True`, `trap_sprung` hiç True olmuyor. Aynı nedenle Kalachev'in B10 sahnesi seçime bağlı değil, her oynayışta çıkıyor. (`tests/test_chapter10.py` tuzağı `_update_trap()`'i doğrudan çağırarak sınıyor, bu yüzden yakalamıyor.)
+4. ✅ **Düzeltildi (25.09.2026)** — tepe katın sözü artık çanlara bağlı: çözülmeden çıkana ipucu, çözünce (önce çıkılmış olsa da) "Fresk doğruydu". İkisi de açık bir konuşmanın üstüne yazmıyor (`tests/test_chapter09.py`). Eski kayıt: **`ch09_rey_top`, `ch09_ardo_top` — koşullu; çanları tepeye çıkmadan çözmeyen oyuncu hiç görmez.** Tepe katına ilk girişte `_narrate` bu repliği başlatıyor, ama çanlar çözülmemişse aynı karede `_update_top_hint` `ch09_echo_locked` / `ch09_trace_locked` ile üstüne yazıyor. Kat anlatımı yalnızca ilk girişte oynadığı için çanları sonra çözen oyuncu tepe repliğini hiç görmüyor. (Metin "Fresk doğruydu..." olduğundan, çözülmeden görünmesi zaten yanlış olurdu.)
+5. ✅ **Düzeltildi (25.09.2026)** — yalan ve şüphe cevabı tek `say()` ile sırayla (`tests/test_chapter11.py`). Eski kayıt: **`ch11_echo_lie`, `ch11_trace_lie` — sadakat < 0 iken görünmüyor.** `Chapter11Scene._update_lie` yalanı `say()` ile başlatıp aynı karede `say_player("line.ch11_rey_doubt", ...)` çağırıyor; `say()` kuyruğu değiştirdiği için B10'da alt yolu seçen oyuncu yalanı hiç görmeden ona verilen cevabı ("Geçen sefer de böyle söylemiştin.") görüyor. `chapter18.py`'deki not aynı tuzağı anlatıyor: iki replik tek `say()` çağrısında verilmeli.
+6. ✅ **Düzeltildi (25.09.2026)** — B2'nin alayı ve B15'in ikinci yorumu Ardo'da çıkmıyor. B15'teki **ilk** yorum bilerek kaldı: Ardo sesi ilk kez orada duyuyor ve hemen cevap veriyor (`ch15_ardo_hears`) — Arda: *"hikâyeye uygun 1-2 Yankı duyabilir"*. B18'de Çağıran zaten herkese konuşuyor (`tests/test_voices.py`). Eski kayıt: **Yankı replikleri Ardo ile de çıkıyor (karakter kontrolü yok):** `ch02_echo_fall` (B2 düşüş sahnesinin paneli, `chapter02_cinematics.py`), `ch15_echo_kalachev` ve `ch15_echo_kalachev_wakes` (`chapter15.py` `Line(ECHO, …)`, `has_echo` denetimi yok). Tasarım gereği Ardo Yankı'yı duymaz (`docs/gdd.md` §4).
 7. **Kayıt yuvası başına bir kez oynayanlar:** Jet'in dönüşleri (`ch04_/ch09_/ch15_jet_*`), B5'teki Kalachev ilk görüşü, B13'te Kalachev'in kapıya gelişi (yaralanınca bir daha gelmiyor). Aynı yuvada tekrar oynayan onları ikinci kez görmez; yeni oyunda yeniden oynar.
 8. ✅ **Tuş adları düzeltildi (23.09.2026)** — `ability.*` artık `{key}` ile atanmış tuşu okuyor. **Ekran yazıları:** `ability.echo_ask`, `ability.double_jump`, `ability.wall_jump` hiçbir yerde gösterilmiyor (bu yetenekler `on_ability_gained` ile verilmiyor). `ability.*` metinleri tuş adını (J, Shift, K, F) metnin içine sabit yazıyor; `hint.*` kartları ise atanmış tuşu `{key}` ile okuyor — tuşu yeniden atayan oyuncu `ability.*` bildiriminde yanlış tuşu görür.

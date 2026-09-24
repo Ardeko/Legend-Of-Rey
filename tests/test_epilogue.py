@@ -61,7 +61,7 @@ from src.scenes.ending import DawnCinematic  # noqa: E402
 from src.scenes.epilogue_cinematics import HomecomingFireCinematic  # noqa: E402
 from src.scenes.epilogue_shaft import GATHER_FRAMES, EpilogueShaftScene  # noqa: E402
 from src.scenes.epilogue_village import (  # noqa: E402
-    HOME_REACH, POSTGAME_EXIT_X, EpilogueVillageScene,
+    HOME_REACH, EpilogueVillageScene,
 )
 from src.scenes.vertical_journey import (  # noqa: E402
     VerticalJourneyScene, continue_kwargs,
@@ -336,6 +336,49 @@ def test_call_reaches_jet() -> None:
         game.quit()
 
 
+def test_keeper_last_candle() -> None:
+    """Mum Bekcisi son mumunu sonduruyor - B12'deki sorunun cevabi.
+
+    B3'te bes mum, her gorunuste bir eksik. Ardo B12'de sordu:
+    *"Sonuncusunda ne olacak?"* Burada: tek mumuyla oturuyor, oyuncu
+    yaklasinca sonduruyor ve kayboluyor. O an bitmeden Jet'e seslenilmiyor
+    - konusmalar birbirinin ustune yazmasin.
+    """
+    for character in ("rey", "ardo"):
+        print(f"\n--- Mum Bekcisi'nin son mumu ({character}) ---")
+        game = Game()
+        try:
+            seed_save(character)
+            scene = open_scene(game, EpilogueShaftScene, character=character)
+            run(game, 50)
+            finish_dialogue(game, scene)
+            check(scene.keeper.lit == 1, "tek mum yaniyor")
+            teleport(game, scene, scene.keeper.x - 20)
+            line = scene.dialogue.current
+            expected = ("line.epi_ardo_keeper" if character == "ardo"
+                        else "line.epi_rey_keeper")
+            check(line is not None and line.key == expected,
+                  "yaklasinca son mumu fark ediyor", line and line.key)
+            finish_dialogue(game, scene)
+            teleport(game, scene, scene.rope_x - 4)
+            check(not scene.prompts.active("rope"),
+                  "bekci kaybolmadan 'Seslen' cikmiyor")
+            for _ in range(300):
+                frame(game)
+                if scene.keeper_state == "gone":
+                    break
+            check(scene.keeper.lit == 0 and scene.keeper.fade == 0.0,
+                  "son mumu sondurdu ve karanliga karisti")
+            keys = [item.key for item in scene.dialogue.lines]
+            check(bool(keys) and keys[0] == "line.epi_cemo_keeper",
+                  "Cemo nereye gittigini soruyor", str(keys))
+            finish_dialogue(game, scene)
+            run(game, 3)
+            check(scene.prompts.active("rope"), "sonra 'Seslen' beliriyor")
+        finally:
+            game.quit()
+
+
 def test_closing_press_does_not_call() -> None:
     """Cemo'nun repligini kapatan E ayni karede Jet'e seslenmiyor."""
     print("\n--- konusmayi kapatan E seslenmiyor ---")
@@ -480,7 +523,7 @@ def test_drawing_keeps_the_player_back() -> None:
 
 
 def test_postgame_village() -> None:
-    """Oyun sonrasi: koy dolu, resim duvarda, batidan cikis menuye."""
+    """Oyun sonrasi: koy dolu, resim duvarda, tabeladan cikis menuye."""
     print("\n--- oyun sonrasi koy ---")
     game = Game()
     try:
@@ -492,10 +535,15 @@ def test_postgame_village() -> None:
               "koyluler bastan disarida")
         check(scene.drawing >= 1.0, "Cemo'nun resmi duvarda")
         check(scene.dialogue.done, "karsilama tekrar oynamiyor")
-        teleport(game, scene, POSTGAME_EXIT_X - 4, settle=3)
+        teleport(game, scene, 4.0, settle=3)
+        check(isinstance(game.scenes.current, EpilogueVillageScene),
+              "bati kenarina yurumek KAZARA cikarmiyor")
+        teleport(game, scene, scene.sign_x + 6, settle=3)
+        check(scene.prompts.active("leave"), "tabelada 'Yola cik' beliriyor")
+        tap(game, pygame.K_e)
         wait_scene(game, MainMenuScene)
         check(isinstance(game.scenes.current, MainMenuScene),
-              "batidan cikinca ana menu", type(game.scenes.current).__name__)
+              "tabeladan ana menuye", type(game.scenes.current).__name__)
     finally:
         game.quit()
 
@@ -578,6 +626,7 @@ def main() -> int:
     test_continue_after_finish()
     test_flags_agree()
     test_call_reaches_jet()
+    test_keeper_last_candle()
     test_closing_press_does_not_call()
     test_bell_brings_the_village_out()
     test_villager_lines_follow_the_save()

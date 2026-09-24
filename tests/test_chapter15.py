@@ -70,8 +70,9 @@ pygame.font.init()
 pygame.display.set_mode((64, 64))
 
 from src.config import (  # noqa: E402
-    ALERT_DECAY, ALERT_WAKE, NOISE_CHIME, NOISE_RESONATE, NOISE_RUN,
-    NOISE_WALK, PLAYER_RUN_SPEED, TILE_SIZE,
+    ALERT_DECAY, ALERT_WAKE, CRY_DELAY_FRAMES, ENEMY_APPROACH_SPEED,
+    HUNT_CHASE_SPEED, HUNT_LOSE_RANGE, NOISE_CHIME, NOISE_RESONATE,
+    NOISE_RUN, NOISE_WALK, PLAYER_RUN_SPEED, PLAYER_SNEAK_RATIO, TILE_SIZE,
 )
 from src.core.game import Game  # noqa: E402
 from src.scenes.chapter15 import Chapter15Scene  # noqa: E402
@@ -168,7 +169,11 @@ def test_running_wakes() -> None:
 
 
 def test_waking_is_not_a_loss() -> None:
-    """Ceza degil odul. Zorluk 4 - gizlilik kaydet-yukle olmamali."""
+    """Uyandirmak ANINDA kaybettirmiyor - kaydet-yukle olmamali.
+
+    25.09.2026'dan beri bedeli var (`test_waking_starts_a_hunt`): uyanan
+    avlaniyor. Ama o bedel kovalamayla odeniyor, anlik bir cezayla degil.
+    """
     print("\n--- uyandirmak kaybettirmiyor ---")
     game = Game()
     try:
@@ -180,6 +185,98 @@ def test_waking_is_not_a_loss() -> None:
         check(not scene.ghost, "hayalet odulu dustu")
         check(not scene.finished, "bolum KAYBEDILMEDI - oyun devam ediyor")
         check(scene.player.health > 0, "oyuncu cezalandirilmadi")
+    finally:
+        game.quit()
+
+
+# --- 1b. Klavyeyle (25.09.2026) ------------------------------------------------
+def test_keyboard_can_sneak() -> None:
+    """**Gercek tuslarla** sessiz gecilebiliyor.
+
+    `cross` hizi `body.vx`e dogrudan veriyor - klavyede o hiz hic yoktu,
+    yon tusu hep TAM hiz veriyordu. Arda: *"Sessiz gecmeye calistigimiz
+    bolumde sessiz yurume imkansiz."* Bu test tusa basarak yuruyor:
+    Ctrl basili gecen uyandirmiyor, Ctrl'siz gecen uyandiriyor.
+    """
+    print("\n--- klavyeyle sessiz yuruyus ---")
+    for sneak in (True, False):
+        game = Game()
+        try:
+            scene = start(game)
+            scene.dialogue.stop()
+            sleeper = next(e for e in scene.enemies if e.asleep)
+            keys = [pygame.K_RIGHT] + ([pygame.K_LCTRL] if sneak else [])
+            for key in keys:
+                game.input.handle_event(
+                    pygame.event.Event(pygame.KEYDOWN, key=key))
+            top = 0.0
+            target = sleeper.body.center_x + 60
+            for _ in range(900):
+                game.input.begin_frame()
+                game.input.end_frame()
+                game.scenes.update()
+                game.frame += 1
+                top = max(top, abs(scene.player.body.vx))
+                if scene.player.body.center_x > target:
+                    break
+            passed = scene.player.body.center_x > target
+            full = PLAYER_RUN_SPEED * scene.player.stats.move_multiplier
+            if sneak:
+                check(top <= full * PLAYER_SNEAK_RATIO + 0.05,
+                      "Ctrl: hiz kosunun %40'inda kaliyor",
+                      f"{top:.2f} px/kare")
+                check(passed and sleeper.asleep,
+                      "Ctrl basili: uyuyanin yanindan GECTI, uyanmadi",
+                      f"gecti={passed} uyuyor={sleeper.asleep}")
+                check(bool(scene.save_data.flags.get("hint_sneak")),
+                      "ilk yaklasmada 'SESSIZ YURU' karti acildi")
+            else:
+                check(not sleeper.asleep,
+                      "Ctrl'siz (tam hiz): uyuyan uyandi",
+                      f"hiz {top:.2f}")
+        finally:
+            game.quit()
+
+
+def test_waking_starts_a_hunt() -> None:
+    """Kosmanin bedeli: uyanan avlaniyor, cigligi yanindakini kaldiriyor.
+
+    Eskiden uyanan 0.45 hizla kovaliyordu ve kosan oyuncu (2.0) onu
+    geride birakiyordu - Arda: *"hizli gecersek cezalandiran bir sey
+    yok."*
+    """
+    print("\n--- uyanan avlaniyor ---")
+    game = Game()
+    try:
+        scene = start(game)
+        scene.dialogue.stop()
+        scene._enter_room("suru")
+        first, last = scene._room_span("suru")
+        herd = sorted((e for e in scene.enemies if e.asleep
+                       and first * TILE_SIZE <= e.body.center_x
+                       < last * TILE_SIZE),
+                      key=lambda e: e.body.center_x)
+        check(len(herd) >= 3, "suru odasinda en az uc uyuyan", str(len(herd)))
+        middle = herd[1]
+        middle.wake()
+        chase = (middle.move_speed * middle.speed_scale
+                 * ENEMY_APPROACH_SPEED / 0.5)
+        check(middle in scene.hunt.hunters, "uyanan AVCI oldu")
+        check(abs(chase - HUNT_CHASE_SPEED * middle.speed_scale) < 0.01,
+              "kovalama hizi kosunun %80'i (eskiden %22)",
+              f"{chase:.2f} px/kare")
+        check(middle.lose_range == HUNT_LOSE_RANGE,
+              "izini kolay birakmiyor", f"{middle.lose_range:.0f} px")
+        check(scene.hunt_hinted, "ilk uyanista oyuncuya soylendi")
+
+        nearest = min((e for e in herd if e is not middle),
+                      key=lambda e: abs(e.body.center_x
+                                        - middle.body.center_x))
+        for _ in range(CRY_DELAY_FRAMES + 2):
+            scene.update()
+        check(not nearest.asleep,
+              "cigligi en yakin komsuyu uyandirdi - suru kume kume kalkiyor",
+              f"{abs(nearest.body.center_x - middle.body.center_x):.0f} px")
     finally:
         game.quit()
 
@@ -589,6 +686,8 @@ def test_kalachev_does_not_follow() -> None:
 def main() -> int:
     test_walk_is_silent()
     test_running_wakes()
+    test_keyboard_can_sneak()
+    test_waking_starts_a_hunt()
     test_waking_is_not_a_loss()
     test_ghost_reward_is_visible()
     test_alert_decays()

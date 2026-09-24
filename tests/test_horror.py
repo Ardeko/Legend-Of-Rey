@@ -639,14 +639,14 @@ def main() -> int:
             seen_hush = True
         if scare.frames == APPEAR_AT - 1:
             check(not scare.visible,
-                  "belirmeden ONCE gorunmuyor - 44 kare tam sessizlik")
+                  "belirmeden ONCE gorunmuyor - ~1,8 sn tam sessizlik")
         if scare.frames == APPEAR_AT:
             seen_visible = scare.visible
             seen_lock = fake_player.control_locked == CONTROL_LOCK
         if scare.frames == VANISH_AT:
-            check(not scare.visible, "52. karede yok oluyor")
+            check(not scare.visible, "sure dolunca yok oluyor (kesme)")
     check(seen_hush, "0. karede ses kesiliyor")
-    check(seen_visible, "45. karede Izleyen beliriyor")
+    check(seen_visible, "sessizligin sonunda Izleyen beliriyor")
     check(seen_lock, "Rey donuyor (20 kare) - OYUN donmuyor")
     check(CONTROL_LOCK < 34,
           "kilit bir kacinmadan kisa - oynanisi durdurmuyor",

@@ -133,6 +133,9 @@ class Enemy(Actor):
         self.heard_x: float | None = None
         self.investigate_frames = 0
         self.aware = False
+        # Izi birakma mesafesi. Varsayilan sabit; B15'in avlanan surusu
+        # uzatiyor - bir kez uyanan suru oyuncuyu kolay birakmiyor.
+        self.lose_range = ENEMY_LOSE_RANGE
         self.orbit_side = 1              # Oyuncunun hangi yaninda bekliyor
         self.orbit_slot = 0.0            # Yorunge icindeki yeri
         self._attack_spawned = False
@@ -323,7 +326,7 @@ class Enemy(Actor):
         # Histerezis: tek esik olsaydi sinirdaki dusman acip kapanirdi.
         if not self.aware and distance <= ENEMY_SIGHT_RANGE:
             self.aware = True
-        elif self.aware and distance > ENEMY_LOSE_RANGE:
+        elif self.aware and distance > self.lose_range:
             self.aware = False
 
     def _update_reachability(self) -> None:

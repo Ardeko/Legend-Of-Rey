@@ -23,6 +23,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 
 from src.config import (
+    RUMBLE_BOSS, RUMBLE_FINISHER, RUMBLE_KILL, RUMBLE_NORMAL,
     HIT_FLASH_FRAMES, HITSTOP_BOSS, HITSTOP_FINISHER, HITSTOP_KILL,
     HITSTOP_NORMAL, SHAKE_BOSS_FRAMES, SHAKE_BOSS_PIXELS, SHAKE_BOSS_ROTATION,
     SHAKE_DECAY, SHAKE_FINISHER_FRAMES, SHAKE_FINISHER_PIXELS,
@@ -46,6 +47,12 @@ _HITSTOP = {
     ImpactWeight.FINISHER: HITSTOP_FINISHER,
     ImpactWeight.BOSS: HITSTOP_BOSS,
     ImpactWeight.KILL: HITSTOP_KILL,
+}
+_RUMBLE = {
+    ImpactWeight.NORMAL: RUMBLE_NORMAL,
+    ImpactWeight.FINISHER: RUMBLE_FINISHER,
+    ImpactWeight.BOSS: RUMBLE_BOSS,
+    ImpactWeight.KILL: RUMBLE_KILL,
 }
 
 # (piksel, kare, derece)
@@ -228,6 +235,7 @@ class Juice:
         """Ucu birden ayni karede: hitstop + sarsinti + parcacik."""
         self.game.hitstop(_HITSTOP[event.weight])
         self.shake.add(event.weight, event.direction)
+        self._rumble(event.weight)
 
         if target_flash is not None:
             target_flash.trigger()
@@ -242,6 +250,23 @@ class Juice:
         """Radyal sarsinti - patlamalarda yon yoktur."""
         self.shake.add(weight, (0.0, 0.0))
         self.game.hitstop(_HITSTOP[weight])
+        self._rumble(weight)
+
+    def _rumble(self, weight: ImpactWeight) -> None:
+        """Kol titresimi - ayar aciksa ve kol bagliysa.
+
+        Ayar yoksa (testler, eski kayit) acik sayiliyor: varsayilan
+        `settings.py`'de "acik".
+        """
+        game = self.game
+        settings = getattr(game, "settings", None)
+        if settings is not None and not settings.get("rumble", True):
+            return
+        inp = getattr(game, "input", None)
+        if inp is None or not getattr(inp, "gamepad_enabled", False):
+            return
+        low, high, milliseconds = _RUMBLE[weight]
+        inp.rumble(low, high, milliseconds)
 
 
 def pitch_variation() -> float:

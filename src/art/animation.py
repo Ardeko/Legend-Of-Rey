@@ -803,6 +803,45 @@ VILLAGER_SPEC = CharSpec(
     weapon="none",
 )
 
+# **Koylu varyantlari** (25.09.2026). Arda: *"Koylulere sadece renk degil
+# kiyafet varyanti da ekle."* Yukaridaki not "bes ayri sprite bu olcekte
+# gorunmez" diyordu - B1'in gecesinde dogruydu. Epilogun sabahinda ve ates
+# basinda (2x) koylu yakindan goruluyor ve hepsinin ayni tunigi giymesi
+# bir klon ordusu gibi okundu.
+#
+# Ayni iskelet (`CLAUDE.md` 6: tutarlilik), degisen **kiyafet bicimi**
+# ve kumas zinciri - palet disi renk yok:
+#
+#   villager         deri tunik (tabandaki)
+#   villager_elder   agarmis sac, gri uzun cuppe, hafif kambur
+#   villager_scarf   yesil basortu, uzun etek
+#   villager_worker  mavi kisa tunik, pantolon - etek yok
+#   villager_linen   keten gomlek, deri etek (hanci, firinci)
+#   villager_red     kirmizi uzun elbise, uzun sac
+#
+# Hardal bir aday da cizildi ve elendi: `brass` zinciri kostum gibi
+# parliyordu, koyu bir koyde goz ona gidiyordu.
+VILLAGER_ELDER_SPEC = replace(
+    VILLAGER_SPEC, name="villager_elder", hair="bone_pale",
+    cloth="cloth_grey", hunch=1.2, hem=6.6, hem_length=7.0)
+VILLAGER_SCARF_SPEC = replace(
+    VILLAGER_SPEC, name="villager_scarf", hood=True, cloth="moss",
+    hem=6.4, hem_length=8.0, torso_width=5.2)
+VILLAGER_WORKER_SPEC = replace(
+    VILLAGER_SPEC, name="villager_worker", cloth="cloth_blue", hem=0.0,
+    hair="leather", shoulder_width=5.4)
+VILLAGER_LINEN_SPEC = replace(
+    VILLAGER_SPEC, name="villager_linen", cloth="bone_pale",
+    cloth_dark="leather", hem=5.4, hem_length=3.0, curly_hair=True)
+VILLAGER_RED_SPEC = replace(
+    VILLAGER_SPEC, name="villager_red", cloth="gore", long_hair=True,
+    hair_length=5.0, hem=6.8, hem_length=8.0, torso_width=5.2)
+# Tohumdan secilen sira. Ilk eleman taban - tohumsuz koylu eskisi gibi.
+VILLAGER_VARIANTS: tuple[str, ...] = (
+    "villager", "villager_worker", "villager_scarf", "villager_linen",
+    "villager_red", "villager_elder",
+)
+
 
 # Jet - kilici veren arkadas (Bolum 1). Hem Rey'in hem Ardo'nun dostu.
 #
@@ -1028,6 +1067,11 @@ CHARACTERS: dict[str, CharSpec] = {
     "ardo_sickle": ARDO_SICKLE_SPEC,
     "cemo": CEMO_SPEC,
     "villager": VILLAGER_SPEC,
+    "villager_elder": VILLAGER_ELDER_SPEC,
+    "villager_scarf": VILLAGER_SCARF_SPEC,
+    "villager_worker": VILLAGER_WORKER_SPEC,
+    "villager_linen": VILLAGER_LINEN_SPEC,
+    "villager_red": VILLAGER_RED_SPEC,
     # Jet - Bolum 1'de kilici veren arkadas.
     "jet": JET_SPEC,
     "jet_unarmed": JET_UNARMED_SPEC,

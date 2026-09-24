@@ -142,7 +142,7 @@ def body_image(candles: int) -> pygame.Surface:
 class CandleKeeper:
     """Pasif NPC. Ticaret sahne tarafindan yonetilir (`merchant.py`)."""
 
-    __slots__ = ("x", "feet_y", "frame", "candles")
+    __slots__ = ("x", "feet_y", "frame", "candles", "lit", "fade")
 
     def __init__(self, x: float, feet_y: float,
                  candles: int = DEFAULT_CANDLES) -> None:
@@ -150,6 +150,16 @@ class CandleKeeper:
         self.feet_y = feet_y
         self.frame = 0
         self.candles = max(0, min(len(_CANDLE_SPOTS), candles))
+        # Yanan mum sayisi - mumun **cubugu** kalir, alevi soner
+        # (epilog: son mumu kendisi sonduruyor). Kayboluş: `fade` 1 -> 0.
+        self.lit = self.candles
+        self.fade = 1.0
+
+    def candle_point(self, index: int = 0) -> tuple[float, float]:
+        """Bir mumun alevinin dunya konumu - sonme dumani oradan cikar."""
+        x, height = _CANDLE_SPOTS[index]
+        return (self.x - ANCHOR_X + x,
+                self.feet_y - height - 2)
 
     @property
     def rect(self) -> pygame.Rect:
@@ -162,20 +172,29 @@ class CandleKeeper:
 
     # --- Cizim ----------------------------------------------------------------
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]) -> None:
+        if self.fade <= 0.0:
+            return
         ox, oy = offset
         left = int(self.x) - ox - ANCHOR_X
         top = int(self.feet_y) - oy - SPRITE_H
+        body = body_image(self.candles)
+        if self.fade < 1.0:
+            # Kayboluyor: karanliga karisir gibi. Kopya kucuk (40x26) ve
+            # yalnizca kayboluşun ~1 saniyesinde uretiliyor.
+            body = body.copy()
+            body.set_alpha(int(255 * self.fade))
         # Golge: karakterin altinda tek elips (`CLAUDE.md` 6).
-        pygame.draw.ellipse(surface, palette.color("ink"),
-                            (left + 2, top + SPRITE_H - 2, 24, 4))
-        surface.blit(body_image(self.candles), (left, top))
+        if self.fade > 0.5:
+            pygame.draw.ellipse(surface, palette.color("ink"),
+                                (left + 2, top + SPRITE_H - 2, 24, 4))
+        surface.blit(body, (left, top))
         self._draw_flames(surface, left, top)
         self._draw_eyes(surface, left, top + EYE_ROW)
 
     def _draw_flames(self, surface: pygame.Surface, left: int, top: int) -> None:
         """Mum alevleri - 8 FPS adimli titreme, `random` yok."""
         step = self.frame // 8
-        for index in range(self.candles):
+        for index in range(min(self.lit, self.candles)):
             x, height = _CANDLE_SPOTS[index]
             fx = left + x
             fy = top + SPRITE_H - height - 2
@@ -191,6 +210,8 @@ class CandleKeeper:
             jitter = math.sin(self.frame * 0.22 + side * 1.7) * 0.6
             x = left + ex
             y = int(eye_y + jitter)
-            surface.fill(palette.color("gold"), (x, y, 1, 1))
-            glow = _glow(7, "ember", 0.5 + 0.1 * math.sin(self.frame * 0.3 + side))
+            if self.fade > 0.3:
+                surface.fill(palette.color("gold"), (x, y, 1, 1))
+            peak = (0.5 + 0.1 * math.sin(self.frame * 0.3 + side)) * self.fade
+            glow = _glow(7, "ember", peak)
             surface.blit(glow, (x - 7, y - 7), special_flags=pygame.BLEND_RGB_ADD)
