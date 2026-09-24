@@ -41,7 +41,6 @@ import pygame
 from src.art import palette
 from src.config import TILE_SIZE
 from src.core.input import Action
-from src.entities.candle_keeper import CandleKeeper
 from src.scenes.play import PlayScene
 from src.ui.chapter_end import ChapterEndScene, ChapterResult
 from src.ui.i18n import t
@@ -57,12 +56,21 @@ from src.world.tilemap import TileMap
 BOARD_RANGE = 26.0
 
 
+_KEEPER_SPOT = LEVEL.first("candle_keeper")
+
+
 class Chapter12Scene(PlayScene):
     """Mektup: bir kuyu, bir kafes, alti iz."""
 
     chapter_number = 12
+    # Mum Bekcisi'nin yeri haritada isaretli; bekciyi ve tabagini
+    # `PlayScene` kuruyor (`src/systems/merchant.py`).
+    merchant_tile = (_KEEPER_SPOT.tile_x, _KEEPER_SPOT.tile_y)
+    # Gezgin Mum Bekcisi girisin hemen onunde (`systems/merchant.py`).
+    # Oyuncu sol duvarin dibinde doguyor; arkada yer yok.
+    merchant_offset = 44.0
     chapter_name_key = "chapter.letter"
-    postfx_grade = "descent"
+    postfx_grade = "deep"   # derinlik kademesi (src/art/postfx.py)
     ambience_preset = "dust"
     dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
 
@@ -83,9 +91,6 @@ class Chapter12Scene(PlayScene):
         self.riding = False
         self.landed = False
 
-        keeper = LEVEL.first("candle_keeper")
-        self.candle_keeper = (CandleKeeper(keeper.x, keeper.feet_y)
-                              if keeper is not None else None)
         self._keeper_seen = False
 
         self.frames = 0
@@ -119,13 +124,24 @@ class Chapter12Scene(PlayScene):
                 self._board()
             return
 
-        braking = self.game.input.held(Action.DOWN)
+        # **Fren varsayilan olarak devrede; S/asagi basili tutulunca
+        # birakiliyor ve kafes hizlaniyor.** Arda, 24.09.2026: *"s/asagi
+        # tusa basinca yavas gidiyor yoksa hizli gidiyor. Tam aksi olsun.
+        # Basmayinca yavas basinca hizli gitsin."* Onceki hali "frene bas"
+        # idi: izleri okumak icin tusu surekli basili tutmak gerekiyordu,
+        # oysa bolum okumak icin var - acele eden tusa basmali, bakan degil.
+        # Kafesin kendisi (`Rig.update(braking)`) degismedi; degisen tusun
+        # anlami. Kol gorseli `rig.braking`e bakiyor: fren devredeyken
+        # cekili, tusa basinca birakilmis - fiziksel olarak da dogru.
+        braking = not self.game.input.held(Action.DOWN)
         self.rig.update(braking)
         self.rig.carry(body)
 
         if not self.brake_hinted and self.rig.y > (SHAFT_TOP + 3) * TILE_SIZE:
             self.brake_hinted = True
-            self.hint_once("hint_rig_brake", "hint.rig_brake", Action.DOWN)
+            # Yeni bayrak adi: eski kayitlarda "fren" ipucunu gormus oyuncu
+            # degisen kontrolu bir kez daha ogrensin.
+            self.hint_once("hint_rig_fast", "hint.rig_fast", Action.DOWN)
 
         if self.rig.landed and not self.landed:
             self._land()
@@ -193,17 +209,25 @@ class Chapter12Scene(PlayScene):
             return Line("ardo", ardo_key)
         return Line("rey", rey_key)
 
+    @property
+    def candle_keeper(self):
+        """Bekcinin govdesi - satici sisteminin (`self.merchant`) icinde."""
+        return self.merchant.keeper if self.merchant is not None else None
+
     def _update_keeper(self) -> None:
         """Mum Bekcisi ucuncu kez - `docs/bolum-03.md` 122.
 
         *"Mum Bekcisi B7, B12 ve B16'da tekrar cikar. Her seferinde
-        biraz daha derinde, biraz daha az mumla."* Burada ticaret
-        **yok**: nefes bolumunde bir dukkan acmak tonu kirardi. Yalniz
-        duruyor, ve mumu bir oncekinden az.
+        biraz daha derinde, biraz daha az mumla."*
+
+        **Ticaret artik VAR** (Arda, 23.09.2026: "daha fazla dukkan
+        olmali"). Onceki surum "nefes bolumunde dukkan tonu kirar" diye
+        tabagi kapatmisti; ama ayni belgenin tablosu (satir 299) ticareti
+        B7/B12/B16'ya yaziyor ve B3'ten sonra oku biten oyuncunun
+        baska care kalmiyordu. Tabak kucuk: yalnizca ok ve bomba.
         """
         if self.candle_keeper is None:
             return
-        self.candle_keeper.update()
         near = (abs(self.candle_keeper.x - self.player.body.center_x) < 22
                 and abs(self.candle_keeper.feet_y
                         - self.player.body.feet[1]) < 26)
@@ -309,44 +333,17 @@ class Chapter12Scene(PlayScene):
                 surface.fill(palette.color("ink"),
                              (wall_x + TILE_SIZE // 2, y, 1, band))
 
+        from src.world import rig_art
+        rig_art.draw_rails(surface, offset, self.rig)
+
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         for mark in self.marks:
             self._draw_mark(surface, offset, mark)
         self._draw_rig(surface, offset)
-        if self.candle_keeper is not None:
-            self.candle_keeper.draw(surface, offset)
 
     def _draw_rig(self, surface: pygame.Surface, offset) -> None:
-        """Kafes: tahta zemin, iki yandan zincir, tavana kadar.
-
-        Zincir **yukari dogru** ciziliyor ve ekranin ustune tasiyor -
-        inerken tek gorunen sey o. Kafesin nereden asili oldugu
-        gorunmezse "duser gibi" hissettiriyordu; zincir onu bir
-        **duzenek** yapiyor.
-        """
-        ox, oy = offset
-        left = int(self.rig.left) - ox
-        top = int(self.rig.y) - oy
-        width = int(self.rig.width)
-
-        for side in (left + 1, left + width - 3):
-            surface.fill(palette.color("stone_dark"), (side, top - 400, 2, 400))
-            # Halkalar - zincirin hareket ettigi buradan okunuyor.
-            phase = int(self.rig.y) % 8
-            for link in range(top - 400 + phase, top, 8):
-                surface.fill(palette.color("stone_light"), (side, link, 2, 3))
-
-        surface.fill(palette.color("earth_dark"), (left, top, width, 5))
-        surface.fill(palette.color("earth"), (left, top, width, 1))
-        for post in (left, left + width - 2):
-            surface.fill(palette.color("stone_dark"), (post, top - 10, 2, 12))
-
-        # Fren basiliyken kivilcim - girdi GORUNUR olmali.
-        if self.rig.braking and self.rig.speed > 0.05:
-            spark = 0.5 + 0.5 * math.sin(self.frames * 0.7)
-            colour = tuple(int(c * spark) for c in palette.color("ember_light"))
-            surface.fill(colour, (left - 2, top + 2, 2, 2))
-            surface.fill(colour, (left + width, top + 2, 2, 2))
+        from src.world import rig_art
+        rig_art.draw(surface, offset, self.rig, self.frames)
 
     def _draw_mark(self, surface: pygame.Surface, offset, mark: Mark) -> None:
         """Ardo'nun biraktigi sey.
@@ -354,7 +351,8 @@ class Chapter12Scene(PlayScene):
         Okunmadan once **soluk** - orada bir sey oldugu belli ama ne
         oldugu degil. Okununca renkleniyor. Yani oyuncu "orada bir sey
         var" diye yavasliyor, karsiligini gorunce yavaslamayi
-        ogreniyor. Ikinci isaretten sonra frene basmak refleks oluyor.
+        ogreniyor. (24.09.2026'dan beri kafes varsayilan olarak yavas;
+        acele eden S'ye basiyor ve izleri kaciriyor.)
         """
         ox, oy = offset
         x = int(self.rig.center_x + mark.side * TILE_SIZE * 3.2) - ox

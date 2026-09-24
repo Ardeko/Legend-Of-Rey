@@ -92,8 +92,8 @@ class Chapter15Scene(PlayScene):
 
     chapter_number = 15
     chapter_name_key = "chapter.silence"
-    postfx_grade = "descent"
-    ambience_preset = "dust"
+    postfx_grade = "deeper"   # derinlik kademesi (src/art/postfx.py)
+    ambience_preset = "cinder"   # derinden yukselen kor
     dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
     # Gizlilik bolumu kendi havasini istiyor: dovus parcasi burada
     # yanlis soz soylerdi. `docs/ekonomi-uretim.md` zorlugu 4 veriyor.
@@ -281,6 +281,7 @@ class Chapter15Scene(PlayScene):
         """
         from src.core.input import Action
         self.resonance.update()
+        self.offer_resonate(self.chimes)
         if self.game.input.pressed(Action.RESONATE):
             body = self.player.body
             if self.resonance.pulse(body.center_x, body.center_y):
@@ -448,7 +449,7 @@ class Chapter15Scene(PlayScene):
 
     # --- Cizim ---------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         for chime in self.chimes:
@@ -504,19 +505,8 @@ class Chapter15Scene(PlayScene):
                               2, 2))
 
     def _draw_pulse(self, surface: pygame.Surface, offset) -> None:
-        if not self.resonance.active:
-            return
-        ox, oy = offset
-        cx = int(self.resonance.x) - ox
-        cy = int(self.resonance.y) - oy
-        radius = int(self.resonance.radius)
-        if radius < 2:
-            return
-        fade = max(0.0, 1.0 - self.resonance.progress)
-        base = palette.color("echo_bright" if self.character != "ardo"
-                             else "ember_light")
-        colour = tuple(int(c * (0.35 + 0.65 * fade)) for c in base)
-        pygame.draw.circle(surface, colour, (cx, cy), radius, 1)
+        from src.art import resonance_view
+        resonance_view.draw(surface, offset, self.resonance, self.character)
 
     def debug_lines(self) -> list[str]:
         alerts = " ".join(f"{e.alert_level:.2f}" for e in self.enemies

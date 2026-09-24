@@ -97,8 +97,8 @@ class Chapter13Scene(PlayScene):
 
     chapter_number = 13
     chapter_name_key = "chapter.cemo"
-    postfx_grade = "descent"
-    ambience_preset = "dust"
+    postfx_grade = "deeper"   # derinlik kademesi (src/art/postfx.py)
+    ambience_preset = "cinder"   # derinden yukselen kor
 
     def setup(self) -> None:
         self.tilemap = TileMap(LEVEL.terrain_rows)
@@ -289,6 +289,8 @@ class Chapter13Scene(PlayScene):
                                       self.player.body.center_y, LEVER_REACH)
         if lever is None:
             return
+        self.prompts.offer("lever", lever.center_x, lever.center_y - 8,
+                           verb_key="prompt.pull")
         if not self.gate_hinted:
             self.gate_hinted = True
             self.hint_once("hint_lever", "hint.lever", Action.INTERACT)
@@ -519,7 +521,7 @@ class Chapter13Scene(PlayScene):
 
     # --- Cizim ---------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
         if self.room == "kafes":
             self._draw_cage(surface, offset)
 

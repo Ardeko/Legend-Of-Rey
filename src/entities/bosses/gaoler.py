@@ -324,7 +324,7 @@ class Gaoler(Boss):
         self.scene.hitboxes.spawn(Hitbox(
             rect=rect, owner=self, targets=Team.PLAYER,
             damage=GAOLER_CHAIN_DAMAGE, active_frames=ACTIVE["chain"],
-            knockback=3.0,
+            knockback=3.0, visual="chain_lash",
         ))
         self._notify("gaoler_chain")
 
@@ -342,7 +342,7 @@ class Gaoler(Boss):
             damage=GAOLER_KEYS_DAMAGE, active_frames=GAOLER_KEYS_LIFE,
             knockback=2.4,
             velocity=(self.facing * GAOLER_KEYS_SPEED, -0.35),
-            stop_on_solid=True,
+            stop_on_solid=True, visual="keys",
         ))
         self.scene.game.play_sound("swing_light")
         self._notify("gaoler_keys")

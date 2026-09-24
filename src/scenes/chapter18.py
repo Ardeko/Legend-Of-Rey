@@ -122,8 +122,8 @@ class Chapter18Scene(PlayScene):
 
     chapter_number = 18
     chapter_name_key = "chapter.end"
-    postfx_grade = "descent"
-    ambience_preset = "dust"
+    postfx_grade = "core"   # derinlik kademesi (src/art/postfx.py)
+    ambience_preset = "cinder"   # derinden yukselen kor
     dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
     music_context = "boss"
 
@@ -699,7 +699,7 @@ class Chapter18Scene(PlayScene):
 
     # --- Cizim --------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.frames)
+        cave_backdrop.draw(surface, offset, self.frames, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         # Yoldasi **sahne ciziyor** - `PlayScene` yalnizca `allies`

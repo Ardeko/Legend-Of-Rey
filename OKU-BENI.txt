@@ -1,11 +1,17 @@
 LEGEND OF REY — test sürümü
-Ardeko Studios · 10.09.2026
+Ardeko Studios · 19.09.2026 · Windows x64
 
 ═══════════════════════════════════════════════════════════════
 NASIL ÇALIŞTIRILIR
 ═══════════════════════════════════════════════════════════════
 
-"Legend of Rey.exe" dosyasına çift tıkla. Kurulum yok.
+ZIP dosyasını bir klasöre çıkar; "Legend of Rey.exe" dosyasına çift tıkla.
+Kurulum yok. Bu paket 64 bit Windows içindir.
+
+Başka bilgisayara götürmek için ZIP dosyasını alman yeterli.
+Oyunun çalışması için yalnız "Legend of Rey.exe" gerekir; iki okuma
+dosyası açıklama içindir. Python, oyna.bat, assets, src veya .venv
+klasörlerini kopyalamana gerek yok. İnternet bağlantısı gerekmez.
 
 Windows "bilinmeyen yayıncı" uyarısı verirse: Daha fazla bilgi →
 Yine de çalıştır. (İmzalı değil, o kadar.)
@@ -16,7 +22,15 @@ kendini geçici bir klasöre çıkarıyor. Bu normal.
 Kayıtlar buraya gider:
   %APPDATA%\LegendOfRey\
 
-Baştan başlamak istersen o klasörü sil.
+Yeni bilgisayarda kayıt yoksa ana menüden YENİ OYUN'u seç.
+
+Mevcut ilerlemeni de taşımak istersen iki bilgisayarda da oyunu kapat.
+Win+R ile yukarıdaki klasörü aç ve varsa şu dosyaları al:
+  save1.json, save1.bak.json, save2.json, save2.bak.json
+Yeni bilgisayarda da %APPDATA%\LegendOfRey\ klasörüne kopyala.
+Hedefte mevcut kayıt varsa üzerine yazmadan önce onu yedekle.
+settings.json isteğe bağlıdır; ayarlarını ve tuş atamalarını taşır.
+Kayıtlar exe'nin veya ZIP'in içinde değildir.
 
 
 ───────────────────────────────────────────────────────────────
@@ -32,9 +46,8 @@ Kullanılabilir adlar: bolum1 ... bolum18, ayrıca ara sahneler
 (bolum18-ad, bolum18-sessizlik, safak gibi). Yanlış bir ad
 yazarsan oyun hiç açılmaz — adı kontrol et.
 
-DİKKAT: Doğrudan atlayınca karakterin yetenekleri kayıttan gelir.
-Kayıt yoksa Rey kılıçsız başlayabilir — normal akışta böyle olmaz.
-Gerçek testi menüden "YENİ OYUN" ile yapmak lazım.
+Doğrudan bölüm açma, önceki bölümlerin hikâye akışını oynatmaz.
+Oyunu ilk kez oynayacaksan menüden "YENİ OYUN" ile başla.
 
 
 ═══════════════════════════════════════════════════════════════
@@ -52,6 +65,7 @@ KONTROLLER
   F                      Yankı'ya soru sor
   G                      rezonans (Bölüm 8'den sonra)
   U                      yoldaşa komut ("burada bekle")
+  R                      seçili malzemeyi fırlat
   Y                      karakter değiştir (Bölüm 17)
   Tab                    envanter / silah değiştir
   Aşağı (basılı tut)     Bölüm 12'de kafesin freni
@@ -87,7 +101,8 @@ BİLDİĞİMİZ EKSİKLER — bunları yazmana gerek yok
 • Rey, Ardo, Cemo, Jet ve Kalachev'in portresi çizilmiş durumda.
   Öteki karakterler kod üretimi.
 
-• Ses efektleri sentezle üretiliyor (dosya değil). Müzik gerçek.
+• Kayıtlı kaçınma/vuruş efektleri ve müzik exe'ye dahildir.
+  Diğer efektlerin bir kısmı oyun tarafından üretilir.
 
 • Denge ayarları ham. "Şu düşman çok zor / çok kolay" demen
   bizim için değerli ama bir hata değil.

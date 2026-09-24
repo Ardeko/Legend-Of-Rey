@@ -68,6 +68,9 @@ TITLES: dict[str, str] = {
     "hint.inventory": "hint.inventory_title",
     "hint.rescue": "hint.rescue_title",
     "hint.throw": "hint.throw_title",
+    "hint.weapon_whisper": "hint.weapon_whisper_title",
+    "hint.weapon_spear": "hint.weapon_spear_title",
+    "hint.weapon_sickle": "hint.weapon_sickle_title",
 }
 
 
@@ -212,6 +215,7 @@ class MechanicCard:
             "companion": _icon_companion,
             "inventory": _icon_inventory,
             "throw": _icon_throw,
+            "weapon": _icon_weapon,
         }.get(self.icon, _icon_generic)
         drawer(card, cx, cy, progress, self.frames)
 
@@ -287,6 +291,22 @@ def _icon_throw(card, cx: int, cy: int, progress: float, frame: int) -> None:
         x = tip - 4 - step * 3
         if x > cx - 8:
             card.fill(palette.color("stone_dark"), (x, cy, 1, 1))
+
+
+def _icon_weapon(card, cx: int, cy: int, progress: float, frame: int) -> None:
+    """Capraz bir agiz - kaideden cekilen silah. Ustunde gecen bir parlama."""
+    length = int(16 * progress)
+    for step in range(length):
+        x = cx - 8 + step
+        y = cy + 6 - step * 3 // 4
+        card.fill(palette.color("stone_light"), (x, y, 2, 1))
+    if length > 4:
+        card.fill(palette.color("earth"), (cx - 10, cy + 7, 4, 2))
+        card.fill(palette.color("ember_light"), (cx - 7, cy + 5, 1, 4))
+    glint = (frame // 6) % 12
+    if progress >= 1.0 and glint < 8:
+        gx = cx - 6 + glint * 2
+        card.set_at((gx, cy + 5 - glint * 3 // 2), palette.color("white_flash"))
 
 
 def _icon_generic(card, cx: int, cy: int, progress: float,

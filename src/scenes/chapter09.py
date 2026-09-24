@@ -75,7 +75,7 @@ class Chapter09Scene(PlayScene):
 
     chapter_number = 9
     chapter_name_key = "chapter.bell_tower"
-    postfx_grade = "descent"
+    postfx_grade = "deep"   # derinlik kademesi (src/art/postfx.py)
     ambience_preset = "dust"
 
     def setup(self) -> None:
@@ -178,6 +178,10 @@ class Chapter09Scene(PlayScene):
             self._teach_boost()
         if not self.boost.unlocked or self.companion is None:
             return
+        if self.boost.ready(self.companion, self.player):
+            mid = (self.player.body.center_x + self.companion.body.center_x) * 0.5
+            top = min(self.player.body.y, self.companion.body.y) - 14
+            self.prompts.offer("boost", mid, top, verb_key="prompt.boost")
         if not self.game.input.pressed(Action.INTERACT):
             return
         # **Guclu olan Ardo.** Roller karakterden turuyor, sabit degil
@@ -261,6 +265,7 @@ class Chapter09Scene(PlayScene):
         self.resonance.update()
         if not self.resonance.unlocked:
             return
+        self.offer_resonate(self.bells)
         if self.game.input.pressed(Action.RESONATE):
             if self.resonance.pulse(self.player.body.center_x,
                                     self.player.body.center_y):
@@ -433,7 +438,7 @@ class Chapter09Scene(PlayScene):
 
     # --- Cizim --------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         self._draw_fresco(surface, offset)
@@ -503,22 +508,8 @@ class Chapter09Scene(PlayScene):
                          (x + 5, slot_y, 6, 3))
 
     def _draw_pulse(self, surface: pygame.Surface, offset) -> None:
-        if not self.resonance.active:
-            return
-        ox, oy = offset
-        cx = int(self.resonance.x) - ox
-        cy = int(self.resonance.y) - oy
-        radius = self.resonance.radius
-        fade = max(0.0, 1.0 - self.resonance.progress)
-        base = palette.color("echo_bright" if self.character != "ardo"
-                             else "ember_light")
-        colour = tuple(int(c * (0.35 + 0.65 * fade)) for c in base)
-        steps = max(12, int(radius * 0.5))
-        for index in range(steps):
-            angle = index * math.tau / steps
-            x = cx + int(round(math.cos(angle) * radius))
-            y = cy + int(round(math.sin(angle) * radius * 0.82))
-            surface.fill(colour, (x, y, 2, 2))
+        from src.art import resonance_view
+        resonance_view.draw(surface, offset, self.resonance, self.character)
 
     def _draw_boost_prompt(self, surface: pygame.Surface, offset) -> None:
         """Firlatma hazirken iki figurun arasinda yukari ok.

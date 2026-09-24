@@ -45,14 +45,16 @@ from src.core.juice import ImpactWeight
 from src.entities.character_stats import ARDO, REY
 from src.entities.companion import Companion, other_character
 from src.scenes.play import PlayScene
+from src.ui import text as text_ui
 from src.ui.chapter_end import ChapterEndScene, ChapterResult
 from src.ui.i18n import t
 from src.world import cave_backdrop
 from src.world.gap import NarrowGap
 from src.world.pickups import Chest
 from src.world.rooms.chapter07 import (
-    CHEST_GOLD, DOOR_ROWS, DOOR_TILES, GAP_CLEARANCE, GAP_ROWS, GAP_TILE,
-    HAND_TILE, LEVEL, LEDGE_TILE, ROOM_STARTS, SECRETS_TOTAL, WINCH_TILE,
+    CHEST_GOLD, DOOR_ROWS, DOOR_TILES, FLOOR_TOP, GAP_CLEARANCE, GAP_ROWS,
+    GAP_TILE, HAND_TILE, LEVEL, LEDGE_TILE, ROOM_STARTS, SECRETS_TOTAL,
+    WINCH_TILE,
 )
 from src.world.tilemap import EMPTY, SOLID, TileMap
 
@@ -83,6 +85,10 @@ class Chapter07Scene(PlayScene):
     """Dar Gecit: bes oda, bir catlak, bir cark, bir el."""
 
     chapter_number = 7
+    # Mum Bekcisi burada yeniden cikiyor (`docs/bolum-03.md`: B7, B12,
+    # B16) ve tabagini aciyor - `src/systems/merchant.py`. Cikis odasinda - B8 oncesi ikmal:
+    # girisin yaninda bir dovus vardi ve tezgah acikken oyuncu komut almiyor.
+    merchant_tile = (ROOM_STARTS[-1][1] + 3, FLOOR_TOP - 1)
     chapter_name_key = "chapter.narrow_pass"
     postfx_grade = "descent"
     ambience_preset = "dust"
@@ -112,6 +118,7 @@ class Chapter07Scene(PlayScene):
         self.hand_scene_played = False
         self.reunited = False
         self.order_hinted = False
+        self.rey_sent = False
         self.gap_hinted = False
 
         self.chests = [Chest(spot.x, spot.feet_y, gold=CHEST_GOLD, secret=True)
@@ -236,7 +243,7 @@ class Chapter07Scene(PlayScene):
     def _play_alone_scene(self) -> None:
         from src.scenes.chapter07_cinematics import AloneCinematic
         # Yoldas catlagin bu tarafinda kaliyor - gecemez.
-        if self.companion is not None:
+        if self.companion is not None and self.player_is_slim:
             self.companion.hold(self.gap.rect.left - 24)
         self.scenes.push(AloneCinematic, character=self.character)
 
@@ -253,13 +260,37 @@ class Chapter07Scene(PlayScene):
                        - self.gap.rect.centerx) <= ORDER_RANGE
         if near_gap and not self.order_hinted:
             self.order_hinted = True
-            self.show_toast(t("chapter07.order_hint"), frames=240)
+            self.show_toast(self._order_hint_text(), frames=240)
+        if near_gap and not self.rey_sent:
+            self.prompts.offer("gap", self.gap.rect.centerx,
+                               self.gap.rect.top - 4, verb_key="prompt.send")
         if not near_gap or not self.game.input.pressed(Action.INTERACT):
             return
         # Yoldasi catlagin OTESINE gonderiyoruz; `hold` oraya yuruyor ve
         # sigdigi icin catlak onu durdurmuyor.
         self.companion.hold(float(WINCH_TILE[0] * TILE_SIZE))
+        self.rey_sent = True
         self.game.play_sound("ui_tick")
+
+    def _order_hint_text(self) -> str:
+        return t("chapter07.order_hint",
+                 key=self.game.input.binding_label(Action.INTERACT))
+
+    def draw_overlay(self, surface: pygame.Surface) -> None:
+        """Ardo icin, emir verilene kadar kaybolmayan baglamsal tus."""
+        if (self.player_is_slim or self.companion is None or self.door_open
+                or self.rey_sent or self.dialogue.active):
+            return
+        if abs(self.player.body.center_x - self.gap.rect.centerx) > ORDER_RANGE:
+            return
+        label = self._order_hint_text()
+        width = min(surface.get_width() - 24, text_ui.text_width(label) + 20)
+        rect = pygame.Rect((surface.get_width() - width) // 2, 38, width, 24)
+        surface.fill(palette.color("ink"), rect)
+        pygame.draw.rect(surface, palette.color("stone"), rect, 1)
+        surface.fill(palette.color("gold"), (rect.x, rect.y, 2, rect.height))
+        text_ui.draw(surface, label, rect.centerx, rect.y + 8,
+                     color=palette.color("bone"), align="center")
 
     # --- Cark ---------------------------------------------------------------
     def _winch_position(self) -> tuple[float, float]:
@@ -285,6 +316,10 @@ class Chapter07Scene(PlayScene):
             return
         # Oyuncu carktaysa tusa basmasi gerekiyor; yoldas carka vardiysa
         # kendiliginden ceviriyor - ona "bas" diyemeyiz.
+        if turner is self.player:
+            wx, wy = self._winch_position()
+            self.prompts.offer("winch", wx, wy - TILE_SIZE * 2,
+                               verb_key="prompt.turn")
         if turner is self.player and not self.game.input.pressed(Action.INTERACT):
             return
         self._turn_winch()
@@ -437,7 +472,7 @@ class Chapter07Scene(PlayScene):
 
     # --- Cizim --------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         self.gap.draw(surface, offset)

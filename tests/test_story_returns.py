@@ -16,8 +16,13 @@ sys.path.insert(0, str(ROOT))
 
 import pygame
 
+from src.config import TILE_SIZE
 from src.core.game import Game
 from src.scenes.catalog import chapter_scene_class
+from src.scenes.chapter05 import (
+    Chapter05Scene, SIGHTING_COLUMN, SIGHTING_NEAR_TILES,
+    SIGHTING_PACK_OFFSETS, SIGHTING_WATER_DROP,
+)
 from src.scenes.jet_cinematics import ENCOUNTERS, JetReturnCinematic, play_jet_once
 from src.scenes.kalachev_cinematics import KalachevCinematic
 from src.scenes.play import PlayScene
@@ -25,6 +30,7 @@ from src.systems.save import SaveData, read_save, write_save
 from src.ui import i18n
 from src.ui.chapter_end import ChapterEndScene
 from src.ui.dialogue import MAX_LINES, _wrap
+from src.world.rooms.chapter05 import WATER_HIGH, WATER_LOW
 
 
 def tick(game: Game, frame: int) -> None:
@@ -104,6 +110,104 @@ def test_jet(game: Game, chapter: int, character: str, language: str) -> None:
     print(f"OK Jet B{chapter} {character} {language}: akis, cizim, kalici bayrak")
 
 
+def test_kalachev_sighting(game: Game, character: str, language: str) -> None:
+    flag = "ch05_kalachev_intro_seen"
+    near_x = (SIGHTING_COLUMN - SIGHTING_NEAR_TILES) * TILE_SIZE
+    feet_y = 13 * TILE_SIZE
+    # Eski bir B5 kaydi: yeni sinematik bayragi henuz yok.
+    write_save(SaveData(chapter=5, character=character,
+                        checkpoint="vana_odasi", checkpoint_x=near_x,
+                        checkpoint_y=feet_y, abilities=["sword", "dodge"]))
+
+    def load_checkpoint() -> Chapter05Scene:
+        game.scenes.set_root(Chapter05Scene, transition=False,
+                             character=character, resume_save=True)
+        game.scenes._flush()
+        play = game.scenes.find(Chapter05Scene)
+        assert play is not None and game.scenes.current is play
+        assert play.checkpoint_room == "vana_odasi"
+        return play
+
+    def trigger(play: Chapter05Scene) -> None:
+        play.water.level = WATER_LOW - SIGHTING_WATER_DROP
+        play.water.set_target(WATER_HIGH)
+        play.player.body.set_feet(near_x, feet_y)
+        play._update_sighting()
+        game.scenes._flush()
+
+    play = load_checkpoint()
+    play._update_sighting()
+    game.scenes._flush()
+    assert game.scenes.current is play and not play.sighting_done, "Su alcak"
+    play.water.level = WATER_LOW - SIGHTING_WATER_DROP
+    play.player.body.set_feet(near_x - TILE_SIZE, feet_y)
+    play._update_sighting()
+    game.scenes._flush()
+    assert game.scenes.current is play and not play.sighting_done, "Oyuncu uzak"
+
+    trigger(play)
+    intro = game.scenes.current
+    assert isinstance(intro, KalachevCinematic) and intro.beat == "sighting"
+    assert intro.actor("ally") is None, "B5'te diger oyuncu yoldas degil"
+    for frame in range(24):
+        tick(game, frame)
+    assert not intro.finished and not play.save_data.flags.get(flag)
+    disk, _ = read_save()
+    assert disk is not None and not disk.flags.get(flag), "Yarim sahne kaydedildi"
+
+    # Sahne yarida kapatilirsa yeniden yuklemede atlanmamali.
+    play = load_checkpoint()
+    trigger(play)
+    intro = game.scenes.current
+    assert isinstance(intro, KalachevCinematic) and intro.beat == "sighting"
+    assert len(play.allies) == 1
+    ally = play.allies[0]
+    pack = tuple(play.sighting_pack)
+    assert len(pack) == len(SIGHTING_PACK_OFFSETS)
+    assert all(enemy in play.enemies for enemy in pack)
+
+    def actor_state(actor) -> tuple:
+        body = actor.body
+        animator = actor.animator
+        return (id(actor), body.x, body.y, body.vx, body.vy, actor.health,
+                actor.dead, animator.state, animator.index, animator.hold)
+
+    def world_state() -> tuple:
+        return (play.frames, play.room_frames, play.water.level, play.water.frame,
+                actor_state(play.player), tuple(map(actor_state, play.enemies)),
+                tuple(map(actor_state, play.allies)), ally.stay_frames,
+                ally.attack_frames, ally.swing_frames, ally.kills)
+
+    frozen = world_state()
+    run_cinematic(game, intro,
+                  f"kalachev_b5_{character}" if language == "tr" else "")
+    assert game.scenes.current is play, "Sinematik oyuna donmedi"
+    assert world_state() == frozen, "Sinematikte su veya aktorler ilerledi"
+    assert tuple(play.sighting_pack) == pack and play.allies[0] is ally
+    assert play.save_data.flags.get(flag)
+    disk, _ = read_save()
+    assert disk is not None and disk.flags.get(flag), "Tamamlanan sahne kaydedilmedi"
+
+    # Cift bitis callback'i alttaki oynanabilir sahneyi yiginindan atmiyor.
+    intro.on_finished()
+    game.scenes._flush()
+    assert game.scenes.current is play
+    previous_water = play.water.level
+    previous_stay = ally.stay_frames
+    for frame in range(90):
+        tick(game, frame)
+    assert play.water.level < previous_water, "Oyun donunce su ilerlemedi"
+    assert ally.stay_frames < previous_stay, "Kalachev AI'i devam etmedi"
+    assert any(enemy.health < enemy.max_health for enemy in pack), "Gercek dovus yok"
+
+    # Izlenmis kayitta yalniz sinematik atlanir; suru ve dovus yine var.
+    play = load_checkpoint()
+    trigger(play)
+    assert game.scenes.current is play, "Izlenmis sahne tekrar acildi"
+    assert len(play.allies) == 1 and len(play.sighting_pack) == len(pack)
+    print(f"OK Kalachev B5 {character} {language}: tetik, donma, dovus, kayit")
+
+
 def main() -> None:
     write_save(SaveData())
     game = Game()
@@ -113,6 +217,7 @@ def main() -> None:
             for character in ("rey", "ardo"):
                 for chapter in ENCOUNTERS:
                     test_jet(game, chapter, character, language)
+                test_kalachev_sighting(game, character, language)
                 for beat in ("meet", "trap", "gate", "last"):
                     game.scenes.set_root(KalachevCinematic, transition=False,
                                          character=character, beat=beat)

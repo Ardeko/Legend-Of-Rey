@@ -21,10 +21,14 @@ Spec'ler: `src/art/animation.py :: CHARACTERS`
 | `rey_armed` | 48x40 | 34 | 50 | Rey, kilic kusanmis (Bolum 1 sonrasi) |
 | `rey_dagger` | 48x40 | 34 | 50 | Rey + Hancer (Bolum 2 mini-boss odulu) |
 | `rey_axe` | 48x40 | 34 | 50 | Rey + Balta (Bolum 2 mini-boss odulu) |
+| `rey_whisper` | 48x40 | 34 | 50 | - |
+| `rey_sickle` | 48x40 | 34 | 50 | - |
 | `ardo` | 48x40 | 34 | 50 | Oynanabilir - yabanci |
 | `ardo_armed` | 48x40 | 34 | 50 | Ardo, kilic kusanmis (Bolum 1 sonrasi) |
 | `ardo_dagger` | 48x40 | 34 | 50 | Ardo + Hancer (Bolum 2 mini-boss odulu) |
 | `ardo_axe` | 48x40 | 34 | 50 | Ardo + Balta (Bolum 2 mini-boss odulu) |
+| `ardo_spear` | 48x40 | 34 | 50 | - |
+| `ardo_sickle` | 48x40 | 34 | 50 | - |
 | `cemo` | 40x32 | 27 | 50 | Rey'in kucuk kardesi - menu 5. asama |
 | `villager` | 40x38 | 32 | 50 | Bolum 1 koylusu - olay patlayinca evine kaciyor |
 | `jet` | 44x40 | 34 | 50 | B1'de kilici veren arkadas |

@@ -8,9 +8,8 @@ Kurallar (docs/menu-ui.md 3, CLAUDE.md 9):
   * YENI OYUN uzerine yazacaksa onay sorulur, **varsayilan secim IPTAL**
   * Hicbir gecis 12 kareyi asmaz
 
-Sahne cilasi (mor alev, sarkan zincirler, dikey yolculuk) Gorev 7'de.
-Burada islevsellik onceliklidir: cirkin ama hizli bir menu, guzel ama
-kullanilamayan bir menuden iyidir.
+Tas kemer, kabartmali kaide ve secim cercevesi ayni sahnenin parcalari.
+Gorsel susleme, butonlarin tiklama alanlarini ve akis hizini degistirmez.
 """
 from __future__ import annotations
 
@@ -30,7 +29,7 @@ from src.ui.menu_scene import MenuBackdrop, stage_for
 from src.ui.font_data import GLYPH_HEIGHT, GLYPH_WIDTH
 from src.ui.widgets import Menu, MenuItem, panel
 
-TITLE_Y = 46
+TITLE_Y = 32
 MENU_X = 46
 MENU_Y = 116
 CARD_X = 250
@@ -39,6 +38,29 @@ CARD_WIDTH = 178
 # Baslik + bolum adi + ayrac + dort satir. Kisa tutunca son satir ("Gizli")
 # cerceveyi kesiyordu.
 CARD_HEIGHT = 96
+CHAPTER_COUNT = 18
+
+
+class MainMenuOptions(Menu):
+    """Ana menuye ozel tas isigi; ortak Menu etkilesimi aynen korunur."""
+
+    def _draw_glow(self, surface: pygame.Surface, rect: pygame.Rect) -> None:
+        inset = rect.inflate(12, 4).move(0, -1)
+        surface.fill(palette.color("ink_soft"), inset)
+        pygame.draw.line(surface, palette.color("stone_darkest"),
+                         inset.topleft, (inset.right - 8, inset.top))
+        pygame.draw.line(surface, palette.color("stone_darkest"),
+                         inset.bottomleft, (inset.right - 8, inset.bottom))
+        pygame.draw.line(surface, palette.color("violet_bright"),
+                         (inset.x - 3, inset.y + 2),
+                         (inset.x - 3, inset.bottom - 2))
+        pygame.draw.line(surface, palette.color("violet"),
+                         (inset.x, inset.bottom), (inset.x + 26, inset.bottom))
+        pygame.draw.polygon(surface, palette.color("violet"),
+                            [(inset.right - 3, rect.centery - 2),
+                             (inset.right - 1, rect.centery),
+                             (inset.right - 3, rect.centery + 2),
+                             (inset.right - 5, rect.centery)])
 
 
 class MainMenuScene(Scene):
@@ -72,7 +94,7 @@ class MainMenuScene(Scene):
         # bakmak, ikinci yuvada oyunu olan oyuncuya "kaydin yok"
         # demek olurdu.
         save_exists = any_save()
-        return Menu([
+        return MainMenuOptions([
             # Kayit yoksa gorunmez - gri degil, YOK.
             MenuItem("menu.continue", self._continue, visible=save_exists,
                      hint="menu.continue_hint"),
@@ -190,11 +212,23 @@ class MainMenuScene(Scene):
         gibi okunsun - kisaltma basligin kendi icinden cikiyor.
         """
         self._draw_initial_caps(surface, t("title.full"), MENU_X, TITLE_Y)
-        text.draw(surface, t("title.acronym"), MENU_X, TITLE_Y + 14,
-                  color=palette.role("ui_text_bright"), outline=True,
-                  tracking=6)
+        # Logo dili degisince yeniden hazirlanir; her kare olcekleme yok.
+        logo_key = (t("title.acronym"), palette.active_mode())
+        if getattr(self, "_logo_key", None) != logo_key:
+            base = text.font().render(logo_key[0], palette.role("ui_text_bright"),
+                                      tracking=3)
+            self._logo = pygame.transform.scale(
+                base, (base.get_width() * 3, base.get_height() * 3)).convert_alpha()
+            self._logo_key = logo_key
+        surface.blit(self._logo, (MENU_X, TITLE_Y + 19))
+        line_y = TITLE_Y + 61
+        pygame.draw.line(surface, palette.color("stone_darkest"),
+                         (MENU_X, line_y), (MENU_X + 139, line_y))
         pygame.draw.line(surface, palette.color("violet"),
-                         (MENU_X, TITLE_Y + 32), (MENU_X + 96, TITLE_Y + 32))
+                         (MENU_X, line_y), (MENU_X + 38, line_y))
+        pygame.draw.polygon(surface, palette.color("violet_bright"),
+                            [(MENU_X + 42, line_y - 2), (MENU_X + 44, line_y),
+                             (MENU_X + 42, line_y + 2), (MENU_X + 40, line_y)])
 
     def _draw_initial_caps(self, surface: pygame.Surface, value: str,
                            x: int, y: int) -> None:
@@ -219,7 +253,17 @@ class MainMenuScene(Scene):
         hatirlamiyor. Bu kart hatirlatir."""
         data = self.save_data
         rect = pygame.Rect(CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT)
-        panel(surface, rect)
+        # Kartin golgesi ve sol-ust kenari onu duvardan ayirir.
+        surface.fill(palette.color("ink"), rect.move(3, 4))
+        surface.fill(palette.color("ink"), rect)
+        pygame.draw.rect(surface, palette.color("stone_darkest"), rect, 1)
+        surface.fill(palette.color("ink_soft"),
+                     (rect.x + 1, rect.y + 1, rect.width - 2, 18))
+        pygame.draw.line(surface, palette.color("stone_dark"),
+                         rect.topleft, (rect.right - 1, rect.top))
+        surface.fill(palette.color("violet"), (rect.x, rect.y + 1, 2, 17))
+        for x in (rect.x, rect.right - 1):
+            surface.fill(palette.color("stone"), (x, rect.y, 1, 3))
 
         line_y = rect.y + 6
         text.draw(surface, t("save.chapter", chapter=data.chapter),
@@ -247,6 +291,16 @@ class MainMenuScene(Scene):
             text.draw(surface, value, rect.right - 8, line_y,
                       color=palette.role("ui_text"), align="right")
             line_y += GLYPH_HEIGHT + 1
+        # On sekiz tas: tek bakista kaydin yolculuktaki yerini gosterir.
+        # Dolu taslar tamamlanan bolumler; acik kenar mevcut bolum.
+        finished = bool(getattr(data, "finished", False) or data.flags.get("finished"))
+        for index in range(CHAPTER_COUNT):
+            x = rect.x + 8 + index * 9
+            done = finished or index + 1 < data.chapter
+            surface.fill(palette.color("violet" if done else "stone_darkest"),
+                         (x, rect.bottom - 6, 6, 2))
+            if not finished and index + 1 == data.chapter:
+                surface.fill(palette.role("ui_text"), (x, rect.bottom - 7, 6, 1))
 
     def _draw_overwrite_dialog(self, surface: pygame.Surface) -> None:
         veil = pygame.Surface((INTERNAL_WIDTH, INTERNAL_HEIGHT), pygame.SRCALPHA)

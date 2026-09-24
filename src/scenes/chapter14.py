@@ -65,9 +65,11 @@ class Chapter14Scene(PlayScene):
     """Kaynak: alti oda, uc ihanet, bir donus."""
 
     chapter_number = 14
+    # Silah kaidesi (`src/world/weapon_shrine.py`). Buyuk boss oncesi ortak yeni silah; iki yandan gelen kalabaliga.
+    weapon_shrine = "sickle"
     chapter_name_key = "chapter.source"
-    postfx_grade = "descent"
-    ambience_preset = "dust"
+    postfx_grade = "deeper"   # derinlik kademesi (src/art/postfx.py)
+    ambience_preset = "cinder"   # derinden yukselen kor
     dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
 
     def setup(self) -> None:
@@ -346,7 +348,7 @@ class Chapter14Scene(PlayScene):
 
     # --- Cizim ---------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         for chest in self.chests:

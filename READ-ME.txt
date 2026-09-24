@@ -1,5 +1,5 @@
 LEGEND OF REY
-Ardeko Studios · v1.0
+Ardeko Studios · v1.0 · Build 2026-09-19 · Windows x64
 
 (Türkçesi: OKU-BENI.txt)
 
@@ -7,7 +7,12 @@ Ardeko Studios · v1.0
 HOW TO RUN
 ===============================================================
 
-Double-click "Legend of Rey.exe". There is no installer.
+Extract the ZIP to a folder, then double-click "Legend of Rey.exe".
+There is no installer. This package is for 64-bit Windows.
+
+To play on another computer, copy the ZIP. Only "Legend of Rey.exe"
+is required to run; the two text files contain instructions. Python,
+oyna.bat, assets, src and .venv are not needed. No internet is required.
 
 If Windows says "Windows protected your PC": More info -> Run anyway.
 The game isn't code-signed, that's all.
@@ -18,7 +23,14 @@ unpacks itself into a temporary folder.
 Saves are kept here (two save slots):
   %APPDATA%\LegendOfRey\
 
-To start completely fresh, delete that folder.
+On a computer without a save, choose NEW GAME in the main menu.
+
+To transfer progress, close the game on both computers. Copy any of
+these files from that folder to the same location on the other PC:
+  save1.json, save1.bak.json, save2.json, save2.bak.json
+Back up any existing destination saves before replacing them.
+settings.json is optional; it carries preferences and key bindings.
+Your saves are separate from the executable and are not in the ZIP.
 
 THE GAME STARTS IN TURKISH. To switch to English, on the main menu:
   AYARLAR (Settings) -> OYNANIS (Gameplay) -> Dil (Language) -> English
@@ -38,6 +50,7 @@ CONTROLS
   F                      ask the Echo a question
   G                      resonance (after chapter 8)
   U                      command your companion ("wait here")
+  R                      throw the selected item
   Y                      switch character (chapter 17)
   Tab                    inventory / weapon
   Esc                    pause

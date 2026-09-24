@@ -87,7 +87,8 @@ def stage_for(save_data) -> Stage:
     """
     if save_data is None:
         return STAGES[0]
-    if getattr(save_data, "finished", False):
+    if (getattr(save_data, "finished", False)
+            or getattr(save_data, "flags", {}).get("finished", False)):
         return STAGES[4]
     chapter = getattr(save_data, "chapter", 1)
     if chapter > 16:
@@ -128,8 +129,11 @@ class MenuBackdrop:
         self._rng = rng
 
         self._aura_cache: dict[tuple, pygame.Surface] = {}
+        self._pool_cache: dict[tuple, pygame.Surface] = {}
         self._vault = None       # Katman 1-2 bir kez cizilir, sonra blit
+        self._floor = None
         self._vignette = None
+        self._palette_mode = palette.active_mode()
 
     # --- Toz ---------------------------------------------------------------
     def _new_mote(self, rng: random.Random, front: bool) -> list[float]:
@@ -152,11 +156,18 @@ class MenuBackdrop:
         self.frame += 1
         self.rey.update()
         self.ardo.update()
+        self.cemo.update()
         self._update_dust(self.dust, front=False)
         self._update_dust(self.front_dust, front=True)
 
     # --- Cizim -------------------------------------------------------------
     def draw(self, surface: pygame.Surface) -> None:
+        # Ayarlardan donulunce eski renk koru paletinin dokusu kalmasin.
+        if self._palette_mode != palette.active_mode():
+            self._palette_mode = palette.active_mode()
+            self._vault = self._floor = self._vignette = None
+            self._aura_cache.clear()
+            self._pool_cache.clear()
         self._draw_vault(surface)
         self._draw_chains(surface)
         self._draw_dust(surface, self.dust, front=False)
@@ -175,76 +186,109 @@ class MenuBackdrop:
         surface.blit(self._vault, (0, 0))
 
     def _build_vault(self) -> pygame.Surface:
-        """Tonoz kemerleri ve tas duvar. Bir kez uretilir."""
-        layer = pygame.Surface((INTERNAL_WIDTH, INTERNAL_HEIGHT))
-        layer.fill(palette.color("abyss_dark"))
+        """Karanlik koridor, kemer taslari ve on sutunlar: uc derinlik."""
+        layer = pygame.Surface((INTERNAL_WIDTH, INTERNAL_HEIGHT)).convert()
+        layer.fill(palette.color("ink"))
         rng = random.Random(11)
+        # Soldaki negatif alan, baslik ve butonlarin sakin zemini.
+        layer.fill(palette.color("abyss_dark"), (222, 0, 258, FLOOR_Y))
+        for row, y in enumerate(range(10, FLOOR_Y, 19)):
+            for x in range(222 - (row % 2) * 23, INTERNAL_WIDTH, 46):
+                block = pygame.Rect(max(222, x), y, 43, 17)
+                pygame.draw.rect(layer, palette.color("ink"), block, 1)
+                if rng.randrange(3) == 0:
+                    layer.fill(palette.color("stone_darkest"),
+                               (max(224, x + 3), y + 2, rng.randrange(4, 12), 1))
+        self._draw_arch(layer, 355, 99, 32, "stone_darkest")
+        self._draw_arch(layer, 355, 69, 66, "ink")
+        # En gerideki kapinin icindeki dar isik: koridorun derinligini kurar.
+        layer.fill(palette.color("abyss_dark"), (346, 124, 18, 102))
+        layer.fill(palette.color("ink_soft"), (347, 125, 2, 91))
+        for x in (232, 470):
+            layer.fill(palette.color("ink_soft"), (x, 0, 10, FLOOR_Y))
+            layer.fill(palette.color("stone_darkest"), (x, 0, 2, FLOOR_Y))
+            for y in range(24, FLOOR_Y, 32):
+                layer.fill(palette.color("ink"), (x, y, 10, 2))
+                layer.fill(palette.color("stone_darkest"), (x - 2, y - 3, 14, 3))
+        # Rastgele ama sabit catlaklar: animasyonda yuzey titremiyor.
+        for _ in range(22):
+            x, y = rng.randrange(236, 478), rng.randrange(8, 214)
+            pygame.draw.lines(layer, palette.color("ink"), False,
+                              [(x, y), (x - 2, y + 4), (x, y + 9)])
+        return layer
 
-        # Arka duvar: tas siralari. Ilk denemede tam genislikte donusumlu
-        # bantlardi ve tarama cizgisi gibi okunuyordu - menu metnini de
-        # okunmaz yapiyordu. Simdi yalnizca ince derz cizgileri var ve
-        # sol ucte bir (butonlarin oldugu yer) tamamen sakin.
-        for y in range(14, FLOOR_Y, 13):
-            layer.fill(palette.color("ink"), (150, y, INTERNAL_WIDTH - 150, 1))
-        for x in range(150, INTERNAL_WIDTH, 34):
-            for y in range(14, FLOOR_Y, 26):
-                layer.fill(palette.color("ink"), (x, y, 1, 13))
-        # Catlaklar - duvar duz kalmasin.
-        for _ in range(26):
-            x = rng.randrange(170, INTERNAL_WIDTH)
-            y = rng.randrange(10, FLOOR_Y - 20)
-            length = rng.randrange(4, 14)
-            for i in range(length):
-                layer.set_at((min(INTERNAL_WIDTH - 1, x + i // 3),
-                              min(INTERNAL_HEIGHT - 1, y + i)),
-                             palette.color("void"))
-
-        # Tonoz kemerleri: ustte silik yarim daireler.
-        for cx, radius in ((250, 54), (348, 66), (446, 54)):
-            pygame.draw.arc(layer, palette.color("ink"),
-                            pygame.Rect(cx - radius, -radius + 8,
-                                        radius * 2, radius * 2),
-                            0.15, math.pi - 0.15, 2)
-        return layer.convert()
+    def _draw_arch(self, surface: pygame.Surface, cx: int, radius: int,
+                   top: int, stone: str) -> None:
+        """Yuvarlak ust, dik ayaklar, tek tek okunabilen kilit taslari."""
+        spring = top + radius
+        opening = pygame.Rect(cx - radius + 10, spring, radius * 2 - 20,
+                              FLOOR_Y - spring)
+        pygame.draw.circle(surface, palette.color("ink"), (cx, spring), radius)
+        surface.fill(palette.color("ink"), opening)
+        arc = pygame.Rect(cx - radius, top, radius * 2, radius * 2)
+        pygame.draw.arc(surface, palette.color(stone), arc, 0, math.pi, 9)
+        pygame.draw.arc(surface, palette.color("ink_soft"), arc.inflate(-18, -18),
+                        0, math.pi, 2)
+        for side in (-1, 1):
+            x = cx + side * radius - (9 if side > 0 else 0)
+            surface.fill(palette.color(stone), (x, spring, 9, FLOOR_Y - spring))
+            for y in range(spring, FLOOR_Y, 17):
+                surface.fill(palette.color("ink"), (x, y, 9, 1))
+        for step in range(1, 12):
+            angle = step * math.pi / 12
+            points = [(round(cx + math.cos(angle) * r),
+                       round(spring - math.sin(angle) * r))
+                      for r in (radius - 9, radius)]
+            pygame.draw.line(surface, palette.color("ink"), *points)
 
     # 3: sarkan zincirler ---------------------------------------------------
     def _draw_chains(self, surface: pygame.Surface) -> None:
         """Her zincir farkli fazda salinir - hepsi ayni anda sallanmasin."""
-        dark = palette.color("stone_darkest")
+        dark = palette.color("ink_soft")
         light = palette.color("stone_dark")
         for index, (x, length) in enumerate(CHAIN_COLUMNS):
             phase = self.frame * 0.015 + index * 1.7
             offsets = shear_offsets(length, phase, amplitude=2.4 + index * 0.3,
                                     wave_length=0.06, anchor="top")
-            for y in range(length):
-                # Halkalar donusumlu ton - zincir dokusu.
-                colour = light if (y // 2) % 2 == 0 else dark
-                surface.fill(colour, (x + offsets[y], y, 1, 1))
+            for y in range(0, length - 4, 5):
+                px = x + offsets[y]
+                pygame.draw.rect(surface, dark, (px, y, 3, 5), 1)
+                surface.fill(light, (px, y + 1, 1, 2))
 
     # 4 ve 9: toz -----------------------------------------------------------
     def _draw_dust(self, surface: pygame.Surface, motes: list[list[float]],
                    front: bool) -> None:
         # On toz daha parlak ve daha buyuk: kameraya yakin.
-        colour = palette.color("stone_light" if front else "stone_dark")
-        size = 2 if front else 1
         for x, y, _speed, wobble in motes:
             drift = math.sin(self.frame * 0.02 + wobble) * 3.0
             px = int(x + drift)
             py = int(y)
             if 0 <= px < INTERNAL_WIDTH and 0 <= py < INTERNAL_HEIGHT:
+                distance = math.hypot(px - FLAME_BASE[0], py - FLAME_BASE[1])
+                colour = (self._flame_colour(bright=True) if distance < 44
+                          else palette.color("stone_dark" if front else "stone_darkest"))
+                size = 2 if front and distance < 70 else 1
                 surface.fill(colour, (px, py, size, size))
 
     # 5: kaide --------------------------------------------------------------
     def _draw_pedestal(self, surface: pygame.Surface) -> None:
         surface.fill(palette.color("stone_dark"), PEDESTAL)
-        # Ust yuzey daha aydinlik - alev oradan geliyor.
+        surface.fill(palette.color("stone_darkest"),
+                     (PEDESTAL.right - 6, PEDESTAL.y, 6, PEDESTAL.height))
+        # Basamakli sutun basi, oluklar ve oyulmus alev amblemi.
+        for x in (PEDESTAL.x + 4, PEDESTAL.right - 10):
+            surface.fill(palette.color("ink_soft"), (x, PEDESTAL.y + 10, 2, 28))
+            surface.fill(palette.color("stone"), (x - 1, PEDESTAL.y + 10, 1, 28))
         surface.fill(palette.color("stone"),
                      (PEDESTAL.x - 3, PEDESTAL.y, PEDESTAL.width + 6, 3))
-        pygame.draw.rect(surface, palette.outline(), PEDESTAL, 1)
-        # Kaideyi zemine baglayan golge.
-        surface.fill(palette.color("void"),
-                     (PEDESTAL.x + 2, PEDESTAL.bottom, PEDESTAL.width - 4,
-                      FLOOR_Y - PEDESTAL.bottom))
+        surface.fill(palette.color("stone_darkest"),
+                     (PEDESTAL.x - 1, PEDESTAL.y + 5, PEDESTAL.width + 2, 3))
+        surface.fill(palette.color("stone"),
+                     (PEDESTAL.x - 3, PEDESTAL.bottom - 4, PEDESTAL.width + 6, 2))
+        cx, cy = PEDESTAL.centerx - 2, PEDESTAL.centery
+        pygame.draw.polygon(surface, palette.color("ink_soft"),
+                            [(cx, cy - 6), (cx + 4, cy), (cx, cy + 6), (cx - 4, cy)])
+        surface.fill(self._flame_colour(bright=False), (cx, cy - 2, 1, 4))
 
     # 6: aura ---------------------------------------------------------------
     def _draw_aura(self, surface: pygame.Surface) -> int:
@@ -357,6 +401,9 @@ class MenuBackdrop:
                           wave_length=0.30, anchor="bottom")
 
         pos = (x - image.get_width() // 2, FLOOR_Y - image.get_height())
+        if not flat:
+            pygame.draw.ellipse(surface, palette.color("void"),
+                                (x - 10, FLOOR_Y - 3, 20, 4))
         surface.blit(image, pos)
 
         if not flat:
@@ -369,9 +416,9 @@ class MenuBackdrop:
 
     # 8: zemin --------------------------------------------------------------
     def _draw_floor(self, surface: pygame.Surface, aura_radius: int) -> None:
-        surface.fill(palette.color("stone_darkest"),
-                     (0, FLOOR_Y, INTERNAL_WIDTH, INTERNAL_HEIGHT - FLOOR_Y))
-        surface.fill(palette.color("stone_dark"), (0, FLOOR_Y, INTERNAL_WIDTH, 2))
+        if self._floor is None:
+            self._floor = self._build_floor()
+        surface.blit(self._floor, (0, FLOOR_Y))
 
         # Islak yansima: alevin isigi zeminde titresir.
         colour = self._flame_colour(bright=False)
@@ -379,10 +426,31 @@ class MenuBackdrop:
         width = max(8, int(aura_radius * 0.8 * flicker))
         # Yuvarlak haleyi yassilastirip zemine yatiriyoruz: islak tasta
         # yansima boyle okunur.
-        glow = radial_glow(width, colour, peak=0.22)
-        pool = pygame.transform.scale(glow, (width * 2, 14))
+        key = (width, colour)
+        pool = self._pool_cache.get(key)
+        if pool is None:
+            glow = radial_glow(width, colour, peak=0.22)
+            pool = pygame.transform.scale(glow, (width * 2, 14)).convert()
+            self._pool_cache[key] = pool
         surface.blit(pool, (FLAME_BASE[0] - width, FLOOR_Y - 2),
                      special_flags=pygame.BLEND_RGB_ADD)
+        # Dar kirik yansimalar islak tas hissi verir; UI bolgesine tasmaz.
+        for row in range(4):
+            spread = 11 - row * 2
+            shift = round(math.sin(self.frame * 0.035 + row * 1.4) * 2)
+            surface.fill(colour, (FLAME_BASE[0] - spread + shift,
+                                 FLOOR_Y + 3 + row * 3, spread * 2, 1))
+
+    def _build_floor(self) -> pygame.Surface:
+        floor = pygame.Surface((INTERNAL_WIDTH, INTERNAL_HEIGHT - FLOOR_Y)).convert()
+        floor.fill(palette.color("ink_soft"))
+        floor.fill(palette.color("stone_darkest"), (0, 0, INTERNAL_WIDTH, 2))
+        for y in (4, 12, 25):
+            floor.fill(palette.color("ink"), (220, y, INTERNAL_WIDTH - 220, 1))
+        for x in range(210, INTERNAL_WIDTH, 50):
+            pygame.draw.line(floor, palette.color("ink"),
+                             (x, 1), (x + (x - 355) // 3, 29))
+        return floor
 
     # 10: vinyet ------------------------------------------------------------
     def _draw_vignette(self, surface: pygame.Surface) -> None:

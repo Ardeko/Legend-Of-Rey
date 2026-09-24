@@ -198,6 +198,7 @@ class Chapter08Scene(PlayScene):
         self.resonance.update()
         if not self.resonance.unlocked:
             return
+        self.offer_resonate(self.crystals)
         if self.game.input.pressed(Action.RESONATE):
             if self.resonance.pulse(self.player.body.center_x,
                                     self.player.body.center_y):
@@ -338,7 +339,7 @@ class Chapter08Scene(PlayScene):
 
     # --- Cizim --------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         self._draw_fire(surface, offset)
@@ -376,29 +377,8 @@ class Chapter08Scene(PlayScene):
         surface.fill(palette.color("stone_darkest"), (x, top, 1, height))
 
     def _draw_pulse(self, surface: pygame.Surface, offset) -> None:
-        """Genisleyen ses halkasi.
-
-        Dolu bir daire degil **halka**: sesin bir cephesi var ve
-        ilerliyor. Dolu cizilseydi bir patlama gibi okunurdu ve
-        gecikmenin (nesne ses varinca kiriliyor) sebebi gorunmezdi.
-        """
-        if not self.resonance.active:
-            return
-        ox, oy = offset
-        cx = int(self.resonance.x) - ox
-        cy = int(self.resonance.y) - oy
-        radius = self.resonance.radius
-        # Sonuna dogru soluyor - ses uzaklastikca zayifliyor.
-        fade = max(0.0, 1.0 - self.resonance.progress)
-        base = palette.color("echo_bright" if self.character != "ardo"
-                             else "ember_light")
-        colour = tuple(int(c * (0.35 + 0.65 * fade)) for c in base)
-        steps = max(12, int(radius * 0.5))
-        for index in range(steps):
-            angle = index * math.tau / steps
-            x = cx + int(round(math.cos(angle) * radius))
-            y = cy + int(round(math.sin(angle) * radius * 0.82))
-            surface.fill(colour, (x, y, 2, 2))
+        from src.art import resonance_view
+        resonance_view.draw(surface, offset, self.resonance, self.character)
 
     def debug_lines(self) -> list[str]:
         return [f"oda {self.room}  rezonans={self.resonance.unlocked}"

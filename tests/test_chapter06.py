@@ -332,7 +332,7 @@ def test_entrance() -> None:
                   == 3, "uc yaratik sahnede")
 
             spoken = [p for p in top.panels if p.dialogue_lines]
-            check(len(spoken) == 3, "uc replikli tanisma",
+            check(len(spoken) > 3, "tanisma beraber ilerleme kararina uzaniyor",
                   f"{len(spoken)} panel")
             speakers = {line.speaker for p in spoken
                         for line in p.dialogue_lines}
@@ -354,6 +354,31 @@ def test_entrance() -> None:
             top.draw(game.canvas)
             painted = pygame.transform.average_color(game.canvas)[:3] != (0, 0, 0)
             check(painted, f"{played}: sahne ekrana ciziliyor")
+
+            # Konusma uzasa da oyun altta donuk kalmali; butun
+            # replikler okunup onaylaninca Kalachev sahnesine baglanmali.
+            frozen_frame = scene.frames
+            seen = set()
+            for frame in range(1800):
+                current = top.dialogue.current
+                if current is not None:
+                    seen.add(current.key)
+                game.input.begin_frame()
+                game.input.handle_event(pygame.event.Event(
+                    pygame.KEYDOWN if frame % 2 else pygame.KEYUP,
+                    key=pygame.K_RETURN))
+                game.input.end_frame()
+                game.scenes.update()
+                game.frame += 1
+                if top.finished:
+                    break
+            expected = {line.key for p in spoken for line in p.dialogue_lines}
+            check(seen == expected, f"{played}: butun konusma sirasi izlendi")
+            check(scene.frames == frozen_frame,
+                  f"{played}: uzun konusmada alttaki oyun donuk")
+            from src.scenes.kalachev_cinematics import KalachevCinematic
+            check(isinstance(game.scenes.current, KalachevCinematic),
+                  f"{played}: tanisma Kalachev sahnesine baglandi")
         finally:
             game.shutdown()
 

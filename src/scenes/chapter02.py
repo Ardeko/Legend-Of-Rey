@@ -545,7 +545,7 @@ class Chapter02Scene(PlayScene):
 
     # --- Cizim --------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         cave_backdrop.draw_torches(surface, offset, TORCHES, self.game.frame)

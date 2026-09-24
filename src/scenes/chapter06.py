@@ -13,11 +13,12 @@ dovusu + agirlik plakalari."*
     src/world/plate.py          beraberligi mekanige sokan plakalar
     src/entities/bosses/        BOSS 1 - Katman 1'in sinavi
 
-## Konusma yok - **soru isareti**
+## Ilk tanisma - kurtaris, konusma ve **soru isareti**
 
 `docs/gdd.md` 11 romantik yay: *"B6 | Ilk karsilasma | Bakisma, soru
-isareti"*. Iki yabanci karsilasiyor ve **konusmuyorlar**. Bolum boyunca
-yoldas tek kelime etmiyor; iletisimin tamami konum ve zamanlama.
+isareti"*. Arda'nin istegiyle karsilasma artik konusmali; 19.09.2026'da
+Cemo'yu arama ve beraber ilerleme karariyla uzatildi. Oyuncunun secimine
+gore kurtaran taraf degisir. Bolumun oynanisinda iletisim konum ve zamanlamayla.
 
 Yanki bu boslugu doldurmuyor da: Rey oynanirken bile Yanki yoldas
 hakkinda **B8'e kadar konusmuyor** (`docs/gdd.md` 10: *"8 | Ates Basi |
@@ -321,6 +322,7 @@ class Chapter06Scene(PlayScene):
         """
         if self.companion is None:
             return
+        self._offer_order_prompt()
         if not self.game.input.pressed(ORDER_KEY):
             return
         if self.companion.hold_x is not None:
@@ -332,6 +334,18 @@ class Chapter06Scene(PlayScene):
             return
         self.companion.hold(plate.centre_x)
         self.game.play_sound("ui_confirm")
+
+    def _offer_order_prompt(self) -> None:
+        """Emir tusu plakanin ustunde; yoldas tutuluyorsa onun ustunde."""
+        if self.companion.hold_x is not None:
+            body = self.companion.body
+            self.prompts.offer("order", body.center_x, body.y - 4,
+                               action=ORDER_KEY, verb_key="prompt.release")
+            return
+        plate = self._nearest_plate()
+        if plate is not None:
+            self.prompts.offer("order", plate.centre_x, plate.rect.top - 20,
+                               action=ORDER_KEY, verb_key="prompt.send")
 
     def _nearest_plate(self):
         """Oyuncuya en yakin plaka - ama **oyuncunun bastigi degil**.
@@ -554,7 +568,7 @@ class Chapter06Scene(PlayScene):
 
     # --- Cizim --------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         for plate in self.teach_plates + self.arena_plates:

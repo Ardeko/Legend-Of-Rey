@@ -67,6 +67,7 @@ pygame.display.set_mode((64, 64))
 
 from src.config import INTERNAL_WIDTH  # noqa: E402
 from src.ui import i18n, text  # noqa: E402
+from src.ui.dialogue import MAX_LINES, WRAP_WIDTH_PORTRAIT, _wrap  # noqa: E402
 
 failures: list[str] = []
 
@@ -157,6 +158,21 @@ def main() -> int:
         tasan: list[str] = []
         for key, value in i18n.table(code).items():
             ornek = PLACEHOLDER.sub("00", value)     # yer tutuculari doldur
+            if key.startswith("line."):
+                # Diyalog kelimeleri satirlara boler; toplam genisligi
+                # tek satirla karsilastirmak okunabilir replikleri reddeder.
+                # Portreli kutu en dar durum. Satir sayisini KIRPMADAN
+                # olc; _wrap uzun tek kelimeyi bolmedigi icin her satirin
+                # piksel genisligini de denetle.
+                rows = _wrap(ornek, WRAP_WIDTH_PORTRAIT)
+                if len(rows) > MAX_LINES:
+                    tasan.append(f"{key} {len(rows)}>{MAX_LINES} satir")
+                limit = text.text_width("M" * WRAP_WIDTH_PORTRAIT)
+                for index, row in enumerate(rows, start=1):
+                    width = text.text_width(row)
+                    if width > limit:
+                        tasan.append(f"{key} satir {index}: {width}>{limit}")
+                continue
             width = text.text_width(ornek)
             limit = PANEL_LIMITS.get(key, MAX_LINE_WIDTH)
             if width > limit:

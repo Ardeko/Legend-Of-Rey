@@ -25,16 +25,131 @@ from src.art.glow import radial_glow
 BODY_WIDTH = 12
 BODY_HEIGHT = 20
 
+# --- Sprite (23.09.2026) -----------------------------------------------------
+# Ilk surum iki dikdortgendi ve karanlik bolumlerde bir "kutu" gibi
+# okunuyordu; gezgin dukkan olunca oyuncunun onu **uzaktan** tanimasi
+# gerekti. Belgedeki tarif (`docs/bolum-03.md` Oda 3-A) harfiyen:
+#
+#     insan silueti, yuzu yok      kukuleta ici bos, iki alev goz
+#     onunde bir tabak             altin sikkeli sig bir kap
+#     biraz daha az mumla          `candles` - her gorunuste bir eksik
+#
+# Cuppe mor: B3'un Mor Alev'i onun odasinda. Sol-ust isik kurali:
+# sol kenar ve kukuleta tepesi acik, sag kenar golgede.
+SPRITE_W = 40
+SPRITE_H = 26
+ANCHOR_X = 13                    # govde merkezi, sprite icinde
+DEFAULT_CANDLES = 5
+
+# Her satir: (y, sol, sag) dahil. Oturan, one egik bir figur - kukuleta
+# ucu hafifce ileri (saga) dusuyor.
+_SILHOUETTE = (
+    (0, 13, 14), (1, 12, 15), (2, 11, 16), (3, 10, 16), (4, 9, 17),
+    (5, 9, 17), (6, 8, 17), (7, 8, 18), (8, 8, 18), (9, 7, 19),
+    (10, 7, 19), (11, 6, 19), (12, 6, 20), (13, 6, 20), (14, 5, 20),
+    (15, 5, 21), (16, 5, 21), (17, 4, 21), (18, 4, 21), (19, 4, 22),
+    (20, 4, 22), (21, 3, 22), (22, 3, 23), (23, 3, 23), (24, 3, 23),
+    (25, 3, 23),
+)
+# Kukuletanin ici - bos yuz.
+_HOOD_VOID = ((4, 12, 15), (5, 11, 15), (6, 11, 16), (7, 11, 16),
+              (8, 12, 15))
+EYE_ROW = 6
+EYES_X = (12, 15)
+# Tabak: govdenin saginda, yerde.
+PLATE_X, PLATE_Y, PLATE_W = 25, 23, 11
+# Mumlarin yerleri (x, fitil yuksekligi) - soldan saga azaliyor.
+_CANDLE_SPOTS = ((1, 7), (37, 6), (23, 5), (38, 4), (2, 4))
+
+_body_cache: dict[int, pygame.Surface] = {}
+
+
+def clear_cache() -> None:
+    _body_cache.clear()
+
+
+def _glow(radius: int, colour_name: str, peak: float) -> pygame.Surface:
+    # `radial_glow` kendi onbellegini tutuyor (`src/art/glow.py`).
+    return radial_glow(radius, palette.color(colour_name), peak=peak)
+
+
+def _span_fill(surface: pygame.Surface, spans, colour) -> None:
+    for y, x0, x1 in spans:
+        surface.fill(colour, (x0, y, x1 - x0 + 1, 1))
+
+
+def _build_body(candles: int) -> pygame.Surface:
+    """Durağan kisim - **bir kez** uretilir (`CLAUDE.md` 4)."""
+    image = pygame.Surface((SPRITE_W, SPRITE_H), pygame.SRCALPHA)
+    outline = palette.color("ink")
+    robe = palette.color("violet_dark")
+    lit = palette.color("violet")
+    shade = palette.color("ink_soft")
+    # Kontur: silueti bir piksel sisirip koyu renkle bas.
+    grown = [(y, x0 - 1, x1 + 1) for y, x0, x1 in _SILHOUETTE]
+    _span_fill(image, grown, outline)
+    image.fill(outline, (12, 0, 4, 1))
+    _span_fill(image, _SILHOUETTE[1:], robe)
+    for y, x0, x1 in _SILHOUETTE[1:]:
+        image.fill(lit, (x0, y, 1, 1))                   # sol kenar isik
+        image.fill(shade, (x1 - 1, y, 2, 1))             # sag kenar golge
+    image.fill(lit, (12, 1, 3, 1))                        # kukuleta tepesi
+    # Kivrimlar - cuppe kumas gibi okunsun, blok gibi degil.
+    for x, y0 in ((9, 14), (13, 12), (17, 16)):
+        image.fill(shade, (x, y0, 1, SPRITE_H - y0 - 1))
+    # Kol: tabaga uzanan yen.
+    image.fill(robe, (18, 15, 5, 2))
+    image.fill(lit, (18, 15, 5, 1))
+    image.fill(outline, (23, 15, 1, 2))
+    _span_fill(image, _HOOD_VOID, palette.color("void"))
+    _draw_plate(image)
+    for index in range(min(candles, len(_CANDLE_SPOTS))):
+        x, height = _CANDLE_SPOTS[index]
+        _draw_candle_stick(image, x, height)
+    if pygame.display.get_init() and pygame.display.get_surface() is not None:
+        return image.convert_alpha()
+    return image
+
+
+def _draw_plate(image: pygame.Surface) -> None:
+    """Sig kap ve icinde uc sikke - "altin koy, al" (belge)."""
+    rim = palette.color("stone_light")
+    base = palette.color("stone")
+    image.fill(palette.color("ink"), (PLATE_X - 1, PLATE_Y, PLATE_W + 2, 3))
+    image.fill(base, (PLATE_X, PLATE_Y + 1, PLATE_W, 1))
+    image.fill(rim, (PLATE_X, PLATE_Y, PLATE_W, 1))
+    image.fill(palette.color("stone_dark"), (PLATE_X + 1, PLATE_Y + 2, PLATE_W - 2, 1))
+    for cx in (PLATE_X + 3, PLATE_X + 5, PLATE_X + 7):
+        image.fill(palette.color("gold"), (cx, PLATE_Y - 1, 2, 1))
+    image.fill(palette.color("ember_light"), (PLATE_X + 4, PLATE_Y - 2, 2, 1))
+
+
+def _draw_candle_stick(image: pygame.Surface, x: int, height: int) -> None:
+    top = SPRITE_H - height
+    image.fill(palette.color("ink"), (x - 1, top - 1, 3, height + 1))
+    image.fill(palette.color("bone"), (x, top, 1, height))
+    image.fill(palette.color("stone_light"), (x, top + height - 1, 1, 1))
+
+
+def body_image(candles: int) -> pygame.Surface:
+    image = _body_cache.get(candles)
+    if image is None:
+        image = _build_body(candles)
+        _body_cache[candles] = image
+    return image
+
 
 class CandleKeeper:
-    """Pasif NPC. Ticaret sahne tarafindan (`chapter03.py`) yonetilir."""
+    """Pasif NPC. Ticaret sahne tarafindan yonetilir (`merchant.py`)."""
 
-    __slots__ = ("x", "feet_y", "frame")
+    __slots__ = ("x", "feet_y", "frame", "candles")
 
-    def __init__(self, x: float, feet_y: float) -> None:
+    def __init__(self, x: float, feet_y: float,
+                 candles: int = DEFAULT_CANDLES) -> None:
         self.x = x
         self.feet_y = feet_y
         self.frame = 0
+        self.candles = max(0, min(len(_CANDLE_SPOTS), candles))
 
     @property
     def rect(self) -> pygame.Rect:
@@ -48,28 +163,34 @@ class CandleKeeper:
     # --- Cizim ----------------------------------------------------------------
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]) -> None:
         ox, oy = offset
-        x = int(self.x) - ox
-        base = int(self.feet_y) - oy
-        top = base - BODY_HEIGHT
+        left = int(self.x) - ox - ANCHOR_X
+        top = int(self.feet_y) - oy - SPRITE_H
+        # Golge: karakterin altinda tek elips (`CLAUDE.md` 6).
+        pygame.draw.ellipse(surface, palette.color("ink"),
+                            (left + 2, top + SPRITE_H - 2, 24, 4))
+        surface.blit(body_image(self.candles), (left, top))
+        self._draw_flames(surface, left, top)
+        self._draw_eyes(surface, left, top + EYE_ROW)
 
-        # Oturan siluet: kukuletali, yuzu bos. Sol-ust isik kurali (CLAUDE.md 6).
-        surface.fill(palette.color("ink_soft"),
-                     (x - BODY_WIDTH // 2, top + 3, BODY_WIDTH, BODY_HEIGHT - 3))
-        surface.fill(palette.color("stone"),
-                     (x - BODY_WIDTH // 2, top + 3, BODY_WIDTH, 1))
-        # Kukulete - basin ustunu ve yuzun ust yarisini kapatir, "yuz yok"
-        # hissi boylece siluetten geliyor, ayrica bir "bos yuz" cizmiyoruz.
-        surface.fill(palette.color("ink"), (x - 4, top, 8, 6))
+    def _draw_flames(self, surface: pygame.Surface, left: int, top: int) -> None:
+        """Mum alevleri - 8 FPS adimli titreme, `random` yok."""
+        step = self.frame // 8
+        for index in range(self.candles):
+            x, height = _CANDLE_SPOTS[index]
+            fx = left + x
+            fy = top + SPRITE_H - height - 2
+            lean = (step + index) % 3 - 1 if (step + index) % 4 == 0 else 0
+            surface.fill(palette.color("ember"), (fx + lean, fy, 1, 2))
+            surface.fill(palette.color("gold"), (fx, fy + 1, 1, 1))
+            surface.blit(_glow(6, "ember_dark", 0.55), (fx - 6, fy - 5),
+                         special_flags=pygame.BLEND_RGB_ADD)
 
-        self._draw_eyes(surface, x, top + 8)
-
-    def _draw_eyes(self, surface: pygame.Surface, x: int, eye_y: int) -> None:
-        """Iki titreyen mum alevi - sprite degil, kod uretimi."""
-        for side in (-1, 1):
+    def _draw_eyes(self, surface: pygame.Surface, left: int, eye_y: int) -> None:
+        """Iki titreyen mum alevi - sprite degil, kod uretimi (belge)."""
+        for side, ex in zip((-1, 1), EYES_X):
             jitter = math.sin(self.frame * 0.22 + side * 1.7) * 0.6
-            ex = x + side * 3
-            ey = int(eye_y + jitter)
-            surface.fill(palette.color("gold"), (ex, ey, 1, 1))
-            glow = radial_glow(7, palette.color("ember"),
-                               peak=0.5 + 0.1 * math.sin(self.frame * 0.3 + side))
-            surface.blit(glow, (ex - 7, ey - 7), special_flags=pygame.BLEND_RGB_ADD)
+            x = left + ex
+            y = int(eye_y + jitter)
+            surface.fill(palette.color("gold"), (x, y, 1, 1))
+            glow = _glow(7, "ember", 0.5 + 0.1 * math.sin(self.frame * 0.3 + side))
+            surface.blit(glow, (x - 7, y - 7), special_flags=pygame.BLEND_RGB_ADD)

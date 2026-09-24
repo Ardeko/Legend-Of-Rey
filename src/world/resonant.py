@@ -130,16 +130,25 @@ class Crystal(ResonantObject):
         left = self.rect.x - ox
         top = self.rect.y - oy
         height = self.rect.height
-        for row in range(height):
-            inset = int(abs(row - height * 0.35) * 0.28)
-            width = max(2, TILE_SIZE - inset * 2)
-            tone = "echo" if row % 3 else "echo_bright"
-            surface.fill(palette.color(tone),
-                         (left + inset, top + row, width, 1))
-        # Kontur - paletin en koyu 2. rengi (CLAUDE.md 6).
-        surface.fill(palette.color("ink"), (left, top, TILE_SIZE, 1))
-        surface.fill(palette.color("ink"), (left, top + height - 1,
-                                            TILE_SIZE, 1))
+        tip = (left + 7, top + 1)
+        bottom = (left + 8, top + height - 2)
+        ridge = (left + 6, top + height // 3)
+        a, b = (left + 1, top + height // 3), (left + 14, top + height // 4)
+        c = (left + 13, top + height * 3 // 4)
+        pygame.draw.polygon(surface, palette.color("ink"),
+                            (tip, b, c, bottom, (left + 2, top + height - 8), a))
+        pygame.draw.polygon(surface, palette.color("echo"), (tip, a, ridge, bottom))
+        pygame.draw.polygon(surface, palette.color("abyss_light"),
+                            (tip, b, c, bottom, ridge))
+        pygame.draw.polygon(surface, palette.color("echo_bright"),
+                            (tip, (left + 4, top + height // 3), ridge))
+        pygame.draw.line(surface, palette.color("echo_bright"), ridge, bottom)
+        pygame.draw.line(surface, palette.color("abyss"),
+                         (left + 9, top + height // 2), c)
+        # Tas yuva, kristali duvarin parcasi gibi oturtur.
+        surface.fill(palette.color("stone_darkest"),
+                     (left + 2, top + height - 3, 12, 3))
+        surface.fill(palette.color("stone"), (left + 3, top + height - 3, 4, 1))
 
 
 class Latch(ResonantObject):
@@ -159,8 +168,11 @@ class Latch(ResonantObject):
         # Halka + dil. Acilinca dil dusuyor.
         drop = 0 if not self.triggered else int(
             (1.0 - self.frames / max(1, self.duration)) * 5)
-        surface.fill(palette.color("earth_dark"),
-                     (left + 3, top + 2, TILE_SIZE - 6, 4))
+        surface.fill(palette.color("ink"), (left + 1, top + 1, 14, 14))
+        surface.fill(palette.color("stone_dark"), (left + 2, top + 2, 12, 12))
+        surface.fill(palette.color("stone"), (left + 2, top + 2, 12, 1))
+        for dx, dy in ((3, 4), (12, 4), (3, 11), (12, 11)):
+            surface.set_at((left + dx, top + dy), palette.color("gold"))
         surface.fill(palette.color("ember" if self.triggered else "stone"),
                      (left + 6, top + 6 + drop, 4, 6))
         if not self.triggered:
@@ -207,6 +219,8 @@ class Bell(ResonantObject):
         y = self.rect.y - oy
         # Askı
         surface.fill(palette.color("earth_dark"), (x + 6, y, 4, 3))
+        surface.fill(palette.color("stone_dark"), (x - 3, y - 3, 22, 3))
+        surface.fill(palette.color("stone"), (x - 3, y - 3, 22, 1))
         # Govde: asagi dogru genisleyen bir cerceve - siluet testi
         # (`CLAUDE.md` 6) tek renkte "can" demeli, "kutu" degil.
         swing = 0
@@ -218,14 +232,26 @@ class Bell(ResonantObject):
         # "gold"/"ember" birer RENK. `brass` bir golge ZINCIRI ve
         # `palette.color()` onu tanimaz - projede bu tuzaga uc kez
         # dusuldu (`steel`, `brass`).
-        tone = "gold" if self.triggered else "ember"
+        tone = "gold" if self.triggered else "earth"
         for row in range(3, self.rect.height - 2):
-            spread = min(5, row // 2)
+            # Omuz dar, etek asagi dogru acilir: kapsul yerine can silueti.
+            spread = 1 + int(4 * (row / max(1, self.rect.height - 3)) ** 1.7)
             surface.fill(palette.color(tone),
                          (x + 5 - spread + swing, y + row,
                           6 + spread * 2, 1))
+            surface.fill(palette.color("gold"),
+                         (x + 6 - spread + swing, y + row, 2, 1))
+            surface.fill(palette.color("earth_dark"),
+                         (x + 8 + spread + swing, y + row, 3, 1))
+            if row in (self.rect.height // 2, self.rect.height - 6):
+                surface.fill(palette.color("earth"),
+                             (x + 6 - spread + swing, y + row, 3 + spread * 2, 1))
+        surface.fill(palette.color("gold"),
+                     (x + swing, y + self.rect.height - 4, 16, 1))
         surface.fill(palette.color("ink"),
                     (x + 3 + swing, y + self.rect.height - 2, 10, 1))
         # Tokmak
         surface.fill(palette.color("earth_dark"),
                      (x + 7 + swing, y + self.rect.height - 2, 2, 2))
+        pygame.draw.circle(surface, palette.color("stone"),
+                           (x + 8 - swing, y + self.rect.height - 1), 2)

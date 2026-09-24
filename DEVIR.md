@@ -7,7 +7,152 @@ Okuma sırası: **1) `CLAUDE.md`** (bağlayıcı kurallar — anayasa) → **2) 
 dosya** (nerede kaldık) → 3) gerekirse `docs/` altındaki ilgili tasarım
 belgesi.
 
-Son güncelleme: **18.09.2026** (WAV ithali, boss girişinde Kalachev, kayıt regresyonları, diyaloglar ve Jet'in dönüşleri) · Ardeko Studios · Arda Güner
+Son güncelleme: **24.09.2026** (tuş göstergeleri, Kalachev yerçekimi, gezgin dükkân, derinlik temaları/lav, yeni silahlar, ışıma/sis/kenar ışığı, senaryo akışı belgesi) · Ardeko Studios · Arda Güner
+
+## 23–24.09.2026 — Arda'nın 8 maddelik isteği + "grafikleri geliştir"
+
+**Kaynak değişti, exe YENİDEN ÜRETİLMEDİ** — `oyna.bat` kaynağı açar;
+`dist/Legend of Rey.exe` hâlâ 19.09 sürümü.
+
+1. **Dünya içi tuş göstergesi** (`src/ui/interact_prompt.py`). Etkileşilebilir
+   her nesnenin üstünde, menzile girince beliren tuş kapağı + fiil ("E Çevir",
+   "G Ses gönder"). Etiket atama tablosundan, son kullanılan cihaza göre
+   (gamepad ise düğme). Sahne her kare `self.prompts.offer(...)` diyor; teklif
+   edilmeyen söner. Bağlı: B3 meşale yuvası/Mor Alev/Bekçi/mangal, B4 kamp,
+   B5 vana, B6 plaka emri, B7 çatlak/çark, B8/B9/B15 rezonans hedefi
+   (`PlayScene.offer_resonate`), B9 fırlatma, B11 ayna, B13 kol, B16 kaldırma
+   (basılı tutma çubuğu), satıcı, silah kaidesi. Ek: `ability.*` bildirimleri
+   sabit "J/Shift/K" yerine `{key}` ile atanmış tuşu okuyor.
+2. **Kalachev havada kalıyordu** — `update()` `Actor.update`'i eziyordu ve
+   yalnız ölüyken yerçekimi uyguluyordu; flaş/dokunulmazlık sayaçları da
+   işlemiyordu. Artık her dal `_fall_and_move` + `_tick_timers`.
+   `tests/test_kalachev_physics.py` 14 kırık → 0.
+3. **Ok/bomba ve dükkân.** Ölümde "yeniden dene" kaydı DİSKTEN okuyor (son
+   yazımdan beri atılanlar zaten geri geliyordu). Oda girişindeki çanta
+   (`checkpoint_bag`) hatırlanıyor, yeniden denemede `max(disk, oda girişi)`
+   — arada duraklatma diske yazsa bile atılanlar geri geliyor, çoğaltma yok.
+   **Mum Bekçisi `docs/bolum-03.md` 122'ye uygun olarak B7, B12, B16'da**
+   tezgâh açıyor (`src/systems/merchant.py`; B7/B16 çıkış odasında, B12'deki
+   mevcut bekçi). Yalnız ok/bomba, B3 fiyatı. Tezgâh açıkken oyuncu komut
+   almıyor (`_update_player`), yakında uyanık düşman varsa açılmıyor/kapanıyor,
+   dolu çantaya satmıyor. Her görünüşte bir mum eksik (5→4→3→2). Ortak panel
+   `src/ui/shop.py` (ikon, altın, çanta 3/9, yetmeyen fiyat kırmızı+çizili,
+   tuşlar atamadan); B3 de bunu kullanıyor ve alımdan sonra açık kalıyor.
+   Bekçi yeniden çizildi (mor cüppe, tabak, mumlar).
+4. **Alt yazılar — KARAR BEKLİYOR.** Bulgu: oyun içi diyalog `CONFIRM` bekliyor
+   ve `CONFIRM` Boşluk'u da içeriyor; Boşluk aynı zamanda ZIPLA → geçmeye
+   çalışan oyuncu zıplıyor. Kutu zeminin üstünü kapatıyor. Seçenekler Arda'ya
+   sunuldu (otomatik ilerleme / konuşmada duraklatma / karma + balon).
+5. **`docs/senaryo-akisi.md`** — bütün diyaloglar oynanış sırasıyla, her anın
+   "Ne oluyor" notu, Rey/Ardo ayrımı, sonda denetim. `python
+   tools/dialogue_dump.py --geri docs/senaryo-akisi.md` geri yazar (560 blok,
+   gidiş-dönüş bayt bayt aynı doğrulandı). Denetimin bulduğu B4 hatası
+   düzeltildi (`self.say(self._voice(...))` iskelet hatırası repliklerini
+   aynı karede siliyordu).
+6. **Derinlik: lav + morarma** (`cave_backdrop.depth_for`, B2=0 → B18=1).
+   B7+ uzak duvardan dökülen akan lav şelaleleri (sırtın ardında parıltı),
+   B9+ yarıklarda nabız atan magma damarları, derinde mor tortul katman ve
+   kızıl alt sis. Renk derecelendirmesi `deep`/`deeper`/`core` (vinyet AYNI —
+   karanlık artırılmadı). B13+ ortam "cinder" (yükselen kor).
+7. **Silahlar** (`src/combat/weapons.py`, değerler `config.py`, YER TUTUCU):
+   Fısıltı (yalnız Rey, B10 — bitirici mor ses dalgası), İz Mızrağı (yalnız
+   Ardo, B10 — uzun/dar, bitiricide atılma), Zincir Orak (ikisi, B14 — 4 vuruş,
+   bitirici iki yana). Kaide `src/world/weapon_shrine.py` (taşa saplı silah,
+   "E Al", alınınca boş kaide). Sprite'lar `rey_whisper`, `rey_sickle`,
+   `ardo_spear`, `ardo_sickle` (bütçe 33–34 ≤ 34). Hitstop 3/7 bağlayıcıya uygun.
+8. **Grafik** — (a) **Mermiler hiç çizilmiyordu** (oyuncunun oku/bombası,
+   Okçu'nun oku, Zindancı'nın anahtar/zinciri yalnız hata ayıklama kutusuydu):
+   `Hitbox.visual` + `src/art/projectiles.py`; düşman oku tehlike rengi +
+   çengel (renk körlüğü için şekil). (b) **Karo temaları + kütle içi karartma**
+   (`tileset.theme_for`: zindan tuğlası / yosunlu mağara / mor bazalt+kristal /
+   kor çatlaklı obsidyen; yüzeyden uzaklığa göre 0–3 kademe karartma, numpy
+   ile, sürüm sayacıyla önbellekli; kırılabilir duvar hâlâ ayırt edilemez).
+   (c) **Işıma** (`src/art/bloom.py`, "Efekt gücü" ayarına bağlı), (d) **sis**
+   (derinliğe göre mavi→mor→kızıl), (e) **ortam kenar ışığı**
+   (`src/art/rimlight.py`, B10+ mor, B14+ kor; gölge elipsi hariç).
+   `radial_glow` artık önbellekli (her kare numpy ile üretiliyordu).
+   Kare maliyeti ~2.9 ms (bütçe 16.7).
+
+9. **B12 asansör kontrolü ters çevrildi** (Arda, 24.09: "basmayınca yavaş,
+   basınca hızlı"). Fren artık varsayılan olarak devrede (0.45 px/kare, izler
+   okunur); S/aşağı basılıyken bırakılıyor (1.15). `Rig` sınıfı ve hız
+   değerleri aynı; tuşun anlamını `Chapter12Scene` çeviriyor. İpucu
+   `hint.rig_fast` (yeni bayrak: eski kayıtlar da bir kez görür), giriş
+   bildirimi "Kafes yavaşça iniyor. Acele edersen kaçırırsın." `gdd.md` §9 ve
+   `yapi.md` mekanik 11 güncellendi. `test_chapter12.py` gerçek tuşla sınıyor.
+
+**Doğrulama:** 58 test paketi geçti (yeniler: `test_merchant.py`,
+`test_weapon_shrine.py`, `test_kalachev_physics.py`). Görseller
+`build/testshots/prompts/`. `assets/REGISTRY.md` yeniden üretildi.
+
+## 19.09.2026 — Rey ve Ardo'nun ilk karşılaşması uzatıldı
+
+- B6 girişindeki kurtarış korunuyor; konuşma her karakter seçeneğinde
+  3 replikten 12'ye çıktı. Cemo'nun izi, Ardo'nun kapalı cevabı ve
+  beraber yürüme kararı eklendi. Arada bakışma, Ardo yakın planı ve
+  birlikte hareket ederek kapanış var. Replikler oyuncunun onayını bekler.
+- Konuşmalı paneller artık `dataclasses.replace` ile hazırlanıyor;
+  yakın plan, geçiş ve hareket bilgileri diyalog eklenirken korunuyor.
+- B8 Ateş Başı'ndaki rezonans kartı daha açık: `[G] ses gönder — kristali kır`
+  (gerçek tuş ataması gösterilir). Kullanıcı ateş başındaki ipucunu belirsiz
+  buldu; ayrıntılı görsel tarifi henüz gelmediğinden bu değişiklik B8 kartıyla sınırlı.
+- `docs/diyaloglar.md` güncellendi: 406 metin. Yalnız Türkçe okuma kopyası
+  `docs/tum-diyaloglar-tr.md`; karakter seçenekleri ve yazıtlar da dahil.
+- `test_chapter06.py`, `test_lang.py`, `test_hints.py`, `test_staging.py` geçti.
+  İki karakter ve iki dilde gerçek sinematik akışı çizdirildi, tüm replikler
+  görülerek Kalachev sahnesine ve ardından oyuna dönüş doğrulandı.
+  Görüntüler: `build/testshots/first_meeting_*.png`.
+- Exe yeniden üretildi (85.396.042 bayt). Yeni diyalog anahtarları ve iki
+  dil dosyası paket içinde doğrulandı; B6 geçici kayıtla, depo dışından
+  altı saniye açık kaldı. Rapor: `build/verification/first-meeting-release.json`.
+
+## 19.09.2026 — Efe'nin ilk konuşması ve görsel okunabilirlik
+
+- **B5 Efe sinematiği:** Su yükselmişken ve oyuncu yakınken açılır.
+  İki kıyı, yaklaşma, yüz yakın planı, Rey/Ardo için ayrı altışar replik,
+  ardından mevcut gerçek sürü dövüşü. TR/EN karşılıklar eklendi.
+  Konuşma sırasında su/fizik/düşmanlar durur; tamamlanınca
+  `ch05_kalachev_intro_seen` kaydedilir. Eski kayıtta görülmemişse oynar;
+  yarıda çıkılırsa sonraki girişte yeniden başlar. B6'daki isim tanıtımı korunur.
+- **Menü:** Katmanlı taş kemerler, oyma kaide, zemin yansıması, büyük
+  piksel başlık, seçili satır çerçevesi ve 18 bölümlük kayıt göstergesi.
+  Final menüsü artık gerçek `flags['finished']` bilgisini okur.
+- **Ortak grafik:** 18 bölümün taşları daha sakin yüzey dokusu ve açık
+  yan/alt kenar gölgeleri kullanır. Gizli kırılabilir duvar aynı görünür.
+  16 bölümün mağara fonuna dünyaya bağlı dikey parallax ve taş nişleri
+  eklendi. Su, hafif yansıma/derinlik katmanı kullanır; yüzeyler önbelleklidir.
+- **Karanlık geri bildirimi:** Arda bütün karanlık bölümleri belirtti.
+  Işıksız siluet görünürlüğü 0.08 → 0.36, ışık iç çekirdeği daha okunur;
+  genel yeraltı tint/vinyeti hafifletildi. B3 boss karanlık dalgasında
+  tamamen siyah ekran yerine %24 görünürlük var. Işıkların mekanik
+  yarıçapları, gölge düşmanı kuralları ve Mor Alev sinematiği değişmedi.
+- **B7 Ardo:** Etkileşim tuşunu gösteren kalıcı `Rey'i dar geçitten gönder`
+  ipucu; yeniden atanmış tuş/gamepad etiketi de doğru. Rey gönderilince
+  kapanır. Ek hata düzeltmesi: geçiş sinematiği gönderilmiş Rey'i geri çağırmaz.
+- **Rezonans/ayna/asansör:** Yüzeyleri belirgin kristal, metal mandal,
+  bronz çan, ortak üç halkalı ses darbesi; kesintisiz ayna ışınları ve
+  cam/metal ayrımı; kafeste raylar, zincir halkaları, dönen makaralar,
+  ahşap döşeme, korkuluk ve frene tepki veren kol.
+- **Doğrulama:** Mevcut 54 test betiği geçti; yeni
+  `test_visual_readability.py` de geçti (toplam 55). Yeni B5 akışı dört
+  karakter/dil birleşiminde oynatılıp çizildi. Loglar
+  `build/verification/2026-09-19/`; hedef sahne görüntüleri
+  `build/testshots/focus_graphics/`, menü görüntüleri
+  `build/testshots/menu_polish_*.png`. Hepsi geçici kayıt dizininde çalıştı.
+  `docs/diyaloglar.md` 394 replik içerir. `docs/emre-efe-diyaloglari.md`,
+  Emre/Efe karşılaşmalarını ve ilgili yorumları oyun sırasıyla toplar
+  (90 replik, Rey/Ardo seçenekleri ve yeni B5 dahil).
+- **Yeni exe:** `dist/Legend of Rey.exe` 19 Eylül'de yeniden üretildi
+  (85.393.453 bayt). Önceki sürüm `build/release-backup/Legend of Rey.before-2026-09-19.exe`.
+  İç arşivde yeni çizim/sahne modülleri doğrulandı; 10 WAV, 9 MP3, 5 portre
+  ve iki dil dosyası kaynaklarla bayt bayt eşit. Menü ve B3/B5/B7/B9/B11/B12/B13,
+  kaynak klasörü dışından geçici kayıtla altışar saniye açık kaldı.
+  293 Python dosyasının sözdizimi geçerli. 18 bölüm iki karakterle
+  çizdirildi; görüntüler `build/testshots/graphics_review/` altında.
+  Paket doğrulaması `build/verification/2026-09-19/release.json` dosyasında.
+
+Kalan görsel değerlendirme: Oyuncunun kendi ekranında uzun oynanışla
+karanlık/ışık dengesini hissetmesi; otomatik sahne çizimi bunu ölçemez.
 
 ## 18.09.2026 — Oynanış geri bildirimi ve ses ithali
 
@@ -32,7 +177,7 @@ Son güncelleme: **18.09.2026** (WAV ithali, boss girişinde Kalachev, kayıt re
 - **Kalachev metinleri TR/EN yenilendi.** B6/B10/B13/B18 karşılaşmalarında
   artık kendi kısa karşılıklarını söylüyor. Rey'e mesafeli; Ardo'yla eski
   dostluk, yaralanma ve final arasında devam eden bir konuşma var.
-  B5 ve B15'teki sessizliği korunuyor.
+  Bu tarihte B5/B15 sessizdi; B5, 19 Eylül isteğiyle yukarıdaki gibi genişletildi.
 - **Jet B4/B9/B15 çıkışlarında tekrar görünüyor.** `jet_cinematics.py`:
   geliş, konuşma, mevcut portresiyle yakın plan, ayrılış. Bölümün bulmacası
   bittikten sonra oynar. Görüldü bayrağı tamamlanınca kayda yazılır;

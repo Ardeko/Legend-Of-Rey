@@ -294,6 +294,8 @@ class Player(Actor):
         weapon = weapons.get(key)
         self.chain = ChainState(window_frames=self.stats.chain_window,
                                 chain_table=weapon.chain)
+        # Savurma izi silahin rengini tasiyor: Fisilti mor, orak celik.
+        self.trail.chain = weapon.trail_chain
         self._apply_weapon_sprite()
 
     def _apply_weapon_sprite(self) -> None:
@@ -418,8 +420,12 @@ class Player(Actor):
     def _spawn_attack_hitbox(self) -> None:
         spec = self.chain.spec
         finisher = self.chain.is_finisher
-        reach = FINISHER_REACH if finisher else ATTACK_REACH
-        height = FINISHER_HEIGHT if finisher else ATTACK_HEIGHT
+        weapon = weapons.get(self.weapon)
+        # Silahin kendi menzili (`combat/weapons.py`): mizrak uzun ve dar,
+        # orak biraz genis. Kilic/hancer/balta eski degerlerinde.
+        reach = (FINISHER_REACH if finisher else ATTACK_REACH) + weapon.reach_bonus
+        height = max(8, (FINISHER_HEIGHT if finisher else ATTACK_HEIGHT)
+                     - weapon.height_trim)
 
         damage = spec.damage
         is_counter = self.dodge.consume_counter()
@@ -455,6 +461,44 @@ class Player(Actor):
         )
         self.scene.hitboxes.spawn(box)
         self.scene.on_attack_swing(self, box)
+        if finisher and weapon.finisher:
+            self._finisher_effect(weapon, box, height)
+
+    def _finisher_effect(self, weapon, box: Hitbox, height: int) -> None:
+        """Silaha ozel bitirici - zincirin sonu silahin imzasi.
+
+        wave   Fisilti: ileri ucan, delici bir ses dalgasi (mor)
+        lunge  Iz Mizragi: bitiricide one atilma - mesafeyi kapatiyor
+        sweep  Zincir Orak: ayni vurus ARKAYA da - iki yandan gelene
+        """
+        from src.config import (SICKLE_BACK_REACH, SPEAR_LUNGE,
+                                WHISPER_WAVE_DAMAGE, WHISPER_WAVE_LIFE,
+                                WHISPER_WAVE_SPEED)
+        if weapon.finisher == weapons.FINISHER_WAVE:
+            rect = pygame.Rect(0, 0, 10, 16)
+            rect.center = (int(self.body.center_x + self.facing * 14),
+                           int(self.body.center_y))
+            self.scene.hitboxes.spawn(Hitbox(
+                rect=rect, damage=WHISPER_WAVE_DAMAGE, owner=self,
+                targets=Team.ENEMY | Team.BREAKABLE, knockback=2.0,
+                knockback_up=0.6, active_frames=WHISPER_WAVE_LIFE,
+                poise_damage=1, pierce=True, stop_on_solid=True,
+                velocity=(self.facing * WHISPER_WAVE_SPEED, 0.0),
+                visual="echo_wave",
+            ))
+            self.scene.game.play_sound("echo_open")
+        elif weapon.finisher == weapons.FINISHER_LUNGE:
+            self.body.vx = self.facing * SPEAR_LUNGE
+        elif weapon.finisher == weapons.FINISHER_SWEEP:
+            self.scene.hitboxes.spawn(Hitbox(
+                rect=melee_rect(self.body, -self.facing, SICKLE_BACK_REACH,
+                                height),
+                damage=box.damage, owner=self,
+                targets=Team.ENEMY | Team.BREAKABLE,
+                knockback=box.knockback, knockback_up=box.knockback_up,
+                active_frames=box.active_frames, poise_damage=2,
+                is_finisher=True, pierce=True,
+            ))
 
     def notify_kill(self) -> None:
         """Bir dusman oldu: recovery iptal olur (kill cancel).

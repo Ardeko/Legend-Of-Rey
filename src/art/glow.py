@@ -16,8 +16,39 @@ import pygame
 from src.art import palette
 
 
+# Uretilen haleler. **Salt okunur** paylasiliyor: hicbir cagiran donen
+# yuzeye yazmiyor (23.09.2026'da 37 cagri tek tek tarandi). Yazan bir
+# cagiran eklenirse `.copy()` almali.
+#
+# Neden: mesaleler, bekcinin gozleri, kolye... kare basina onlarca kez
+# ayni haleyi numpy ile yeniden uretiyordu. 60x60 bir hale her karede
+# bir dizi ayirma, karekok ve donusum demek. `peak` 1/64 adima
+# yuvarlaniyor - titreyen isigin gozle ayirt edilemeyen farki.
+_cache: dict[tuple[int, tuple[int, int, int], int], pygame.Surface] = {}
+_CACHE_LIMIT = 384
+_PEAK_STEPS = 64
+
+
+def clear_cache() -> None:
+    _cache.clear()
+
+
 def radial_glow(radius: int, colour: palette.RGB,
                 peak: float = 0.55) -> pygame.Surface:
+    """Onbellekli hale - bkz. `_build_glow`. Donen yuzeye YAZMA."""
+    level = max(0, round(peak * _PEAK_STEPS))
+    key = (int(radius), (int(colour[0]), int(colour[1]), int(colour[2])), level)
+    glow = _cache.get(key)
+    if glow is None:
+        if len(_cache) >= _CACHE_LIMIT:
+            _cache.clear()
+        glow = _build_glow(key[0], key[1], level / _PEAK_STEPS)
+        _cache[key] = glow
+    return glow
+
+
+def _build_glow(radius: int, colour: palette.RGB,
+                peak: float) -> pygame.Surface:
     """Merkezde parlak, kenarda sifir - eklemeli isik halesi.
 
     **Alfa ile siddet ayarlanmaz.** `BLEND_RGB_ADD` alfayi agirlik olarak

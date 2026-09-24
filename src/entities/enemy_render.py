@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pygame
 
-from src.art import palette
+from src.art import palette, rimlight
 from src.entities.enemy import EnemyState
 
 # Tell parlamasi nabiz atar - sabit renk "acik/kapali" gibi okunur,
@@ -69,9 +69,12 @@ def draw_enemy(enemy, surface: pygame.Surface,
         return
 
     foot = enemy.sprite_foot_y * squash[1]
-    surface.blit(image, (
-        int(enemy.body.center_x - image.get_width() * 0.5) - ox,
-        int(enemy.body.bottom - foot) - oy))
+    position = (int(enemy.body.center_x - image.get_width() * 0.5) - ox,
+                int(enemy.body.bottom - foot) - oy)
+    surface.blit(image, position)
+    # Derinde golge kenarina ortamin rengi (`src/art/rimlight.py`).
+    rimlight.draw(surface, image, position, getattr(enemy.scene, "rim_light", None),
+                  foot_row=int(foot))
 
     _draw_tell_marker(enemy, surface, rect)
     # Dusmana ozel ekler - govdenin USTUNE.

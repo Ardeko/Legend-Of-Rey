@@ -54,7 +54,7 @@ from src.ui.i18n import t
 from src.world import cave_backdrop
 from src.world.pickups import Chest
 from src.world.rooms.chapter16 import (
-    CHEST_GOLD, LEVEL, LIFT_BONUS, ROOM_STARTS, SECRETS_TOTAL,
+    CHEST_GOLD, FLOOR_TOP, LEVEL, LIFT_BONUS, ROOM_STARTS, SECRETS_TOTAL,
 )
 from src.world.tilemap import TileMap
 
@@ -91,9 +91,13 @@ class Chapter16Scene(PlayScene):
     """Sirt Sirta: yedi oda, bir yoldas, bir kaldirma."""
 
     chapter_number = 16
+    # Mum Bekcisi burada yeniden cikiyor (`docs/bolum-03.md`: B7, B12,
+    # B16) ve tabagini aciyor - `src/systems/merchant.py`. Cikis odasinda, KALP tetikleyicisinden once - finale ikmal:
+    # girisin yaninda bir dovus vardi ve tezgah acikken oyuncu komut almiyor.
+    merchant_tile = (ROOM_STARTS[-1][1] + 2, FLOOR_TOP - 1)
     chapter_name_key = "chapter.backtoback"
-    postfx_grade = "descent"
-    ambience_preset = "dust"
+    postfx_grade = "core"   # derinlik kademesi (src/art/postfx.py)
+    ambience_preset = "cinder"   # derinden yukselen kor
     music_context = "combat"
 
     def setup(self) -> None:
@@ -259,6 +263,13 @@ class Chapter16Scene(PlayScene):
         yer acmak olurdu.
         """
         holding = self.game.input.held(Action.INTERACT)
+        if (self.companion is not None and self.rescue.unlocked
+                and self.rescue.reach(self.player, self.companion)):
+            # Basili tutma: kapagin altinda dolan cubuk.
+            self.prompts.offer("rescue", self.companion.body.center_x,
+                               self.companion.body.y - 4,
+                               verb_key="prompt.lift",
+                               hold=self.rescue.progress)
         lifted = self.rescue.update(self.player, self.companion, holding)
         if not lifted:
             return
@@ -418,7 +429,7 @@ class Chapter16Scene(PlayScene):
 
     # --- Cizim --------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.frames)
+        cave_backdrop.draw(surface, offset, self.frames, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         for chest in self.chests:

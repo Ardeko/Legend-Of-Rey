@@ -12,9 +12,11 @@ sinirlari. Dongu, hasar cozumu, kalicilik ve kancalarin tamami burada.
 """
 from __future__ import annotations
 
+import math
+
 import pygame
 
-from src.art import palette
+from src.art import bloom, palette, projectiles
 from src.art.ambience import Ambience
 from src.art.particles import ParticleField
 from src.combat.attack_token import AttackTokenManager
@@ -46,6 +48,7 @@ from src.systems.phantom import Phantom
 from src.ui.dialogue import ECHO, Dialogue, Line
 from src.ui import text
 from src.ui.hud import HUD
+from src.ui.interact_prompt import InteractPrompts
 from src.ui.i18n import t
 from src.world.decals import DecalField
 
@@ -168,6 +171,12 @@ class PlayScene(Scene):
         # yuruyebilir. Durdursaydik her replik bir kesinti olurdu ve oyuncu
         # okumak yerine gecmeye calisirdi.
         self.dialogue = Dialogue()
+        # Dunya icindeki tus gostergeleri (`src/ui/interact_prompt.py`).
+        # Sahneler "yakin mi" hesabinin yaninda her kare teklif ediyor.
+        self.prompts = InteractPrompts()
+        # Odaya girildigi andaki ok/bomba cantasi - olumde geri
+        # yukleniyor (`_restore_bag`). Yeniden denemede tasiniyor.
+        self.checkpoint_bag: dict[str, int] = {}
 
         # Bolum basi karti - alt sinif `chapter_number`/`chapter_name_key`
         # verirse gosterilir. Ara sahne DEGIL, bindirme: oynanisi
@@ -225,9 +234,23 @@ class PlayScene(Scene):
         self._rooms_seen: set[str] = set()
 
         self.setup()
+        # Gezgin Mum Bekcisi (`src/systems/merchant.py`). `setup()`'tan
+        # hemen sonra: oyuncu dogdugu yerde, yeniden dogma oncesi.
+        self.merchant = None
+        if self.merchant_tile is not None:
+            from src.systems import merchant
+            self.merchant = merchant.place_at_tile(self, *self.merchant_tile)
+        elif self.merchant_offset is not None:
+            from src.systems import merchant
+            self.merchant = merchant.place(self, self.merchant_offset)
+        self.shrine = self._make_shrine()
 
         # Mermiler duvarda olsun: `setup()` tilemap'i kurdu.
         self.hitboxes.tilemap = self.tilemap
+        # Tas dili derinlige gore (`tileset.theme_for`): B2'den B18'e ayni
+        # gri tugla vardi, asagi inmek gorsel olarak hissedilmiyordu.
+        from src.art.tileset import theme_for
+        self.tilemap.theme = theme_for(self.chapter_number or 0)
 
         # Yetenek agacindan acilanlar oyuncuya biniyor. `setup()`'tan
         # SONRA: oyuncu orada yaratiliyor. Duz bonuslar (can, pencere,
@@ -367,7 +390,10 @@ class PlayScene(Scene):
         """
         from src.combat import weapons
         key = getattr(self.save_data, "weapon", "")
-        if key in (weapons.DAGGER, weapons.AXE):
+        # Kilic/yumruk yetenekten geliyor; geri kalan her silah (Hancer,
+        # Balta, 23.09.2026'dan beri Fisilti/Iz Mizragi/Zincir Orak) kayittan.
+        if (key in weapons.WEAPONS and key not in (weapons.FISTS, weapons.SWORD)
+                and weapons.usable_by(key, self.character)):
             self.player.equip_weapon(key)
 
     @property
@@ -480,9 +506,37 @@ class PlayScene(Scene):
         # tamami buna bagli: her olum hafizayi silseydi hicbir hayalet
         # ikinci kez gorulmezdi (docs/korku.md 5.3).
         ghosts = list(getattr(self, "ghosts", ()))
+        bag = dict(getattr(self, "checkpoint_bag", {}))
         self._pending_resume = (room, x, y, entered)
         self.on_enter(character=self.character)
         self.ghosts = ghosts
+        self.checkpoint_bag = bag
+        self._restore_bag(bag)
+
+    def _restore_bag(self, bag: dict[str, int]) -> None:
+        """Basarisiz denemede atilan ok/bomba geri geliyor.
+
+        Arda, 23.09.2026: *"Firlatilabilir itemler olunce sifirlanacak
+        mi? ... Adaletsiz olur."* Olum zaten odayi bastan oynatiyor;
+        ustune malzemeyi de almak **cift ceza** - ve oyuncu bombayi
+        saklamayi ogrenir, kullanmayi degil.
+
+        ## Neden `max(disk, oda girisi)`
+
+        `on_enter` kaydi **diskten** yeniden okuyor: son yazimdan beri
+        atilan her sey zaten geri geliyor. Ilk surum atilanlari bir de
+        ustune ekliyordu - cift iade, olup dirilerek ok cogaltmak. Eksik
+        kalan tek durum su: oyuncu atti, sonra duraklatti (disk yazildi),
+        sonra oldu. Oda girisindeki sayi o durumu kapatiyor. Sonuc hicbir
+        zaman oda girisindekinden ya da diskteki gercek bir durumdan
+        fazla olamiyor - cogaltma yok.
+        """
+        data = self.save_data
+        if data is None:
+            return
+        for key, amount in bag.items():
+            if consumables.count(data, key) < amount:
+                consumables.add(data, key, amount - consumables.count(data, key))
 
     # --- Kontrol noktasi ----------------------------------------------------
     # Oda tabanli. Alt siniflar bunun icin **hicbir sey yapmiyor**: hepsi
@@ -496,6 +550,18 @@ class PlayScene(Scene):
     checkpoint_room: str = ""
     checkpoint_x: float = 0.0
     checkpoint_y: float = 0.0
+
+    # Gezgin bekcinin oyuncunun dogdugu yere uzakligi (piksel). `None`:
+    # bu bolumde dukkan yok. Bkz. `src/systems/merchant.py`.
+    merchant_offset: float | None = None
+    # Ya da acik bir karo (sutun, satir) - `merchant_offset`in onunde.
+    merchant_tile: tuple[int, int] | None = None
+
+    # Silah kaidesi (`src/world/weapon_shrine.py`). "personal": karakterin
+    # kendi silahi (Rey Fisilti, Ardo Iz Mizragi); ya da bir silah anahtari.
+    # Bos: bu bolumde kaide yok. Konum oyuncunun dogdugu yerden piksel.
+    weapon_shrine: str = ""
+    weapon_shrine_offset: float = 56.0
 
     # Dovus muzigi son uyanik dusmandan sonra bu kadar kare daha calar.
     _combat_frames: int = 0
@@ -676,6 +742,10 @@ class PlayScene(Scene):
             self.checkpoint_room = room
             self.checkpoint_x = self.player.body.center_x
             self.checkpoint_y = self.player.body.bottom
+            # Yeni oda, yeni deneme: canta bu haliyle hatirlaniyor.
+            if self.save_data is not None:
+                self.checkpoint_bag = dict(getattr(self.save_data,
+                                                   "consumables", {}) or {})
             self._persist_checkpoint()
 
     def _persist_checkpoint(self) -> None:
@@ -732,8 +802,9 @@ class PlayScene(Scene):
         self.game.play_sound("room_changed")
 
     def update(self) -> None:
+        self.prompts.begin_frame()
         self._update_music()
-        self.player.update()
+        self._update_player()
         self._sync_abilities()
         self._update_inventory_hint()
         self._update_companion_order()
@@ -765,6 +836,10 @@ class PlayScene(Scene):
         self._update_betrayal()
         self._update_dialogue_hint()
         self._update_throw()
+        if self.merchant is not None:
+            self.merchant.update(self)
+        if self.shrine is not None:
+            self.shrine.update(self)
         if self.echo is not None:
             self.echo.update(self.echo_held())
             self._update_echo_audio()
@@ -812,6 +887,7 @@ class PlayScene(Scene):
         if self.toast_frames > 0:
             self.toast_frames -= 1
         self.update_scene()
+        self.prompts.update(self.game.input)
         # Sahne bu karede duvar cikarmis olabilir (arena muhuru).
         # `Body.move` mevcut gomulmeyi cozmez, yalnizca yeni girisi
         # keser - oyuncu bir tile'lik sutunda kalici sikisir.
@@ -848,6 +924,22 @@ class PlayScene(Scene):
         """Alt sinifa ait kare islemleri (tetikleyiciler, anlatim)."""
 
     @property
+    def depth(self) -> float:
+        """Zindanin ne kadar derininde (0..1) - lav ve morarma buna bagli.
+
+        Bolum numarasindan turuyor (`cave_backdrop.depth_for`); her bolume
+        elle bir sayi yazmak birinin unutulmasi demekti.
+        """
+        from src.world.cave_backdrop import depth_for
+        return depth_for(self.chapter_number or 0)
+
+    @property
+    def rim_light(self) -> tuple[str, float] | None:
+        """Derinde karakterlerin golge kenarina ortam isigi (`rimlight`)."""
+        from src.art import rimlight
+        return rimlight.for_depth(self.depth)
+
+    @property
     def modal_active(self) -> bool:
         """Bolume ait bir bindirme acik mi (ticaret, secim, bulmaca)?
 
@@ -855,7 +947,67 @@ class PlayScene(Scene):
         ekrandaki sey kendi tuslarini kullaniyor. Alt sinif ezip kendi
         durumunu doner (`Chapter03Scene`: `self.trading`).
         """
-        return False
+        return self.merchant is not None and self.merchant.open
+
+    def _make_shrine(self):
+        """Bolumun silah kaidesi - silah zaten alindiysa BOS kaide."""
+        if not self.weapon_shrine:
+            return None
+        from src.combat import weapons
+        from src.ui.equipment import owned
+        from src.world.weapon_shrine import WeaponShrine
+        key = (weapons.PERSONAL.get(self.character, "")
+               if self.weapon_shrine == "personal" else self.weapon_shrine)
+        if not weapons.usable_by(key, self.character):
+            return None
+        x = self.player.body.center_x + self.weapon_shrine_offset
+        feet = self.tilemap.floor_below(x, self.player.body.feet[1], 18, 30)
+        if feet is None:
+            return None
+        taken = self.save_data is not None and key in owned(self.save_data)
+        return WeaponShrine(x, feet, key, taken)
+
+    def take_weapon(self, key: str, x: float, y: float) -> None:
+        """Kaideden silah alindi: sahiplik, kusanma, kayit, kart.
+
+        Hemen kusaniliyor: yeni silahi eline alan oyuncu onu **denemek**
+        ister; envantere gidip kusanmak zorunda kalmamali. Eski silah
+        envanterde duruyor (`equipment.grant`).
+        """
+        from src.combat import weapons
+        from src.systems.save import write_save
+        from src.ui import equipment
+        from src.world.weapon_shrine import HINT_KEYS
+        if self.save_data is not None:
+            equipment.grant(self.save_data, key)
+            self.save_data.weapon = key
+            write_save(self.save_data)
+        self.player.equip_weapon(key)
+        self.game.play_sound("chest_open")
+        self.game.hitstop(4)
+        self.particles.burst(x, y, 18,
+                             path="echo" if key == weapons.WHISPER else "spark",
+                             speed=(0.5, 1.8))
+        self.hint_once(f"weapon_taken_{key}", HINT_KEYS[key], Action.ATTACK,
+                       icon="weapon")
+
+    def _update_player(self) -> None:
+        """Oyuncu. Modal bir pencere aciksa (dukkan) **komut almiyor**.
+
+        B3'te tezgah acikken yukari tusu hem secimi degistiriyor hem de
+        oyuncuyu zipliyordu. `controlled` bayragi B17'nin ikili
+        kontrolu icin zaten vardi: girdi NOTR ama yer cekimi, animasyon
+        ve sayaclar isliyor.
+        """
+        if not self.modal_active:
+            self.player.update()
+            return
+        was = self.player.controlled
+        self.player.controlled = False
+        try:
+            self.player.update()
+        finally:
+            self.player.controlled = was
 
     def after_restart(self, room: str) -> None:
         """Olumden sonra sahne kuruldu ve oyuncu odasina kondu.
@@ -1120,6 +1272,31 @@ class PlayScene(Scene):
 
         self.show_toast(t(message_key, key=label), frames=frames)
 
+    def offer_resonate(self, targets) -> None:
+        """En yakin calinabilir rezonans hedefinin ustunde `RESONATE` tusu.
+
+        B8 kristali, B9 canlari, B15 ciniklari ayni sozlesmeyi tasiyor
+        (`rect`). Arda'nin B8 geri bildirimi (19.09.2026) "ates basindaki
+        ipucu belirsiz" idi: kart bir kez cikiyordu, kristalin kendisi
+        hicbir sey soylemiyordu.
+        """
+        from src.systems.resonance import PULSE_RANGE
+        px, py = self.player.body.center_x, self.player.body.center_y
+        best, best_distance = None, PULSE_RANGE * 0.9
+        for target in targets:
+            if getattr(target, "triggered", False):
+                continue
+            if not getattr(target, "ready", True):
+                continue
+            rect = target.rect
+            distance = math.hypot(rect.centerx - px, rect.centery - py)
+            if distance < best_distance:
+                best, best_distance = target, distance
+        if best is not None:
+            self.prompts.offer("resonate", best.rect.centerx, best.rect.top,
+                               action=Action.RESONATE,
+                               verb_key="prompt.resonate")
+
     # --- Yoldas komutu ------------------------------------------------------
     def _update_companion_order(self) -> None:
         """"Burada bekle / pesimden gel" - tek tus, iki durum.
@@ -1282,7 +1459,7 @@ class PlayScene(Scene):
         combo penceresini kirar ve iki sistem birbirini yer. Kacinma
         sirasinda da yok - kacinma bir kacis, bir saldiri firsati degil.
         """
-        if self.save_data is None:
+        if self.save_data is None or self.modal_active:
             return
         if not self.game.input.pressed(Action.THROW):
             return
@@ -1316,6 +1493,7 @@ class PlayScene(Scene):
             stop_on_solid=True,
             # Bomba **carpinca yok olmuyor**: hasari sifir, isi patlamak.
             pierce=item.blast > 0,
+            visual="bomb" if item.blast > 0 else "arrow",
         )
         if item.blast > 0:
             box.on_expire = self._explode
@@ -1456,9 +1634,16 @@ class PlayScene(Scene):
         self.draw_background(surface, offset)
         self.tilemap.draw(surface, offset)
         self.decals.draw(surface, offset)
+        if self.merchant is not None:
+            self.merchant.draw_world(surface, offset)
+        if self.shrine is not None:
+            self.shrine.draw(surface, offset)
         for enemy in self.enemies:
             enemy.draw(surface, offset)
         self.player.draw(surface, offset)
+        # Ucan mermiler (`src/art/projectiles.py`) - aktorlerin ustunde,
+        # parcaciklarin altinda: carpma kivilcimi okun onune dussun.
+        projectiles.draw(surface, offset, self.hitboxes.boxes, self.game.frame)
         self.particles.draw(surface, offset)
         # Su aktorlerin USTUNE ama yari saydam ciziliyor: suya giren
         # oyuncu kaybolmamali, "suyun icinde" gorunmeli.
@@ -1507,6 +1692,13 @@ class PlayScene(Scene):
 
         if self.game.debug_overlay:
             self._draw_hitboxes(surface, offset)
+        # Isima (`src/art/bloom.py`): dunya, isik ve Yanki katmanlarindan
+        # SONRA, arayuzden ONCE - lav ve mesale havayi aydinlatiyor, yazilar
+        # keskin kaliyor. Guc "Efekt gucu" ayarindan; 0 ise kapali.
+        bloom.apply(surface, float(self.game.settings.get("postfx", 1.0)))
+        # Tus gostergeleri isik ve Yanki katmanlarinin USTUNDE: karanlikta
+        # kalan bir vana da hangi tusla acildigini soylemeli.
+        self.prompts.draw(surface, offset, self.game.input, self.game.frame)
         self._draw_hud(surface)
         self.dialogue.draw(surface, self.game.frame)
         # Kart diyalogun USTUNDE ama Yanki saciliminin ALTINDA: bolum
@@ -1517,6 +1709,8 @@ class PlayScene(Scene):
             self.mechanic_card.draw(surface)
         self._draw_boss_bar(surface)
         self.draw_overlay(surface)
+        if self.merchant is not None:
+            self.merchant.draw_panel(surface, self)
 
         # Kromatik kayma en son: arayuz dahil her seyin uzerine. Yanki
         # acikken oyuncu her seyi biraz daha zor goruyor.
@@ -1889,7 +2083,9 @@ class PlayScene(Scene):
         anini yasiyor, ama "kazanmak" hep ayni goruntu/ses/yaziya sahip
         olmali - dagitilsaydi biri farkli hissettirirdi.
         """
-        self.show_toast(t(abilities.label_key(ability)), frames=180)
+        action = abilities.action_for(ability)
+        label = self.game.input.binding_label(action) if action else ""
+        self.show_toast(t(abilities.label_key(ability), key=label), frames=180)
         self.pickup_juice()
 
     def pickup_juice(self, gold: bool = False) -> None:

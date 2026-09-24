@@ -104,7 +104,7 @@ class Chapter11Scene(PlayScene):
     # muzigin degismesi nadir ve anlamli oluyor. Oteki bolumlerde
     # varsayilan "combat" (gerekce `PlayScene.music_context`).
     music_context = "explore"
-    postfx_grade = "descent"
+    postfx_grade = "deep"   # derinlik kademesi (src/art/postfx.py)
     ambience_preset = "dust"
     dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
 
@@ -233,6 +233,10 @@ class Chapter11Scene(PlayScene):
 
     def _update_rotate(self) -> None:
         mirror = self._mirror_near()
+        if mirror is not None:
+            self.prompts.offer("mirror", mirror.tile_x * TILE_SIZE + 8,
+                               mirror.tile_y * TILE_SIZE - 2,
+                               verb_key="prompt.turn")
         if mirror is None or not self.game.input.pressed(Action.INTERACT):
             return
         if not mirror.rotate():
@@ -409,13 +413,22 @@ class Chapter11Scene(PlayScene):
         ox, oy = offset
         world = self._mirror_rect()
         rect = world.move(-ox, -oy)
-        surface.fill(palette.color("stone"), rect)
-        glass = rect.inflate(-4, -4)
-        surface.fill(palette.color("ink"), glass)
+        surface.fill(palette.color("earth_dark"), rect)
+        pygame.draw.rect(surface, palette.color("stone"), rect, 1)
+        pygame.draw.line(surface, palette.color("stone_light"),
+                         rect.topleft, (rect.right - 1, rect.top))
+        glass = rect.inflate(-6, -6)
+        surface.fill(palette.color("abyss_dark"), glass)
+        for band in range(0, glass.width, 8):
+            surface.fill(palette.color("ink"),
+                         (glass.x + band, glass.y, min(3, glass.width - band), glass.height))
+        for corner in (rect.topleft, (rect.right - 3, rect.top),
+                       (rect.x, rect.bottom - 3), (rect.right - 3, rect.bottom - 3)):
+            surface.fill(palette.color("gold"), (*corner, 3, 3))
         # Camin parlamasi - sol ustten, `CLAUDE.md` 6'nin isik kurali.
-        for step in range(6):
+        for step in range(min(12, glass.height - 8, glass.width - 5)):
             surface.fill(palette.color("abyss_light"),
-                         (glass.x + 3 + step, glass.y + 8 - step, 1, 1))
+                         (glass.x + 3 + step, glass.y + 14 - step, 1, 1))
 
         alpha = self._reflection_alpha()
         if alpha <= 0:
@@ -435,7 +448,7 @@ class Chapter11Scene(PlayScene):
         surface.set_clip(previous)
 
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
         self._draw_wall_mirror(surface, offset)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
@@ -458,17 +471,19 @@ class Chapter11Scene(PlayScene):
         """
         ox, oy = offset
         for path in self.paths:
-            for x, y in path.tiles:
-                px = x * TILE_SIZE + TILE_SIZE // 2 - ox
-                py = y * TILE_SIZE + TILE_SIZE // 2 - oy
-                flicker = 0.75 + 0.25 * math.sin(self.frames * 0.3 + x + y)
-                colour = tuple(int(c * flicker)
-                               for c in palette.color("bone"))
-                surface.fill(colour, (px - 1, py - 1, 3, 3))
+            points = [(x * TILE_SIZE + TILE_SIZE // 2 - ox,
+                       y * TILE_SIZE + TILE_SIZE // 2 - oy)
+                      for x, y in path.tiles]
+            if len(points) >= 2:
+                # Noktali cizgi yerine kesintisiz isik yolu. Dis dagilma
+                # soluk, cekirdek ince: dusman siluetlerini ortmez.
+                for tone, width in (("abyss", 5), ("stone", 3), ("bone", 1)):
+                    pygame.draw.lines(surface, palette.color(tone), False, points, width)
             for x, y in path.bounces:
                 px = x * TILE_SIZE + TILE_SIZE // 2 - ox
                 py = y * TILE_SIZE + TILE_SIZE // 2 - oy
-                surface.fill(palette.color("white_flash"), (px - 2, py - 2, 4, 4))
+                pygame.draw.circle(surface, palette.color("stone_light"), (px, py), 4, 1)
+                surface.fill(palette.color("white_flash"), (px - 1, py - 1, 3, 3))
 
     def _draw_emitters(self, surface: pygame.Surface, offset) -> None:
         ox, oy = offset
@@ -476,9 +491,12 @@ class Chapter11Scene(PlayScene):
             x = tile[0] * TILE_SIZE - ox
             y = tile[1] * TILE_SIZE - oy
             surface.fill(palette.color("stone_dark"), (x, y + 2, TILE_SIZE, 12))
-            pulse = 0.6 + 0.4 * math.sin(self.frames * 0.11)
-            colour = tuple(int(c * pulse) for c in palette.color("bone"))
-            surface.fill(colour, (x + TILE_SIZE - 4, y + 6, 4, 4))
+            surface.fill(palette.color("stone_light"), (x + 1, y + 2, 11, 1))
+            surface.fill(palette.color("ink"), (x + 1, y + 12, 14, 2))
+            for rib in (3, 6, 9):
+                surface.fill(palette.color("stone"), (x + rib, y + 4, 1, 7))
+            surface.fill(palette.color("earth"), (x + 12, y + 4, 3, 8))
+            surface.fill(palette.color("bone"), (x + 14, y + 6, 2, 4))
 
     def _draw_mirror(self, surface: pygame.Surface, offset,
                      mirror: Mirror) -> None:
@@ -494,6 +512,9 @@ class Chapter11Scene(PlayScene):
         frame_tone = "stone" if not mirror.fixed else "stone_dark"
         surface.fill(palette.color(frame_tone), (x + 1, y + 1, 14, 14))
         surface.fill(palette.color("ink"), (x + 2, y + 2, 12, 12))
+        surface.fill(palette.color("earth_dark"), (x + 4, y + 15, 9, 2))
+        for rivet in ((x + 2, y + 2), (x + 12, y + 12)):
+            surface.fill(palette.color("gold"), (*rivet, 2, 2))
 
         spinning = mirror.spin > 0
         tone = "white_flash" if spinning else "bone"
@@ -502,7 +523,8 @@ class Chapter11Scene(PlayScene):
                 px, py = x + 13 - step, y + 2 + step
             else:
                 px, py = x + 2 + step, y + 2 + step
-            surface.fill(palette.color(tone), (px, py, 2, 2))
+            surface.fill(palette.color("abyss_light"), (px - 1, py, 3, 2))
+            surface.fill(palette.color(tone), (px, py, 1, 2))
 
         # Yanki'nin isaretledigi ayna - yalan gorunur olmali ki secim
         # gercek olsun.

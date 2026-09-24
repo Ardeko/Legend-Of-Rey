@@ -22,10 +22,16 @@ Duzenek de o birakilanlardan biri - kuyuya o kurdu, sen biniyorsun.
 Yani araç bolumun temasini bozmuyor, **tasiyor**: onun yaptigi bir
 seyin seni tasimasi, "yoklukta yakinlik"in en dogrudan hali.
 
-## Tek kontrol: fren
+## Tek kontrol: fren (varsayilan olarak devrede)
 
-Kafes kendi iniyor. Oyuncunun elinde tek sey var - yavaslatmak.
+Kafes kendi iniyor - **yavas**, cunku fren devrede. Oyuncunun elinde
+tek sey var: S/asagi basili tutup freni birakmak, yani hizlanmak.
 Duvarlarda Ardo'nun isaretleri var ve yalnizca yavasken okunuyor.
+
+Arda, 24.09.2026: *"Basmayinca yavas basinca hizli gitsin."* Ilk hali
+tersiydi (serbest inis, tusla fren) ve izleri okumak icin tusu surekli
+basili tutmak gerekiyordu. Bu sinif degismedi - `update(braking)` ayni;
+tusun anlamini `Chapter12Scene` ceviriyor.
 
 Ceza yok. Olum yok. Basarisizlik yok. Degisen tek sey **onun ne
 kadarini gordugun**. Bir nefes bolumunun olcusu beceri degil

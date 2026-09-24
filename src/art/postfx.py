@@ -50,15 +50,24 @@ GRADES: dict[str, tuple[str, float, float]] = {
     # Bolum 1 - koy, gece. Hafif mavi, acik gokyuzu oldugu icin vinyet az.
     "village": ("abyss_dark", 0.10, 0.26),
     # Bolum 2 - ilk inis. Tas koridorlar, daha kapali.
-    "descent": ("abyss_dark", 0.14, 0.36),
+    "descent": ("abyss_dark", 0.07, 0.18),
     # Bolum 3 - mesale mahzeni. Kehribar; zaten karartma maskesi var,
     # vinyet onun ustune binmesin diye dusuk.
-    "crypt": ("ember_dark", 0.12, 0.22),
+    "crypt": ("ember_dark", 0.06, 0.12),
     # Bolum 4 - kayit odasi. ★nefes: dovus yok, gerilim dusuyor. Ton
     # topraga kayiyor (sicak ama olu bir oda), vinyet "descent"ten hafif -
     # cerceve daralirsa oda sikistirir, oysa bu bolum tam tersini
     # yapmali. Gerilimi tasarim degil **derecelendirme** de anlatiyor.
-    "record": ("earth_dark", 0.11, 0.24),
+    "record": ("earth_dark", 0.07, 0.16),
+    # --- Derinlik kademeleri (Arda, 23.09.2026: "ortam hafif morarabilir")
+    # Asagi indikce ton maviden MORA kayiyor. Vinyet "descent" ile ayni:
+    # Arda karanlik bolumlerden zaten sikayet etmisti (19.09.2026), bu
+    # yuzden derinlik KARARMA ile degil RENK ile anlatiliyor. `violet`
+    # koyu bolgeleri hafifce aciyor, parlaklari az kisiyor - okunurluk
+    # korunuyor. Lav (`cave_backdrop`) ayni kademelerde siklasiyor.
+    "deep": ("violet", 0.05, 0.18),       # B9-B12
+    "deeper": ("violet", 0.08, 0.18),     # B13-B15
+    "core": ("violet", 0.11, 0.18),       # B16-B18
     # Menu/sinematik - notr ama cerceveli.
     "void": ("void", 0.0, 0.34),
 }
@@ -101,7 +110,7 @@ def _build(grade: str, strength: float) -> pygame.Surface:
             g = int((tone[1] * tint + dark[1] * v) / total)
             b = int((tone[2] * tint + dark[2] * v) / total)
             layer.set_at((x, y), (r, g, b, min(255, int(a * 255))))
-    return layer
+    return layer.convert_alpha()
 
 
 def surface(grade: str, strength: float = 1.0) -> pygame.Surface | None:

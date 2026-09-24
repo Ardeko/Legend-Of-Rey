@@ -62,9 +62,13 @@ LABEL_KEYS = {
     weapons.SWORD: "weapon.sword",
     weapons.DAGGER: "weapon.dagger",
     weapons.AXE: "weapon.axe",
+    weapons.WHISPER: "weapon.whisper",
+    weapons.SPEAR: "weapon.spear",
+    weapons.SICKLE: "weapon.sickle",
 }
 # Gosterim sirasi - zincir uzunluguna gore degil, kazanma sirasina gore.
-ORDER = (weapons.FISTS, weapons.SWORD, weapons.DAGGER, weapons.AXE)
+ORDER = (weapons.FISTS, weapons.SWORD, weapons.DAGGER, weapons.AXE,
+         weapons.WHISPER, weapons.SPEAR, weapons.SICKLE)
 
 
 def owned(save_data) -> list[str]:

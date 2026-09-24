@@ -124,7 +124,7 @@ class Archer(Enemy):
             rect=rect, targets=Team.PLAYER, damage=ARCHER_ARROW_DAMAGE,
             owner=self, active_frames=ARCHER_ARROW_LIFE,
             velocity=(vx, 0.0), stop_on_solid=True,
-            knockback=1.2, knockback_up=0.4))
+            knockback=1.2, knockback_up=0.4, visual="enemy_arrow"))
         self.scene.game.play_sound("swing_light")
 
     # --- Cizim ---------------------------------------------------------------

@@ -33,7 +33,7 @@ Her mekanik bir bölümde tanıtılır, sonraki bölümlerde birleşir. Kural: *
 | 8 | **Zaman kapıları** | B13 | Kolu çevir, X saniyede koş — dövüşerek değil kaçarak |
 | 9 | **Sessizlik** | B15 | Yankı kapalı oynama; ses çıkarırsan sürü uyanır |
 | 10 | **İkili kontrol** | B17 | Karakterler arası geçiş, biri kolu tutar biri geçer |
-| 11 | **Sürülebilir düzenek** | B12 | Ardo'nun iniş kafesi — fren tut, izleri oku (gerekçe: `gdd.md` §9) |
+| 11 | **Sürülebilir düzenek** | B12 | Ardo'nun iniş kafesi — kendiliğinden yavaş iner, izleri oku; S/aşağı basılı: hızlan (24.09.2026; gerekçe: `gdd.md` §9) |
 
 ---
 

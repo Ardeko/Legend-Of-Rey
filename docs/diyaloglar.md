@@ -16,8 +16,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### prologue_ardo_1
 **ARDO**
-- tr: "Zihnimde fısıltılar yok. Ben izleri okurum."
-- en: "I hear no whispers. I read the traces they leave behind."
+- tr: "Yıllardır yollardaki izleri okurum. Buda benim bir lanetim sanırım."
+- en: "I've read trails for years. Guess that's my curse, too."
 
 ### prologue_ardo_2
 **ARDO**
@@ -489,8 +489,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch04_echo_name
 **YANKI**
-- tr: "Günlük Kalachev'in. Kemikler onun değil; geride bıraktığı dostunun."
-- en: "Kalachev's journal. His friend's bones. The one he left behind."
+- tr: "Günlük Kalachev'in. Ama neyse ki kemikler onun değil; geride bıraktığı dostunun."
+- en: "Kalachev's journal. Thankfully, those bones belong to the friend he left behind."
 
 ### ch04_echo_seed
 **YANKI**
@@ -509,8 +509,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch04_jet_route
 **JET**
-- tr: "Senin yolun aşağı. Ben yukarıyı açık tutarım."
-- en: "Your path goes down. I will keep the way up clear."
+- tr: "Senin yolun aşağıdan. Merak etme. Ben yukarıyı açık tutarım."
+- en: "Your way is down below. Don't worry. I'll keep the way up clear."
 
 ### ch04_rey_jet_return
 **REY**
@@ -533,6 +533,21 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 **ARDO**
 - tr: "Eski bir muhafız. Karanlık onu yeniden ayağa kaldırmış."
 - en: "An old guardian. The darkness brought it back."
+
+### ch05_ardo_kalachev_back
+**ARDO**
+- tr: "Sana arkanı kollayacak biri lazım."
+- en: "You need someone watching your back."
+
+### ch05_ardo_kalachev_call
+**ARDO**
+- tr: "Efe! Seni gördüğümde sevinsem mi üzülsem mi bilemedim haha! Seni bulmak için gürültüyü izlemek yetiyor."
+- en: "Efe! Can't tell if I'm glad to see you, haha! All I have to do is follow the noise."
+
+### ch05_ardo_kalachev_pack
+**ARDO**
+- tr: "Üçüne birden mi dalacaksın?"
+- en: "All three at once?"
 
 ### ch05_ardo_valve
 **ARDO**
@@ -559,17 +574,62 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 - tr: "Çevir onu... Su bazen yol açar. Bazen de mezar."
 - en: "Turn it... Water can open a path. Or become a grave."
 
+### ch05_kalachev_below
+**KALACHEV**
+- tr: "O zaman buradan canlı kurtulmaya çalış bence haha. Aşağıda görüşürüz."
+- en: "Then try getting out of here alive, haha. See you below."
+
+### ch05_kalachev_count
+**KALACHEV**
+- tr: "Saymayı bırak da üst vanaya git."
+- en: "Stop counting. Get to the upper valve."
+
+### ch05_kalachev_late
+**KALACHEV**
+- tr: "İş bittikten sonra gelmenin ne anlamı var lanet adam?"
+- en: "What's the point of showing up when the work's done, you damn fool?"
+
+### ch05_kalachev_pack
+**KALACHEV**
+- tr: "Önce şu üçüyle ufak bir işim var *sinsice sırıtır*."
+- en: "I've got a little business with those three first. *grins slyly*"
+
+### ch05_kalachev_quiet
+**KALACHEV**
+- tr: "Şimdilik. Şimdi kes o lanet sesini!şu piçler de duyuyor."
+- en: "For now. Shut your damn mouth! Those bastards can hear you."
+
+### ch05_kalachev_valve
+**KALACHEV**
+- tr: "Görmedim. Üst vanaya çık. Geçit oradan açılır."
+- en: "Haven't seen him. The upper valve opens the passage."
+
+### ch05_rey_kalachev_call
+**REY**
+- tr: "Hey! Sen... canlısın, değil mi?"
+- en: "Hey! You're... alive, aren't you?"
+
+### ch05_rey_kalachev_child
+**REY**
+- tr: "Bir çocuk arıyorum. Buralardan geçti mi?"
+- en: "I'm looking for a child. Did he come this way?"
+
+### ch05_rey_kalachev_stay
+**REY**
+- tr: "Ya sen? Kafasındaki seslerle konuşan ben değilim"
+- en: "What about you? I'm not the one talking to voices in my head."
+
 ## BOLUM 6 - ARDO
 
 ### ch06_ardo_arena
 **ARDO**
-- tr: "Bunun izi yok. Hiçbir yerden gelmemiş — burada büyümüş."
-- en: "This one leaves no trail. It came from nowhere — it grew here."
+- tr: "Bunun izi yok. Hiçbir yerden gelmemiş — burada mı büyümüş lan?."
+- en: "No trail. It didn't come from anywhere — did it grow here, damn it?"
 
 ### ch06_ardo_kalachev
 **ARDO**
-- tr: "Kalachev. Bir gün de seni ben kurtarsam?"
-- en: "Kalachev. Let me save you for once?"
+- tr: "Kalachev. SAnırım kurtarma konusunda ödeşmiş olduk ha?"
+- en: "Kalachev. Guess that makes us even on the rescues, huh?"
 
 ### ch06_ardo_plates
 **ARDO**
@@ -583,8 +643,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch06_kalachev_ardo_intro
 **ARDO**
-- tr: "Kalachev. Eski dostum. Önünü boş bırak."
-- en: "Kalachev. Old friend. Stay out of his way."
+- tr: "Kalachev. Eski dostum. Yolundan çekil."
+- en: "Kalachev. Old friend. Get out of his way."
 
 ### ch06_kalachev_ardo_know
 **ARDO**
@@ -593,8 +653,8 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 
 ### ch06_kalachev_ardo_stay
 **ARDO**
-- tr: "Yolu denk gelirse. Kimseyi beklemez."
-- en: "If we're headed the same way. He doesn't wait for anyone."
+- tr: "Yolumuz kesişirse artık. Bu ibne de kimseyi beklemez."
+- en: "If our paths cross. That fucker doesn't wait for anyone."
 
 ### ch06_kalachev_debt
 **KALACHEV**
@@ -616,6 +676,21 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 - tr: "Bizimle mi geliyor?"
 - en: "Is he coming with us?"
 
+### ch06_meet_ardo_below
+**ARDO**
+- tr: "O zaman aşağıya bakacağız."
+- en: "Then we'll look below."
+
+### ch06_meet_ardo_child
+**ARDO**
+- tr: "Kardeşin... Adı ne?"
+- en: "Your brother... What's his name?"
+
+### ch06_meet_ardo_choice
+**ARDO**
+- tr: "Biliyorum. Ama şu an ikimiz de aynı yöne gidiyoruz."
+- en: "I know. But we're heading the same way for now."
+
 ### ch06_meet_ardo_first
 **ARDO**
 - tr: "Üçü de arkandaydı. Arkanı hiç kollamıyorsun."
@@ -626,20 +701,65 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 - tr: "Ardo. Ve buraya kadar inen tek şey ben değilim."
 - en: "Ardo. And I'm not the only thing that came down this far."
 
+### ch06_meet_ardo_reason
+**ARDO**
+- tr: "Yarım bıraktığım bir şey var."
+- en: "Something I left unfinished."
+
+### ch06_meet_ardo_together
+**ARDO**
+- tr: "Yanımda kal. Birinin de benim arkamı kollaması lazım."
+- en: "Stay beside me. Someone has to watch my back, too."
+
+### ch06_meet_ardo_trail
+**ARDO**
+- tr: "İzini buraya kadar mı sürdün?"
+- en: "You followed his trail down here?"
+
 ### ch06_meet_ardo_who
 **ARDO**
 - tr: "Sen kimsin?"
 - en: "Who are you?"
+
+### ch06_meet_rey_below
+**REY**
+- tr: "Buraya kadar. Aşağıda olduğunu biliyorum."
+- en: "This far. I know he's below us."
+
+### ch06_meet_rey_child
+**REY**
+- tr: "Ben Rey. Kardeşim Cemo'yu götürdüler. Onu kurtarmaya gidiyorum!"
+- en: "I'm Rey. They took my brother, Cemo. I'm going to save him!"
 
 ### ch06_meet_rey_first
 **REY**
 - tr: "Üçü de arkandaydı. Bir tanesini duymadın bile."
 - en: "All three were behind you. You didn't even hear one of them."
 
+### ch06_meet_rey_follow
+**REY**
+- tr: "Önden gidersen yetişirim."
+- en: "Go ahead. I'll keep up."
+
+### ch06_meet_rey_help
+**REY**
+- tr: "Bana yardım etmek zorunda değilsin."
+- en: "You don't have to help me."
+
 ### ch06_meet_rey_name
 **REY**
-- tr: "Rey. Kardeşimi arıyorum — ve kafamdaki sesler senin burada olduğunu biliyordu."
-- en: "Rey. I'm looking for my brother — and the voices knew you'd be here."
+- tr: "Rey. Kardeşimi arıyorum."
+- en: "Rey. I'm looking for my brother."
+
+### ch06_meet_rey_reason
+**REY**
+- tr: "Sen ne arıyorsun burada?"
+- en: "What are you looking for down here?"
+
+### ch06_meet_rey_trail
+**REY**
+- tr: "Cemo. İzini bu kata kadar sürdüm."
+- en: "Cemo. I followed his trail to this floor."
 
 ### ch06_meet_rey_who
 **REY**

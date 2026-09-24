@@ -140,12 +140,12 @@
     "flash_limit_note": "Removes sudden flashes. Events still happen."
   },
   "ability": {
-    "sword": "SWORD  ·  attack with J",
-    "dodge": "DODGE  ·  dash with Shift",
-    "echo_sight": "ECHO SIGHT  ·  hold K",
-    "echo_ask": "ASK THE ECHO  ·  F",
-    "double_jump": "DOUBLE JUMP",
-    "wall_jump": "WALL JUMP",
+    "sword": "SWORD  ·  attack with [{key}]",
+    "dodge": "DODGE  ·  dash with [{key}]",
+    "echo_sight": "ECHO SIGHT  ·  hold [{key}]",
+    "echo_ask": "ASK THE ECHO  ·  [{key}]",
+    "double_jump": "DOUBLE JUMP  ·  [{key}] again in the air",
+    "wall_jump": "WALL JUMP  ·  lean on a wall, [{key}]",
     "unknown": "?"
   },
   "chapter01": {
@@ -208,7 +208,7 @@
     "ch06_rey_plates": "Two plates... Someone has to hold the other one.",
     "ch06_ardo_plates": "Two plates. One person won't be enough.",
     "ch06_rey_arena": "This thing isn't like the others...",
-    "ch06_ardo_arena": "This one leaves no trail. It came from nowhere — it grew here.",
+    "ch06_ardo_arena": "No trail. It didn't come from anywhere — did it grow here, damn it?",
     "prologue_echo_1": "Can you hear us, Rey?",
     "prologue_rey_1": "They're back... The whispers in my head. Voices no one else can hear.",
     "prologue_echo_2": "They cannot hear us. Only you can.",
@@ -232,7 +232,7 @@
     "prologue_echo_11": "Because fear senses what is coming before anyone else.",
     "prologue_echo_12": "Deeper...",
     "prologue_echo_13": "Always deeper.",
-    "prologue_ardo_1": "I hear no whispers. I read the traces they leave behind.",
+    "prologue_ardo_1": "I've read trails for years. Guess that's my curse, too.",
     "prologue_ardo_2": "Someone came through here...",
     "prologue_ardo_3": "And never came back.",
     "prologue_ardo_4": "I know what waits below.",
@@ -251,7 +251,19 @@
     "ch06_meet_ardo_name": "Ardo. And I'm not the only thing that came down this far.",
     "ch06_meet_rey_first": "All three were behind you. You didn't even hear one of them.",
     "ch06_meet_ardo_who": "Who are you?",
-    "ch06_meet_rey_name": "Rey. I'm looking for my brother — and the voices knew you'd be here.",
+    "ch06_meet_rey_name": "Rey. I'm looking for my brother.",
+    "ch06_meet_rey_child": "I'm Rey. They took my brother, Cemo. I'm going to save him!",
+    "ch06_meet_ardo_trail": "You followed his trail down here?",
+    "ch06_meet_rey_below": "This far. I know he's below us.",
+    "ch06_meet_ardo_child": "Your brother... What's his name?",
+    "ch06_meet_rey_trail": "Cemo. I followed his trail to this floor.",
+    "ch06_meet_ardo_below": "Then we'll look below.",
+    "ch06_meet_rey_reason": "What are you looking for down here?",
+    "ch06_meet_ardo_reason": "Something I left unfinished.",
+    "ch06_meet_rey_help": "You don't have to help me.",
+    "ch06_meet_ardo_choice": "I know. But we're heading the same way for now.",
+    "ch06_meet_rey_follow": "Go ahead. I'll keep up.",
+    "ch06_meet_ardo_together": "Stay beside me. Someone has to watch my back, too.",
     "ch08_fire_ardo_wound": "My shoulder. Caught a rock on the way down — it's nothing.",
     "ch08_fire_rey_wound": "My shoulder. Caught a rock on the way down — it's nothing.",
     "ch08_fire_rey_necklace": "Cemo gave me this. So the dark would think twice.",
@@ -464,7 +476,7 @@
     "ch13_echo_seed": "Rey?",
     "echo_alone_voice": "Only I am left now. You chose me.",
     "kalachev_name": "E. KALACHEV",
-    "ch04_echo_name": "Kalachev's journal. His friend's bones. The one he left behind.",
+    "ch04_echo_name": "Kalachev's journal. Thankfully, those bones belong to the friend he left behind.",
     "ch04_ardo_name": "Kalachev's camp. Two came in. Only one set of tracks leads out.",
     "ch02_echo_bones": "Someone came before you. You will learn his name later.",
     "ch01_jet_offer": "Take this. Do not stay out tonight.",
@@ -492,11 +504,23 @@
     "ch01_ardo_leave": "You too.",
     "ch01_jet_east": "I am heading east.",
     "ch01_echo_sword_given": "He gave you something. Do not forget it.",
+    "ch05_rey_kalachev_call": "Hey! You're... alive, aren't you?",
+    "ch05_kalachev_quiet": "For now. Shut your damn mouth! Those bastards can hear you.",
+    "ch05_rey_kalachev_child": "I'm looking for a child. Did he come this way?",
+    "ch05_kalachev_valve": "Haven't seen him. The upper valve opens the passage.",
+    "ch05_rey_kalachev_stay": "What about you? I'm not the one talking to voices in my head.",
+    "ch05_kalachev_pack": "I've got a little business with those three first. *grins slyly*",
+    "ch05_ardo_kalachev_call": "Efe! Can't tell if I'm glad to see you, haha! All I have to do is follow the noise.",
+    "ch05_kalachev_late": "What's the point of showing up when the work's done, you damn fool?",
+    "ch05_ardo_kalachev_pack": "All three at once?",
+    "ch05_kalachev_count": "Stop counting. Get to the upper valve.",
+    "ch05_ardo_kalachev_back": "You need someone watching your back.",
+    "ch05_kalachev_below": "Then try getting out of here alive, haha. See you below.",
     "ch06_echo_kalachev": "He knows Ardo. Not you.",
-    "ch06_ardo_kalachev": "Kalachev. Let me save you for once?",
-    "ch06_kalachev_ardo_intro": "Kalachev. Old friend. Stay out of his way.",
+    "ch06_ardo_kalachev": "Kalachev. Guess that makes us even on the rescues, huh?",
+    "ch06_kalachev_ardo_intro": "Kalachev. Old friend. Get out of his way.",
     "ch06_kalachev_rey_ask": "Is he coming with us?",
-    "ch06_kalachev_ardo_stay": "If we're headed the same way. He doesn't wait for anyone.",
+    "ch06_kalachev_ardo_stay": "If our paths cross. That fucker doesn't wait for anyone.",
     "ch06_kalachev_ardo_know": "You still owe me. I haven't forgotten.",
     "ch06_kalachev_familiar": "Can't wait that long.",
     "ch06_kalachev_debt": "We'll settle up topside. Get out of here first.",
@@ -531,7 +555,7 @@
     "ch04_jet_return": "The eastern path led here. I left a rope for the way back.",
     "ch04_rey_jet_return": "Go back, Jet. This place is worse than you think.",
     "ch04_ardo_jet_return": "You were heading east. Another shortcut?",
-    "ch04_jet_route": "Your path goes down. I will keep the way up clear.",
+    "ch04_jet_route": "Your way is down below. Don't worry. I'll keep the way up clear.",
     "ch04_jet_promise": "When you find the child, come back together. The rope will hold.",
     "ch09_jet_return": "I heard the bells from above. The rope is still there.",
     "ch09_rey_jet_return": "I never asked you to wait for us.",
@@ -622,7 +646,6 @@
     "pocket_open": "A hidden passage opened",
     "trade_title": "THE CANDLE KEEPER",
     "trade_owned": "owned",
-    "trade_exit": "[Esc] leave   [Enter] buy",
     "bought_item": "{name} bought — you have {count}"
   },
   "chapter04": {
@@ -715,7 +738,10 @@
     "stat_finisher": "Finisher damage",
     "stat_frames": "Finisher frames",
     "stat_knockback": "Knockback",
-    "chosen": "{name} equipped"
+    "chosen": "{name} equipped",
+    "whisper": "Whisper",
+    "spear": "Tracker's Spear",
+    "sickle": "Chain Sickle"
   },
   "chapter06": {
     "plate_hint": "The plate stayed down — both are needed",
@@ -741,7 +767,7 @@
     "ammo_heading": "CONSUMABLES"
   },
   "chapter07": {
-    "order_hint": "Your shoulders won't fit — signal to them",
+    "order_hint": "[{key}] Send Rey through the gap",
     "door_open": "The door is open",
     "gap_blocked": "You can't fit through this gap"
   },
@@ -775,10 +801,9 @@
   "hint": {
     "inventory": "[{key}] inventory — switch weapon",
     "companion_wait": "[{key}] tell them to wait here",
-    "resonance": "[{key}] resonance — break it with sound",
+    "resonance": "[{key}] send sound — break crystals",
     "boost": "[{key}] beside them: they'll launch you",
     "lever": "[{key}] pull the lever — the gate is timed",
-    "rig_brake": "[{key}] hold — the rig slows",
     "dialogue": "[{key}] continue",
     "chime": "[{key}] resonance — ring a distant bell",
     "rescue": "Hold [{key}] — lift them up",
@@ -793,7 +818,14 @@
     "inventory_title": "INVENTORY",
     "rescue_title": "LIFT",
     "throw": "{key} to throw the selected item",
-    "throw_title": "RANGED COMBAT"
+    "throw_title": "RANGED COMBAT",
+    "weapon_whisper_title": "WHISPER",
+    "weapon_whisper": "[{key}] last blow sends a sound wave",
+    "weapon_spear_title": "TRACKER'S SPEAR",
+    "weapon_spear": "[{key}] long reach; last blow lunges",
+    "weapon_sickle_title": "CHAIN SICKLE",
+    "weapon_sickle": "[{key}] last blow cuts both sides",
+    "rig_fast": "[{key}] hold — release the brake, the rig speeds up"
   },
   "chapter08": {
     "first_crystal": "Crystal shattered — sound is a weapon",
@@ -819,7 +851,7 @@
     "gate_open": "The Gaoler has fallen. The gate is open."
   },
   "chapter12": {
-    "descend": "The rig is descending. Slow down and you'll see."
+    "descend": "The rig creeps down. Hurry, and you'll miss things."
   },
   "chapter14": {
     "silent": "The Echo doesn't show it. Use your eyes.",
@@ -866,5 +898,27 @@
     "slot2": "SLOT 2",
     "empty": "empty",
     "character": "Character"
+  },
+  "prompt": {
+    "_aciklama": "Verbs for the in-world key prompt (src/ui/interact_prompt.py). Keep short.",
+    "place": "Place",
+    "take_fire": "Take fire",
+    "take": "Take",
+    "trade": "Trade",
+    "light": "Light",
+    "rest": "Rest",
+    "turn": "Turn",
+    "send": "Send",
+    "release": "Release",
+    "boost": "Launch",
+    "pull": "Pull",
+    "lift": "Lift (hold)",
+    "resonate": "Resonate"
+  },
+  "shop": {
+    "title_travel": "CANDLE KEEPER",
+    "footer": "[{buy}] buy   [{leave}] leave",
+    "full": "full",
+    "full_toast": "No room in the bag"
   }
 }

@@ -84,8 +84,10 @@ class Chapter10Scene(PlayScene):
     """Ayrilik: dort oda, bir yalan, bir sayac."""
 
     chapter_number = 10
+    # Silah kaidesi (`src/world/weapon_shrine.py`). Ayrilik: yalniz kalinan ve zorlugun sicradigi bolum - kendi silahi.
+    weapon_shrine = "personal"
     chapter_name_key = "chapter.parting"
-    postfx_grade = "descent"
+    postfx_grade = "deep"   # derinlik kademesi (src/art/postfx.py)
     ambience_preset = "dust"
     dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
 
@@ -400,7 +402,7 @@ class Chapter10Scene(PlayScene):
 
     # --- Cizim --------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         self._draw_lure(surface, offset)

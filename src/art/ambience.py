@@ -64,6 +64,10 @@ PRESETS: dict[str, dict] = {
               "drift": 0.42, "max_step": 2},
     "ember": {"chain": "torchlight", "count": 26, "vy": (-0.30, -0.10),
               "drift": 0.22, "max_step": 2},
+    # "cinder" - derinden yukselen sonuk kul/kor (B13+). "ember"den
+    # seyrek ve karanlik: mesale odasi degil, altta bir sey yaniyor.
+    "cinder": {"chain": "torchlight", "count": 20, "vy": (-0.20, -0.05),
+               "drift": 0.14, "max_step": 1},
 }
 
 

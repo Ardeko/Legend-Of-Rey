@@ -70,8 +70,8 @@ class Chapter17Scene(PlayScene):
 
     chapter_number = 17
     chapter_name_key = "chapter.twintower"
-    postfx_grade = "descent"
-    ambience_preset = "dust"
+    postfx_grade = "core"   # derinlik kademesi (src/art/postfx.py)
+    ambience_preset = "cinder"   # derinden yukselen kor
     dark_ambient = True    # docs/korku.md 5.1 - yalniz ve karanlikta
     music_context = "sad"
 
@@ -279,7 +279,7 @@ class Chapter17Scene(PlayScene):
 
     # --- Cizim --------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.frames)
+        cave_backdrop.draw(surface, offset, self.frames, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         self._draw_divider(surface, offset)

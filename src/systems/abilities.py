@@ -101,3 +101,23 @@ def label_key(ability: str) -> str:
         DOUBLE_JUMP: "ability.double_jump",
         WALL_JUMP: "ability.wall_jump",
     }.get(ability, "ability.unknown")
+
+
+def action_for(ability: str):
+    """Yetenegin tusu - bildirimde **atama tablosundan** okunuyor.
+
+    Arda, 23.09.2026: *"Interaksiyon tuslari daha belli olmali."*
+    `ability.*` metinleri tus adini ("J ile saldir") metne gomuyordu;
+    tusu yeniden atayan oyuncu yanlis tusu goruyordu. Artik metinde
+    `{key}` var ve adi `Input.binding_label` veriyor (son kullanilan
+    cihaza gore - gamepad elindeyse gamepad dugmesi).
+    """
+    from src.core.input import Action
+    return {
+        SWORD: Action.ATTACK,
+        DODGE: Action.DODGE,
+        ECHO_SIGHT: Action.ECHO,
+        ECHO_ASK: Action.ECHO_ASK,
+        DOUBLE_JUMP: Action.JUMP,
+        WALL_JUMP: Action.JUMP,
+    }.get(ability)

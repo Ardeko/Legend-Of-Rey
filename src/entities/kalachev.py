@@ -261,19 +261,24 @@ class Kalachev(Actor):
 
     # --- Dongu --------------------------------------------------------------
     def update(self) -> None:
+        # `Actor.update` ezildigi icin sayaclar ve yer cekimi burada.
+        # Eskiden yalnizca olu govde dusuyordu: Kalachev havada doguyor,
+        # darbeyle yukari savruluyor ya da cikintidan yuruyordu ve
+        # **havada asili kaliyordu** (Arda, 23.09.2026: "havalarda
+        # ucuyor asagi inemiyor"). Her dal ayni `_fall_and_move`dan gecer.
+        self._tick_timers()
         if self.dead:
             # Govde yerde. Yer cekimi isliyor (bir cikintida olduyse
             # dusmeli), baska hicbir sey islemiyor.
             self.body.approach_vx(0.0, 0.5)
-            self.body.apply_gravity()
-            self.body.move(self.scene.tilemap)
+            self._fall_and_move()
             self.animator.play("death")
             self.animator.update()
             return
         if self.leaving:
             self.fade -= 1
             self.body.approach_vx(0.0, 0.4)
-            self.body.move(self.scene.tilemap)
+            self._fall_and_move()
             self.animator.update()
             return
 
@@ -284,6 +289,7 @@ class Kalachev(Actor):
             self.stay_frames -= 1
             if self.stay_frames <= 0:
                 self.leave()
+                self._fall_and_move()
                 return
 
         if self.attack_frames > 0:
@@ -292,8 +298,21 @@ class Kalachev(Actor):
             self.swing_frames -= 1
 
         self._think()
-        self.body.move(self.scene.tilemap)
+        self._fall_and_move()
         self._animate()
+
+    def _tick_timers(self) -> None:
+        if self.iframes > 0:
+            self.iframes -= 1
+        if self.stagger_frames > 0:
+            self.stagger_frames -= 1
+        self.flash.update()
+        self.squash.update()
+
+    def _fall_and_move(self) -> None:
+        """Kare basina **bir kez** yer cekimi, sonra carpisma."""
+        self.body.apply_gravity()
+        self.body.move(self.scene.tilemap)
 
     def _think(self) -> None:
         if self.chase_x is not None:
@@ -392,8 +411,12 @@ class Kalachev(Actor):
             self._blit_wound(image)
         if alpha < 1.0:
             image.set_alpha(int(255 * alpha))
-        surface.blit(image, (int(self.body.center_x - image.get_width() * 0.5) - ox,
-                             int(self.body.bottom - self.sprite_foot_y) - oy))
+        position = (int(self.body.center_x - image.get_width() * 0.5) - ox,
+                    int(self.body.bottom - self.sprite_foot_y) - oy)
+        surface.blit(image, position)
+        from src.art import rimlight
+        rimlight.draw(surface, image, position, getattr(self.scene, "rim_light", None),
+                      foot_row=int(self.sprite_foot_y))
 
     def _blit_wound(self, image: pygame.Surface) -> None:
         """Yarayi sprite'in uzerine isliyor - yeni kare cizmeden.

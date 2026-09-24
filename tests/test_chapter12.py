@@ -180,6 +180,47 @@ def test_rig_descends() -> None:
         game.quit()
 
 
+def test_speed_control() -> None:
+    """Gercek tus girdisiyle: basmayinca yavas, S/asagi basiliyken hizli.
+
+    Arda, 24.09.2026: *"Basmayinca yavas basinca hizli gitsin."* Oteki
+    testler `rig.update(braking)` ile kafesin kendisini sinaniyor; bu test
+    TUSUN anlamini sinaniyor - ters cevrilen tam olarak o.
+    """
+    print("\n--- hiz kontrolu (tus) ---")
+    game = Game()
+    try:
+        scene = start(game)
+        scene._board()
+
+        def run(frames: int, hold: bool) -> None:
+            for _ in range(frames):
+                game.input.begin_frame()
+                if hold:
+                    game.input._activate(Action.DOWN)
+                else:
+                    game.input._deactivate(Action.DOWN)
+                game.input.end_frame()
+                scene.update()
+
+        run(60, False)
+        check(abs(scene.rig.speed - RIG_BRAKE_SPEED) < 1e-6
+              and scene.rig.braking,
+              "tusa basilmadan kafes yavas iniyor (fren devrede)",
+              f"{scene.rig.speed:.2f}")
+        check(scene.rig.slow, "varsayilan hizda izler okunabilir")
+        run(60, True)
+        check(abs(scene.rig.speed - RIG_FALL_SPEED) < 1e-6
+              and not scene.rig.braking,
+              "S/asagi basili: fren birakiliyor, kafes hizli",
+              f"{scene.rig.speed:.2f}")
+        run(60, False)
+        check(abs(scene.rig.speed - RIG_BRAKE_SPEED) < 1e-6,
+              "birakinca yeniden yavasliyor", f"{scene.rig.speed:.2f}")
+    finally:
+        game.quit()
+
+
 def test_no_going_back() -> None:
     """**Yukari cikilmiyor.** Gerilimin tamami bu kuraldan geliyor."""
     print("\n--- geri donus yok ---")
@@ -371,6 +412,7 @@ def test_cinematics() -> None:
 def main() -> int:
     test_no_combat()
     test_rig_descends()
+    test_speed_control()
     test_no_going_back()
     test_marks_readable()
     test_mark_needs_correct_side()

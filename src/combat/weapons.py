@@ -6,32 +6,46 @@ Arda'nin karari (22.08.2026): Rey artik tamamen silahsiz baslamiyor,
 seviyesi `CHAIN` sabitine bakiyordu; artik `Player.equip()` hangi silahi
 kusandiysa onun tablosunu veriyor.
 
-## Hancer/Balta/Yay - mimari hazir, icerik degil
+## Karaktere ozel ve ortak silahlar (23.09.2026)
 
-Bolum 2 mini-boss sonrasi silah secimi (DEVIR.md acik madde 9) ve ileride
-menzilli bir silah (yay/arbalet) bu tabloya birer `Weapon` eklemekten
-ibaret olacak. Ama o secim ekrani/odul akisi ayri bir gorev - burada
-yalnizca **altyapi**: Hancer ve Balta tanimli ama hicbir sahne henuz
-vermiyor (CLAUDE.md: sirasi gelmemis icerik yazilmaz).
+Arda: *"karakterlere ozel bir silah mi tasarlariz veya hancer veya
+baltanin yanina ilerde acilacak yeni bir silah mi ekleriz"* - ikisi de:
 
-## Sprite eksigi bilerek boyle
+    Fisilti      yalnizca Rey   B10  bitirici ses dalgasi (mermi)
+    Iz Mizragi   yalnizca Ardo  B10  uzun, dar; bitirici one atilma
+    Zincir Orak  ikisi de       B14  dort vurus; bitirici iki yana
 
-`src/art/animation.py`'de `rey`/`rey_armed`/`ardo`/`ardo_armed` var - Hancer ve
-Balta'nin kendi sprite'i yok, o yuzden `sprite_suffix="_armed"` ile
-kilicla ayni gorunumu kullaniyorlar (numaralar farkli, silüet ayni).
-Gercek sanat Gorev 9'un devami olarak gelecek - **acikca** boyle, sessiz
-bir varsayim degil.
+Silah artik yalnizca bir zincir tablosu degil: menzil, bitirici etkisi
+ve iz rengi de silahin. Sayilar `config.py`de (sihirli sayi yok).
+Karaktere ozel silah `owner` tasiyor; oteki karakter onu hic gormuyor
+(`usable_by`).
+
+## Sprite
+
+Her silahin kendi sekli var (`animation.py`: `rey_whisper`,
+`ardo_spear`, `rey_sickle`, `ardo_sickle`). Ayni iskelet, yalnizca silah
+degisiyor - tutarlilik bedava (CLAUDE.md 6).
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from src.config import AXE_CHAIN, CHAIN, ChainHit, DAGGER_CHAIN, FIST_CHAIN
+from src.config import (AXE_CHAIN, CHAIN, ChainHit, DAGGER_CHAIN, FIST_CHAIN,
+                        SICKLE_CHAIN, SICKLE_REACH_BONUS, SPEAR_CHAIN,
+                        SPEAR_HEIGHT_TRIM, SPEAR_REACH_BONUS, WHISPER_CHAIN)
 
 FISTS = "fists"
 SWORD = "sword"
 DAGGER = "dagger"
 AXE = "axe"
+WHISPER = "whisper"
+SPEAR = "spear"
+SICKLE = "sickle"
+
+# Bitirici etkileri (`Player._finisher_effect`).
+FINISHER_WAVE = "wave"
+FINISHER_LUNGE = "lunge"
+FINISHER_SWEEP = "sweep"
 
 
 @dataclass(frozen=True)
@@ -42,6 +56,15 @@ class Weapon:
     # "" ise cizim taban (silahsiz) sprite'ini kullanir - yumrugun kendi
     # sprite'i zaten "silahsiz Rey" oldugu icin ek varyant gerekmiyor.
     sprite_suffix: str = "_armed"
+    # Vurus kutusuna eklenen menzil / cikarilan yukseklik (piksel).
+    reach_bonus: int = 0
+    height_trim: int = 0
+    # Bitiricinin ek etkisi: "" | wave | lunge | sweep.
+    finisher: str = ""
+    # "" herkes; "rey"/"ardo" yalnizca o karakter.
+    owner: str = ""
+    # Savurma izinin golge zinciri (`src/art/trail.py`).
+    trail_chain: str = "bone_pale"
 
 
 WEAPONS: dict[str, Weapon] = {
@@ -53,11 +76,31 @@ WEAPONS: dict[str, Weapon] = {
     # gorunmemesi kabul edilemezdi.
     DAGGER: Weapon(DAGGER, "weapon.dagger", DAGGER_CHAIN, sprite_suffix="_dagger"),
     AXE: Weapon(AXE, "weapon.axe", AXE_CHAIN, sprite_suffix="_axe"),
+    WHISPER: Weapon(WHISPER, "weapon.whisper", WHISPER_CHAIN,
+                    sprite_suffix="_whisper", finisher=FINISHER_WAVE,
+                    owner="rey", trail_chain="arcane"),
+    SPEAR: Weapon(SPEAR, "weapon.spear", SPEAR_CHAIN, sprite_suffix="_spear",
+                  reach_bonus=SPEAR_REACH_BONUS, height_trim=SPEAR_HEIGHT_TRIM,
+                  finisher=FINISHER_LUNGE, owner="ardo"),
+    SICKLE: Weapon(SICKLE, "weapon.sickle", SICKLE_CHAIN,
+                   sprite_suffix="_sickle", reach_bonus=SICKLE_REACH_BONUS,
+                   finisher=FINISHER_SWEEP, trail_chain="steel"),
 }
+
+# B10'da karakterin kendi silahi.
+PERSONAL: dict[str, str] = {"rey": WHISPER, "ardo": SPEAR}
 
 
 def get(key: str) -> Weapon:
     return WEAPONS.get(key, WEAPONS[FISTS])
+
+
+def usable_by(key: str, character: str) -> bool:
+    """Bu karakter bu silahi kusanabilir mi? (Karaktere ozel silahlar.)"""
+    weapon = WEAPONS.get(key)
+    if weapon is None:
+        return False
+    return not weapon.owner or weapon.owner == character
 
 
 def starting_weapon(character: str) -> str:

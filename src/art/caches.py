@@ -38,9 +38,12 @@ def invalidate_all() -> None:
     kalkarsa patlar. Ayrica cagri seyrek (yalnizca ayar degisiminde),
     yani import maliyeti onemsiz.
     """
-    from src.art import animator, brightness, portrait, postfx, tileset
+    from src.art import (animator, bloom, brightness, glow, lighting,
+                         portrait, postfx, projectiles, rimlight, tileset)
+    from src.entities import candle_keeper
     from src.scenes import staging
     from src.ui import echo_view, text
+    from src.world import cave_backdrop, water, weapon_shrine
 
     animator.clear_cache()
     tileset.clear_cache()
@@ -49,6 +52,15 @@ def invalidate_all() -> None:
     portrait.clear_cache()
     echo_view.clear_cache()
     text.clear_cache()
+    water.clear_cache()
+    lighting.clear_cache()
+    glow.clear_cache()
+    bloom.clear_cache()
+    rimlight.clear_cache()
+    projectiles.clear_cache()
+    cave_backdrop.clear_cache()
+    weapon_shrine.clear_cache()
+    candle_keeper.clear_cache()
     # Ara sahne panelleri de diskten gelen YUZEY: hem ekran bicimi
     # hem renk korlugu modu degisiminde bayatliyor. Testin tarayicisi
     # `src/scenes` altina bakmadigi icin bunu yakalayamadi - kural

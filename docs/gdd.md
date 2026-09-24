@@ -149,7 +149,9 @@ Kural: **yeni mekanik + eski mekanik = yeni bulmaca**
 > kontrol). Değişen tek şey araç oldu.
 >
 > Uygulaması: **Ardo'nun kuyuya kurduğu iniş kafesi** (B12). Tek
-> kontrol fren; duvarlardaki izler yalnızca yavaşken okunuyor. Ceza
+> kontrol fren — **varsayılan olarak devrede**, S/aşağı basılı tutunca
+> bırakılıyor ve kafes hızlanıyor (Arda, 24.09.2026: "basmayınca yavaş,
+> basınca hızlı"); duvarlardaki izler yalnızca yavaşken okunuyor. Ceza
 > yok, ölüm yok — değişen tek şey onun ne kadarını gördüğün. Araç bir
 > nefes bölümünü bozmuyor çünkü **onun bıraktığı bir şey**: binmek
 > zaten yakınlık.

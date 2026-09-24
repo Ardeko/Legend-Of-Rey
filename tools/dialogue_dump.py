@@ -7,6 +7,7 @@ Bu yuzden JSON degil duz metin, ve konusmaci adlari cozulmus halde.
 
     python tools/dialogue_dump.py            # docs/diyaloglar.md yazar
     python tools/dialogue_dump.py --geri     # duzenlenmis dosyayi geri okur
+    python tools/dialogue_dump.py --geri docs/senaryo-akisi.md
 
 ## Neden geri okuma da var
 
@@ -14,12 +15,28 @@ Elle JSON duzenlemek iki dosyayi (tr/en) senkron tutmayi gerektiriyor ve
 bir virgul hatasi butun oyunu aciyor. Doker-duzenle-geri oku dongusu o
 riski aradan cikariyor: yazar yalnizca **metni** goruyor, anahtarlar ve
 JSON bicimi arac tarafinda kaliyor.
+
+## Ikinci kaynak: senaryo akisi (23.09.2026)
+
+Arda butun diyaloglari **oynanis sirasiyla**, nerede ne oldugunu anlatan
+notlarla istedi: `docs/senaryo-akisi.md`. O belge elle kuruldu (sahne
+kodu okunarak) ama ayni blok bicimini kullaniyor, yani ayni okuyucu
+geri yazabiliyor. Farklari okuyucu tasiyor:
+
+    `####` anahtar basligi   orada `###` bir sahne basligi ("### 3. Kolye")
+    noktali anahtar          `hint.bell`, `chapter03.purple_taken` - ekran
+                             yazilari da ayni belgede; noktasiz = `line.`
+    baglam satirlari         `> Ne oluyor:`, konusmaci, not - yok sayilir
+    kod blogu                ornek blok orada duruyor; ``` icinde okunmaz
+    ayni anahtar iki kez     yalniz biri degismisse o yazilir; iki farkli
+                             duzenleme varsa dokunulmaz, uyarilir
 """
 from __future__ import annotations
 
 import json
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -166,46 +183,153 @@ def dump() -> str:
     return "".join(parts)
 
 
-def restore() -> int:
-    """Duzenlenmis dosyayi dil tablolarina geri yazar."""
-    if not TARGET.is_file():
-        print(f"!! {TARGET} yok - once dokum al")
-        return 1
-    body = TARGET.read_text(encoding="utf-8")
+# Anahtar basligi. `diyaloglar.md` `### ch01_x`, `senaryo-akisi.md`
+# `#### ch01_x` yaziyor. Kalip bilerek dar: `### 3. Kolye` gibi bir sahne
+# basligi anahtar sanilmamali, ve baska her baslik anahtari SIFIRLIYOR -
+# yoksa bir sahnenin metni bir onceki blogun anahtarina yazilirdi.
+KEY_HEADING = re.compile(r"^#{3,4}\s+([a-z0-9_]+(?:\.[a-z0-9_]+)?)\s*$")
+VALUE_LINE = re.compile(r'^-\s*(tr|en)\s*:\s*"(.*)"\s*$')
+FENCE = "```"
 
-    current_key = ""
-    updates: dict[str, dict[str, str]] = {"tr": {}, "en": {}}
-    for raw in body.splitlines():
+
+@dataclass
+class Parsed:
+    """Belgeden okunanlar. Degerler gecis sirasiyla, tekrarlar dahil."""
+
+    values: dict[str, dict[str, list[str]]]
+    blocks: int
+    orphans: list[int]
+
+
+def parse(body: str) -> Parsed:
+    """Duzenlenmis belgeyi okur: yalnizca anahtar basligi + tr/en satiri.
+
+    Geri kalan her sey (ozet, `> Ne oluyor:`, konusmaci, notlar) yok
+    sayiliyor. Anahtari olmayan bir tr/en satiri **sessizce yutulmuyor**:
+    basligini degistiren yazarin duzenlemesi yoksa kaybolurdu.
+    """
+    values: dict[str, dict[str, list[str]]] = {"tr": {}, "en": {}}
+    current = ""
+    in_fence = False
+    blocks = 0
+    orphans: list[int] = []
+    for number, raw in enumerate(body.splitlines(), start=1):
         line = raw.strip()
-        if line.startswith("### "):
-            current_key = line[4:].strip()
+        if line.startswith(FENCE):
+            # Belgenin basindaki ornek blok bir kod blogunda duruyor;
+            # okunsaydi ornek metin gercek anahtara yazilirdi.
+            in_fence = not in_fence
+            current = ""
             continue
-        match = re.match(r'^-\s*(tr|en)\s*:\s*"(.*)"\s*$', line)
-        if match and current_key:
-            updates[match.group(1)][current_key] = match.group(2)
+        if in_fence:
+            continue
+        if line.startswith("#"):
+            match = KEY_HEADING.match(line)
+            current = match.group(1) if match else ""
+            blocks += 1 if current else 0
+            continue
+        match = VALUE_LINE.match(line)
+        if match is None:
+            continue
+        if not current:
+            orphans.append(number)
+            continue
+        values[match.group(1)].setdefault(current, []).append(match.group(2))
+    return Parsed(values, blocks, orphans)
+
+
+def _slot(data: dict, key: str) -> tuple[dict, str] | None:
+    """Anahtarin tablodaki yeri: (sozluk, yaprak). Yoksa None.
+
+    Noktasiz anahtar `line.` ad alaninda (`ch01_echo_first`); noktali
+    olan kendi ad alaninda (`hint.bell` -> `data["hint"]["bell"]`).
+    """
+    namespace, _, leaf = key.rpartition(".")
+    table = data.get(namespace or "line")
+    if not isinstance(table, dict) or not isinstance(table.get(leaf), str):
+        return None
+    return table, leaf
+
+
+def _pick(values: list[str], current: str) -> str | None:
+    """Ayni anahtar birden cok blokta gectiyse yazilacak degeri secer.
+
+    Hepsi ayniysa o. Yalnizca biri tablodakinden farkliysa duzenlenen o.
+    Birbirinden farkli iki duzenleme varsa hangisinin kastedildigi
+    bilinemez: None - cagiran uyarir ve dokunmaz.
+    """
+    distinct = list(dict.fromkeys(values))
+    if len(distinct) == 1:
+        return distinct[0]
+    edited = [value for value in distinct if value != current]
+    return edited[0] if len(edited) == 1 else None
+
+
+def restore(source: Path = TARGET) -> int:
+    """Duzenlenmis belgeyi dil tablolarina geri yazar.
+
+    **Degisen dosya yaziliyor, digeri dokunulmuyor**, ve satir sonu
+    bicimi (CRLF/LF) dosyanin kendisinden okunuyor. Duzenlenmemis bir
+    belgeyi geri okumak dil tablolarini bayt bayt ayni birakir.
+    """
+    if not source.is_file():
+        print(f"!! {source} yok - once dokum al")
+        return 1
+    parsed = parse(source.read_text(encoding="utf-8"))
+    for number in parsed.orphans:
+        print(f"!! satir {number}: ustunde anahtar basligi yok - atlandi")
 
     changed = 0
     for lang in ("tr", "en"):
         path = LANG / f"{lang}.json"
-        data = json.loads(path.read_text(encoding="utf-8"))
-        for key, value in updates[lang].items():
-            if key in data["line"] and data["line"][key] != value:
-                data["line"][key] = value
-                changed += 1
-            elif key not in data["line"]:
+        raw = path.read_bytes()
+        data = json.loads(raw.decode("utf-8"))
+        edits = 0
+        for key, values in parsed.values[lang].items():
+            slot = _slot(data, key)
+            if slot is None:
                 # **Yeni anahtar EKLENMIYOR.** Kodda kullanilmayan bir
                 # anahtar `tests/test_lang.py`'de "olu anahtar" olarak
                 # kirilir; yeni replik once kodda yerini bulmali.
                 print(f"   atlandi (kodda yok): {lang}/{key}")
-        path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n",
-                        encoding="utf-8")
-    print(f"{changed} replik guncellendi")
+                continue
+            table, leaf = slot
+            value = _pick(values, table[leaf])
+            if value is None:
+                print(f"!! {lang}/{key}: belgede birbirinden farkli "
+                      "duzenlemeler var - atlandi")
+                continue
+            if table[leaf] != value:
+                table[leaf] = value
+                edits += 1
+        if edits:
+            newline = "\r\n" if b"\r\n" in raw else "\n"
+            path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+                            encoding="utf-8", newline=newline)
+        changed += edits
+    print(f"{source.name}: {parsed.blocks} blok okundu, "
+          f"{changed} metin guncellendi")
     return 0
+
+
+def _source_arg(argv: list[str]) -> Path:
+    """`--geri`den sonra verilen belge; verilmezse `docs/diyaloglar.md`.
+
+    Goreli yol once calisma dizinine, bulunamazsa repo kokune gore
+    cozuluyor - `tools/` icinden de kokten de ayni komut calissin.
+    """
+    index = argv.index("--geri")
+    if index + 1 >= len(argv) or argv[index + 1].startswith("-"):
+        return TARGET
+    path = Path(argv[index + 1])
+    if not path.is_absolute() and not path.exists():
+        path = ROOT / path
+    return path
 
 
 def main() -> int:
     if "--geri" in sys.argv:
-        return restore()
+        return restore(_source_arg(sys.argv))
     TARGET.parent.mkdir(parents=True, exist_ok=True)
     TARGET.write_text(dump(), encoding="utf-8", newline="\n")
     count = dump().count("\n### ")

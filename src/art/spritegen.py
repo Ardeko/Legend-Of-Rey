@@ -189,6 +189,8 @@ def _draw_arm(canvas: Canvas, sx: float, sy: float, shoulder_angle: float,
 WEAPON_LENGTH: dict[str, float] = {
     "sword": 13.0, "knife": 7.0, "club": 11.0, "staff": 14.0,
     "spear": 19.0, "axe": 10.0, "bow": 0.0, "none": 0.0,
+    # 23.09.2026 - karaktere ozel ve ortak silahlar (`combat/weapons.py`).
+    "whisper": 14.0, "trackspear": 18.0, "sickle": 9.0,
 }
 
 
@@ -248,6 +250,66 @@ def _draw_weapon(canvas: Canvas, hx: float, hy: float, angle: float,
         canvas.taper(ax, ay, mx, my, 1.0, 1.8, "leather", 2)
         canvas.taper(mx, my, bx, by, 1.8, 1.0, "leather", 2)
         canvas.line(ax, ay, bx, by, 1.0, "bone_pale", 2)      # kiris
+    elif kind == "whisper":
+        # Rey'in Fisilti'si: ince, uzun, MOR bir agiz ve parlayan uc.
+        # Kilictan ayrimi siluette de var: kabza yok, agiz daha ince -
+        # bir kilictan cok bir "ses"in sekli.
+        tip_x = hx + math.cos(angle) * reach
+        tip_y = hy + math.sin(angle) * reach
+        canvas.taper(hx, hy, tip_x, tip_y, 2.4, 0.7, "arcane", 2)
+        canvas.line(hx + math.cos(angle) * 2, hy + math.sin(angle) * 2,
+                    hx + math.cos(angle) * (reach - 3),
+                    hy + math.sin(angle) * (reach - 3), 0.8, "arcane", 3)
+        canvas.disc(tip_x, tip_y, 1.0, "arcane", 3, glow=170)
+        canvas.line(hx, hy, hx - math.cos(angle) * 3, hy - math.sin(angle) * 3,
+                    1.8, "leather", 1)
+    elif kind == "trackspear":
+        # Ardo'nun Iz Mizragi: mizrak + ucun altinda kirmizi bir iz bezi.
+        # Bez, iz surucunun isareti - Mizrakli dusmanin siluetinden ayirir.
+        tip_x = hx + math.cos(angle) * reach
+        tip_y = hy + math.sin(angle) * reach
+        canvas.line(hx - math.cos(angle) * 5, hy - math.sin(angle) * 5,
+                    tip_x, tip_y, 1.6, "leather", 2)
+        canvas.taper(tip_x - math.cos(angle) * 4, tip_y - math.sin(angle) * 4,
+                     tip_x, tip_y, 2.8, 0.8, "steel", 3)
+        tie_x = tip_x - math.cos(angle) * 6
+        tie_y = tip_y - math.sin(angle) * 6
+        canvas.line(tie_x, tie_y, tie_x - 1.5, tie_y + 3.0, 1.2, "gore", 1)
+    elif kind == "sickle":
+        # Zincir Orak: kisa sap, hilal agiz, sapin dibinden sarkan zincir.
+        head_x = hx + math.cos(angle) * reach
+        head_y = hy + math.sin(angle) * reach
+        canvas.line(hx, hy, head_x, head_y, 1.6, "leather", 1)
+        # Agiz bir HILAL: sapin ucundan one cikip sapa dogru geri kivriliyor
+        # ("?" gibi). Ilk surum dik, duz bir agizdi ve kazma gibi okundu
+        # (olculdu, 23.09.2026 silah izgarasi).
+        perp = angle - math.pi / 2
+        radius = 3.6
+        centre_x = head_x + math.cos(perp) * radius
+        centre_y = head_y + math.sin(perp) * radius
+        start = math.atan2(head_y - centre_y, head_x - centre_x)
+        # Ilk adim sapin DEVAMI yonunde olmali; o yonu veren isaret secilir.
+        probe = start + 0.3
+        forward = ((centre_x + math.cos(probe) * radius - head_x) * math.cos(angle)
+                   + (centre_y + math.sin(probe) * radius - head_y) * math.sin(angle))
+        sweep = (1.0 if forward > 0 else -1.0) * math.pi * 1.25
+        steps = 6
+        points = [(centre_x + math.cos(start + sweep * i / steps) * radius,
+                   centre_y + math.sin(start + sweep * i / steps) * radius)
+                  for i in range(steps + 1)]
+        for index in range(steps):
+            (x0, y0), (x1, y1) = points[index], points[index + 1]
+            w0 = 2.3 - 1.5 * index / steps
+            w1 = 2.3 - 1.5 * (index + 1) / steps
+            canvas.taper(x0, y0, x1, y1, w0, w1, "steel", 2)
+        # Ic kenar (agiz) parlak - kesen yuz.
+        for x, y in points[1:-1]:
+            canvas.px(int(centre_x + (x - centre_x) * 0.72 + 0.5),
+                      int(centre_y + (y - centre_y) * 0.72 + 0.5), "steel", 3)
+        for link in range(3):
+            canvas.px(int(hx - math.cos(angle) * (2 + link * 2)),
+                      int(hy - math.sin(angle) * (2 + link * 2) + link),
+                      "steel", 2 if link % 2 == 0 else 1)
     elif kind == "axe":
         haft_x = hx + math.cos(angle) * reach
         haft_y = hy + math.sin(angle) * reach

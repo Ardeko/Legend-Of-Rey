@@ -146,6 +146,54 @@ class WaterState:
 
 
 # --- Cizim ------------------------------------------------------------------
+REFLECTION_DEPTH = 18
+REFLECTION_ALPHA = 38
+WATER_TOP_ALPHA = 88
+WATER_DEEP_ALPHA = 126
+_draw_cache: dict[str, pygame.Surface] = {}
+
+
+def clear_cache() -> None:
+    """Ekran bicimi veya palet degisince su yuzeylerini yeniden kur."""
+    _draw_cache.clear()
+
+
+def _body_layer() -> pygame.Surface:
+    layer = _draw_cache.get("body")
+    if layer is None:
+        layer = pygame.Surface((INTERNAL_WIDTH, INTERNAL_HEIGHT + 4),
+                               pygame.SRCALPHA).convert_alpha()
+        tone = palette.color("abyss")
+        for y in range(layer.get_height()):
+            depth = min(1.0, y / 96)
+            alpha = round(WATER_TOP_ALPHA
+                          + (WATER_DEEP_ALPHA - WATER_TOP_ALPHA) * depth)
+            layer.fill((*tone, alpha), (0, y, INTERNAL_WIDTH, 1))
+        _draw_cache["body"] = layer
+    return layer
+
+
+def _draw_reflection(surface: pygame.Surface, top: int, frame: int) -> None:
+    """Yuzeyin hemen ustundeki dunyanin kirik, soluk yansimasi."""
+    if not 2 <= top < INTERNAL_HEIGHT:
+        return
+    reflection = _draw_cache.get("reflection")
+    if reflection is None:
+        reflection = pygame.Surface((INTERNAL_WIDTH, REFLECTION_DEPTH),
+                                    pygame.SRCALPHA).convert_alpha()
+        reflection.set_alpha(REFLECTION_ALPHA)
+        _draw_cache["reflection"] = reflection
+    reflection.fill((0, 0, 0, 0))
+    depth = min(REFLECTION_DEPTH, top, INTERNAL_HEIGHT - top)
+    # Once yansima yuzeyine kopyala; hedefin kendisinden art arda okumak
+    # yeni cizilen sudan ikinci bir yansima uretirdi.
+    for row in range(0, depth, 2):
+        shift = round(math.sin(frame * 0.035 + row * 0.65) * 2)
+        reflection.blit(surface, (shift, row),
+                        (0, top - row - 2, INTERNAL_WIDTH, 2))
+    surface.blit(reflection, (0, top))
+
+
 def draw(surface: pygame.Surface, offset: tuple[int, int],
          water: WaterState) -> None:
     """Su kutlesi + dalgali yuzey.
@@ -162,17 +210,24 @@ def draw(surface: pygame.Surface, offset: tuple[int, int],
     if depth <= 0:
         return
 
-    body = pygame.Surface((INTERNAL_WIDTH, depth), pygame.SRCALPHA)
-    body.fill((*palette.color("abyss"), 120))
-    surface.blit(body, (0, top))
+    _draw_reflection(surface, top, water.frame)
+    surface.blit(_body_layer(), (0, top))
 
     # Yuzey cizgisi dalgali - duz bir cizgi "su" degil "zemin" gibi
     # okunuyordu. Dalga tam sayiya yuvarlaniyor (CLAUDE.md 9).
     bright = palette.color("abyss_light")
     pale = palette.color("echo")
     for x in range(INTERNAL_WIDTH):
-        wave = math.sin((x + water.frame * 0.6) * 0.09) * WATER_SURFACE_WAVE
+        world_x = x + ox
+        wave = math.sin((world_x + water.frame * 0.6) * 0.09) * WATER_SURFACE_WAVE
         y = top + int(round(wave))
         surface.fill(bright, (x, y, 1, 1))
-        if (x + water.frame // 3) % 7 == 0:
+        if (world_x + water.frame // 3) % 7 == 0:
             surface.fill(pale, (x, y + 1, 1, 1))
+    # Genis ve seyrek dalga izleri; su altindaki aktorleri ortmez.
+    for index in range(7):
+        world_x = index * 83 + water.frame // 5
+        x = (world_x - ox) % (INTERNAL_WIDTH + 24) - 12
+        y = top + 7 + index % 3 * 5
+        if 0 <= y < INTERNAL_HEIGHT:
+            surface.fill(bright, (x, y, 8 + index % 4, 1))

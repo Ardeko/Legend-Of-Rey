@@ -27,6 +27,12 @@ from src.config import DARKNESS_SILHOUETTE_ALPHA
 from src.systems.light import LightState
 
 _DARK_NAME = palette.darkest_names(1)[0]
+_masks: dict[tuple[int, int], pygame.Surface] = {}
+
+
+def clear_cache() -> None:
+    _hole.cache_clear()
+    _masks.clear()
 
 
 @lru_cache(maxsize=32)
@@ -41,28 +47,32 @@ def _hole(radius: int) -> pygame.Surface:
     size = radius * 2
     yy, xx = np.ogrid[:size, :size]
     distance = np.sqrt((xx - radius) ** 2 + (yy - radius) ** 2) / radius
-    falloff = np.clip(1.0 - distance, 0.0, 1.0) ** 2
+    # Eski karesel egri, mesale yaricapinin ortasini bile karartiyordu.
+    # Aydinlik cekirdek + yumusak kenar gorusu gercek yaricapa yaklastirir.
+    edge = np.clip((distance - 0.30) / 0.70, 0.0, 1.0)
+    falloff = 1.0 - edge * edge * (3.0 - 2.0 * edge)
 
     hole = pygame.Surface((size, size), pygame.SRCALPHA)
     pygame.surfarray.pixels_alpha(hole)[:, :] = (falloff * 255).astype(np.uint8)
-    return hole
+    return hole.convert_alpha()
 
 
 def render(surface: pygame.Surface, offset: tuple[int, int],
-           light: LightState) -> None:
+           light: LightState, visibility: float = DARKNESS_SILHOUETTE_ALPHA) -> None:
     """Karanlik maskesini olusturup `surface` uzerine isler.
 
-    **Sadece Chapter03Scene bunu cagirir** - Bolum 1/2 hic cagirmadigi
-    icin o sahnelerde maliyeti yok. Kaynak listesi bossa bile maske
-    tam kuvvetle cizilir: mesalesi/Mor Alevi olmayan bir oyuncu icin
-    "hicbir isik yok" **tam karanlik** demektir, "aydinlik say" degil -
-    ilk halde kaynak yoksa hic cizmiyordu ve mesalesini dusuren oyuncu
-    yanlislikla normal aydinlikta kaliyordu.
+    B3 ve B13 kullanir. Kaynak yokken de karanlik uygulanir; oyuncu
+    zemin ve tehlike siluetlerini secebilir. LightState'in oynanis
+    sorgulari degismez: golge dusmani aydinlatmak hala mesale ister.
     """
     ox, oy = offset
     width, height = surface.get_size()
-    mask = pygame.Surface((width, height), pygame.SRCALPHA)
-    dark_alpha = int(255 * (1.0 - DARKNESS_SILHOUETTE_ALPHA))
+    size = (width, height)
+    mask = _masks.get(size)
+    if mask is None:
+        mask = pygame.Surface(size, pygame.SRCALPHA).convert_alpha()
+        _masks[size] = mask
+    dark_alpha = int(255 * (1.0 - max(0.0, min(1.0, visibility))))
     mask.fill((*palette.color(_DARK_NAME), dark_alpha))
 
     for source in light.all_sources():

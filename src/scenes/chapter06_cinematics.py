@@ -38,6 +38,7 @@ kopyasini bakim yuku yapardi (ayni gerekce `chapter07_cinematics.py`).
 from __future__ import annotations
 
 import math
+from dataclasses import replace
 
 import pygame
 
@@ -121,6 +122,25 @@ class ArdoEntranceCinematic(StagedScene):
         # bu karakteri 32 piksellik bir figur olarak gorecegiz; bir kez
         # yakindan gormek onu bir siluet olmaktan cikariyor.
         Panel(44, "yuz", closeup="saviour", fade_in=10, fade_out=10),
+        # Kurtarmanin ardindan neden burada olduklarini ogreniyoruz.
+        # Ardo gecmisini acmaz; yakinlik sonraki bolumlere kalir.
+        Panel(48, "iz", fade_in=10),
+        Panel(40, "neden"),
+        Panel(44, "gecmis", fade_in=10, fade_out=10),
+        Panel(48, "tereddut", fade_in=10),
+        Panel(34, "bekleyis", wait_for_input=False, cues=(
+            Cue("saviour", face=-1),
+            Cue("saviour", delay=22, face=1),
+        )),
+        Panel(48, "guven"),
+        Panel(48, "birlikte", wait_for_input=False, fade_out=12, cues=(
+            Cue("saviour", state="run", face=-1,
+                move_to=(DROP_TO_X - 28, GROUND_Y), move_frames=30),
+            Cue("saviour", delay=30, state="idle"),
+            Cue("cornered", delay=10, state="run", face=-1,
+                move_to=(CORNERED_X - 40, GROUND_Y), move_frames=30),
+            Cue("cornered", delay=40, state="idle"),
+        )),
     )
 
     def on_enter(self, character: str = "rey", **kwargs: object) -> None:
@@ -151,7 +171,7 @@ class ArdoEntranceCinematic(StagedScene):
         )
 
     def _write_dialogue(self) -> None:
-        """Uc panele replik koyar. Kim konusuyorsa o.
+        """Tanisma ve beraber yola cikma konusmasi; roller secime bagli.
 
         Anahtarlar **duz dize** - f-string ile kurulani `test_lang.py`
         goremiyor (proje bu tuzaga alti kereden fazla dustu).
@@ -159,22 +179,47 @@ class ArdoEntranceCinematic(StagedScene):
         if self.character == "ardo":
             # Ardo oynaniyor: dusen Rey, tanitilan Rey.
             beats = {
-                "bakisma": Line("rey", "line.ch06_meet_rey_first"),
-                "soru": Line("ardo", "line.ch06_meet_ardo_who"),
-                "isim": Line("rey", "line.ch06_meet_rey_name"),
+                "bakisma": (Line("rey", "line.ch06_meet_rey_first"),),
+                "soru": (Line("ardo", "line.ch06_meet_ardo_who"),),
+                "isim": (Line("rey", "line.ch06_meet_rey_name"),),
+                "iz": (
+                    Line("ardo", "line.ch06_meet_ardo_child"),
+                    Line("rey", "line.ch06_meet_rey_trail"),
+                    Line("ardo", "line.ch06_meet_ardo_below"),
+                ),
             }
         else:
             beats = {
-                "bakisma": Line("ardo", "line.ch06_meet_ardo_first"),
-                "soru": Line("rey", "line.ch06_meet_rey_who"),
-                "isim": Line("ardo", "line.ch06_meet_ardo_name"),
+                "bakisma": (Line("ardo", "line.ch06_meet_ardo_first"),),
+                "soru": (Line("rey", "line.ch06_meet_rey_who"),),
+                "isim": (Line("ardo", "line.ch06_meet_ardo_name"),),
+                "iz": (
+                    Line("rey", "line.ch06_meet_rey_child"),
+                    Line("ardo", "line.ch06_meet_ardo_trail"),
+                    Line("rey", "line.ch06_meet_rey_below"),
+                ),
             }
+        beats.update({
+            "neden": (Line("rey", "line.ch06_meet_rey_reason"),),
+            "gecmis": (Line("ardo", "line.ch06_meet_ardo_reason"),),
+            "tereddut": (
+                Line("rey", "line.ch06_meet_rey_help"),
+                Line("ardo", "line.ch06_meet_ardo_choice"),
+            ),
+            "guven": (
+                Line("rey", "line.ch06_meet_rey_follow"),
+                Line("ardo", "line.ch06_meet_ardo_together"),
+            ),
+        })
+        ardo_actor = "cornered" if self.character == "ardo" else "saviour"
         self.panels = tuple(
-            Panel(p.frames, p.name, line=beats[p.name], cues=p.cues)
+            replace(p, lines=beats[p.name],
+                    closeup=ardo_actor if p.name == "gecmis" else p.closeup)
             if p.name in beats else p
             for p in self.panels)
 
     def on_stage_panel(self, panel: Panel) -> None:
+        self.dialogue.show_portrait = not bool(panel.closeup)
         if panel.name == "dusus":
             # **Ardo.mp3** - Arda'nin talimati: oteki karakterin
             # girislerinde bu parca. Girise ait, karaktere degil.

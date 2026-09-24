@@ -248,6 +248,8 @@ class Chapter04Scene(PlayScene):
             self.show_toast(t("chapter04.hint_rest",
                               key=self.game.input.binding_label(Action.INTERACT)),
                             frames=180)
+        fx, fy = self._tile_center(FIRE_TILE)
+        self.prompts.offer("camp", fx, fy - TILE_SIZE, verb_key="prompt.rest")
         if self.game.input.pressed(Action.INTERACT):
             self._rest()
 
@@ -358,8 +360,11 @@ class Chapter04Scene(PlayScene):
             if not self.memory_seen and self.memory_alpha >= 0.6:
                 self.memory_seen = True
                 self.camera.linger(30)
-                self.say(self._voice("line.ch04_echo_name",
-                                     "line.ch04_ardo_name"))
+                # `_voice` repligi KENDISI baslatiyor ve None donuyor.
+                # Eskiden `self.say(self._voice(...))` yaziyordu: dis
+                # `say(None)` repligi ayni karede siliyordu ve bu iki satir
+                # hic gorunmedi (senaryo-akisi.md denetimi, 23.09.2026).
+                self._voice("line.ch04_echo_name", "line.ch04_ardo_name")
         else:
             self.memory_alpha = max(0.0, self.memory_alpha - step)
 
@@ -524,7 +529,7 @@ class Chapter04Scene(PlayScene):
 
     # --- Cizim ------------------------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         cave_backdrop.draw_torches(surface, offset, TORCHES, self.game.frame)

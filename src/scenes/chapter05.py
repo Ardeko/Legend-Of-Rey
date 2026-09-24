@@ -73,6 +73,7 @@ SIGHTING_NEAR_TILES = 13
 # bitirince zaten `Kalachev.leave()` cagriliyor, bu bir UST SINIR.
 SIGHTING_STAY = 900
 SIGHTING_LINGER = 40
+SIGHTING_INTRO_FLAG = "ch05_kalachev_intro_seen"
 # Suru: uc Suruklenen, aralarinda iki tile.
 SIGHTING_PACK_OFFSETS = (2, 4, 6)
 
@@ -134,6 +135,7 @@ class Chapter05Scene(PlayScene):
         # yukselmesine bagli - gerekce `_update_sighting`da.
         self.sighting_done = False
         self.sighting_pack: list = []
+        self._sighting_intro_pending = False
 
         self.chests = [Chest(spot.x, spot.feet_y, gold=CHEST_GOLD,
                              secret=True)
@@ -214,9 +216,7 @@ class Chapter05Scene(PlayScene):
 
     # --- Kalachev: ILK GORUS ------------------------------------------------
     def _update_sighting(self) -> None:
-        """`docs/kalachev.md` 5: *"B5 Sular - **Ilk gorus.** Uzakta, bir
-        surunun ortasina daliyor, hepsini kesiyor, suya atlayip
-        kayboluyor. Tek kelime yok."*
+        """B5: ilk karsilasma, kisa konusma ve cikintidaki gercek dovus.
 
         ## Iki sart: su yukselmis VE oyuncu yakin
 
@@ -244,11 +244,9 @@ class Chapter05Scene(PlayScene):
         konuldugunda suru bogularak oluyordu ve "hepsini kesiyor"
         yalan oluyordu - olculdu.
 
-        ## Tek kelime yok
-
-        Belge acikca soyluyor. Ne replik ne toast - yalnizca kamera
-        oraya bir an bakiyor ve oyuncu ne gorduguna kendi karar
-        veriyor. Tanisma B6'da.
+        Arda'nin 18.09.2026 istegiyle ilk goruse sinematik eklendi.
+        Konusurken sahne yigini suyu ve dovusu durdurur; donuste ayni
+        suru ve Kalachev devam eder. Rey'e adini Ardo B6'da soyler.
         """
         if self.sighting_done:
             return
@@ -279,9 +277,28 @@ class Chapter05Scene(PlayScene):
             self.sighting_pack.append(enemy)
 
     def on_kalachev_arrived(self, ally) -> None:
-        """Kamera bir an oraya bakiyor. **Replik yok** - belge oyle diyor."""
+        """Ilk gorusu oynat; tamamlanmis konusma kayittan tekrar etmez."""
         self.camera.linger(SIGHTING_LINGER)
         self.game.play_sound("swing_heavy")
+        data = self.save_data
+        if self._sighting_intro_pending or (
+                data is not None and data.flags.get(SIGHTING_INTRO_FLAG)):
+            return
+        from src.scenes.kalachev_cinematics import KalachevCinematic
+        from src.systems.save import write_save
+
+        self._sighting_intro_pending = True
+
+        def complete() -> None:
+            self._sighting_intro_pending = False
+            if data is not None:
+                data.flags[SIGHTING_INTRO_FLAG] = True
+                write_save(data)
+
+        # `_resuming` tek basina atlama sebebi degil: eski kayitlarda
+        # bu yeni sahne henuz gorulmedi. Karari tamamlanma bayragi verir.
+        self.scenes.push(KalachevCinematic, character=self.character,
+                         beat="sighting", on_complete=complete)
 
     # --- Kalkanli -----------------------------------------------------------
     def on_shield_block(self, enemy) -> None:
@@ -319,6 +336,10 @@ class Chapter05Scene(PlayScene):
         if self.valve_frames > 0:
             return
         index = self._valve_near()
+        if index >= 0:
+            vx, vy = self._valve_positions()[index]
+            self.prompts.offer("valve", vx, vy - TILE_SIZE - 4,
+                               verb_key="prompt.turn")
         if index < 0 or not self.game.input.pressed(Action.INTERACT):
             return
         self.water.toggle()
@@ -405,7 +426,7 @@ class Chapter05Scene(PlayScene):
 
     # --- Cizim --------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         self._draw_valves(surface, offset)

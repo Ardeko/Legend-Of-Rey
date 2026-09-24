@@ -87,12 +87,15 @@ SPRITE_BUDGET = TILE_SIZE * 2
 # sanat olarak var - hicbir odaya konmadi, yani butce onlari henuz
 # baglamiyor. Sirasi gelince bu listeye eklenecekler.
 PLACED = ("rey", "rey_armed", "ardo", "ardo_armed", "villager", "cemo",
-          "shambler", "climber", "bloated", "shieldbearer")
+          "shambler", "climber", "bloated", "shieldbearer",
+          # 23.09.2026 - karaktere ozel ve ortak silahlar (B10, B14).
+          "rey_whisper", "rey_sickle", "ardo_spear", "ardo_sickle")
 
 # Silah tasiyanlarda olculen yukseklige silahin ucu de giriyor. Silah
 # govde degil - ceza yazmiyoruz, ama tolerans da vermiyoruz: yalnizca
 # hangi karakterlerde bunun beklendigini ISIMLENDIRIYORUZ.
-ARMED = {"rey_armed", "ardo_armed", "shieldbearer"}
+ARMED = {"rey_armed", "ardo_armed", "shieldbearer",
+         "rey_whisper", "rey_sickle", "ardo_spear", "ardo_sickle"}
 ARMED_ALLOWANCE = 2
 
 failures: list[str] = []

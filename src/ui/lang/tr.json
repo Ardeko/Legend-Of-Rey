@@ -140,12 +140,12 @@
     "flash_limit_note": "Ani parlamayı kaldırır. Olaylar aynen yaşanır."
   },
   "ability": {
-    "sword": "KILIÇ  ·  J ile saldır",
-    "dodge": "KAÇINMA  ·  Shift ile atıl",
-    "echo_sight": "YANKI GÖRÜŞÜ  ·  K ile bas ve tut",
-    "echo_ask": "YANKI'YA SOR  ·  F",
-    "double_jump": "ÇİFT ZIPLAMA",
-    "wall_jump": "DUVAR ZIPLAMASI",
+    "sword": "KILIÇ  ·  [{key}] ile saldır",
+    "dodge": "KAÇINMA  ·  [{key}] ile atıl",
+    "echo_sight": "YANKI GÖRÜŞÜ  ·  [{key}] basılı tut",
+    "echo_ask": "YANKI'YA SOR  ·  [{key}]",
+    "double_jump": "ÇİFT ZIPLAMA  ·  havada tekrar [{key}]",
+    "wall_jump": "DUVAR ZIPLAMASI  ·  duvara yaslan, [{key}]",
     "unknown": "?"
   },
   "chapter01": {
@@ -208,7 +208,7 @@
     "ch06_rey_plates": "İki plaka... Birinin diğerine yardım etmesi gerekiyor.",
     "ch06_ardo_plates": "İki plaka. Tek kişiyle çalışmaz.",
     "ch06_rey_arena": "Bu varlık diğerlerine benzemiyor...",
-    "ch06_ardo_arena": "Bunun izi yok. Hiçbir yerden gelmemiş — burada büyümüş.",
+    "ch06_ardo_arena": "Bunun izi yok. Hiçbir yerden gelmemiş — burada mı büyümüş lan?.",
     "prologue_echo_1": "Bizi duyabiliyor musun, Rey?",
     "prologue_rey_1": "Yine başladılar... Zihnimdeki fısıltılar. Başka kimsenin duyamadığı sesler.",
     "prologue_echo_2": "Onlar bizi duyamaz. Sadece sen duyabilirsin.",
@@ -232,7 +232,7 @@
     "prologue_echo_11": "Çünkü korku, yaklaşanı herkesten önce hisseder.",
     "prologue_echo_12": "Derine...",
     "prologue_echo_13": "Daima derine.",
-    "prologue_ardo_1": "Zihnimde fısıltılar yok. Ben izleri okurum.",
+    "prologue_ardo_1": "Yıllardır yollardaki izleri okurum. Buda benim bir lanetim sanırım.",
     "prologue_ardo_2": "Buradan biri geçmiş...",
     "prologue_ardo_3": "Ve geri dönmemiş.",
     "prologue_ardo_4": "Derinlerde neyin beklediğini biliyorum.",
@@ -251,7 +251,19 @@
     "ch06_meet_ardo_name": "Ardo. Ve buraya kadar inen tek şey ben değilim.",
     "ch06_meet_rey_first": "Üçü de arkandaydı. Bir tanesini duymadın bile.",
     "ch06_meet_ardo_who": "Sen kimsin?",
-    "ch06_meet_rey_name": "Rey. Kardeşimi arıyorum — ve kafamdaki sesler senin burada olduğunu biliyordu.",
+    "ch06_meet_rey_name": "Rey. Kardeşimi arıyorum.",
+    "ch06_meet_rey_child": "Ben Rey. Kardeşim Cemo'yu götürdüler. Onu kurtarmaya gidiyorum!",
+    "ch06_meet_ardo_trail": "İzini buraya kadar mı sürdün?",
+    "ch06_meet_rey_below": "Buraya kadar. Aşağıda olduğunu biliyorum.",
+    "ch06_meet_ardo_child": "Kardeşin... Adı ne?",
+    "ch06_meet_rey_trail": "Cemo. İzini bu kata kadar sürdüm.",
+    "ch06_meet_ardo_below": "O zaman aşağıya bakacağız.",
+    "ch06_meet_rey_reason": "Sen ne arıyorsun burada?",
+    "ch06_meet_ardo_reason": "Yarım bıraktığım bir şey var.",
+    "ch06_meet_rey_help": "Bana yardım etmek zorunda değilsin.",
+    "ch06_meet_ardo_choice": "Biliyorum. Ama şu an ikimiz de aynı yöne gidiyoruz.",
+    "ch06_meet_rey_follow": "Önden gidersen yetişirim.",
+    "ch06_meet_ardo_together": "Yanımda kal. Birinin de benim arkamı kollaması lazım.",
     "ch08_fire_ardo_wound": "Omzum. Düşerken taşa çarpmışım — önemli değil.",
     "ch08_fire_rey_wound": "Omzum. Düşerken taşa çarpmışım — önemli değil.",
     "ch08_fire_rey_necklace": "Cemo bunu bana verdi. Karanlık yaklaşırken iki kez düşünsün diye.",
@@ -464,7 +476,7 @@
     "ch13_echo_seed": "Rey?",
     "echo_alone_voice": "Artık yalnızca ben kaldım. Sen beni seçtin.",
     "kalachev_name": "E. KALACHEV",
-    "ch04_echo_name": "Günlük Kalachev'in. Kemikler onun değil; geride bıraktığı dostunun.",
+    "ch04_echo_name": "Günlük Kalachev'in. Ama neyse ki kemikler onun değil; geride bıraktığı dostunun.",
     "ch04_ardo_name": "Kalachev'in kampı. İki kişi gelmişler. Giden tek bir çift ayak izi.",
     "ch02_echo_bones": "Senden önce biri gelmiş. Adını sonra öğreneceksin.",
     "ch01_jet_offer": "Bunu al. Bu gece dışarıda kalma.",
@@ -492,11 +504,23 @@
     "ch01_ardo_leave": "Sen de.",
     "ch01_jet_east": "Ben doğuya gidiyorum.",
     "ch01_echo_sword_given": "Sana bir şey verdi. Bunu unutma.",
+    "ch05_rey_kalachev_call": "Hey! Sen... canlısın, değil mi?",
+    "ch05_kalachev_quiet": "Şimdilik. Şimdi kes o lanet sesini!şu piçler de duyuyor.",
+    "ch05_rey_kalachev_child": "Bir çocuk arıyorum. Buralardan geçti mi?",
+    "ch05_kalachev_valve": "Görmedim. Üst vanaya çık. Geçit oradan açılır.",
+    "ch05_rey_kalachev_stay": "Ya sen? Kafasındaki seslerle konuşan ben değilim",
+    "ch05_kalachev_pack": "Önce şu üçüyle ufak bir işim var *sinsice sırıtır*.",
+    "ch05_ardo_kalachev_call": "Efe! Seni gördüğümde sevinsem mi üzülsem mi bilemedim haha! Seni bulmak için gürültüyü izlemek yetiyor.",
+    "ch05_kalachev_late": "İş bittikten sonra gelmenin ne anlamı var lanet adam?",
+    "ch05_ardo_kalachev_pack": "Üçüne birden mi dalacaksın?",
+    "ch05_kalachev_count": "Saymayı bırak da üst vanaya git.",
+    "ch05_ardo_kalachev_back": "Sana arkanı kollayacak biri lazım.",
+    "ch05_kalachev_below": "O zaman buradan canlı kurtulmaya çalış bence haha. Aşağıda görüşürüz.",
     "ch06_echo_kalachev": "Ardo'yu tanıyor. Seni değil.",
-    "ch06_ardo_kalachev": "Kalachev. Bir gün de seni ben kurtarsam?",
-    "ch06_kalachev_ardo_intro": "Kalachev. Eski dostum. Önünü boş bırak.",
+    "ch06_ardo_kalachev": "Kalachev. SAnırım kurtarma konusunda ödeşmiş olduk ha?",
+    "ch06_kalachev_ardo_intro": "Kalachev. Eski dostum. Yolundan çekil.",
     "ch06_kalachev_rey_ask": "Bizimle mi geliyor?",
-    "ch06_kalachev_ardo_stay": "Yolu denk gelirse. Kimseyi beklemez.",
+    "ch06_kalachev_ardo_stay": "Yolumuz kesişirse artık. Bu ibne de kimseyi beklemez.",
     "ch06_kalachev_ardo_know": "Hâlâ borçlusun bana. Unutmadım.",
     "ch06_kalachev_familiar": "O kadar bekleyemem.",
     "ch06_kalachev_debt": "Yukarıda hallederiz. Önce buradan çık.",
@@ -531,7 +555,7 @@
     "ch04_jet_return": "Doğu yolu buraya çıkıyormuş. Dönüş için ip bıraktım.",
     "ch04_rey_jet_return": "Geri dön, Jet. Burası sandığın gibi değil.",
     "ch04_ardo_jet_return": "Doğuya gidiyordun. Yine kestirme mi buldun?",
-    "ch04_jet_route": "Senin yolun aşağı. Ben yukarıyı açık tutarım.",
+    "ch04_jet_route": "Senin yolun aşağıdan. Merak etme. Ben yukarıyı açık tutarım.",
     "ch04_jet_promise": "Çocuğu bulunca birlikte dönün. İp sağlam.",
     "ch09_jet_return": "Çanları yukarıdan da duydum. İp hâlâ yerinde.",
     "ch09_rey_jet_return": "Bizi beklemeni istemedim.",
@@ -622,7 +646,6 @@
     "pocket_open": "Gizli bir geçit açıldı",
     "trade_title": "MUM BEKÇİSİ",
     "trade_owned": "alındı",
-    "trade_exit": "[Esc] çık   [Enter] al",
     "bought_item": "{name} alındı — elinde {count}"
   },
   "chapter04": {
@@ -715,7 +738,10 @@
     "stat_finisher": "Bitirici hasar",
     "stat_frames": "Bitirici kare",
     "stat_knockback": "İtiş",
-    "chosen": "{name} kuşanıldı"
+    "chosen": "{name} kuşanıldı",
+    "whisper": "Fısıltı",
+    "spear": "İz Mızrağı",
+    "sickle": "Zincir Orak"
   },
   "chapter06": {
     "plate_hint": "Plaka basılı kaldı — ikisi birden gerek",
@@ -741,7 +767,7 @@
     "ammo_heading": "SARF MALZEMESİ"
   },
   "chapter07": {
-    "order_hint": "Omuzların sığmıyor — ona işaret et",
+    "order_hint": "[{key}] Rey'i dar geçitten gönder",
     "door_open": "Kapı açıldı",
     "gap_blocked": "Bu aralıktan geçemezsin"
   },
@@ -775,10 +801,9 @@
   "hint": {
     "inventory": "[{key}] envanter — silah değiştir",
     "companion_wait": "[{key}] yoldaşa: burada bekle",
-    "resonance": "[{key}] rezonans — sesle kır",
+    "resonance": "[{key}] ses gönder — kristali kır",
     "boost": "[{key}] yoldaşın yanında: seni fırlatır",
     "lever": "[{key}] kolu çevir — kapı süreli açılır",
-    "rig_brake": "[{key}] basılı tut — kafes yavaşlar",
     "dialogue": "[{key}] devam",
     "chime": "[{key}] rezonans — uzaktaki çanı çal",
     "rescue": "[{key}] basılı tut — onu kaldır",
@@ -793,7 +818,14 @@
     "inventory_title": "ENVANTER",
     "rescue_title": "KALDIR",
     "throw": "{key} ile seçili malzemeyi fırlat",
-    "throw_title": "UZAKTAN DÖVÜŞ"
+    "throw_title": "UZAKTAN DÖVÜŞ",
+    "weapon_whisper_title": "FISILTI",
+    "weapon_whisper": "[{key}] son vuruş ses dalgası atar",
+    "weapon_spear_title": "İZ MIZRAĞI",
+    "weapon_spear": "[{key}] uzaktan vur; sonda ileri atıl",
+    "weapon_sickle_title": "ZİNCİR ORAK",
+    "weapon_sickle": "[{key}] son vuruş iki yanı biçer",
+    "rig_fast": "[{key}] basılı tut — fren bırakılır, kafes hızlanır"
   },
   "chapter08": {
     "first_crystal": "Kristal kırıldı — ses bir silah",
@@ -819,7 +851,7 @@
     "gate_open": "Zindancı düştü. Kapı açık."
   },
   "chapter12": {
-    "descend": "Kafes iniyor. Yavaşlarsan görürsün."
+    "descend": "Kafes yavaşça iniyor. Acele edersen kaçırırsın."
   },
   "chapter14": {
     "silent": "Yankı onu göstermiyor. Gözünle bak.",
@@ -866,5 +898,27 @@
     "slot2": "2. YUVA",
     "empty": "boş",
     "character": "Karakter"
+  },
+  "prompt": {
+    "_aciklama": "Dunya icindeki tus gostergesinin fiilleri (src/ui/interact_prompt.py). Kisa tutulmali: tus kapaginin yaninda duruyor.",
+    "place": "Yerleştir",
+    "take_fire": "Ateş al",
+    "take": "Al",
+    "trade": "Takas",
+    "light": "Yak",
+    "rest": "Dinlen",
+    "turn": "Çevir",
+    "send": "Gönder",
+    "release": "Serbest bırak",
+    "boost": "Fırlat",
+    "pull": "Çek",
+    "lift": "Kaldır (basılı tut)",
+    "resonate": "Ses gönder"
+  },
+  "shop": {
+    "title_travel": "MUM BEKÇİSİ",
+    "footer": "[{buy}] al   [{leave}] çık",
+    "full": "dolu",
+    "full_toast": "Çantada yer yok"
   }
 }

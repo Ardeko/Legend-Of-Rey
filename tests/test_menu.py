@@ -203,6 +203,12 @@ def main() -> int:
     check(menu_scene.menu.selected.text == "DEVAM ET",
           "kayit varken DEVAM ET onceden secili",
           menu_scene.menu.selected.text)
+    # Final bayragi SaveData.finished degil, diskteki flags icinde tutulur.
+    # Menu finalde Cemo'yu ancak gercek kayit semasini okuyarak gosterebilir.
+    from src.ui.menu_scene import stage_for
+    finished = SaveData(chapter=18, flags={"finished": True})
+    check(stage_for(finished).index == 5 and stage_for(finished).cemo,
+          "final kaydi uc karakterli sicak menu sahnesini aciyor")
 
     # --- 4. Uzerine yazma uyarisi -------------------------------------------
     #

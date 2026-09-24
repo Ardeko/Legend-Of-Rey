@@ -39,14 +39,13 @@ from src.core.juice import ImpactWeight
 from src.entities.candle_keeper import CandleKeeper
 from src.entities.enemies.extinguished_one import Brazier, ExtinguishedOne
 from src.scenes.play import PlayScene
-from src.systems import charms, consumables, economy
+from src.systems import charms, consumables, merchant
 from src.systems.economy import TradeOffer
 from src.systems.light import LightState
-from src.ui import text as text_ui
+from src.ui import shop as shop_ui
 from src.ui.chapter_end import ChapterEndScene, ChapterResult
 from src.ui.dialogue import Line
 from src.ui.i18n import t
-from src.ui.widgets import panel
 from src.world import cave_backdrop
 from src.world.keydoor import BossKey, LockedDoor
 from src.world.pickups import Chest
@@ -381,6 +380,7 @@ class Chapter03Scene(PlayScene):
     def _update_torch_input(self) -> None:
         if self.has_purple_flame or self.trading:
             return
+        self._offer_torch_prompts()
         if not self.game.input.pressed(Action.INTERACT):
             return
 
@@ -458,6 +458,26 @@ class Chapter03Scene(PlayScene):
         # beklenen sesin GELMEMESI.
         self.game.music.duck(0.55)
 
+    def _offer_torch_prompts(self) -> None:
+        """Mesale yuvasinin ustunde tus gostergesi (`interact_prompt`).
+
+        Elde mesale varsa en yakin **sonuk** yuva "yerlestir", yoksa en
+        yakin **yanan** yuva "yak" diyor. Yuva yoksa gosterge yok: elde
+        mesaleyle bos alanda tusa basmak firlatmak demek ve onu gostermek
+        her adimda ekranda bir kapak demek olurdu.
+        """
+        holding = self.torch is not None and self.torch.state == HELD
+        if holding:
+            socket, verb = self._nearest_dark_socket(), "prompt.place"
+        elif self.torch is None:
+            socket, verb = self._nearest_lit_socket(), "prompt.take_fire"
+        else:
+            return
+        if socket is None:
+            return
+        self.prompts.offer("sconce", socket[0] * TILE_SIZE + TILE_SIZE // 2,
+                           socket[1] * TILE_SIZE, verb_key=verb)
+
     def _nearest_dark_socket(self, range_px: float = TILE_SIZE * 2.5):
         best, best_d = None, range_px
         for entry in self.sconces:
@@ -534,6 +554,9 @@ class Chapter03Scene(PlayScene):
         px = PURPLE_FLAME_TILE[0] * TILE_SIZE + TILE_SIZE // 2
         py = (PURPLE_FLAME_TILE[1] + 1) * TILE_SIZE
         near = abs(px - self.player.body.center_x) < 16
+        if near:
+            self.prompts.offer("purple_flame", px, py - TILE_SIZE * 2,
+                               verb_key="prompt.take")
         if not near or not self.game.input.pressed(Action.INTERACT):
             return
         self.has_purple_flame = True
@@ -589,6 +612,10 @@ class Chapter03Scene(PlayScene):
         if near and not self._keeper_seen:
             self._keeper_seen = True
             self._voice("line.ch03_echo_keeper", "line.ch03_ardo_keeper")
+        if near and not self.trading:
+            self.prompts.offer("keeper", self.candle_keeper.x,
+                               self.candle_keeper.feet_y - 24,
+                               verb_key="prompt.trade")
         if near and not self.trading and self.game.input.pressed(Action.INTERACT):
             self.trading = True
             self.trade_index = 0
@@ -601,41 +628,27 @@ class Chapter03Scene(PlayScene):
 
     def _update_trade(self) -> None:
         inp = self.game.input
-        if inp.pressed(Action.UP):
-            self.trade_index = (self.trade_index - 1) % len(TRADE_OFFERS)
-        elif inp.pressed(Action.DOWN):
-            self.trade_index = (self.trade_index + 1) % len(TRADE_OFFERS)
-        elif inp.pressed(Action.CANCEL) or inp.pressed(Action.PAUSE):
+        index = shop_ui.step_index(inp, self.trade_index, len(TRADE_OFFERS))
+        if index != self.trade_index:
+            self.trade_index = index
+            self.game.play_sound("ui_tick")
+        elif shop_ui.wants_close(inp):
             self.trading = False
-        elif inp.pressed(Action.CONFIRM):
+        elif shop_ui.wants_buy(inp):
             self._buy(TRADE_OFFERS[self.trade_index])
 
     def _buy(self, offer: TradeOffer) -> None:
-        if economy.already_bought(self.save_data, offer):
-            self.show_toast(t("chapter03.already_bought"))
+        """Satin alma kurali ortak (`merchant.buy`); mesale burada.
+
+        Tezgah satin almadan sonra **acik kaliyor** (23.09.2026). Eskiden
+        her alimda kapaniyordu ve uc demet ok almak icin tezgahi uc kez
+        acmak gerekiyordu.
+        """
+        if not merchant.buy(self, offer):
             return
-        if not economy.spend(self.save_data, offer.cost):
-            self.show_toast(t("chapter03.not_enough_gold"))
-            return
-        if offer.repeatable:
-            # Sarf malzemesi: bayrak yerine SAYAC artiyor.
-            total = consumables.add(self.save_data, offer.item, offer.amount)
-            if consumables.count(self.save_data, offer.item) == offer.amount:
-                # Ilk kez alindi - firlatma tusunu ogret.
-                self.hint_once("hint_throw", "hint.throw", Action.THROW,
-                               icon="throw")
-            self.show_toast(t("chapter03.bought_item",
-                              name=t(offer.label_key), count=total),
-                            frames=160)
-            self.game.play_sound("chest_open")
-            self.trading = False
-            return
-        economy.mark_bought(self.save_data, offer)
         if offer.key == "candle_keeper_torch" and self.torch is None:
             self.torch = Torch(self.player.body.center_x, self.player.body.feet[1])
-        self.show_toast(t(offer.label_key), frames=160)
-        self.game.play_sound("chest_open")
-        self.trading = False
+            self.trading = False
 
     # --- Arena / mangal ---------------------------------------------------------------
     def _update_arena(self) -> None:
@@ -723,6 +736,9 @@ class Chapter03Scene(PlayScene):
             return
         near = (abs(self.brazier.x - self.player.body.center_x) < 18
                 and abs(self.brazier.y - self.player.body.feet[1]) < 20)
+        if near:
+            self.prompts.offer("brazier", self.brazier.x, self.brazier.y - 16,
+                               verb_key="prompt.light")
         if near and self.game.input.pressed(Action.INTERACT):
             self.light_brazier()
 
@@ -812,7 +828,7 @@ class Chapter03Scene(PlayScene):
 
     # --- Cizim --------------------------------------------------------------------------
     def draw_background(self, surface: pygame.Surface, offset) -> None:
-        cave_backdrop.draw(surface, offset, self.game.frame)
+        cave_backdrop.draw(surface, offset, self.game.frame, self.depth)
 
     def draw_foreground(self, surface: pygame.Surface, offset) -> None:
         # **En altta** ciziliyor: sekil isigin kenarinda, yari
@@ -835,13 +851,9 @@ class Chapter03Scene(PlayScene):
         if not self.has_purple_flame:
             self._draw_purple_pedestal(surface, offset)
         if self.blackout_frames > 0:
-            # Karanlik Dalgasi: hicbir isik kaynagi yok demek "normal
-            # aydinlik oda" degil, **tam karanlik** demek - `lighting.render`
-            # kaynak yoksa hicbir sey cizmiyor (Bolum 1/2'nin maliyeti
-            # odememesi icin), o yuzden burada ayrica tam karartma cizilir.
-            blackout = pygame.Surface(surface.get_size())
-            blackout.fill(palette.color(palette.darkest_names(1)[0]))
-            surface.blit(blackout, (0, 0))
+            # Boss'un dalgasi isiklari sondurur, zemini ve kacinma
+            # yonunu tamamen yok etmez. Mor Alev sinematigi ayridir.
+            lighting.render(surface, offset, LightState(), visibility=0.24)
         else:
             lighting.render(surface, offset, self.light)
 
@@ -866,34 +878,9 @@ class Chapter03Scene(PlayScene):
         her bolumde otomatik. Buradaki kopya kaldirildi cunku Bolum 6
         onu eklemeyi unutmustu ve BOSS 1'in cani hic gorunmedi."""
         if self.trading:
-            self._draw_trade(surface)
-
-    def _draw_trade(self, surface: pygame.Surface) -> None:
-        # Yukseklik bir satir fazla: en altta **cikis ipucu** var.
-        # Olmadigi surumde oyuncu ekranin nasil kapandigini bilmiyordu -
-        # ve ESC de calismadigi icin gercekten sikismis oluyordu.
-        width, height = 180, 34 + len(TRADE_OFFERS) * 14
-        rect = pygame.Rect(INTERNAL_WIDTH // 2 - width // 2, 60, width, height)
-        panel(surface, rect)
-        text_ui.draw(surface, t("chapter03.trade_title"), rect.centerx, rect.y + 6,
-                    color=palette.color("violet_bright"), align="center")
-        for i, offer in enumerate(TRADE_OFFERS):
-            y = rect.y + 20 + i * 14
-            bought = economy.already_bought(self.save_data, offer)
-            colour = (palette.role("ui_text_dim") if i != self.trade_index
-                     else palette.color("violet_bright"))
-            if bought:
-                colour = palette.role("ui_text_dim")
-            label = t(offer.label_key)
-            value = t("chapter03.trade_owned") if bought else str(offer.cost)
-            if i == self.trade_index and not bought:
-                text_ui.draw(surface, "▸", rect.x + 4, y,
-                             color=palette.color("violet_bright"))
-            text_ui.draw(surface, label, rect.x + 10, y, color=colour)
-            text_ui.draw(surface, value, rect.right - 10, y, color=colour, align="right")
-        text_ui.draw(surface, t("chapter03.trade_exit"), rect.centerx,
-                     rect.bottom - 11, color=palette.role("ui_text_dim"),
-                     align="center")
+            shop_ui.draw(surface, TRADE_OFFERS, self.trade_index,
+                         self.save_data, "chapter03.trade_title",
+                         self.game.input, self.game.frame)
 
     def debug_lines(self) -> list[str]:
         torch_state = self.torch.state if self.torch else "yok"

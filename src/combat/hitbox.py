@@ -71,6 +71,15 @@ class Hitbox:
     # ani degil TUKENME ani, cunku bomba duvara carpinca da yere
     # dusunce de patlamali; ikisi de burada bitiyor.
     on_expire: object = None
+    # **Gorunum.** Bos ise kutu gorunmez (yakin dovus savurusu - onu
+    # sprite ve iz anlatiyor). Dolu ise `src/art/projectiles.py` o adla
+    # ciziyor: "arrow", "enemy_arrow", "bomb", "keys", "chain_lash".
+    #
+    # 23.09.2026'ya kadar hareketli kutularin HICBIRI cizilmiyordu:
+    # oyuncunun oku ve bombasi, Okcu'nun oku, Zindanci'nin anahtarlari
+    # yalnizca hata ayiklama katmaninda kirmizi bir cerceveydi. Oyuncu
+    # kacinmasi gereken oku goremiyordu.
+    visual: str = ""
 
     frames_alive: int = 0
     already_hit: set = field(default_factory=set)

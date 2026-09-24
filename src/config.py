@@ -144,6 +144,56 @@ AXE_CHAIN: Final[tuple[ChainHit, ...]] = (
              cancelable=False, hitstop=9),
 )
 
+# --- Karaktere ozel ve ortak silahlar (Arda, 23.09.2026) ----------------------
+# *"Oyuna silah cesitliligi de ekleyelim ... karakterlere ozel bir silah mi
+# tasarlariz veya ... ilerde acilacak yeni bir silah mi"* - ikisi de.
+# Hancer/Balta ile ayni statu: **YER TUTUCU**, oynanarak oturtulacak.
+# Hitstop 3 (normal) / 7 (bitirici) - `docs/dovus-sistemi.md` baglayici.
+#
+# Fisilti (yalnizca Rey, B10): kilictan az hizli; bitirici bir SES DALGASI
+# firlatiyor - Yanki'nin sesi bir kez disari tasiyor. Dalga delici ama
+# zayif: uzaktaki okcuya ulasmak icin, kalabaligi temizlemek icin degil.
+WHISPER_CHAIN: Final[tuple[ChainHit, ...]] = (
+    ChainHit(windup=4, active=3, recovery=8, damage=10, knockback=1.5,
+             cancelable=True, hitstop=3),
+    ChainHit(windup=4, active=3, recovery=9, damage=11, knockback=1.7,
+             cancelable=True, hitstop=3),
+    ChainHit(windup=9, active=5, recovery=17, damage=22, knockback=3.6,
+             cancelable=False, hitstop=7),
+)
+WHISPER_WAVE_DAMAGE: Final[int] = 12
+WHISPER_WAVE_SPEED: Final[float] = 3.4       # piksel / kare
+WHISPER_WAVE_LIFE: Final[int] = 26            # ~88 piksel menzil
+# Iz Mizragi (yalnizca Ardo, B10): Ardo "uzak durur" (dovus-sistemi) -
+# mizrak bunu silaha ceviriyor. Uzun ve DAR; bitirici bir hamleyle one
+# atiliyor. Yavas, ama dusmanin menzili disindan vuruyor.
+SPEAR_CHAIN: Final[tuple[ChainHit, ...]] = (
+    ChainHit(windup=6, active=3, recovery=10, damage=12, knockback=2.2,
+             cancelable=True, hitstop=3),
+    ChainHit(windup=6, active=3, recovery=11, damage=13, knockback=2.4,
+             cancelable=True, hitstop=3),
+    ChainHit(windup=10, active=5, recovery=18, damage=26, knockback=4.8,
+             cancelable=False, hitstop=7),
+)
+SPEAR_REACH_BONUS: Final[int] = 14
+SPEAR_HEIGHT_TRIM: Final[int] = 6
+SPEAR_LUNGE: Final[float] = 3.2               # bitiricide one atilma hizi
+# Zincir Orak (ikisi de, B14): dort vuruslu genis yay; bitirici zinciri
+# IKI YANA savuruyor - arkadan gelene cevap. B14'un Yanki'nin Cocuklari
+# kalabaliga ve iki yondan geliyor (docs/yapi.md B16 oncesi hazirlik).
+SICKLE_CHAIN: Final[tuple[ChainHit, ...]] = (
+    ChainHit(windup=5, active=4, recovery=9, damage=9, knockback=1.6,
+             cancelable=True, hitstop=3),
+    ChainHit(windup=5, active=4, recovery=10, damage=10, knockback=1.7,
+             cancelable=True, hitstop=3),
+    ChainHit(windup=6, active=4, recovery=10, damage=11, knockback=1.9,
+             cancelable=True, hitstop=3),
+    ChainHit(windup=9, active=6, recovery=18, damage=20, knockback=3.4,
+             cancelable=False, hitstop=7),
+)
+SICKLE_REACH_BONUS: Final[int] = 6
+SICKLE_BACK_REACH: Final[int] = 20            # bitiricinin arka yayi
+
 
 # =============================================================================
 # DOVUS - KACINMA   (docs/dovus-sistemi.md 3 - BAGLAYICI)
@@ -417,7 +467,8 @@ FAST_FORWARD_MULTIPLIER: Final[float] = 3.0   # Basili tutunca gecis hizlanir
 # Karanlik ≠ siyah: en koyu palet rengi + hafif mavi ton kullanilir, ve
 # karanlikta bile siluetler bu kadar alfa ile hafifce secilir (docs 03,
 # "Uygulama Notlari").
-DARKNESS_SILHOUETTE_ALPHA: Final[float] = 0.08
+# 19.09.2026: karanlikta yol/siluet okunur; mekanik isik yaricaplari ayni.
+DARKNESS_SILHOUETTE_ALPHA: Final[float] = 0.36
 
 TORCH_LIGHT_RADIUS: Final[float] = TILE_SIZE * 3.0     # "3 tile'lik bir daire"
 PURPLE_FLAME_LIGHT_RADIUS: Final[float] = TORCH_LIGHT_RADIUS * 2.0
@@ -1078,7 +1129,7 @@ GAOLER_EYE_TELL_RADIUS: Final[float] = 44.0
 #
 # Gerilim tek bir kuraldan geliyor: **yukari cikilmiyor.** Gectigin
 # isaret bir daha gelmiyor. Sifir kod, ve oyunun butun cumlesi.
-RIG_FALL_SPEED: Final[float] = 1.15       # serbest inis (piksel/kare)
+RIG_FALL_SPEED: Final[float] = 1.15       # fren birakilinca: S basili (px/kare)
 # Fren hizi **olculdu**, secilmedi. 0.22 ilk denemeydi ve tam frenli
 # bir inis 66 saniye suruyordu - bir nefes bolumu sabir sinavi degil.
 # Olcut: dikkatli oyuncu ile aceleci oyuncu arasindaki fark anlamli
@@ -1091,7 +1142,7 @@ RIG_FALL_SPEED: Final[float] = 1.15       # serbest inis (piksel/kare)
 #
 # Ust sinir `MARK_READ_SPEED` (0.55): frenli halde isaretler MUTLAKA
 # okunabilmeli, yoksa mekanik kendi kendine yalan soyler.
-RIG_BRAKE_SPEED: Final[float] = 0.45      # fren basiliyken
+RIG_BRAKE_SPEED: Final[float] = 0.45      # fren devrede: VARSAYILAN (24.09.2026)
 # Hizlanma/yavaslama yumusak olmali: ani duran bir kafes asansor
 # degil tuzak gibi hissettiriyordu.
 RIG_ACCEL: Final[float] = 0.045

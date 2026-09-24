@@ -17,6 +17,7 @@ korunuyor.
 """
 from __future__ import annotations
 
+import numpy as np
 import pygame
 
 from src.art import palette, tileset
@@ -51,6 +52,14 @@ class TileMap:
             [LEGEND.get(char, EMPTY) for char in row.ljust(self.width, ".")]
             for row in rows
         ]
+        # Tas dili (`tileset.THEMES`). Sahne bolum numarasina gore
+        # degistiriyor (`PlayScene.on_enter`); varsayilan ust katlarin
+        # tuglasi.
+        self.theme = tileset.DEFAULT_THEME
+        # Her degisiklikte artar; kutle derinligi haritasi buna bakip
+        # yeniden hesaplaniyor (`_depth_rows`).
+        self._version = 0
+        self._depth_cache: tuple[int, list[list[int]]] | None = None
 
     # --- Sorgular -----------------------------------------------------------
     @property
@@ -86,6 +95,7 @@ class TileMap:
             return False
         row = self.tiles[ty]
         row[tx] = EMPTY
+        self._version += 1
         return True
 
     def set_tile(self, tx: int, ty: int, value: int) -> bool:
@@ -98,6 +108,7 @@ class TileMap:
         if not (0 <= ty < self.height and 0 <= tx < self.width):
             return False
         self.tiles[ty][tx] = value
+        self._version += 1
         return True
 
     def breakable_rects(self) -> list[pygame.Rect]:
@@ -148,6 +159,24 @@ class TileMap:
                 return True
         return False
 
+    def floor_below(self, x: float, feet_hint: float, width: int,
+                    height: int, search: int = TILE_SIZE * 5) -> float | None:
+        """`x` sutununda, `feet_hint`in bir karo ustunden asagi ilk zemin.
+
+        Sahne parcalari (satici, silah kaidesi) icin: govde bos olmali, bir
+        piksel alti kati. Bulunamazsa `None` - havada asili bir sey hic
+        olmamasindan kotu.
+        """
+        start = int(feet_hint) - TILE_SIZE
+        for feet in range(start, start + search):
+            body = pygame.Rect(int(x) - width // 2, feet - height, width, height)
+            below = pygame.Rect(int(x) - width // 2, feet, width, 1)
+            if self.solid_overlap(body):
+                continue
+            if self.solid_overlap(below):
+                return float(feet)
+        return None
+
     def hazard_rects(self, rect: pygame.Rect) -> list[pygame.Rect]:
         found: list[pygame.Rect] = []
         x0, y0, x1, y1 = self.tile_range(rect)
@@ -172,30 +201,104 @@ class TileMap:
         x1 = min(self.width - 1, view.right // TILE_SIZE + margin)
         y1 = min(self.height - 1, view.bottom // TILE_SIZE + margin)
 
+        ts = tileset.shared()
+        theme = self.theme
+        depth_rows = self._depth_rows()
+        batch: list[tuple[pygame.Surface, tuple[int, int]]] = []
+        props: list[tuple[pygame.Surface, tuple[int, int]]] = []
         for ty in range(y0, y1 + 1):
+            row = self.tiles[ty]
+            depth_row = depth_rows[ty]
+            above = self.tiles[ty - 1] if ty > 0 else None
+            below = self.tiles[ty + 1] if ty + 1 < self.height else None
+            y = ty * TILE_SIZE - oy
             for tx in range(x0, x1 + 1):
-                value = self.tiles[ty][tx]
+                value = row[tx]
                 if value == EMPTY:
                     continue
                 x = tx * TILE_SIZE - ox
-                y = ty * TILE_SIZE - oy
-                self._draw_tile(surface, value, tx, ty, x, y)
+                if value == SPIKE:
+                    tile = ts.spike()
+                elif value == PLATFORM:
+                    tile = ts.platform(tx, ty)
+                else:
+                    # SOLID/BREAKABLE ayni komsuluk ve yuzeyi kullanir.
+                    # Harita disi yanlar kati, ust/alt bos: at() ile ayni
+                    # kural. Canli kapi/duvar degisimi sonraki karede gorunur.
+                    depth = depth_row[tx]
+                    if depth > 0:
+                        tile = ts.wall(tx, ty, False, 0, depth, theme)
+                    else:
+                        lit_top = above is None or above[tx] not in SOLID_TILES
+                        edges = self._exposed_sides(row, below, tx)
+                        tile = ts.wall(tx, ty, lit_top, edges, 0, theme)
+                        self._collect_props(ts, props, tx, ty, x, y, above, below)
+                batch.append((tile, (x, y)))
+        surface.blits(batch, doreturn=False)
+        if props:
+            surface.blits(props, doreturn=False)
 
-    def _draw_tile(self, surface: pygame.Surface, value: int, tx: int, ty: int,
-                   x: int, y: int) -> None:
-        ts = tileset.shared()
-        if value == SPIKE:
-            surface.blit(ts.spike(), (x, y))
-            return
-        if value == PLATFORM:
-            surface.blit(ts.platform(tx, ty), (x, y))
-            return
-        # SOLID ve BREAKABLE **ayni** ureticiyi kullanir - Yanki olmadan
-        # gizli gecidin normal duvardan ayirt edilememesi bundan geliyor
-        # (docs/gdd.md 4). Ust kenar seridi yalnizca ustunde kati yoksa
-        # cizilir (asset-plani.md 4: "platform kenar seridini guclendir").
-        lit_top = not self.is_solid(tx, ty - 1)
-        surface.blit(ts.wall(tx, ty, lit_top), (x, y))
+    def _collect_props(self, ts, props: list, tx: int, ty: int, x: int, y: int,
+                       above: list[int] | None, below: list[int] | None) -> None:
+        """Yuzey karosunun ustune/altina tasan sus (`tileset.prop`).
+
+        Yalnizca BOS komsu hucreye: platform, diken ya da kapi sutununun
+        uzerine sus binmesin.
+        """
+        if above is not None and above[tx] == EMPTY:
+            prop = ts.prop(tx, ty, False, self.theme)
+            if prop is not None:
+                props.append((prop, (x, y - tileset.PROP_HEIGHT)))
+        if below is not None and below[tx] == EMPTY:
+            prop = ts.prop(tx, ty, True, self.theme)
+            if prop is not None:
+                props.append((prop, (x, y + TILE_SIZE)))
+
+    def _depth_rows(self) -> list[list[int]]:
+        """Her kati karonun havaya uzakligi (0..MAX_DEPTH), satir listesi.
+
+        numpy ile 8-komsu genisleme: MAX_DEPTH (3) adim, harita boyutundan
+        bagimsiz birkac dizi islemi. Harita disi **kati** sayiliyor:
+        tavanin ust kenari ekranin tepesinde aydinlanmasin, kutle oraya
+        dogru kararsin. (Carpisma kurali `at()` farkli - orada tepe bos;
+        bu yalnizca gorunum.)
+
+        Liste olarak saklaniyor: cizim dongusu hucre hucre okuyor ve
+        numpy'nin tekil erisimi Python listesinden yavas.
+        """
+        cached = self._depth_cache
+        if cached is not None and cached[0] == self._version:
+            return cached[1]
+        solid = np.array([[value in SOLID_TILES for value in row]
+                          for row in self.tiles], dtype=bool)
+        if solid.size == 0:
+            rows: list[list[int]] = [[] for _ in range(self.height)]
+            self._depth_cache = (self._version, rows)
+            return rows
+        padded = np.pad(solid, 1, constant_values=True)
+        depth = np.full(padded.shape, tileset.MAX_DEPTH, dtype=np.int8)
+        frontier = ~padded
+        remaining = padded.copy()
+        for level in range(tileset.MAX_DEPTH):
+            hit = remaining & _dilate8(frontier)
+            depth[hit] = level
+            remaining &= ~hit
+            frontier = hit
+        rows = depth[1:-1, 1:-1].tolist()
+        self._depth_cache = (self._version, rows)
+        return rows
+
+    def _exposed_sides(self, row: list[int], below: list[int] | None,
+                       tx: int) -> int:
+        """Yalnizca gorunen karonun gercek dis kenarlarini hesapla."""
+        edges = 0
+        if tx > 0 and row[tx - 1] not in SOLID_TILES:
+            edges |= tileset.EDGE_LEFT
+        if tx + 1 < self.width and row[tx + 1] not in SOLID_TILES:
+            edges |= tileset.EDGE_RIGHT
+        if below is None or below[tx] not in SOLID_TILES:
+            edges |= tileset.EDGE_BOTTOM
+        return edges
 
     def draw_debug(self, surface: pygame.Surface,
                    offset: tuple[int, int]) -> None:
@@ -210,3 +313,17 @@ class TileMap:
                     surface, palette.color(colors.get(value, "bone")),
                     (tx * TILE_SIZE - ox, ty * TILE_SIZE - oy,
                      TILE_SIZE, TILE_SIZE), 1)
+
+
+def _dilate8(mask: np.ndarray) -> np.ndarray:
+    """Bir maskeyi sekiz yone birer hucre genisletir (kenarlar tasmaz)."""
+    out = mask.copy()
+    out[1:, :] |= mask[:-1, :]
+    out[:-1, :] |= mask[1:, :]
+    out[:, 1:] |= mask[:, :-1]
+    out[:, :-1] |= mask[:, 1:]
+    out[1:, 1:] |= mask[:-1, :-1]
+    out[1:, :-1] |= mask[:-1, 1:]
+    out[:-1, 1:] |= mask[1:, :-1]
+    out[:-1, :-1] |= mask[1:, 1:]
+    return out

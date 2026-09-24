@@ -434,6 +434,10 @@ REY_ARMED_SPEC = replace(REY_SPEC, name="rey_armed", weapon="sword")
 # kaliyor. Tek satirlik `replace` ile cozuluyorsa ertelemenin anlami yok.
 REY_DAGGER_SPEC = replace(REY_SPEC, name="rey_dagger", weapon="knife")
 REY_AXE_SPEC = replace(REY_SPEC, name="rey_axe", weapon="axe")
+# Karaktere ozel ve ortak silahlar (23.09.2026, `combat/weapons.py`).
+REY_WHISPER_SPEC = replace(REY_SPEC, name="rey_whisper", weapon="whisper",
+                           weapon_chain="arcane")
+REY_SICKLE_SPEC = replace(REY_SPEC, name="rey_sickle", weapon="sickle")
 
 # Ardo - yabanci. Daha agir, genis omuzlu, Yanki'si yok.
 #
@@ -488,6 +492,8 @@ ARDO_ARMED_SPEC = replace(ARDO_SPEC, name="ardo_armed", weapon="sword")
 # Ardo da ayni secimi yapiyor - Bolum 2 iki karakterle de oynanabiliyor.
 ARDO_DAGGER_SPEC = replace(ARDO_SPEC, name="ardo_dagger", weapon="knife")
 ARDO_AXE_SPEC = replace(ARDO_SPEC, name="ardo_axe", weapon="axe")
+ARDO_SPEAR_SPEC = replace(ARDO_SPEC, name="ardo_spear", weapon="trackspear")
+ARDO_SICKLE_SPEC = replace(ARDO_SPEC, name="ardo_sickle", weapon="sickle")
 
 # --- Katman 1: Curuyenler (docs/gdd.md 7) -----------------------------------
 # Ucu de ayni iskeletten cikiyor ama **oranlari bilincli olarak zit**.
@@ -1012,10 +1018,14 @@ CHARACTERS: dict[str, CharSpec] = {
     "rey_armed": REY_ARMED_SPEC,
     "rey_dagger": REY_DAGGER_SPEC,
     "rey_axe": REY_AXE_SPEC,
+    "rey_whisper": REY_WHISPER_SPEC,
+    "rey_sickle": REY_SICKLE_SPEC,
     "ardo": ARDO_SPEC,
     "ardo_armed": ARDO_ARMED_SPEC,
     "ardo_dagger": ARDO_DAGGER_SPEC,
     "ardo_axe": ARDO_AXE_SPEC,
+    "ardo_spear": ARDO_SPEAR_SPEC,
+    "ardo_sickle": ARDO_SICKLE_SPEC,
     "cemo": CEMO_SPEC,
     "villager": VILLAGER_SPEC,
     # Jet - Bolum 1'de kilici veren arkadas.

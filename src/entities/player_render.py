@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pygame
 
-from src.art import palette
+from src.art import palette, rimlight
 from src.combat.combo import AttackPhase
 from src.combat.hitbox import melee_rect
 
@@ -51,6 +51,9 @@ def draw_player(player, surface: pygame.Surface,
     x = int(player.body.center_x - image.get_width() * 0.5) - ox
     y = int(player.body.bottom - foot) - oy
     surface.blit(image, (x, y))
+    # Derinde golge kenarina ortamin rengi (`src/art/rimlight.py`).
+    rimlight.draw(surface, image, (x, y), getattr(player.scene, "rim_light", None),
+                  foot_row=int(foot))
 
     if player.dodge.counter_ready:
         _draw_counter_hint(player, surface, offset)

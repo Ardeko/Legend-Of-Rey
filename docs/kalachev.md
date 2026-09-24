@@ -101,7 +101,7 @@ bölümlerde dahil olması ve finalde ölmesi."*
 | B | Ne | Süre |
 |---|---|---|
 | **B4** Kayıt Odası | **Kampı.** İskelet onun değil — **yoldaşının**. Günlük zaten kafatası ve *sönmüş* alevle bitiyor: "arkadaşım öldü", "ben öldüm" değil. Bir ölü kendi ölümünü çizemez | dövüşsüz |
-| **B5** Sular | **İlk görüş.** Uzakta, bir sürünün ortasına dalıyor, hepsini kesiyor, suya atlayıp kayboluyor. Tek kelime yok | ~15 sn |
+| **B5** Sular | **İlk karşılaşma.** Su yükselince karşı kıyıda belirir. Kısa sinematikte Rey kayıp çocuğu sorar; Ardo eski dostuyla atışır. Üst vanayı işaret eder, ardından çıkıntıdaki sürüye saldırır | konuşma + dövüş |
 | **B6** Ardo | **Tanışma.** Ardo düşer, üçünü biçer — ve Kalachev de oradadır. İkisi birbirini tanır | sahne |
 | **B10** Ayrılık | Rey yalnız kaldıktan sonra ilk kez tek başına belirir. Tuzağı o kırar | ~40 sn |
 | **B12** Mektup | Ardo'nun izlerini sürerken **Kalachev'in izleri de var** — ikisi burada birlikte yürümüş | dövüşsüz |
@@ -119,7 +119,7 @@ Sekiz maddenin **yedisi ekranda**; kalan tek madde **B18**.
 | B | Nerede | Anahtar |
 |---|---|---|
 | B4 | `src/scenes/chapter04*.py` | panel "kampın sahibi" der, iskelet yoldaşınındır |
-| B5 | `chapter05.py` `_update_sighting()` | `SIGHTING_*` — çıkıntıda, oyuncu 13 tile içindeyken |
+| B5 | `chapter05.py` `_update_sighting()` + `KalachevCinematic(beat="sighting")` | `SIGHTING_*` — çıkıntıda, oyuncu 13 tile içindeyken; biten konuşma `ch05_kalachev_intro_seen` ile kaydedilir |
 | B6 | `chapter06.py` `_rescue()` | kurtarma anında belirir |
 | B10 | `chapter10.py` `_break_trap()` | tuzağı o kırar, oyuncu düşmez |
 | B12 | `world/rooms/chapter12.py` | yedinci iz, `kind="pair"`, ayrı renk |
