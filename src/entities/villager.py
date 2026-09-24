@@ -17,6 +17,18 @@ cevresinde** goruyor, sadece Cemo'da degil.
 Gecis **tek yonlu**: kacan koylu geri donmez. Yarik kapansa bile koy bir
 daha dolmaz - kaybin kalici oldugunu mekanin kendisi soyluyor.
 
+## ...ta ki oyunun sonuna kadar (24.09.2026, epilog "Eve Donus")
+
+B1'in "koy bir daha dolmaz" cumlesi bilincliydi ve on sekiz bolum
+boyunca dogru kaldi. Epilogda koy **tekrar doluyor**: can calininca
+koyluler kapilarindan cikip oyuncuya donuyor. Iki yeni durum:
+
+    EMERGE   kapidan cikar, kendi yerine yurur (kademeli: `delay`)
+    GREET    disarida, oyuncuya donuk bekler - konusulabilir
+
+B1'in akisi degismedi: `inside=False` ile dogan koylu eskisi gibi
+WANDER -> FLEE -> INSIDE yolunu izliyor.
+
 ## `Actor`'dan turemiyor
 
 `candle_keeper.py` ile ayni gerekce: can, hasar, durum makinesi
@@ -41,6 +53,13 @@ from src.art.animator import Animator
 WANDER = "wander"
 FLEE = "flee"
 INSIDE = "inside"
+EMERGE = "emerge"
+GREET = "greet"
+
+# Kapidan cikip yerine yuruyen koylunun hizi - kosmuyor, merakla geliyor.
+EMERGE_SPEED = 0.45
+# Yerine bu kadar yaklasinca durup doner.
+STAND_REACH = 1.2
 
 # Hizlar (piksel/kare). Kacis gezinmenin ~3 kati - panik okunur olmali.
 WANDER_SPEED = 0.22
@@ -59,20 +78,26 @@ class Villager:
     """Koyde dolasan, tehlike aninda evine kacan pasif NPC."""
 
     __slots__ = ("home_x", "x", "feet_y", "door_x", "state", "facing",
-                 "frame", "seed", "animator", "sprite_foot_y", "startle")
+                 "frame", "seed", "animator", "sprite_foot_y", "startle",
+                 "stand_x", "delay", "role")
 
     def __init__(self, x: float, feet_y: float, door_x: float,
-                 seed: int = 0) -> None:
+                 seed: int = 0, inside: bool = False, role: str = "") -> None:
         from src.art.animation import CHARACTERS
         self.home_x = x
-        self.x = x
+        self.x = door_x if inside else x
         self.feet_y = feet_y
         self.door_x = door_x          # Kacinca gidecegi kapi
-        self.state = WANDER
+        self.state = INSIDE if inside else WANDER
         self.facing = 1
         self.frame = 0
         self.seed = seed
         self.startle = 0
+        # Epilog: kapidan cikinca durulacak yer ve kac kare sonra.
+        self.stand_x = x
+        self.delay = 0
+        # Konusulunca ne diyecegi - sahne bu etiketi repliege ceviriyor.
+        self.role = role
         self.animator = Animator("villager")
         self.animator.play("idle")
         self.sprite_foot_y = CHARACTERS["villager"].foot_y
@@ -81,6 +106,16 @@ class Villager:
     @property
     def gone(self) -> bool:
         return self.state == INSIDE
+
+    @property
+    def hidden(self) -> bool:
+        """Ekranda yok mu? Iceride ya da cikmak icin sirasini bekliyor."""
+        return self.state == INSIDE or (self.state == EMERGE and self.delay > 0)
+
+    @property
+    def greeting(self) -> bool:
+        """Disarida, oyuncuya donuk, konusulabilir."""
+        return self.state == GREET
 
     @property
     def _wander_phase(self) -> float:
@@ -97,6 +132,32 @@ class Villager:
             # donmesin (bkz. STARTLE_FRAMES).
             self.startle = STARTLE_FRAMES + (self.seed % 5) * 6
 
+    def emerge(self, delay: int, stand_x: float | None = None) -> None:
+        """Can caldi: `delay` kare sonra kapidan cik, `stand_x`'e yuru.
+
+        Hepsi ayni karede cikarsa bir suru gibi okunurdu (FLEE'deki
+        `STARTLE_FRAMES` ile ayni ders) - cagiran gecikmeyi kademeli
+        veriyor.
+        """
+        if self.state != INSIDE:
+            return
+        self.state = EMERGE
+        self.x = self.door_x
+        self.delay = max(0, delay)
+        if stand_x is not None:
+            self.stand_x = stand_x
+
+    def greet(self) -> None:
+        """Dogrudan disarida baslat (oyun sonrasi koy - herkes zaten cikti)."""
+        self.state = GREET
+        self.x = self.stand_x
+        self.delay = 0
+
+    def face(self, x: float) -> None:
+        """Disarida bekleyen koylu oyuncuya doner. Yururken dokunulmaz."""
+        if self.state == GREET and abs(x - self.x) > 2.0:
+            self.facing = 1 if x > self.x else -1
+
     # --- Dongu --------------------------------------------------------------
     def update(self) -> None:
         if self.state == INSIDE:
@@ -104,9 +165,28 @@ class Villager:
         self.frame += 1
         if self.state == WANDER:
             self._update_wander()
+        elif self.state == EMERGE:
+            self._update_emerge()
+        elif self.state == GREET:
+            self.animator.play("idle")
         else:
             self._update_flee()
         self.animator.update()
+
+    def _update_emerge(self) -> None:
+        if self.delay > 0:
+            self.delay -= 1
+            return
+        delta = self.stand_x - self.x
+        if abs(delta) <= STAND_REACH:
+            self.x = self.stand_x
+            self.state = GREET
+            self.animator.play("idle")
+            return
+        step = math.copysign(min(EMERGE_SPEED, abs(delta)), delta)
+        self.x += step
+        self.facing = 1 if step > 0 else -1
+        self.animator.play("run")
 
     def _update_wander(self) -> None:
         target = self.home_x + math.sin(self._wander_phase) * WANDER_RANGE
@@ -139,7 +219,7 @@ class Villager:
 
     # --- Cizim --------------------------------------------------------------
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]) -> None:
-        if self.state == INSIDE:
+        if self.hidden:
             return
         image = self.animator.render(self.facing)
         if image is None:

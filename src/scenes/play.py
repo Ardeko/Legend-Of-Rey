@@ -103,6 +103,11 @@ class PlayScene(Scene):
     # Yaninda biri varken korkmuyorsun.
     dark_ambient: bool = False
 
+    # Yoldasa "burada bekle" denebilir mi? Epilogda hayir: yoldas bir
+    # dovus ortagi degil, eve donen biri. Kapaliyken ogretici kart da
+    # cikmiyor - kapanista "YOLDASA KOMUT" karti anin ustune biniyordu.
+    companion_orders: bool = True
+
     def setup(self) -> None:
         """Alt sinif sahneyi burada kurar.
 
@@ -1305,7 +1310,7 @@ class PlayScene(Scene):
         yeter, bolume ozel kod gerekmiyor.
         """
         companion = getattr(self, "companion", None)
-        if companion is None or self.player.dead:
+        if companion is None or self.player.dead or not self.companion_orders:
             return
         # Yoldas ilk kez yanindayken komutu ogret.
         self.hint_once("hint_companion", "hint.companion_wait",

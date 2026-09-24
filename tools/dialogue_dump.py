@@ -49,7 +49,9 @@ TARGET = ROOT / "docs" / "diyaloglar.md"
 # Kalachev (B18'de tek repligi var). Eksik konusmaci sessizce "?" olarak
 # dokuluyordu - metin yazari kimin konustugunu goremiyordu.
 SPEAKERS = {"rey": "REY", "ardo": "ARDO", "cemo": "CEMO", "echo": "YANKI",
-            "jet": "JET", "kalachev": "KALACHEV"}
+            "jet": "JET", "kalachev": "KALACHEV",
+            # Epilog (24.09.2026): koyluler ve hanci.
+            "villager": "KOYLU", "innkeeper": "HANCI"}
 
 # Anahtar onekine gore gruplama. Sira = oyundaki sira.
 #
@@ -81,6 +83,7 @@ GROUPS = (
     ("ch16_", "BOLUM 16 - Sirt Sirta"),
     ("ch17_", "BOLUM 17 - Ikili Kule"),
     ("ch18_", "BOLUM 18 - Son"),
+    ("epi_", "EPILOG - Eve donus"),
 )
 
 # Hicbir bolume ait olmayan, ama gercekten metin olan anahtarlar.

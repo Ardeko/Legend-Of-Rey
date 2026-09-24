@@ -70,6 +70,11 @@ GRADES: dict[str, tuple[str, float, float]] = {
     "core": ("violet", 0.11, 0.18),       # B16-B18
     # Menu/sinematik - notr ama cerceveli.
     "void": ("void", 0.0, 0.34),
+    # Epilog - safak (24.09.2026). On sekiz bolumun tek sicak, acik
+    # tonu: kor rengi hafif, vinyet neredeyse yok. Yanki sustu ve
+    # ekranin kenari ilk kez karanlik degil (`ending.py` ayni kurali
+    # kapanista da koymustu).
+    "dawn": ("ember_light", 0.05, 0.08),
 }
 DEFAULT_GRADE = "descent"
 

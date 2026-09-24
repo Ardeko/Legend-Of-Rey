@@ -93,6 +93,12 @@ SCENES = {
     "bolum18-sessizlik": ("src.scenes.chapter18_cinematics",
                           "SilenceCinematic"),
     "safak": ("src.scenes.ending", "DawnCinematic"),
+    # Epilog "Eve Donus" (24.09.2026): kuyunun dibi -> safakta yukari
+    # -> sabah koyu -> ates basi + jenerik.
+    "epilog-kuyu": ("src.scenes.epilogue_shaft", "EpilogueShaftScene"),
+    "epilog-koy": ("src.scenes.epilogue_village", "EpilogueVillageScene"),
+    "epilog-ates": ("src.scenes.epilogue_cinematics",
+                    "HomecomingFireCinematic"),
     "dovus": ("src.scenes.combat_room", "CombatRoomScene"),
     "temel": ("src.scenes.foundation_check", "FoundationCheckScene"),
 }

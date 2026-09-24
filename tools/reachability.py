@@ -475,6 +475,15 @@ def _known_rooms() -> list[tuple[str, list[str], Spot]]:
     spawn18 = chapter18.LEVEL.first("player")
     rooms.append(("bolum 18 - son", chapter18.LEVEL.terrain_rows,
                   (spawn18.tile_x, spawn18.tile_y + 1), set()))
+
+    # Epilog "Eve Donus" (24.09.2026): iki duz oda - kuyunun dibi ve
+    # sabah koyu. Bolum degil ama oynaniyor; dogrulayici onlari da gorsun.
+    from src.world.rooms import epilogue
+    for name, level in (("epilog - kuyunun dibi", epilogue.SHAFT_LEVEL),
+                        ("epilog - sabah koyu", epilogue.VILLAGE_LEVEL)):
+        spawn = level.first("player")
+        rooms.append((name, level.terrain_rows,
+                      (spawn.tile_x, spawn.tile_y + 1), set()))
     return rooms
 
 

@@ -6,8 +6,10 @@ kodu okunarak çıkarıldı (23.09.2026). Metinler dil tablolarından
 (`src/ui/lang/tr.json`, `en.json`) birebir alındı.
 
 **Akış:** intro → ana menü → karakter seçimi → **Prolog** → dikey yolculuk
-(yukarı) → **Bölüm 1 … Bölüm 18** → **Kapanış** (şafak + jenerik) → ana menü.
-Intro, menü ve dikey yolculukta replik yok. DEVAM ET kayıtlı bölüme aşağı iner.
+(yukarı) → **Bölüm 1 … Bölüm 18** → **Kapanış** (şafak) → **Epilog** (kuyu,
+sabah köyü, ateş başı + jenerik) → ana menü. Intro, menü ve dikey yolculukta
+replik yok. DEVAM ET kayıtlı bölüme aşağı iner; oyunu bitirmiş kayıtta sabah
+köyüne yukarı çıkar.
 
 ## Nasıl okunur
 
@@ -78,9 +80,10 @@ Blok biçimi şu (bu kod bloğu geri yazmada **okunmaz**, yalnızca örnek):
 17. Bölüm 16 — Sırt Sırta
 18. Bölüm 17 — İkili Kule
 19. Bölüm 18 — Son
-20. Kapanış — Şafak ve jenerik
-21. Bölümden bağımsız
-22. Denetim — bulunamayan, eksik ve görünmeyen anahtarlar
+20. Kapanış — Şafak
+21. Epilog — Eve dönüş
+22. Bölümden bağımsız
+23. Denetim — bulunamayan, eksik ve görünmeyen anahtarlar
 
 ---
 
@@ -3959,9 +3962,9 @@ _Ses susturulunca_
 
 ---
 
-## Kapanış — Şafak ve jenerik
+## Kapanış — Şafak
 
-**Özet:** B18'in çıkışından doğrudan: gün ışığı, üçlü son panel (Cemo önde, oyuncu ortada, yoldaş arkada — mesafe B16'daki jeste göre) ve Rey'in kafası ilk kez sessiz. Ardından jenerik ve ana menü.
+**Özet:** B18'in çıkışından doğrudan: gün ışığı, üçlü son panel (Cemo önde, oyuncu ortada, yoldaş arkada — mesafe B16'daki jeste göre) ve Rey'in kafası ilk kez sessiz. Işık tünelin ucundaki kuyunun ağzı; oradan **Epilog** başlıyor. Jenerik artık burada değil, epilogun sonunda.
 
 ### 1. Şafak
 
@@ -3982,6 +3985,27 @@ _Ses susturulunca_
 **ARDO**
 - tr: "Bunu bana sen vermiştin. Geri getirdim."
 - en: "You gave me this. I brought it back."
+
+**İki karakterde de:**
+
+#### ch18_cemo_dawn
+**CEMO**
+- tr: "İki kere düşündü mü?"
+- en: "Did it think twice?"
+
+**Rey ile oynarken:**
+
+#### ch18_rey_dawn_answer
+**REY**
+- tr: "Düşündü. Hem de uzun uzun."
+- en: "It did. Long and hard."
+
+**Ardo ile oynarken:**
+
+#### ch18_ardo_dawn_answer
+**ARDO**
+- tr: "Düşündü, evlat. Ben şahidim."
+- en: "It did, kid. I saw it myself."
 
 *Üçlü*
 
@@ -4031,15 +4055,368 @@ _Ses susturulunca_
 - tr: "Sessiz. Onun için de sessiz artık."
 - en: "Quiet. Quiet for her too, now."
 
-### 2. Jenerik
+### 2. Jenerik — epiloga taşındı
 
-> Ne oluyor: Gün ışığının üzerinde aşağıdan yukarı süzülen satırlar; en sonda oyuncunun kendi yolu (kazanılan bayraklara göre). Replik yok — metinler aşağıdaki listede.
+> Jenerik 24.09.2026'dan beri ateş başından sonra, Cemo'nun resminin yanında akıyor. Metinleri **Epilog → Ekran yazıları** altında.
+
+---
+
+## Epilog — Eve dönüş
+
+**Özet:** Kapanışın ışığı tünelin ucundaki kuyunun ağzı. Jet'in B4'te bağladığı ipin dibinde oyuncu Jet'e adıyla sesleniyor (B15: *"Adımı söylemen yeter"*), şafakta yukarı çıkılıyor ve B1'in köyüne tersinden, doğudan girilip batıya, eve yüründüğü kısa bir oynanış var. Kapılar o geceden beri kapalı; çan Rezonans ile çalınınca köylüler dışarı çıkıyor. Evde Cemo duvara herkesi çiziyor. Akşam meydanda ateş, jenerik Cemo'nun resminin yanında akıyor. Yankı epilogda hiç konuşmuyor.
+
+### 1. Kuyunun dibi
+
+> Ne oluyor: Kapanıştan hemen sonra, küçük ve dövüşsüz bir oda (`src/scenes/epilogue_shaft.py`). Yukarıdan gün ışığı iniyor, Jet'in düğümlü ipi sarkıyor. Cemo ışığı görünce konuşuyor. İpin dibinde tuş göstergesi **Seslen** diyor; basınca aşağıdaki dört replik sırayla. Jet cevap verdiği an ip geriliyor.
+
+**İki karakterde de:**
+
+#### epi_cemo_light
+**CEMO**
+- tr: "Işık! Bak, yukarıda ışık var!"
+- en: "Light! Look, there's light up there!"
+
+*Seslen*
+
+**Rey ile oynarken:**
+
+#### epi_rey_call
+**REY**
+- tr: "Emre."
+- en: "Emre."
+
+**Ardo ile oynarken:**
+
+#### epi_ardo_call
+**ARDO**
+- tr: "EMRE! ...Bağırmak yok demişti. Emre."
+- en: "EMRE! ...He said no shouting. Emre."
+
+**İki karakterde de:**
+
+#### epi_jet_answer
+**JET**
+- tr: "Buradayım. Söz vermiştim."
+- en: "I am here. I gave you my word."
+
+#### epi_cemo_who
+**CEMO**
+- tr: "Emre kim?"
+- en: "Who's Emre?"
+
+**Rey ile oynarken:**
+
+#### epi_rey_who
+**REY**
+- tr: "Jet'in asıl adı. Yukarıda sen de öyle seslen ona."
+- en: "Jet's real name. When we're up there, you call him that too."
+
+**Ardo ile oynarken:**
+
+#### epi_ardo_who
+**ARDO**
+- tr: "Jet'in asıl adı. Onu tanıyanlar öyle der. Artık sen de tanıyorsun."
+- en: "Jet's real name. It's what the people who know him say. Now you know him too."
+
+### 2. Yukarı
+
+> Ne oluyor: Oyunun başındaki dikey yolculuğun şafak aynası: bu kez mor alevden değil kuyudan; kamera ipin yanında yukarı çıkıyor, varılan köy sabah. Replik yok.
 
 _(Bu anda replik yok.)_
 
-### Ekran yazıları — Kapanış
+### 3. Sabah köyü
+
+> Ne oluyor: B1'in köyü, aynı evler; oyuncu doğu ucunda, ipin yanında başlıyor (`src/scenes/epilogue_village.py`). Dövüş yok. Tek zorunlu hedef köy çanı; bitiş Rey'lerin evi. Aradakiler isteğe bağlı.
+
+*Varış — Jet ipin başında*
+
+**İki karakterde de:**
+
+#### epi_jet_welcome
+**JET**
+- tr: "Hoş geldiniz. İp dayandı. Ben de dayandım."
+- en: "Welcome home. The rope held. So did I."
+
+#### epi_cemo_thanks
+**CEMO**
+- tr: "Sağ ol, Emre abi!"
+- en: "Thank you, Emre!"
+
+#### epi_jet_name
+**JET**
+- tr: "...Bana uzun zamandır kimse öyle dememişti. Bir daha söyle, alışayım."
+- en: "...No one has called me that in a long time. Say it again. I would like to get used to it."
+
+*Jet'le konuş — isteğe bağlı, bir kez: kılıç geri veriliyor, Jet almıyor (B1'in "elin boş olmasın"ı)*
+
+**Rey ile oynarken:**
+
+#### epi_rey_sword
+**REY**
+- tr: "Kılıcını geri getirdim. Gece bitti."
+- en: "I brought your sword back. The night's over."
+
+#### epi_jet_guardian
+**JET**
+- tr: "Sende kalsın. Bu köyün artık bir bekçisi var."
+- en: "Keep it. This village has a guardian now."
+
+**Ardo ile oynarken:**
+
+#### epi_ardo_sword
+**ARDO**
+- tr: "Kılıcın. Tek parça. Birkaç çentik fazlası var."
+- en: "Your sword. One piece. A few extra notches."
+
+#### epi_jet_road
+**JET**
+- tr: "Sende kalsın. Yine yola düşeceksin; seni tanırım."
+- en: "Keep it. You will take to the road again. I know you."
+
+*Yarığın izi — Rey'lerin evinin önünden geçerken, bir kez*
+
+**Rey ile oynarken:**
+
+#### epi_rey_scar
+**REY**
+- tr: "Yarık kapanmış. Toprak hiçbir şey olmamış gibi yapıyor."
+- en: "The rift is closed. The ground's pretending nothing happened."
+
+**Ardo ile oynarken:**
+
+#### epi_ardo_scar
+**ARDO**
+- tr: "Toprak kapanmış ama iz kalmış. İzler hep kalır."
+- en: "The ground closed, but the mark stayed. Marks always do."
+
+*Köy çanı — yaklaşınca yorum, Rezonans ile çalınınca ikinci replik. Köylüler kapıdan sırayla çıkıyor, çana en yakın kapı önce*
+
+**Rey ile oynarken:**
+
+#### epi_rey_bell
+**REY**
+- tr: "Köyün çanı. Kapılar hâlâ kapalı; herkes içeride."
+- en: "The village bell. Doors still shut. Everyone's inside."
+
+#### epi_rey_rang
+**REY**
+- tr: "Bu sefer kendi sesimle."
+- en: "My own voice, this time."
+
+**Ardo ile oynarken:**
+
+#### epi_ardo_bell
+**ARDO**
+- tr: "Kapılar kapalı, bacalar tütüyor. İçerideler. Uyandıralım."
+- en: "Doors shut, chimneys smoking. They're inside. Let's wake them."
+
+#### epi_ardo_rang
+**ARDO**
+- tr: "Ateş başında öğrettiğim numara. Hâlâ çalışıyor."
+- en: "The trick I taught by the fire. Still works."
+
+*Çan çalınmadan eve varılırsa — bitiş başlamıyor*
+
+**İki karakterde de:**
+
+#### epi_cemo_bellhint
+**CEMO**
+- tr: "Kimse yok mu? Çanı çalsana, herkes çıkar!"
+- en: "Isn't anyone here? Ring the bell, everyone will come out!"
+
+*Köylüler — isteğe bağlı, tuş göstergesi **Konuş**. Bazı sözler kayıttan: düşüş sayısı (`SaveData.deaths`), B15'i hayalet geçmek, oynanan karakter*
+
+**İki karakterde de:**
+
+#### epi_villager_door
+**KÖYLÜ** — _kapısının önündeki komşu_
+- tr: "O gece kapımı açmadım. Bu sabah ardına kadar açık, bilesin."
+- en: "I didn't open my door that night. It's wide open this morning, so you know."
+
+#### epi_villager_seven
+**KÖYLÜ** — _abartan komşu_
+- tr: "Kaç yaratık kestin? Yedi mi? Bence yedidir. Ben herkese yedi diyeceğim."
+- en: "How many did you cut down? Seven? I say seven. I'm telling everyone seven."
+
+**Rey ile oynarken:**
+
+#### epi_villager_name
+**KÖYLÜ** — _yaşlı_
+- tr: "Rey. Adını ilk kez yüksek sesle söylüyorum. Yakışıyor sana."
+- en: "Rey. First time I've said your name out loud. It suits you."
+
+**Ardo ile oynarken:**
+
+#### epi_villager_stranger
+**KÖYLÜ** — _yaşlı_
+- tr: "Yabancı değilsin artık. Çocuğu eve getiren adamsın."
+- en: "You're no stranger now. You're the man who brought the boy home."
+
+**İki karakterde de:**
+
+#### epi_villager_falls
+**KÖYLÜ** — _en az bir kez düştüysen; {count} = düşüş sayısı_
+- tr: "{count} kere düşüp kalkmışsın, öyle mi? Düşmeyen kalkmayı öğrenmez."
+- en: "Fell {count} times and got back up? Those who never fall never learn to rise."
+
+#### epi_villager_nofall
+**KÖYLÜ** — _hiç düşmediysen_
+- tr: "Hiç düşmeden mi döndün? Masallarda bile böylesi yok."
+- en: "Came back without a single fall? Not even the old tales have that."
+
+#### epi_villager_ghost
+**KÖYLÜ** — _B15'i hayalet geçtiysen_
+- tr: "Kimseyi uyandırmadan mı geçtin? Gel de bizim horozu bir sabah öyle geç."
+- en: "Got past without waking anyone? Come try that on our rooster some morning."
+
+#### epi_villager_rooster
+**KÖYLÜ** — _geçmediysen_
+- tr: "Çanı sen mi çaldın? Horozdan önce davrandın. O da küstü."
+- en: "Was that you on the bell? You beat the rooster to it. Now he's sulking."
+
+*Han — Kalachev'in parası ve notu. Kadehi Ardo kaldırıyor: Rey ile yoldaş, Ardo ile oyuncunun kendisi*
+
+**İki karakterde de:**
+
+#### epi_innkeeper_money
+**HANCI**
+- tr: "Kalachev diye biri inmeden önce buraya para bıraktı. 'Aşağıdan sağ çıkan ilk kişinin içkisi benden' dedi."
+- en: "A man called Kalachev left money here before he went down. 'First one out alive drinks on me,' he said."
+
+#### epi_innkeeper_note
+**HANCI**
+- tr: "Bir de not bıraktı: 'Ben değilsem kusura bakmayın. Yedi taneydiler.'"
+- en: "He left a note, too: 'If it isn't me, no hard feelings. There were seven of them.'"
+
+#### epi_ardo_toast
+**ARDO**
+- tr: "Sağ ol, Efe. İlk içki senden."
+- en: "Thanks, Efe. First round's on you."
+
+*Ev — bitiş. Cemo koşup duvara, kapının iki yanına çiziyor; oyuncu resmin önüne geçemiyor*
+
+**İki karakterde de:**
+
+#### epi_cemo_wait
+**CEMO**
+- tr: "Dur, dur! Önce bunu çizmem lazım."
+- en: "Wait, wait! I have to draw this first."
+
+**Rey ile oynarken:**
+
+#### epi_cemo_drawing
+**CEMO**
+- tr: "Bu sensin, bu Ardo, bu ben, bu Emre abi. Bu da bağıran amca; en büyük o, çünkü en çok o bağırdı."
+- en: "That's you, that's Ardo, that's me, that's Emre. And that's the shouting man. He's biggest, because he shouted the most."
+
+#### epi_rey_drawing
+**REY**
+- tr: "Güzel olmuş. Onu tam böyle hatırlayacağım."
+- en: "It's good. That's exactly how I'll remember him."
+
+**Ardo ile oynarken:**
+
+#### epi_cemo_sister
+**CEMO**
+- tr: "Bu sensin, bu ablam, bu ben, bu Emre abi. Bu da bağıran amca; en büyük o, çünkü en çok o bağırdı."
+- en: "That's you, that's my sister, that's me, that's Emre. And that's the shouting man. He's biggest, because he shouted the most."
+
+#### epi_ardo_drawing
+**ARDO**
+- tr: "Doğru çizmişsin. Efe görse çerçeve isterdi."
+- en: "You got him right. Efe would want it framed."
+
+### 4. Ateş başı
+
+> Ne oluyor: Akşam, meydanda büyük ateş (`src/scenes/epilogue_cinematics.py`) — B8'in ateş başının köydeki, kalabalık hali. Yoldaşın mesafesi B16'daki jeste göre; onu kaldırdıysan soru panelinde sözsüz bir kalp.
+
+**İki karakterde de:**
+
+#### epi_villager_fire
+**KÖYLÜ**
+- tr: "Bu gece bütün köy bu ateşin başında. Kimse evine kaçmıyor."
+- en: "The whole village is at this fire tonight. Nobody's running home."
+
+#### epi_jet_fire
+**JET**
+- tr: "Berke bu ateşi görseydi bana bir kez daha Emre derdi. Şimdi herkes diyor."
+- en: "If Berke could see this fire, he would call me Emre once more. Now everyone does."
+
+*Kadeh — yalnızca Kalachev B18'de öldüyse (normal akışta hep)*
+
+**İki karakterde de:**
+
+#### epi_ardo_efe
+**ARDO**
+- tr: "Efe'ye. Bu ateşte en çok onun sesi eksik."
+- en: "To Efe. His is the voice this fire is missing most."
+
+*Soru*
+
+**Rey ile oynarken:**
+
+#### epi_cemo_voices
+**CEMO**
+- tr: "Rey, kafandaki sesler hâlâ konuşuyor mu?"
+- en: "Rey, are the voices in your head still talking?"
+
+#### epi_rey_fire
+**REY**
+- tr: "Hayır. Kafamın içi sessiz. Ama etrafım çok gürültülü."
+- en: "No. My head is quiet. Everything around me is loud, though."
+
+**Ardo ile oynarken:**
+
+#### epi_cemo_leaving
+**CEMO**
+- tr: "Ardo, yine gidecek misin?"
+- en: "Ardo, are you going away again?"
+
+#### epi_ardo_fire
+**ARDO**
+- tr: "Yol bekler. Bu ateş de beklerse... dönerim."
+- en: "The road can wait. And if this fire waits too... I'll be back."
+
+### 5. Jenerik
+
+> Ne oluyor: Evin duvarı yakından: kapı ve iki yanında Cemo'nun resmi. Satırlar sağda aşağıdan yukarı süzülüyor; en sonda oyuncunun kendi yolu (kazanılan bayraklara göre). Ardından ana menü. Replik yok — metinler aşağıdaki listede.
+
+_(Bu anda replik yok.)_
+
+### 6. Oyun sonrası
+
+> Ne oluyor: Oyunu bitirmiş kayıtta DEVAM ET sabah köyüne yukarı çıkıyor: köylüler dışarıda, resim duvarda, çan istenirse çalınıyor. Batı yolundan çıkınca ana menü. Yeni replik yok; köylülerle konuşulabiliyor.
+
+_(Bu anda yeni replik yok.)_
+
+### Ekran yazıları — Epilog
 
 _İpucu kartları, bildirimler, adlar. Aynı biçimde düzenlenir; anahtar noktalı yazılır (ad alanı.anahtar)._
+
+#### prompt.call
+_Tuş göstergesi — Jet'in ipinin dibinde_
+- tr: "Seslen"
+- en: "Call out"
+
+#### prompt.talk
+_Tuş göstergesi — köylünün ve Jet'in üstünde_
+- tr: "Konuş"
+- en: "Talk"
+
+#### speaker.villager
+_Konuşmacı adı — köylü_
+- tr: "KÖYLÜ"
+- en: "VILLAGER"
+
+#### speaker.innkeeper
+_Konuşmacı adı — hancı_
+- tr: "HANCI"
+- en: "INNKEEPER"
+
+#### chapter.homecoming
+_Kayıt yuvasında bölüm adı — epilog bitince_
+- tr: "Eve Dönüş"
+- en: "Homecoming"
 
 #### credits.title
 _Jeneriğin ilk satırı_
@@ -4320,7 +4697,9 @@ Kaynak taraması (`src/**/*.py` içinde düz `"line.…"` dizesi; `tests/test_la
 
 ### Dil tablosunda olup kodda bulunamayan diyalog anahtarları
 
-**Yok.** `line.` ad alanındaki 406 anahtarın hepsi kodda düz dize olarak geçiyor ve bu belgede yerleştirildi. Hesaplanmış (f-string) anahtar da yok.
+**Yok.** `line.` ad alanındaki 453 anahtarın hepsi kodda düz dize olarak geçiyor ve bu belgede yerleştirildi. Hesaplanmış (f-string) anahtar da yok.
+
+_24.09.2026: epilogla 47 anahtar eklendi (44 `epi_*`, kapanışta 3 `ch18_*_dawn*`); hepsi **Epilog** ve **Kapanış** altında._
 
 Sahne dosyası dışında (ama kullanılan) yerlerde duranlar:
 

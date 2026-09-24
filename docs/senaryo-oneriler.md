@@ -1,7 +1,8 @@
 # ÖNERİLEN YENİ REPLİKLER
 
-> **Bu belge bir öneridir, bağlayıcı değildir.** Buradaki anahtarların
-> hiçbiri kodda ya da dil tablolarında yok. Bir öneri onaylanırsa önce
+> **Bu belge bir öneridir, bağlayıcı değildir.** ✅ ile işaretli maddeler
+> uygulandı (anahtarları artık tablolarda); geri kalanların anahtarları
+> kodda ya da dil tablolarında yok. Bir öneri onaylanırsa önce
 > kodda yerini bulmalı (düz dize anahtar, `tests/test_lang.py` kuralı),
 > sonra `tr.json` / `en.json`'a eklenmeli, en son `docs/senaryo-akisi.md`'ye
 > blok olarak girmeli. Bu dosya `dialogue_dump.py --geri` ile **okunmaz**.
@@ -17,7 +18,11 @@ Sıralama öncelik sırasıdır. Her maddede: yer, tetikleyici, karakter seçimi
 
 ## Öncelik 1 — Hikâyede boşluk kapatanlar
 
-### 1. Kapanış — Cemo kolye cümlesini kapatıyor
+### 1. ✅ Kapanış — Cemo kolye cümlesini kapatıyor
+
+> **Uygulandı (24.09.2026)** — anahtarlar ve metinler aynen; `ending.py`
+> "kolye" paneli artık `lines=` dizisi. Yeri: `docs/senaryo-akisi.md` →
+> Kapanış → Şafak.
 
 - **Yer:** Kapanış, "kolye" paneli; `ch18_rey_dawn` / `ch18_ardo_dawn` repliğinden hemen sonra.
 - **Tetikleyici:** Aynı panelin ikinci ve üçüncü repliği. `ending.py` bu paneli şu an tek `line=` ile kuruyor; `lines=` dizisine çevrilmeli.
@@ -35,7 +40,14 @@ Sıralama öncelik sırasıdır. Her maddede: yer, tetikleyici, karakter seçimi
   - TR: "Düşündü, evlat. Ben şahidim."
   - EN: "It did, kid. I saw it myself."
 
-### 2. Kapanış — Jet ipin başında
+### 2. ✅ Kapanış — Jet ipin başında
+
+> **Karşılandı, başka biçimde (24.09.2026).** Kapanışa panel eklenmedi;
+> ip bir **epilog** oldu (`docs/yapi.md` Epilog). Kuyunun dibinde oyuncu
+> Jet'e adıyla seslenir (`epi_rey_call` / `epi_ardo_call`, cevap
+> `epi_jet_answer`), köyde Jet ipin başında karşılar (`epi_jet_welcome`,
+> `epi_cemo_thanks`, `epi_jet_name`). Aşağıdaki `ch18_jet_rope*`
+> anahtarları **eklenmedi**.
 
 - **Yer:** Kapanış, "üçlü" panelinden sonra yeni bir panel ("ip").
 - **Tetikleyici:** Jet'in dönüşlerinden en az biri görüldüyse (`ch04_jet_return_seen`, `ch09_jet_return_seen` ya da `ch15_jet_return_seen`). Hiçbiri görülmediyse panel atlanır.

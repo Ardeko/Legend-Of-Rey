@@ -130,11 +130,12 @@ class MainMenuScene(Scene):
         set_active_slot(slot)
         # Kamera alevden **asagi** iner, kaldigin bolume kadar. Ne kadar
         # ilerlediysen o kadar uzun dusersin (docs/menu-ui.md 0.4).
-        from src.scenes.vertical_journey import VerticalJourneyScene
+        # Oyunu bitirmis kayit ise koye **yukari** cikar (epilog).
+        from src.scenes.vertical_journey import (
+            VerticalJourneyScene, continue_kwargs,
+        )
         self.scenes.replace(VerticalJourneyScene, transition=False,
-                            direction="down",
-                            chapter=self.save_data.chapter,
-                            character=self.save_data.character)
+                            **continue_kwargs(self.save_data))
 
     def _new_game(self) -> None:
         """Her zaman yuva ekrani - **nereye** baslanacagi bir karar.

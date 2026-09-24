@@ -166,6 +166,32 @@ def _chapter_end() -> np.ndarray:
     return synth.normalize(tone * synth.env_ad(n, attack=0.15, decay=0.8))
 
 
+# Can kismi tonlari: (oran, genlik, sonum hizi). Gercek canlar uyumlu
+# degil - "hum" (0.5), ana ton, minor uclu (1.2), besli, oktav. Tek bir
+# sinus "zil" gibi, bu set "can" gibi okunuyor.
+_BELL_PARTIALS = ((0.5, 0.35, 2.2), (1.0, 1.0, 3.0), (1.2, 0.45, 4.0),
+                  (1.5, 0.3, 5.0), (2.0, 0.25, 6.5), (2.67, 0.15, 8.0))
+
+
+@_register("bell_village")
+def _bell_village() -> np.ndarray:
+    """Koy cani (epilog, 24.09.2026). Tek vurus, uzun sonum - dongu degil.
+
+    Arda'nin kurali: surekli sentez sesler "cizirti gibi" (B1 notu);
+    bu tek seferlik bir olay sesi.
+    """
+    seconds = 2.2
+    base = 330.0
+    n = synth.samples(seconds)
+    out = np.zeros(n)
+    for ratio, amp, rate in _BELL_PARTIALS:
+        tone = synth.sine(base * ratio, seconds)[:n]
+        out[:len(tone)] += tone * amp * synth.env_exp_decay(len(tone), rate=rate)
+    strike = synth.noise(0.02, seed=211)
+    out[:len(strike)] += strike * 0.3
+    return synth.normalize(out)
+
+
 # --- 8. ORTAM (dongu) ------------------------------------------------------------
 @_register("amb_village_night")
 def _amb_village_night() -> np.ndarray:

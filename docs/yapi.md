@@ -3,7 +3,8 @@
 > **★ 02.09.2026 — BU BELGEDEKİ HER ŞEY YAZILDI.**
 >
 > 18 bölümün 18'i oynanabilir; zincir kesintisiz (intro → menü →
-> karakter seçimi → dikey yolculuk → B1…B18 → kapanış → jenerik).
+> karakter seçimi → dikey yolculuk → B1…B18 → kapanış → **epilog**
+> → jenerik). Epilog 24.09.2026'da eklendi — aşağıda, B18'in altında.
 > Dört büyük boss'un dördü de yerinde: Çürümüş Olan (B6), Zindancı
 > (B13), Kaynak (B14), Çağıran (B18). On bir mekaniğin on biri +
 > B17'nin ikili kontrolü ve B18'in susturması.
@@ -104,6 +105,22 @@ Her mekanik bir bölümde tanıtılır, sonraki bölümlerde birleşir. Kural: *
 **B18 — Son.** Yaratık, Yankı'yı kullanarak Cemo'nun sesiyle konuşur. Rey sesi susturmayı seçer — sessizlikte, yardımsız savaşır (Ardo'nun bütün oyun boyunca oynadığı şekilde).
 Kazanır. Cemo kurtulur. Gün ışığı. Rey kolyeyi Cemo'ya geri takar, Ardo arkalarında. Rey'in kafası ilk kez sessiz.
 
+### EPİLOG — EVE DÖNÜŞ ★ (24.09.2026)
+
+Kapanış havada kalıyordu: B4'te bağlanan ip, B15'teki *"adımı söylemen yeter"* sözü, B1'de kapısını kapatan köy, Kalachev'in "ilk içki benden"i hiç kapanmıyordu. Epilog bunları kapatıyor. Bölüm değil, kapanışın devamı: bölüm kartı, dövüş, Yankı yok.
+
+**Kuyunun dibi.** Işık tünelin ucundaki kuyunun ağzı. Jet'in ipinin dibinde tuş göstergesi *Seslen* diyor; Rey adını fısıldar, Ardo önce bağırır sonra hatırlar. Jet cevap verir, ip gerilir.
+*Mekanik:* Tek eylem — Jet'e adıyla seslenmek. B15'teki sözün oynanış karşılığı.
+
+**Yukarı.** Oyunun başındaki dikey yolculuğun şafak aynası: mor alevden değil kuyudan, geceye değil sabaha.
+
+**Sabah köyü.** B1'in köyü, aynı evler — tersinden: doğuda ipin başında başlanıyor, batıya, eve yürünüyor. Kapılar o geceden beri kapalı.
+*Mekanik:* **Rezonans ile köy çanı** (B8'in dersi, B9'un çanları) — tek zorunlu hedef. Çan çalınınca köylüler kapıdan sırayla çıkar. Gerisi isteğe bağlı: Jet kılıcını geri almaz; hancı Kalachev'in parasını ve notunu verir, Ardo kadeh kaldırır; köylülerin sözü oyuncunun kaydından gelir (kaç kez düştüğü, B15'i hayalet geçip geçmediği). Evde Cemo duvara B13'teki işareti ve herkesi çizer — en büyük figür "bağıran amca".
+
+**Ateş başı.** Akşam, meydanda ateş; B1'de evine kaçan köy bu gece dışarıda. Kalachev öldüyse kadeh. Cemo'nun son sorusu karaktere göre. Jenerik Cemo'nun resminin yanında akar.
+
+**Oyun sonrası.** Bitmiş kayıtta DEVAM ET sabah köyüne çıkar: köylüler dışarıda, resim duvarda, çan istenirse çalınır.
+
 ---
 
 ## ROMANTİK YAY (Mekanikle Anlatım)
@@ -118,6 +135,7 @@ Kazanır. Cemo kurtulur. Gün ışığı. Rey kolyeyi Cemo'ya geri takar, Ardo a
 | B16 | Eşitlik | Sen onu kurtarıyorsun. Kalp balonu |
 | B17 | Bağımlılık | İkili kontrol — biri olmadan geçilmiyor |
 | B18 | Kapanış | Üçlü son panel |
+| Epilog | Ateş başı | Yoldaşın ateşteki mesafesi B16 jestine göre; onu kaldırdıysan sözsüz bir kalp |
 
 **Kural:** Hiçbir romantik an diyalogla anlatılmaz. Hepsi ya jest ya mekanik.
 

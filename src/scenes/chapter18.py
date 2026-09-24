@@ -675,6 +675,7 @@ class Chapter18Scene(PlayScene):
         """
         data = self.save_data
         flags = data.flags if data is not None else {}
+        clean = self.boss is not None and self.boss.rises <= CLEAN_RISES
         if data is not None:
             data.chapter = 18
             data.chapter_name = "chapter.end"
@@ -682,6 +683,15 @@ class Chapter18Scene(PlayScene):
             data.flags["finished"] = True
             if self.silence.done:
                 data.flags["ch18_silenced"] = True
+            # Epilog jenerigi bunu kayittan okuyor (`systems/homecoming`).
+            data.flags["ch18_clean"] = clean
+            # **Diske yaziliyor.** (24.09.2026'da bulunan hata.) B18'de
+            # bolum sonu ekrani yok, yani o ekranin yaptigi kayit da
+            # yok - "finished" yalnizca bellekte kaliyordu. Oyunu bitiren
+            # oyuncunun kaydi "bitmedi" gorunuyor ve DEVAM ET onu son
+            # boss'a geri indiriyordu.
+            from src.systems.save import write_save
+            write_save(data)
 
         from src.scenes.ending import DawnCinematic
         self.scenes.set_root(
@@ -691,7 +701,7 @@ class Chapter18Scene(PlayScene):
             lifted=bool(flags.get("ch16_lifted")),
             gesture_key=str(flags.get("ch16_gesture") or "nod"),
             tidy=bool(flags.get("ch17_tidy")),
-            clean=self.boss is not None and self.boss.rises <= CLEAN_RISES,
+            clean=clean,
             # `docs/kalachev.md` 7: kapanistaki bakis yalnizca o
             # gercekten olduyse bir anlam tasiyor.
             kalachev=bool(flags.get(KALACHEV_DEATH_FLAG)),

@@ -131,10 +131,11 @@ class SlotSelectScene(Scene):
         data = peek_slot(slot)
         if data is None:
             return
-        from src.scenes.vertical_journey import VerticalJourneyScene
+        from src.scenes.vertical_journey import (
+            VerticalJourneyScene, continue_kwargs,
+        )
         self.scenes.replace(VerticalJourneyScene, transition=False,
-                            direction="down", chapter=data.chapter,
-                            character=data.character)
+                            **continue_kwargs(data))
 
     def _ask_overwrite(self) -> None:
         # **Varsayilan secim daima IPTAL** (`CLAUDE.md` §9).

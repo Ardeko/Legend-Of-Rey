@@ -109,6 +109,10 @@ SPEAKER_COLOURS = {
     # yipranmis bir sey soyluyor. ("blood_bright" denendi - tehlike
     # rengiyle karisiyordu, oysa konusan bir dusman degil.)
     "kalachev": "bone",
+    # Epilog (24.09.2026): koyluler ve hanci. Koylu sabah yesili -
+    # oyunda ilk kez konusan bir kalabalik, otekilerden ayrilmali.
+    "villager": "moss_light",
+    "innkeeper": "flesh_light",
 }
 
 # Ad etiketlerinin dil anahtarlari **acikca** yazili. f-string ile
@@ -122,16 +126,25 @@ SPEAKER_KEYS = {
     "echo": "speaker.echo",
     "jet": "speaker.jet",
     "kalachev": "speaker.kalachev",
+    "villager": "speaker.villager",
+    "innkeeper": "speaker.innkeeper",
 }
 ECHO = "echo"
 
 
 @dataclass(frozen=True)
 class Line:
-    """Tek bir replik. `key` dil anahtari, metin degil."""
+    """Tek bir replik. `key` dil anahtari, metin degil.
+
+    `params` metnin yer tutuculari (`{count}` gibi). Epilogda koylu
+    oyuncunun kac kez dustugunu soyluyor - sayi kayittan geliyor,
+    metin tablodan. Tuple cunku sinif donuk (`frozen`), sozluk
+    hashlenemez.
+    """
 
     speaker: str
     key: str
+    params: tuple[tuple[str, object], ...] = ()
 
 
 class Dialogue:
@@ -188,7 +201,9 @@ class Dialogue:
     @property
     def full_text(self) -> str:
         line = self.current
-        return t(line.key) if line else ""
+        if line is None:
+            return ""
+        return t(line.key, **dict(line.params)) if line.params else t(line.key)
 
     @property
     def complete(self) -> bool:

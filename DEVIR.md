@@ -7,7 +7,71 @@ Okuma sırası: **1) `CLAUDE.md`** (bağlayıcı kurallar — anayasa) → **2) 
 dosya** (nerede kaldık) → 3) gerekirse `docs/` altındaki ilgili tasarım
 belgesi.
 
-Son güncelleme: **24.09.2026** (tuş göstergeleri, Kalachev yerçekimi, gezgin dükkân, derinlik temaları/lav, yeni silahlar, ışıma/sis/kenar ışığı, senaryo akışı belgesi) · Ardeko Studios · Arda Güner
+Son güncelleme: **24.09.2026** (epilog "Eve Dönüş", diyalogların yeniden yazımı, oyun sonu kaydı hatası; önceki: tuş göstergeleri, Kalachev yerçekimi, gezgin dükkân, derinlik temaları/lav, yeni silahlar, ışıma/sis/kenar ışığı, senaryo akışı belgesi) · Ardeko Studios · Arda Güner
+
+## 24.09.2026 — Epilog "Eve Dönüş" + diyaloglar yeniden yazıldı
+
+**Kaynak değişti, exe YENİDEN ÜRETİLMEDİ** — `dist/` hâlâ 19.09 sürümü.
+
+1. **Diyaloglar yeniden yazıldı** (`v5` commit'i). `docs/senaryo-akisi.md`
+   üzerinden 276 blok, yalnızca tırnak içi; `--geri` ile dil tablolarına
+   yazıldı, `docs/diyaloglar.md` yeniden üretildi. Kurallar: Yankı B14'teki
+   Kaynak sahnesine kadar "biz" der; Jet'in İngilizcesinde kısaltma yok;
+   ad teması Jet = Emre, Kalachev = Efe; romantik yay sözle söylenmez.
+   Uygulanmamış 24 öneri `docs/senaryo-oneriler.md`'de.
+   ⚠ **`tests/test_chapter06.py` "ardo: adi soyleniyor" v5'ten beri
+   kırık:** Ardo'nun B6 tanışmasında "Kalachev" adı geçmiyor, Ardo ona
+   "Efe" diyor (ad yalnızca konuşmacı etiketinde). `docs/kalachev.md` §3
+   "adı söylenir" diyor. **Karar Arda'nın:** repliğe ad mı girsin, test mi
+   Ardo için "Efe"yi kabul etsin?
+2. **Epilog "Eve Dönüş"** (`docs/yapi.md` Epilog, replikler
+   `docs/senaryo-akisi.md` → Epilog). Kapanış havada kalıyordu; zincir artık:
+   B18 → `DawnCinematic` (jenerik çıktı; kolyeye Cemo'nun sorusu, öneri #1)
+   → `EpilogueShaftScene` (Jet'in ipi, tuş göstergesi "Seslen")
+   → `VerticalJourneyScene(variant="dawn")` → `EpilogueVillageScene`
+   (Rezonans ile köy çanı zorunlu; köylüler kapıdan çıkar; Jet kılıcı geri
+   almaz; hancı Kalachev'in parası/notu; köylü sözleri kayıttan — düşüş
+   sayısı, B15 hayaleti; evde Cemo'nun duvar resmi) →
+   `HomecomingFireCinematic` (ateş başı, Kalachev öldüyse kadeh, jenerik
+   resmin yanında) → ana menü.
+   - **Oyun sonrası:** bitmiş kayıtta DEVAM ET sabah köyüne çıkar
+     (`vertical_journey.continue_kwargs` — menü ve yuva ekranı aynı kararı
+     buradan alıyor). Batı yolundan çıkış menüye.
+   - Yeni dosyalar: `src/scenes/epilogue_{shaft,village,cinematics,render}.py`,
+     `src/world/rooms/epilogue.py`, `src/systems/homecoming.py`,
+     `src/entities/npc.py` (Cemo/Jet için basit takipçi), `src/ui/credits.py`
+     (jenerik `ending.py`'den taşındı), `tests/test_epilogue.py`.
+   - Değişenler: `Villager` `EMERGE`/`GREET`; `village_backdrop` şafak
+     (`DAWN`, `paint_bands`, güneş, han tabelası, çan iskelesi); `Line.params`
+     (`{count}`); `PlayScene.companion_orders`; postfx `dawn`; ses
+     `bell_village`; `main.py` SCENES `epilog-kuyu/koy/ates`; spec
+     `hiddenimports`.
+   - **Kararlar:** Yankı epilogda yok (vinyet de). Yoldaşa komut ve öğretici
+     kartı kapalı. **Sürekli köy ambiyansı YOK** — Arda'nın "cızırtı" kuralı;
+     yalnızca tek atımlık çan. Kalp balonu yalnızca B16'da kaldırdıysan.
+     Köy B1'in aynısı ama **batıda 10 karoluk yol** var: B1'de ev sahnenin
+     kenarındaydı, bitişteki resim portrenin altında kalıyordu. Cemo çizerken
+     oyuncu resmin önüne geçemiyor (`_hold_back`). Ateş başında evler
+     meydanın karşı yakasında: 2x aktörler 1x evlerle aynı zemine basınca evler
+     kulübe gibi kalıyordu.
+3. **Hatalar:**
+   - `chapter18._end_game` "finished"i **diske yazmıyordu** (B18'de bölüm
+     sonu ekranı yok, kaydı o yapıyordu). DEVAM ET oyunu bitireni son boss'a
+     indiriyordu. Artık `write_save` + `ch18_clean` bayrağı.
+   - Köy bacaları çatıdan ~14 px kopuk çiziliyordu (B1 dahil; gece koyu
+     gökte görünmüyordu). Baca artık çatının eğimine oturuyor.
+   - E hem repliği ilerletiyor hem etkileşiyor: son repliği kapatan basış
+     aynı karede yeni konuşma/seslenme başlatıyordu. İki epilog sahnesinde
+     `_dialogue_was_open` koruması; test onu kaldırınca kırıldığı görüldü.
+   - Cemo'nun resminde Rey figürü 3x'te kafatası gibi okunuyordu (simetrik
+     saç + boşluklu satır) — yeniden çizildi.
+
+**Doğrulama:** `tests/test_epilogue.py` 14 test (zincir iki karakterle
+uçtan uca **oynanarak**; kayıt diskte; "Seslen"; çan/köylüler; replikler
+kayıttan; resmin önü; oyun sonrası). Paket: 59 dosyanın 58'i geçiyor, kırık
+olan `test_chapter06` (yukarıda, v5'ten). `tools/reachability.py`: iki epilog
+odası dahil hepsi geçilebilir. `senaryo-akisi.md` gidiş-dönüş: 612 blok,
+0 fark. Kareler `build/testshots/epilog/`.
 
 ## 23–24.09.2026 — Arda'nın 8 maddelik isteği + "grafikleri geliştir"
 

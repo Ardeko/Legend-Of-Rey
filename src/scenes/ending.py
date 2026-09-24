@@ -51,11 +51,17 @@ Rey Yanki'yi susturarak Cemo'yu kurtardi ve ayni hareketle oluleri
 gorme yetenegini de kaybetti. **Sessizligin bedeli bu.** Onu
 goremiyor olmasi, gercekten gittiginin kaniti.
 
-## Jenerik
+## Jenerik artik burada degil (24.09.2026)
 
-Ayri bir sahne degil, kapanisin devami: paneller bitince isim listesi
-ayni gun isigi uzerinde yukari suzuluyor. Kesme yok - `CLAUDE.md` 9:
-*"Sinematik gecisler ani kesilmez."*
+Eskiden paneller bitince isim listesi ayni gun isigi uzerinde
+akiyordu ve oyun ana menuye donuyordu. Arda: *"cok havada kalan bir
+kisim var. koye hep beraber donduklari bir sinematik."* Bu sahne artik
+bir **esik**: isik, Jet'in ipinin sarktigi kuyunun agzi. Zincir:
+
+    DawnCinematic -> kuyunun dibi (oynanis) -> safakta yukari
+    -> sabah koyu (oynanis) -> ates basi + jenerik -> ana menu
+
+Jenerik cizimi `src/ui/credits.py`'de; ates basi onu kullaniyor.
 """
 from __future__ import annotations
 
@@ -68,9 +74,9 @@ from src.config import INTERNAL_HEIGHT, INTERNAL_WIDTH
 from src.entities.companion import other_character
 from src.scenes.staging import ActorSpec, Cue, MoteField, StagedScene
 from src.scenes.story import Panel
-from src.ui import balloon, text
+from src.systems.homecoming import Homecoming
+from src.ui import balloon
 from src.ui.dialogue import Line
-from src.ui.i18n import t
 
 GROUND_Y = 200
 CENTRE_X = INTERNAL_WIDTH // 2
@@ -114,11 +120,14 @@ class DawnCinematic(StagedScene):
             Cue("ally", state="idle", face=-1),
             Cue("cemo", state="idle", face=1),
         )),
-        Panel(60, "sessiz", closeup="player", fade_in=14),
-        # Jenerik uzun ve tus beklemiyor: on dort satirin ekranin
-        # altindan ustune suzulmesi ~850 kare (14 saniye). `CLAUDE.md`
-        # 9: sert kesme yok, ama basili tutunca 3x hizlaniyor.
-        Panel(900, "jenerik", wait_for_input=False, fade_in=20),
+        # Son panel yuzden cikarken kararıyor: sonraki sahne (kuyunun
+        # dibi) karanliktan aciliyor, kesme yok (`CLAUDE.md` 9).
+        #
+        # **Jenerik artik burada degil** (24.09.2026). Kapanis bir
+        # sonsoz degil bir **esik** oldu: isik tunelin ucundaki kuyunun
+        # agzi, ve oradan Jet'in ipiyle koye donuluyor. Jenerik koydeki
+        # ates basinin sonunda (`epilogue_cinematics.py`).
+        Panel(60, "sessiz", closeup="player", fade_in=14, fade_out=16),
     )
 
     def on_enter(self, character: str = "rey", ghost: bool = False,
@@ -162,7 +171,6 @@ class DawnCinematic(StagedScene):
         # "Raze" - `music.py`nin kendi notu: *"cok nadir
         # duygusal anlar."* On sekiz bolumde ilk kez calıyor.
         self.game.music.hold("emotional", 1400)
-        self.credit_offset = 0.0
         self._write()
 
     def _write(self) -> None:
@@ -177,12 +185,20 @@ class DawnCinematic(StagedScene):
         # farkli hikaye - `docs/kalachev.md` 3'un tam olarak istedigi.
         back = ("line.ch18_ardo_lookback" if ardo
                 else "line.ch18_rey_lookback")
-        beats = {"kolye": Line(self.character, light),
-                 "uclu": Line(self.character, three),
-                 "bakis": Line(self.character, back),
-                 "sessiz": Line(self.character, quiet)}
+        # Kolyenin cevabi (24.09.2026). B1'de Cemo'nun umudu ("belki
+        # karanlik iki kere dusunur"), B4'te Yanki'nin alayi, B18'de
+        # yaratigin silahi olan cumle son kez **sahibinin** agzindan
+        # soruluyor ve cevabini aliyor.
+        answer = ("line.ch18_ardo_dawn_answer" if ardo
+                  else "line.ch18_rey_dawn_answer")
+        beats = {"kolye": (Line(self.character, light),
+                           Line("cemo", "line.ch18_cemo_dawn"),
+                           Line(self.character, answer)),
+                 "uclu": (Line(self.character, three),),
+                 "bakis": (Line(self.character, back),),
+                 "sessiz": (Line(self.character, quiet),)}
         self.panels = tuple(
-            Panel(p.frames, p.name, line=beats[p.name], cues=p.cues,
+            Panel(p.frames, p.name, lines=beats[p.name], cues=p.cues,
                   fade_in=p.fade_in, fade_out=p.fade_out, closeup=p.closeup,
                   wait_for_input=p.wait_for_input)
             if p.name in beats else p
@@ -204,16 +220,10 @@ class DawnCinematic(StagedScene):
             # sey.
             self.game.music.duck(0.6)
         elif panel.name == "sessiz":
-            # Kisilma **geri aliniyor** - kalici olsaydi jenerik de
-            # bogurdu ve "Raze" (on sekiz bolumde ilk kez calan parca)
-            # duyulmadan biterdi.
+            # Kisilma **geri aliniyor** - kalici olsaydi kuyunun dibine
+            # de tasinirdi ve "Raze" (on sekiz bolumde ilk kez calan
+            # parca) sessizce bogulurdu.
             self.game.music.duck(0.0)
-
-    def update_cinematic(self) -> None:
-        super().update_cinematic()
-        panel = self.panel
-        if panel is not None and panel.name == "jenerik":
-            self.credit_offset += 0.55
 
     # --- Cizim --------------------------------------------------------------
     def draw_stage_background(self, surface: pygame.Surface, panel: Panel,
@@ -259,45 +269,25 @@ class DawnCinematic(StagedScene):
             balloon.draw(surface, "heart", int(REY_X + 22) - ox,
                          int(GROUND_Y) - 44 - oy, frame=self.frame,
                          colour=palette.color("blood_bright"))
-        elif panel.name == "jenerik":
-            self._draw_credits(surface)
 
-    def _draw_credits(self, surface: pygame.Surface) -> None:
-        """Isim listesi gun isiginin uzerinde suzuluyor.
+    # --- Gecis --------------------------------------------------------------
+    def homecoming(self) -> Homecoming:
+        """Kapanisin bildigi her sey + kayittaki dusus sayisi.
 
-        Ayri bir sahne DEGIL: kapanisin devami. Kesme yok
-        (`CLAUDE.md` 9 - sinematik gecisler ani kesilmez).
+        Bayraklar bu sahneye cagirandan geliyor (B18 ya da test); dusus
+        sayisi yalnizca kayitta. Epilogun butun sahneleri bu nesneyi
+        tasiyor - kayit bir kez okunuyor.
         """
-        lines = [
-            t("credits.title"), "",
-            t("credits.studio"), "",
-            t("credits.design"), t("credits.code"), t("credits.art"),
-            "", t("credits.thanks"),
-        ]
-        # Oyuncunun **kendi** yolu: dort bayrak burada bir cumleye
-        # doniyor. Puan tablosu degil bir hatirlatma.
-        path = [key for flag, key in (
-            (self.ghost, "credits.path_ghost"),
-            (self.lifted, "credits.path_lifted"),
-            (self.tidy, "credits.path_tidy"),
-            (self.clean, "credits.path_clean"),
-        ) if flag]
-        if path:
-            lines += ["", t("credits.path")] + [t(key) for key in path]
-
-        # **Kontur sart.** Ilk surum `ink` (neredeyse siyah) kullaniyordu
-        # ve yazi karanlik zeminde tamamen kayboluyordu - render edilip
-        # bakilinca cikti. Sahne hem cok aydinlik (sag) hem cok karanlik
-        # (sol alt) bolgeler tasiyor, yani tek bir duz renk her yerde
-        # okunamaz. Acik renk + kontur ikisinde de okunuyor.
-        y = INTERNAL_HEIGHT - int(self.credit_offset)
-        for line in lines:
-            if -12 < y < INTERNAL_HEIGHT:
-                text.draw(surface, line, CENTRE_X, y,
-                          color=palette.color("bone"), align="center",
-                          outline=True)
-            y += 14
+        from src.systems.save import read_save
+        data, _status = read_save()
+        deaths = max(0, int(getattr(data, "deaths", 0) or 0)) if data else 0
+        return Homecoming(character=self.character, ghost=self.ghost,
+                          lifted=self.lifted, gesture=self.gesture_key,
+                          tidy=self.tidy, clean=self.clean,
+                          kalachev=self.kalachev, deaths=deaths)
 
     def on_finished(self) -> None:
-        from src.ui.menu import MainMenuScene
-        self.scenes.set_root(MainMenuScene)
+        """Isik tunelin ucundaki kuyunun agzi: Jet'in ipi oradan sarkiyor."""
+        from src.scenes.epilogue_shaft import EpilogueShaftScene
+        self.scenes.set_root(EpilogueShaftScene, character=self.character,
+                             homecoming=self.homecoming())

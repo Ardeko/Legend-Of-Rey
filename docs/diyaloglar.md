@@ -1895,6 +1895,11 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 - tr: "Bunu bana sen vermiştin. Geri getirdim."
 - en: "You gave me this. I brought it back."
 
+### ch18_ardo_dawn_answer
+**ARDO**
+- tr: "Düşündü, evlat. Ben şahidim."
+- en: "It did, kid. I saw it myself."
+
 ### ch18_ardo_deep
 **ARDO**
 - tr: "İnmek kolaydı. Asıl soru, beni neden çağırdığı."
@@ -1965,6 +1970,11 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 - tr: "Beni burada bırakma. Ne olur... buradayım."
 - en: "Don't leave me here. Please... I'm here."
 
+### ch18_cemo_dawn
+**CEMO**
+- tr: "İki kere düşündü mü?"
+- en: "Did it think twice?"
+
 ### ch18_kalachev_debt
 **KALACHEV**
 - tr: "Yukarıda, Ayı. Buradan çıkınca ödeyeceğim, yemin ederim. Hem de faiziyle; şu çirkini de hikâyeye katarız."
@@ -2004,6 +2014,11 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 **REY**
 - tr: "Kolyen. Artık sende kalsın... İşe yaradı."
 - en: "Your necklace. You keep it now... It worked."
+
+### ch18_rey_dawn_answer
+**REY**
+- tr: "Düşündü. Hem de uzun uzun."
+- en: "It did. Long and hard."
 
 ### ch18_rey_deep
 **REY**
@@ -2069,6 +2084,228 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 **REY**
 - tr: "Cemo? Sesi... şuradan geliyor."
 - en: "Cemo? His voice... it's coming from over there."
+
+## EPILOG - Eve donus
+
+### epi_ardo_bell
+**ARDO**
+- tr: "Kapılar kapalı, bacalar tütüyor. İçerideler. Uyandıralım."
+- en: "Doors shut, chimneys smoking. They're inside. Let's wake them."
+
+### epi_ardo_call
+**ARDO**
+- tr: "EMRE! ...Bağırmak yok demişti. Emre."
+- en: "EMRE! ...He said no shouting. Emre."
+
+### epi_ardo_drawing
+**ARDO**
+- tr: "Doğru çizmişsin. Efe görse çerçeve isterdi."
+- en: "You got him right. Efe would want it framed."
+
+### epi_ardo_efe
+**ARDO**
+- tr: "Efe'ye. Bu ateşte en çok onun sesi eksik."
+- en: "To Efe. His is the voice this fire is missing most."
+
+### epi_ardo_fire
+**ARDO**
+- tr: "Yol bekler. Bu ateş de beklerse... dönerim."
+- en: "The road can wait. And if this fire waits too... I'll be back."
+
+### epi_ardo_rang
+**ARDO**
+- tr: "Ateş başında öğrettiğim numara. Hâlâ çalışıyor."
+- en: "The trick I taught by the fire. Still works."
+
+### epi_ardo_scar
+**ARDO**
+- tr: "Toprak kapanmış ama iz kalmış. İzler hep kalır."
+- en: "The ground closed, but the mark stayed. Marks always do."
+
+### epi_ardo_sword
+**ARDO**
+- tr: "Kılıcın. Tek parça. Birkaç çentik fazlası var."
+- en: "Your sword. One piece. A few extra notches."
+
+### epi_ardo_toast
+**ARDO**
+- tr: "Sağ ol, Efe. İlk içki senden."
+- en: "Thanks, Efe. First round's on you."
+
+### epi_ardo_who
+**ARDO**
+- tr: "Jet'in asıl adı. Onu tanıyanlar öyle der. Artık sen de tanıyorsun."
+- en: "Jet's real name. It's what the people who know him say. Now you know him too."
+
+### epi_cemo_bellhint
+**CEMO**
+- tr: "Kimse yok mu? Çanı çalsana, herkes çıkar!"
+- en: "Isn't anyone here? Ring the bell, everyone will come out!"
+
+### epi_cemo_drawing
+**CEMO**
+- tr: "Bu sensin, bu Ardo, bu ben, bu Emre abi. Bu da bağıran amca; en büyük o, çünkü en çok o bağırdı."
+- en: "That's you, that's Ardo, that's me, that's Emre. And that's the shouting man. He's biggest, because he shouted the most."
+
+### epi_cemo_leaving
+**CEMO**
+- tr: "Ardo, yine gidecek misin?"
+- en: "Ardo, are you going away again?"
+
+### epi_cemo_light
+**CEMO**
+- tr: "Işık! Bak, yukarıda ışık var!"
+- en: "Light! Look, there's light up there!"
+
+### epi_cemo_sister
+**CEMO**
+- tr: "Bu sensin, bu ablam, bu ben, bu Emre abi. Bu da bağıran amca; en büyük o, çünkü en çok o bağırdı."
+- en: "That's you, that's my sister, that's me, that's Emre. And that's the shouting man. He's biggest, because he shouted the most."
+
+### epi_cemo_thanks
+**CEMO**
+- tr: "Sağ ol, Emre abi!"
+- en: "Thank you, Emre!"
+
+### epi_cemo_voices
+**CEMO**
+- tr: "Rey, kafandaki sesler hâlâ konuşuyor mu?"
+- en: "Rey, are the voices in your head still talking?"
+
+### epi_cemo_wait
+**CEMO**
+- tr: "Dur, dur! Önce bunu çizmem lazım."
+- en: "Wait, wait! I have to draw this first."
+
+### epi_cemo_who
+**CEMO**
+- tr: "Emre kim?"
+- en: "Who's Emre?"
+
+### epi_innkeeper_money
+**HANCI**
+- tr: "Kalachev diye biri inmeden önce buraya para bıraktı. 'Aşağıdan sağ çıkan ilk kişinin içkisi benden' dedi."
+- en: "A man called Kalachev left money here before he went down. 'First one out alive drinks on me,' he said."
+
+### epi_innkeeper_note
+**HANCI**
+- tr: "Bir de not bıraktı: 'Ben değilsem kusura bakmayın. Yedi taneydiler.'"
+- en: "He left a note, too: 'If it isn't me, no hard feelings. There were seven of them.'"
+
+### epi_jet_answer
+**JET**
+- tr: "Buradayım. Söz vermiştim."
+- en: "I am here. I gave you my word."
+
+### epi_jet_fire
+**JET**
+- tr: "Berke bu ateşi görseydi bana bir kez daha Emre derdi. Şimdi herkes diyor."
+- en: "If Berke could see this fire, he would call me Emre once more. Now everyone does."
+
+### epi_jet_guardian
+**JET**
+- tr: "Sende kalsın. Bu köyün artık bir bekçisi var."
+- en: "Keep it. This village has a guardian now."
+
+### epi_jet_name
+**JET**
+- tr: "...Bana uzun zamandır kimse öyle dememişti. Bir daha söyle, alışayım."
+- en: "...No one has called me that in a long time. Say it again. I would like to get used to it."
+
+### epi_jet_road
+**JET**
+- tr: "Sende kalsın. Yine yola düşeceksin; seni tanırım."
+- en: "Keep it. You will take to the road again. I know you."
+
+### epi_jet_welcome
+**JET**
+- tr: "Hoş geldiniz. İp dayandı. Ben de dayandım."
+- en: "Welcome home. The rope held. So did I."
+
+### epi_rey_bell
+**REY**
+- tr: "Köyün çanı. Kapılar hâlâ kapalı; herkes içeride."
+- en: "The village bell. Doors still shut. Everyone's inside."
+
+### epi_rey_call
+**REY**
+- tr: "Emre."
+- en: "Emre."
+
+### epi_rey_drawing
+**REY**
+- tr: "Güzel olmuş. Onu tam böyle hatırlayacağım."
+- en: "It's good. That's exactly how I'll remember him."
+
+### epi_rey_fire
+**REY**
+- tr: "Hayır. Kafamın içi sessiz. Ama etrafım çok gürültülü."
+- en: "No. My head is quiet. Everything around me is loud, though."
+
+### epi_rey_rang
+**REY**
+- tr: "Bu sefer kendi sesimle."
+- en: "My own voice, this time."
+
+### epi_rey_scar
+**REY**
+- tr: "Yarık kapanmış. Toprak hiçbir şey olmamış gibi yapıyor."
+- en: "The rift is closed. The ground's pretending nothing happened."
+
+### epi_rey_sword
+**REY**
+- tr: "Kılıcını geri getirdim. Gece bitti."
+- en: "I brought your sword back. The night's over."
+
+### epi_rey_who
+**REY**
+- tr: "Jet'in asıl adı. Yukarıda sen de öyle seslen ona."
+- en: "Jet's real name. When we're up there, you call him that too."
+
+### epi_villager_door
+**KOYLU**
+- tr: "O gece kapımı açmadım. Bu sabah ardına kadar açık, bilesin."
+- en: "I didn't open my door that night. It's wide open this morning, so you know."
+
+### epi_villager_falls
+**KOYLU**
+- tr: "{count} kere düşüp kalkmışsın, öyle mi? Düşmeyen kalkmayı öğrenmez."
+- en: "Fell {count} times and got back up? Those who never fall never learn to rise."
+
+### epi_villager_fire
+**KOYLU**
+- tr: "Bu gece bütün köy bu ateşin başında. Kimse evine kaçmıyor."
+- en: "The whole village is at this fire tonight. Nobody's running home."
+
+### epi_villager_ghost
+**KOYLU**
+- tr: "Kimseyi uyandırmadan mı geçtin? Gel de bizim horozu bir sabah öyle geç."
+- en: "Got past without waking anyone? Come try that on our rooster some morning."
+
+### epi_villager_name
+**KOYLU**
+- tr: "Rey. Adını ilk kez yüksek sesle söylüyorum. Yakışıyor sana."
+- en: "Rey. First time I've said your name out loud. It suits you."
+
+### epi_villager_nofall
+**KOYLU**
+- tr: "Hiç düşmeden mi döndün? Masallarda bile böylesi yok."
+- en: "Came back without a single fall? Not even the old tales have that."
+
+### epi_villager_rooster
+**KOYLU**
+- tr: "Çanı sen mi çaldın? Horozdan önce davrandın. O da küstü."
+- en: "Was that you on the bell? You beat the rooster to it. Now he's sulking."
+
+### epi_villager_seven
+**KOYLU**
+- tr: "Kaç yaratık kestin? Yedi mi? Bence yedidir. Ben herkese yedi diyeceğim."
+- en: "How many did you cut down? Seven? I say seven. I'm telling everyone seven."
+
+### epi_villager_stranger
+**KOYLU**
+- tr: "Yabancı değilsin artık. Çocuğu eve getiren adamsın."
+- en: "You're no stranger now. You're the man who brought the boy home."
 
 ## BOLUM DISI
 
