@@ -400,6 +400,11 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 - tr: "Bu da bir zamanlar ışık taşıyormuş. Şimdi ışığa saldırıyor."
 - en: "This one used to carry light. Now it goes after it."
 
+### ch03_ardo_cold
+**ARDO**
+- tr: "Yanıyor ama ısıtmıyor. Bunu buraya biri koymuş."
+- en: "It burns, but there's no heat. Someone put this here."
+
 ### ch03_ardo_enter
 **ARDO**
 - tr: "Burada iz bile görünmüyor. Önce ateş, sonra yol."
@@ -434,6 +439,16 @@ Konuşmacı adı satırın başında: **YANKI** kafanın içindeki ses (mor,
 **YANKI**
 - tr: "Evet... Bu alev yalnızca bizi beslemiyor."
 - en: "Yes... This flame feeds more than just us."
+
+### ch03_echo_shout
+**YANKI**
+- tr: "BİZİM."
+- en: "OURS."
+
+### ch03_rey_silence
+**REY**
+- tr: "Sustu. Hayatımda ilk kez... sustu."
+- en: "It stopped. For the first time in my life... it stopped."
 
 ## BOLUM 4 - Kayit Odasi
 

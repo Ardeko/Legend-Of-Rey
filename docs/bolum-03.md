@@ -165,6 +165,28 @@ Koridor. Ama bu sefer karanlığın kendisi hareket ediyor.
 
 **Teknik:** Panel B'deki 2 saniyelik tam karanlık kritik. Oyuncu ekranın bozulduğunu sanmalı. Sonra mor ışık gelmeli.
 
+> **25.09.2026 — yeniden yazıldı** (`src/scenes/chapter03_cinematics.py`).
+> Arda: *"Ardo ile oynasam da Rey ile oynasam da ekranda Rey çıkıyor ve mor
+> alev geliyor. Ne olduğu hiç anlaşılmıyor."*
+>
+> - **Sahne karakter almıyordu.** Ardo'yla oynarken de Rey görünüyordu.
+> - **Alev yanlış yerdeydi.** Belgedeki kaide yoktu; alev sağdan uçarak
+>   oyuncunun üstüne geliyordu, saldırı gibi okunuyordu.
+> - **Belgedeki üç an eksikti:** el uzatma, soğuk ve "ses susar".
+>
+> Artık altı panel bu belgedeki gibi. Kıpırdamayan alev (meşalenin
+> titremesiyle zıtlık), donmuş mumlar, uzanan el ve buğulanan nefes var.
+>
+> - **Rey:** Yankı **"BİZİM."** diye bağırır; ardından Rey:
+>   *"Sustu. Hayatımda ilk kez... sustu."*
+> - **Ardo:** Yankı'yı duymadığı için bağırış yok. Alev soğuk bir nefes
+>   verir, Ardo geri çekilir: *"Yanıyor ama ısıtmıyor. Bunu buraya biri
+>   koymuş."* Bölümün hikâye vuruşu (zindanın doğal olmadığı) onun
+>   ağzından geliyor.
+>
+> **Hızlandırma:** Karanlık ve beliriş hızlandırılamaz; sonrası basılı
+> tutunca hızlanır (`CLAUDE.md` §9).
+
 ---
 
 ### ODA 5 — MOR ALEV (3 dk)

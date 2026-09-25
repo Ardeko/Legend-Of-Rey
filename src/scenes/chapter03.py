@@ -293,8 +293,10 @@ class Chapter03Scene(PlayScene):
         elif name == "sonmus_olan":
             self._voice("line.ch03_echo_boss", "line.ch03_ardo_boss")
         elif name == "mor_alev":
+            # Karakter VERILMELI: verilmedigi icin sahne Ardo'nun
+            # oynanisinda da Rey'i gosteriyordu (Arda, 25.09.2026).
             from src.scenes.chapter03_cinematics import PurpleCinematic
-            self.scenes.push(PurpleCinematic)
+            self.scenes.push(PurpleCinematic, character=self.character)
 
     def _voice(self, echo_key: str, ardo_key: str) -> None:
         """Yanki konusur, Yanki yoksa oynanan karakter konusur.

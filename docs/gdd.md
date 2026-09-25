@@ -171,7 +171,7 @@ Kural: **yeni mekanik + eski mekanik = yeni bulmaca**
 | 3 | Meşale Mahzeni | Karanlık, risk/ödül |
 | 4 | Kayıt Odası ★nefes | Yetenek ağacı açılır, kelimesiz günlük |
 | 5 | Sular | Vana bulmacası |
-| 6 | ARDO | Havalı giriş, ilk team-up, **BOSS 1** |
+| 6 | Tanışma | Havalı giriş, ilk team-up, **BOSS 1** (eski adı "ARDO" — Ardo'yla oynarken de öyle yazıyordu) |
 | 7 | Dar Geçit | İlk temas — el tutma |
 | 8 | Ateş Başı ★nefes | Rezonans öğrenilir, Yankı ilk kez Ardo hakkında konuşur |
 | 9 | Çan Kulesi | Rezonans bulmacası, fırlatma mekaniği |

@@ -98,6 +98,16 @@ def user_data_dir() -> Path:
     return path
 
 
+# Dil anahtari degisen bolum adlari, `chapter.` ad alaninda: eski yaprak ->
+# yeni yaprak. B6 "ARDO" idi ve Ardo'yla oynarken de "ARDO" yaziyordu;
+# karaktere bagli olmayan bir ad aldi (Arda, 25.09.2026: *"yoldas veya
+# tanisma gibi bir sey"*).
+#
+# Tam anahtar yazilmiyor: `tests/test_lang.py` kaynaktaki her "ad.yaprak"
+# dizesini tabloda ariyor ve silinmis eski anahtari eksik sayardi.
+LEGACY_CHAPTER_LEAVES: dict[str, str] = {"ardo": "meeting"}
+
+
 @dataclass
 class SaveData:
     """Bir oyun kaydinin tam icerigi."""
@@ -197,7 +207,13 @@ class SaveData:
     def from_dict(cls, raw: dict[str, Any]) -> "SaveData":
         known = set(cls.__dataclass_fields__)
         # Bilinmeyen alanlari yok say: eski surumden gelen kayit oyunu kirmaz.
-        return cls(**{k: v for k, v in raw.items() if k in known})
+        data = cls(**{k: v for k, v in raw.items() if k in known})
+        # Yeniden adlandirilan bolum adlari - eski kayit kartta ham anahtar
+        # gostermesin.
+        space, _, leaf = str(data.chapter_name).partition(".")
+        if space == "chapter" and leaf in LEGACY_CHAPTER_LEAVES:
+            data.chapter_name = f"{space}.{LEGACY_CHAPTER_LEAVES[leaf]}"
+        return data
 
 
 # --- Slotlar ----------------------------------------------------------------

@@ -53,6 +53,21 @@ ilgili belgede.
 - ✅ `apply_skills` iki kez çağrılınca canı iki kat artırıyordu. Artık tabandan hesaplanıyor.
 - ⬜ `src/ui/hud.py :: HUD.update` içinde `self.frame += 1` **iki kez** yazılı: düşük can nabzı iki kat hızlı atıyor. Dokunulmadı. Bilerek mi, Arda'ya sorulmalı.
 
+## 25.09.2026 — B3 "Mor" sahnesi ve B6'nın adı
+
+**Kaynak değişti, exe YENİDEN ÜRETİLMEDİ.**
+
+1. **B3 "Mor" ara sahnesi yeniden yazıldı** (`src/scenes/chapter03_cinematics.py`, `docs/bolum-03.md` Ara Sahne 3). Arda: *"Ardo ile oynasam da Rey ile oynasam da ekranda Rey çıkıyor ve mor alev geliyor. Ne olduğu hiç anlaşılmıyor."*
+   - **Hata:** bölüm sahneyi karakter vermeden açıyordu (`chapter03._narrate_room`), bu yüzden sahne hep Rey'i gösteriyordu.
+   - **Anlaşılmazlık:** alev sağdan uçarak oyuncunun üstüne geliyor, sonra ekran sarsılıyordu; saldırı gibi okunuyordu. Belgedeki kaide, donmuş mumlar, uzanan el ve "ses susar" anı yoktu.
+   - **Yeni hali belgedeki altı panel:** meşale söner → 2 sn karanlık (hızlandırılamaz) → kaidede kıpırdamayan mor alev → karakter yürür → elini uzatır, alev soğuk, nefesi buğulanır.
+     - Rey'de Yankı ilk kez bağırır: *"BİZİM."*; ardından Rey: *"Sustu. Hayatımda ilk kez... sustu."*
+     - Ardo'da Yankı yok: alev soğuk bir nefes verir, Ardo geri çekilir: *"Yanıyor ama ısıtmıyor. Bunu buraya biri koymuş."*
+   - **Üç yeni replik ve "Tanışma" adı Arda tarafından onaylandı** (25.09.2026; `docs/senaryo-akisi.md` B3 §3). Yankı'nın **"BİZİM."** bağırışı ses kuralının (sakin, açıklamaz) bilinçli tek istisnası; `docs/bolum-03.md` Panel F'nin "ilk kez fısıltı değil" anı. Düzeltilmesin.
+   - Yeni sinematik pozu: `reach` (uzanma).
+2. **B6'nın adı "ARDO" → "Tanışma" / "The Meeting".** Ardo'yla oynarken de "ARDO" yazıyordu. Ad artık karaktere bağlı değil; B10 "Ayrılık" ile bir çift oluşturuyor. Anahtar `chapter.meeting`. Eski kayıtların kartı `SaveData.from_dict`'te taşınıyor (`LEGACY_CHAPTER_NAMES`).
+3. **Test:** `tests/test_chapter03_purple.py` (iki karakter, panel sırası, konuşmacılar, hızlandırma, oyuncunun kaideye yürümesi, B6 adı, eski kayıt).
+
 ## 25.09.2026 — Arda'nın üçüncü listesi: yetenek ağacı, kalkan, akıcı animasyon
 
 **Kaynak değişti, exe YENİDEN ÜRETİLMEDİ.**

@@ -67,7 +67,7 @@ Blok biçimi şu (bu kod bloğu geri yazmada **okunmaz**, yalnızca örnek):
 4. Bölüm 3 — Meşale Mahzeni
 5. Bölüm 4 — Kayıt Odası
 6. Bölüm 5 — Sular
-7. Bölüm 6 — ARDO
+7. Bölüm 6 — Tanışma
 8. Bölüm 7 — Dar Geçit
 9. Bölüm 8 — Ateş Başı
 10. Bölüm 9 — Çan Kulesi
@@ -742,7 +742,28 @@ _Anahtar alınınca (B3'te de)_
 
 ### 3. Mor Alev *(alması isteğe bağlı)*
 
-> Ne oluyor: Beşinci odaya girince kelimesiz bir ara sahne oynar. Alev etkileşim tuşuyla alınırsa meşale bırakılır, Yankı bir kademe güçlenir ve bu replik gelir (B14'teki dönüşün tohumu). Bölüm sonu ekranında 'Mor Alev: alındı / bırakıldı' satırı var.
+> Ne oluyor: Beşinci odaya girince "Mor" ara sahnesi oynar (25.09.2026'da yeniden yazıldı). Oynanan karakterin meşalesi söner, iki saniye tam karanlık, sonra uzakta bir taş kaidenin üstünde kıpırdamayan mor bir alev. Karakter ona yürür, elini uzatır: alev soğuk, nefesi buğulanır. Rey'de Yankı ilk kez bağırır, sonra ilk kez susar; Ardo'da Yankı yok, alev soğuk bir nefes verir ve Ardo geri çekilir.
+
+**Ara sahne — Rey ile oynarken:**
+
+#### ch03_echo_shout
+**YANKI** — _ilk kez fısıltı değil, bağırış. Ekran sarsılır._
+- tr: "BİZİM."
+- en: "OURS."
+
+#### ch03_rey_silence
+**REY** — _hemen ardından; Yankı sustu_
+- tr: "Sustu. Hayatımda ilk kez... sustu."
+- en: "It stopped. For the first time in my life... it stopped."
+
+**Ara sahne — Ardo ile oynarken:**
+
+#### ch03_ardo_cold
+**ARDO** — _alev soğuk bir nefes verdi, geri çekildi_
+- tr: "Yanıyor ama ısıtmıyor. Bunu buraya biri koymuş."
+- en: "It burns, but there's no heat. Someone put this here."
+
+> Ne oluyor (sonra): Alev etkileşim tuşuyla alınırsa meşale bırakılır, Yankı bir kademe güçlenir ve bu replik gelir (B14'teki dönüşün tohumu). Bölüm sonu ekranında 'Mor Alev: alındı / bırakıldı' satırı var.
 
 **Rey ile oynarken:**
 
@@ -1219,7 +1240,7 @@ _Gizli sandık açılınca_
 
 ---
 
-## Bölüm 6 — ARDO
+## Bölüm 6 — Tanışma
 
 **Özet:** Oyuncu köşeye sıkışır; öteki karakter yukarıdan düşüp üç yaratığı biçer — 'havalı giriş' ve tanışma. Kalachev de oradadır. Sonra ilk ortak dövüş, iki kişilik ağırlık plakaları ve ilk büyük boss Çürümüş Olan.
 
@@ -1448,10 +1469,10 @@ _Gizli sandık açılınca_
 
 _İpucu kartları, bildirimler, adlar. Aynı biçimde düzenlenir; anahtar noktalı yazılır (ad alanı.anahtar)._
 
-#### chapter.ardo
-_Bölüm kartı / kayıt yuvası adı_
-- tr: "ARDO"
-- en: "ARDO"
+#### chapter.meeting
+_Bölüm kartı / kayıt yuvası adı. Eskiden "ARDO" idi ve Ardo'yla oynarken de öyle yazıyordu (25.09.2026)_
+- tr: "Tanışma"
+- en: "The Meeting"
 
 #### hint.companion_wait_title
 _Yoldaş ilk kez yanındayken bir kez açılan kartın başlığı_
@@ -4788,7 +4809,7 @@ Kaynak taraması (`src/**/*.py` içinde düz `"line.…"` dizesi; `tests/test_la
 
 ### Dil tablosunda olup kodda bulunamayan diyalog anahtarları
 
-**Yok.** `line.` ad alanındaki 459 anahtarın hepsi kodda düz dize olarak geçiyor ve bu belgede yerleştirildi. Hesaplanmış (f-string) anahtar da yok.
+**Yok.** `line.` ad alanındaki 462 anahtarın hepsi kodda düz dize olarak geçiyor ve bu belgede yerleştirildi. Hesaplanmış (f-string) anahtar da yok.
 
 _24.09.2026: epilogla 47 anahtar eklendi (44 `epi_*`, kapanışta 3 `ch18_*_dawn*`); hepsi **Epilog** ve **Kapanış** altında. 25.09.2026: +6 (`ch15_ardo_hears`, Mum Bekçisi'nin son mumu: 5 `epi_*keeper*`)._
 

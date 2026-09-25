@@ -94,10 +94,14 @@ def _load(path: str):
 
 
 class Chapter06Scene(PlayScene):
-    """ARDO: dort oda, bir yoldas, iki plaka takimi, BOSS 1."""
+    """TANISMA: dort oda, bir yoldas, iki plaka takimi, BOSS 1.
+
+    Bolumun adi eskiden "ARDO" idi ve Ardo'yla oynarken de oyle yaziyordu.
+    Artik karaktere bagli degil: iki oynanista da bir tanisma.
+    """
 
     chapter_number = 6
-    chapter_name_key = "chapter.ardo"
+    chapter_name_key = "chapter.meeting"
     postfx_grade = "descent"
     ambience_preset = "dust"
 
@@ -504,7 +508,7 @@ class Chapter06Scene(PlayScene):
     def _end_chapter(self) -> None:
         self.game.play_sound("chapter_end")
         result = ChapterResult(
-            chapter_key="chapter.ardo",
+            chapter_key="chapter.meeting",
             frames=self.frames,
             best_combo=self.player.combo.best,
             gold=self.earned_gold,
@@ -514,7 +518,7 @@ class Chapter06Scene(PlayScene):
         data = self.save_data
         if data is not None:
             data.chapter = 6
-            data.chapter_name = "chapter.ardo"
+            data.chapter_name = "chapter.meeting"
             data.playtime_frames += self.frames
             data.best_combo = max(data.best_combo, self.player.combo.best)
             data.secrets_found += result.secrets_found

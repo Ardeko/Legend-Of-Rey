@@ -423,6 +423,33 @@ def _land(t: float) -> Pose:
     )
 
 
+# Uzanma - bir seye elini uzatmak (B3 "Mor": alevin soguk oldugunu
+# anlamak). Sinematik pozu: oynanista kullanilmiyor, `StageActor` zamanla
+# oynatiyor ve son pozda duruyor - el uzanmis kalir.
+_REACH_KEYS: tuple[tuple[float, Pose], ...] = (
+    (0.0, Pose(
+        dy=-0.3, lean=0.05,
+        leg_front=(math.pi / 2 - 0.08, 0.05),
+        leg_back=(math.pi / 2 + 0.10, 0.05),
+        arm_front=(math.pi / 2 - 0.20, 0.25),
+        arm_back=(math.pi / 2 + 0.18, 0.22),
+        weapon_angle=math.pi / 2 + 0.35,
+        cape_sway=0.2)),
+    (1.0, Pose(                           # kol omuz hizasinda, parmaklar alevde
+        dy=-0.4, lean=0.35, head_dx=0.4,
+        leg_front=(math.pi / 2 - 0.28, 0.25),
+        leg_back=(math.pi / 2 + 0.22, 0.20),
+        arm_front=(0.18, 0.04),
+        arm_back=(math.pi / 2 + 0.30, 0.30),
+        weapon_angle=math.pi / 2 + 0.5,
+        cape_sway=0.5)),
+)
+
+
+def _reach(t: float) -> Pose:
+    return _keyframes(_REACH_KEYS, t)
+
+
 # Frenin ne kadari KAYIS (poz geride tutulur), gerisi toparlanma.
 BRAKE_SKID_PART = 0.5
 
@@ -483,6 +510,7 @@ ANIMATIONS: dict[str, tuple] = {
     "land": (_land, 3, False),
     "turn": (_turn, 3, False),
     "brake": (_brake, 5, False),
+    "reach": (_reach, 4, False),
     "idle": (_idle, 8, True),
     "run": (_run, 10, True),
     "jump": (_jump, 4, False),
