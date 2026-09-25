@@ -95,7 +95,7 @@ Arda'nın isteği:
 - **Poz sayıları:**
   - Kaçınma 2 → 8, zıplama 1 → 4 (dikey hızla sürülüyor), hasar 2 → 5.
   - Saldırılar 5 → 8, bosta 6 → 8, koşu 8 → 10.
-  - Yeni **fren** pozu: tam hızdan durunca kısa bir kayma ve toz.
+  - Yeni **fren**: tam hızda koşarken yön tuşu bırakılınca 14 karelik poz (önce kayış, sonra toparlanma), ayakta toz ve zeminde bölüm boyunca kalan bir sürtünme izi. **Yalnızca görsel**: sürtünme aynı, karakter eskisi kadar mesafede duruyor (Arda'nın seçimi). İz, leke bütçesinden fren başına bir kez düşüyor.
 - **Zamanlama bozulmadı:**
   - Hızlı eylemler ilerlemeyle sürülüyor.
   - Zamanla sürülenlerin toplam süresi eskisiyle aynı (`animator.DURATIONS`).

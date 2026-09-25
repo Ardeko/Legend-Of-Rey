@@ -58,6 +58,28 @@ class DecalField:
             self.surface.blit(spot, (int(x + offset_x), int(y + offset_y)))
             self.count += 1
 
+    def skid(self, x0: float, x1: float, y: float,
+             new_mark: bool = False) -> None:
+        """Fren izi - ayagin zeminde surundugu kisa cizgi.
+
+        Zeminin ust sirasina (`y` = ayak tabani) koyu, yari saydam bir
+        cizgi. Kayis boyunca her kare bir parca ekleniyor ama leke
+        butcesinden **bir kez** dusuyor (`new_mark`): bol fren yapan oyuncu
+        kan ve moloz izlerinin yerini doldurmasin.
+        """
+        if self.count >= MAX_GROUND_DECALS:
+            return
+        left, right = sorted((int(x0), int(x1)))
+        tone = palette.color("stone_darkest")
+        # Iki sira: ustte koyu oyuk, altinda sonuk golge. Tek sira zeminin
+        # acik ust kenarinda kayboluyordu.
+        for depth, alpha in ((0, 150), (1, 80)):
+            row = pygame.Surface((right - left + 1, 1), pygame.SRCALPHA)
+            row.fill((*tone, alpha))
+            self.surface.blit(row, (left, int(y) + depth))
+        if new_mark:
+            self.count += 1
+
     def scorch(self, x: float, y: float, radius: float = 14.0) -> None:
         """Patlama izi - Sismek'in birakti."""
         if self.count >= MAX_GROUND_DECALS:

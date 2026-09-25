@@ -87,7 +87,11 @@ def update_animation(player) -> None:
     elif player.turn_frames > 0:
         player.animator.play("turn")
     elif getattr(player, "brake_frames", 0) > 0:
+        # Fren suresiyle suruluyor: once kayis, sonra toparlanma.
         player.animator.play("brake")
+        total = max(1, getattr(player, "brake_animation_frames", 14))
+        player.animator.set_progress(1.0 - player.brake_frames / total)
+        return
     elif abs(player.body.vx) > 0.25:
         player.animator.play("run")
     else:

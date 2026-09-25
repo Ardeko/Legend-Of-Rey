@@ -423,22 +423,34 @@ def _land(t: float) -> Pose:
     )
 
 
+# Frenin ne kadari KAYIS (poz geride tutulur), gerisi toparlanma.
+BRAKE_SKID_PART = 0.5
+
+
 def _brake(t: float) -> Pose:
     """Fren - tam hizda kosarken durmak: on ayak yere cakilir, govde geri.
 
     Eskiden kosu bir karede bosta durusuna donuyordu ve hiz surtunmeyle
     eriyip giderken ayaklar hic kaymiyordu - "buz ustunde" gibi. Bu poz
-    durusun AGIRLIGINI tasiyor. `land`/`turn` gibi kisa bir gecis.
+    durusun AGIRLIGINI tasiyor.
+
+    Iki evre (oyuncuda fren suresiyle surulur, `player_anim`): ilk yarida
+    govde geride ve ON AYAK YERE CAKILI - kayis bu; ikinci yarida ayaga
+    oturur. Ilk surum tek dogrusal bir donustu ve 9 karede bitiyordu,
+    goz kaciriyordu (Arda 25.09.2026).
     """
-    k = 1.0 - t                           # once sert, sonra duzelir
+    if t < BRAKE_SKID_PART:
+        k = 1.0 - 0.15 * (t / BRAKE_SKID_PART)      # kayis: poz tutuluyor
+    else:
+        k = 0.85 * (1.0 - _ease((t - BRAKE_SKID_PART) / (1.0 - BRAKE_SKID_PART)))
     return Pose(
-        dy=0.6 * k, lean=-0.75 * k, head_dx=-0.5 * k, squash=1.0 - 0.06 * k,
-        leg_front=(math.pi / 2 - 0.55 * k, 0.10),
-        leg_back=(math.pi / 2 + 0.35 * k, 0.55 * k),
-        arm_front=(math.pi / 2 - 0.85 * k, 0.30),
-        arm_back=(math.pi / 2 - 0.45 * k, 0.35),
+        dy=0.8 * k, lean=-0.85 * k, head_dx=-0.6 * k, squash=1.0 - 0.07 * k,
+        leg_front=(math.pi / 2 - 0.60 * k, 0.08),
+        leg_back=(math.pi / 2 + 0.40 * k, 0.60 * k),
+        arm_front=(math.pi / 2 - 0.95 * k, 0.30),
+        arm_back=(math.pi / 2 - 0.50 * k, 0.35),
         weapon_angle=math.pi / 2 + 0.7,
-        cape_sway=-1.2 * k + 0.6 * t,     # kumas one savrulur, sonra oturur
+        cape_sway=-1.4 * k + 0.5 * (1.0 - k),   # kumas one savrulur, oturur
     )
 
 
@@ -470,7 +482,7 @@ ATTACK_POSES = 8
 ANIMATIONS: dict[str, tuple] = {
     "land": (_land, 3, False),
     "turn": (_turn, 3, False),
-    "brake": (_brake, 3, False),
+    "brake": (_brake, 5, False),
     "idle": (_idle, 8, True),
     "run": (_run, 10, True),
     "jump": (_jump, 4, False),

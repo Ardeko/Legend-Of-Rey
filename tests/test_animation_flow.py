@@ -177,11 +177,22 @@ def check_player_flow() -> None:
 
     step(count=60)
     step(press=(pygame.K_RIGHT,), count=30)
+    marks_before = scene.decals.count
     step(release=(pygame.K_RIGHT,))
-    braked = player.brake_frames > 0 or player.animator.state == "brake"
-    step(count=2)
-    check(braked and player.animator.state in ("brake", "idle", "run"),
-          "tam hizdan durunca fren pozu", player.animator.state)
+    check(player.brake_frames > 0, "tam hizdan durunca fren basliyor")
+    brake: list[int] = []
+    for _ in range(player.brake_animation_frames):
+        if player.animator.state == "brake":
+            brake.append(player.animator.index)
+        step()
+    # Fren belirgin olsun diye uzadi (Arda 25.09.2026, "1 olsun") ama
+    # YALNIZCA GORSEL: surtunme ayni, poz fren suresine yayiliyor.
+    check(len(set(brake)) >= 4 and brake == sorted(brake),
+          "fren: kayis ve toparlanma, pozlar ileri akiyor",
+          str(sorted(set(brake))))
+    check(scene.decals.count == marks_before + 1,
+          "zeminde tek bir surtunme izi (leke butcesini yemiyor)",
+          f"{scene.decals.count - marks_before}")
     step(count=30)
     step(press=(pygame.K_RIGHT, pygame.K_LCTRL), count=20)
     step(release=(pygame.K_RIGHT,))

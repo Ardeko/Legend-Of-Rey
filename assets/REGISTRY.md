@@ -17,44 +17,44 @@ Spec'ler: `src/art/animation.py :: CHARACTERS`
 
 | Ad | Hucre | Taban (foot_y) | Kare | Rol |
 |---|---|---|---|---|
-| `rey` | 48x40 | 34 | 78 | Oynanabilir - Yankisoyleyen |
-| `rey_armed` | 48x40 | 34 | 78 | Rey, kilic kusanmis (Bolum 1 sonrasi) |
-| `rey_dagger` | 48x40 | 34 | 78 | Rey + Hancer (Bolum 2 mini-boss odulu) |
-| `rey_axe` | 48x40 | 34 | 78 | Rey + Balta (Bolum 2 mini-boss odulu) |
-| `rey_whisper` | 48x40 | 34 | 78 | - |
-| `rey_sickle` | 48x40 | 34 | 78 | - |
-| `ardo` | 48x40 | 34 | 78 | Oynanabilir - yabanci |
-| `ardo_armed` | 48x40 | 34 | 78 | Ardo, kilic kusanmis (Bolum 1 sonrasi) |
-| `ardo_dagger` | 48x40 | 34 | 78 | Ardo + Hancer (Bolum 2 mini-boss odulu) |
-| `ardo_axe` | 48x40 | 34 | 78 | Ardo + Balta (Bolum 2 mini-boss odulu) |
-| `ardo_spear` | 48x40 | 34 | 78 | - |
-| `ardo_sickle` | 48x40 | 34 | 78 | - |
-| `cemo` | 40x32 | 27 | 78 | Rey'in kucuk kardesi - menu 5. asama |
-| `villager` | 40x38 | 32 | 78 | Bolum 1 koylusu - olay patlayinca evine kaciyor |
-| `villager_elder` | 40x38 | 32 | 78 | Koylu varyanti - yasli, gri cuppe (epilog: ad soyleyen) |
-| `villager_scarf` | 40x38 | 32 | 78 | Koylu varyanti - yesil basortu, uzun etek |
-| `villager_worker` | 40x38 | 32 | 78 | Koylu varyanti - mavi kisa tunik, pantolon |
-| `villager_linen` | 40x38 | 32 | 78 | Koylu varyanti - keten gomlek (epilog: hanci) |
-| `villager_red` | 40x38 | 32 | 78 | Koylu varyanti - kirmizi uzun elbise |
-| `jet` | 44x40 | 34 | 78 | B1'de kilici veren arkadas |
-| `jet_unarmed` | 44x40 | 34 | 78 | Jet, kilicsiz - B1 hediye; B4/B9/B15 donus sahneleri |
-| `kalachev` | 48x40 | 34 | 78 | Onceki maceraci (docs/kalachev.md) - B4/B5/B6/B10/B12/B13/B15, B18'de olur |
-| `shambler` | 40x36 | 31 | 78 | Katman 1 - Suruklenen |
-| `climber` | 44x34 | 28 | 78 | Katman 1 - Tirmanan |
-| `bloated` | 44x40 | 34 | 78 | Katman 1 - Sismek |
-| `watcher` | 34x42 | 37 | 78 | Izleyen (docs/korku.md 5.2) - saldirmaz, bakar. B5/B11/B14 |
-| `rotted_one` | 64x56 | 48 | 78 | BOSS 1 - Curumus Olan (B6), Ardo'yla ilk beraber dovus |
-| `gaoler` | 64x80 | 64 | 78 | BOSS 2 - Zindanci (B13), zaman kapilari |
-| `shieldbearer` | 44x40 | 34 | 78 | Katman 2 - Kalkanli (B5'te tanitiliyor) |
-| `spearman` | 56x40 | 34 | 78 | Katman 2 - Mizrakli (B10) |
-| `archer` | 48x40 | 34 | 78 | Katman 2 - Okcu (B13) |
-| `commander` | 52x48 | 41 | 78 | Katman 2 - Komutan (B13) |
-| `source` | 96x96 | 76 | 78 | BOSS 3 - Kaynak (B14), twist'in kendisi |
-| `silent` | 44x40 | 34 | 78 | Katman 3 - Sessiz - Yanki onu gostermez (B14) |
-| `echoing` | 48x42 | 36 | 78 | Katman 3 - Yankilayan - sahte ipucu verir (B14) |
-| `splitter` | 48x42 | 36 | 78 | Katman 3 - Bolunen - vurunca ikiye ayrilir (B14) |
+| `rey` | 48x40 | 34 | 80 | Oynanabilir - Yankisoyleyen |
+| `rey_armed` | 48x40 | 34 | 80 | Rey, kilic kusanmis (Bolum 1 sonrasi) |
+| `rey_dagger` | 48x40 | 34 | 80 | Rey + Hancer (Bolum 2 mini-boss odulu) |
+| `rey_axe` | 48x40 | 34 | 80 | Rey + Balta (Bolum 2 mini-boss odulu) |
+| `rey_whisper` | 48x40 | 34 | 80 | - |
+| `rey_sickle` | 48x40 | 34 | 80 | - |
+| `ardo` | 48x40 | 34 | 80 | Oynanabilir - yabanci |
+| `ardo_armed` | 48x40 | 34 | 80 | Ardo, kilic kusanmis (Bolum 1 sonrasi) |
+| `ardo_dagger` | 48x40 | 34 | 80 | Ardo + Hancer (Bolum 2 mini-boss odulu) |
+| `ardo_axe` | 48x40 | 34 | 80 | Ardo + Balta (Bolum 2 mini-boss odulu) |
+| `ardo_spear` | 48x40 | 34 | 80 | - |
+| `ardo_sickle` | 48x40 | 34 | 80 | - |
+| `cemo` | 40x32 | 27 | 80 | Rey'in kucuk kardesi - menu 5. asama |
+| `villager` | 40x38 | 32 | 80 | Bolum 1 koylusu - olay patlayinca evine kaciyor |
+| `villager_elder` | 40x38 | 32 | 80 | Koylu varyanti - yasli, gri cuppe (epilog: ad soyleyen) |
+| `villager_scarf` | 40x38 | 32 | 80 | Koylu varyanti - yesil basortu, uzun etek |
+| `villager_worker` | 40x38 | 32 | 80 | Koylu varyanti - mavi kisa tunik, pantolon |
+| `villager_linen` | 40x38 | 32 | 80 | Koylu varyanti - keten gomlek (epilog: hanci) |
+| `villager_red` | 40x38 | 32 | 80 | Koylu varyanti - kirmizi uzun elbise |
+| `jet` | 44x40 | 34 | 80 | B1'de kilici veren arkadas |
+| `jet_unarmed` | 44x40 | 34 | 80 | Jet, kilicsiz - B1 hediye; B4/B9/B15 donus sahneleri |
+| `kalachev` | 48x40 | 34 | 80 | Onceki maceraci (docs/kalachev.md) - B4/B5/B6/B10/B12/B13/B15, B18'de olur |
+| `shambler` | 40x36 | 31 | 80 | Katman 1 - Suruklenen |
+| `climber` | 44x34 | 28 | 80 | Katman 1 - Tirmanan |
+| `bloated` | 44x40 | 34 | 80 | Katman 1 - Sismek |
+| `watcher` | 34x42 | 37 | 80 | Izleyen (docs/korku.md 5.2) - saldirmaz, bakar. B5/B11/B14 |
+| `rotted_one` | 64x56 | 48 | 80 | BOSS 1 - Curumus Olan (B6), Ardo'yla ilk beraber dovus |
+| `gaoler` | 64x80 | 64 | 80 | BOSS 2 - Zindanci (B13), zaman kapilari |
+| `shieldbearer` | 44x40 | 34 | 80 | Katman 2 - Kalkanli (B5'te tanitiliyor) |
+| `spearman` | 56x40 | 34 | 80 | Katman 2 - Mizrakli (B10) |
+| `archer` | 48x40 | 34 | 80 | Katman 2 - Okcu (B13) |
+| `commander` | 52x48 | 41 | 80 | Katman 2 - Komutan (B13) |
+| `source` | 96x96 | 76 | 80 | BOSS 3 - Kaynak (B14), twist'in kendisi |
+| `silent` | 44x40 | 34 | 80 | Katman 3 - Sessiz - Yanki onu gostermez (B14) |
+| `echoing` | 48x42 | 36 | 80 | Katman 3 - Yankilayan - sahte ipucu verir (B14) |
+| `splitter` | 48x42 | 36 | 80 | Katman 3 - Bolunen - vurunca ikiye ayrilir (B14) |
 
-**Animasyon durumlari (kare sayisi):** attack1 (8) · attack2 (8) · attack3 (8) · brake (3) · death (6) · dodge (8) · fall (4) · hurt (5) · idle (8) · jump (4) · land (3) · run (10) · turn (3)
+**Animasyon durumlari (kare sayisi):** attack1 (8) · attack2 (8) · attack3 (8) · brake (5) · death (6) · dodge (8) · fall (4) · hurt (5) · idle (8) · jump (4) · land (3) · run (10) · turn (3)
 
 Her karakter bu durumlarin tamamini uretir; toplam kare sayisi bu
 yuzden kadroda ayni.

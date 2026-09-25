@@ -52,10 +52,14 @@ FINISHER_HEIGHT = 22
 LUNGE_BY_INDEX = (0.9, 1.1, 2.0)
 PLAYER_IFRAMES_ON_HIT = 45
 HURT_ANIMATION_FRAMES = 14
-# Fren (tam hizda kosarken durmak): kisa gecis pozu. Yalnizca bu hizin
-# ustunden durulunca - yavas yuruyusten durmak fren gerektirmiyor.
-BRAKE_FRAMES = 9
+# Fren (tam hizda kosarken durmak): gorsel gecis - poz, toz, zeminde iz.
+# Yalnizca bu hizin ustunden durulunca; yavas yuruyusten durmak fren
+# gerektirmiyor. 9 kare goz kaciriyordu -> 14 (Arda 25.09.2026). Fizik
+# DEGISMEDI: surtunme ayni, karakter ayni mesafede duruyor.
+BRAKE_FRAMES = 14
 BRAKE_MIN_SPEED_RATIO = 0.75
+# Bu hizin altinda ayak artik kaymiyor: toz ve iz kesilir.
+BRAKE_SKID_MIN_SPEED = 0.3
 
 
 class Player(Actor):
@@ -65,6 +69,7 @@ class Player(Actor):
     iframes_on_hit = PLAYER_IFRAMES_ON_HIT
     # Hasar pozu bu sureye yayiliyor (`player_anim`, ilerlemeyle).
     hurt_animation_frames = HURT_ANIMATION_FRAMES
+    brake_animation_frames = BRAKE_FRAMES
     # Girdiyi bu oyuncu mu aliyor.
     #
     # On alti bolumde sahnede tek bir `Player` var ve hep True. Bolum
@@ -214,6 +219,7 @@ class Player(Actor):
             self.turn_frames -= 1
         if self.brake_frames > 0:
             self.brake_frames -= 1
+            self._skid()
         # Kosarken yon degistirmek tek karede aynalanma degil, bir PIVOT.
         # Yavas yururken tetiklenmiyor: yerinde donen karakter surekli
         # pivot yapardi ve hareket "kaygan" gorunurdu.
@@ -328,6 +334,15 @@ class Player(Actor):
         on_brake = getattr(self.scene, "on_player_brake", None)
         if on_brake:
             on_brake(self)
+
+    def _skid(self) -> None:
+        """Fren suresince ayak hala kayiyorsa sahne toz ve iz birakir."""
+        if (not self.body.grounded
+                or abs(self.body.vx) < BRAKE_SKID_MIN_SPEED):
+            return
+        on_skid = getattr(self.scene, "on_player_skid", None)
+        if on_skid:
+            on_skid(self)
 
     def has(self, ability: str) -> bool:
         return ability in self.abilities

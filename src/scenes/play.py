@@ -2024,11 +2024,37 @@ class PlayScene(Scene):
         self.game.play_sound("land_hard" if hard else "land_soft")
 
     def on_player_brake(self, player) -> None:
-        """Tam hizdan durus: on ayagin onunde kisa bir toz yelpazesi."""
+        """Tam hizdan durus: on ayagin onunde toz yelpazesi, zeminde yeni iz."""
         self.particles.burst(player.body.center_x + player.facing * 5,
-                             player.body.feet[1], 5,
-                             direction=(player.facing, -0.4), path="dust",
-                             speed=(0.4, 1.3), life=(8, 16), gravity=0.05)
+                             player.body.feet[1], 9,
+                             direction=(player.facing, -0.45), path="dust",
+                             speed=(0.5, 1.6), life=(10, 20), gravity=0.05)
+        # Iz ARKA ayaktan basliyor: iki ayak da suruklenir, iz govdenin
+        # altindan disari tasar - duran karakterin arkasinda gorunur.
+        back = player.body.center_x - player.facing * 4
+        self._skid_x = self._skid_foot(player)
+        self.decals.skid(back, self._skid_x, player.body.bottom,
+                         new_mark=True)
+
+    def on_player_skid(self, player) -> None:
+        """Ayak kayarken: arkasinda kisa bir toz izi ve zeminde surtunme izi.
+
+        Iz tek bir leke sayiliyor (`DecalField.skid`): kanin ve molozun
+        payini yemesin - bol fren yapan oyuncu kan lekelerini silmemeli.
+        """
+        foot = self._skid_foot(player)
+        start = getattr(self, "_skid_x", foot)
+        self.decals.skid(start, foot, player.body.bottom)
+        self._skid_x = foot
+        if self.game.frame % 2 == 0:
+            self.particles.burst(foot, player.body.feet[1], 2,
+                                 direction=(player.facing, -0.6), path="dust",
+                                 speed=(0.3, 0.9), life=(8, 14), gravity=0.05)
+
+    @staticmethod
+    def _skid_foot(player) -> float:
+        """Kayan (on) ayagin dunya konumu."""
+        return player.body.center_x + player.facing * 3
 
     def on_player_dodge(self, player) -> None:
         self.particles.burst(player.body.center_x, player.body.feet[1], 8,

@@ -75,7 +75,7 @@ En büyük kazanç **dodge, jump, hurt ve saldırıların hazırlık/takip** poz
 | A2 | **Jump**: 1 → 4 poz (kalkış, yükseliş, tepe); **dikey hızla** sürülüyor | ilerlemeyle | ✅ |
 | A3 | **Hurt**: 2 → 5 poz (darbe, savrulma, toparlanma) | hasar süresiyle | ✅ |
 | A4 | **Saldırı**: 5 → 8 poz, zamanlama aynı | ilerlemeyle | ✅ |
-| A5 | **Durma**: tam hızdan fren pozu (3 kare) ve toz | zamanla | ✅ durma · ⬜ koşuya başlama |
+| A5 | **Durma**: tam hızdan fren — 5 poz, 14 kareye yayılı (önce kayış, sonra toparlanma), kayarken ayakta toz, zeminde kalıcı sürtünme izi. **Fizik değişmedi** (Arda: *"1 olsun"* — yalnız görsel) | fren süresiyle | ✅ durma · ⬜ koşuya başlama |
 | A6 | Pelerin/saç sallanmasını Jet ve Kalachev'e de ver (`SWAY_CHARACTERS`) | bellek: karakter başına ×3 sprite | ⬜ |
 
 **Bosta 6 → 8 poz, koşu 8 → 10 poz** da oldu. Bunlar zamanla sürülüyor ama
