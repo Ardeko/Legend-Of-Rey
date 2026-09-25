@@ -231,16 +231,31 @@ def main() -> int:
     print("\n--- dukkan ---")
     from src.scenes.chapter03 import TRADE_OFFERS
     repeatable = [o for o in TRADE_OFFERS if o.repeatable]
-    check(len(repeatable) == 2, "iki tekrarlanabilir teklif var",
+    # Ok, bomba ve Eski Kalkan (25.09.2026). Kalkan firlatilmiyor ama ayni
+    # cantada duruyor: olumde geri yukleme ve "dolu" kontrolu onu da kapsiyor.
+    check([o.key for o in repeatable] == ["buy_arrows", "buy_bomb", "buy_shield"],
+          "uc tekrarlanabilir teklif: ok, bomba, kalkan",
           str([o.key for o in repeatable]))
     from src.systems import economy
     for offer in repeatable:
         check(not economy.already_bought(SaveData(), offer),
               f"{offer.key} tekrar alinabiliyor")
-        check(offer.item in consumables.CONSUMABLES,
-              f"{offer.key} gercek bir malzeme veriyor", offer.item)
+        check(offer.item in consumables.CONSUMABLES
+              or offer.item in consumables.PASSIVE,
+              f"{offer.key} gercek bir esya veriyor", offer.item)
+    check(consumables.SHIELD not in consumables.ORDER,
+          "kalkan firlatma secimine GIRMIYOR (tusu yok)")
+    data = SaveData()
+    consumables.add(data, consumables.SHIELD, 3)
+    check(consumables.count(data, consumables.SHIELD) == 1
+          and consumables.full(data, consumables.SHIELD),
+          "kalkandan en fazla bir tane tasiniyor")
     once = [o for o in TRADE_OFFERS if not o.repeatable]
-    check(len(once) == 3, "tekil teklifler bozulmadi", str(len(once)))
+    # Sonmez Fitil ve Koruyucu Mum KALKTI - ikisinin de oyunda etkisi
+    # yoktu (Arda 25.09.2026). Tekil olarak yalniz mesale kaldi.
+    check([o.key for o in once] == ["candle_keeper_torch"],
+          "tekil teklif yalniz mesale (fitil ve mum kalkti)",
+          str([o.key for o in once]))
 
     game.shutdown()
 

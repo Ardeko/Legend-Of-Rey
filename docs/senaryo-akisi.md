@@ -4650,6 +4650,26 @@ _Dolu çantaya almaya çalışınca bildirim_
 - tr: "Çantada yer yok"
 - en: "No room in the bag"
 
+#### trade.shield
+_Tezgâh satırı — tek kullanımlık kalkan (B3 ve gezgin Bekçi)_
+- tr: "Eski Kalkan"
+- en: "Old Buckler"
+
+#### shop.shield_toast
+_Kalkanı satın alınca bildirim — tuşu yok, ne yaptığı bir kez söyleniyor_
+- tr: "Eski Kalkan sırtında: ilk darbeyi karşılar, sonra kırılır."
+- en: "The Old Buckler is on your back: it takes the first blow, then breaks."
+
+#### combat.shield_broken
+_Kalkan bir darbeyi karşılayıp kırılınca_
+- tr: "KALKAN KIRILDI"
+- en: "BUCKLER BROKEN"
+
+#### shop.refund_toast
+_Eski kayıt: tezgâhtan kalkan Sönmez Fitil / Koruyucu Mum'un parası iade (bir kez)_
+- tr: "Bekçi eski mallarını geri aldı: +{gold} altın"
+- en: "The Keeper took back his old wares: +{gold} gold"
+
 #### weapon.whisper
 _Rey'e özel silahın adı — B10 kaidesi (envanterde de görünür)_
 - tr: "Fısıltı"

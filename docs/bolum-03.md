@@ -112,8 +112,15 @@ Küçük, sıcak, garip bir oda. Yüzlerce mum. Ortada oturan bir figür.
 
 **Ticaret sistemi:** Önünde bir tabak. Altın koyarsın, karşılığında bir şey alırsın:
 - 40 altın → yeni meşale
-- 120 altın → **"Sönmez Fitil"** (meşale artık kendi kendine sönmüyor)
-- 200 altın → Mum Bekçisi sana bir mum verir. Bu mum, **öldüğün yerde yanar** ve altınını korur
+- ~~120 altın → **"Sönmez Fitil"** (meşale artık kendi kendine sönmüyor)~~
+- ~~200 altın → Mum Bekçisi sana bir mum verir. Bu mum, **öldüğün yerde yanar** ve altınını korur~~
+- 60 altın → **Eski Kalkan**: sırtında taşınır, ilk darbeyi karşılayıp kırılır (en fazla 1)
+- Ok (3'lü) ve bomba — sarf malzemeleri
+
+> **25.09.2026:** Fitil ve mum tezgâhtan kalktı; ikisinin de oyunda etkisi
+> yoktu (meşaleler sönmüyor, ölümde altın kaybı yok). Arda: *"koruyucu mum
+> olmasın, kalkan veya zırh olsun"*. Almış olan eski kayıtlara para iade
+> ediliyor. Ayrıntı: `docs/plan-kalkan.md`.
 
 **Tasarım niyeti:** Hollow Knight dersi — düşmanca bir dünyada düşman olmayan varlıklar, yalnızlığı azaltmaz, **derinleştirir.** Bekçi sana yardım eder ama seninle ilgilenmez. Sen buradan geçen binlerinci kişisin.
 

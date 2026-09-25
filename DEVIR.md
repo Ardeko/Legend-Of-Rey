@@ -7,37 +7,109 @@ Okuma sırası: **1) `CLAUDE.md`** (bağlayıcı kurallar — anayasa) → **2) 
 dosya** (nerede kaldık) → 3) gerekirse `docs/` altındaki ilgili tasarım
 belgesi.
 
-Son güncelleme: **25.09.2026** (Efe/Kalachev, B9-B11 düzeltmeleri, Ardo'nun Yankı'ları, B15 sessiz yürüyüş ve av, B14 jumpscare, epiloga Mum Bekçisi/tabela/köylü kıyafetleri, kol titreşimi, üç plan belgesi) · Ardeko Studios · Arda Güner
+Son güncelleme: **25.09.2026** (yetenek ağacı yeniden: bölüme yayılan puanlar ve on yeni hareket · Eski Kalkan, fitil/mum kalktı · son şans bağlandı · akıcı animasyon, 8 FPS gevşedi) · Ardeko Studios · Arda Güner
 
 ## ▶ BAŞKA BİLGİSAYARDAN DEVRALAN: ÖNCE BURASI (25.09.2026)
 
-Kod `main`'de ve `origin`'e itildi. Aşağıdaki sıra önerim; her maddenin
-ayrıntısı altta ve ilgili belgede.
+Önceki tur (`a598b2a`) `origin`'e itildi. Bu turun işi hemen altta
+("üçüncü liste"). Aşağıdaki sıra önerim; her maddenin ayrıntısı altta ve
+ilgili belgede.
 
 ### Arda'nın kararını bekleyenler
 
 | # | Karar | Belge |
 |---|---|---|
-| K1 | **Yetenek ağacı** — puan kaynağı, 3. kademe seçimi, İZ dalı, 5 soru. Onaylanınca önce Aşama A+B | `docs/plan-yetenek-agaci.md` §10 |
-| K2 | **Koruyucu Mum** — fiyat 60?, taşıma 1?, tuzak/lav?, **Sönmez Fitil ne olsun** | `docs/plan-koruyucu-mum.md` §9 |
-| K3 | **Görsel/his** — 8 FPS kuralı hızlı eylemlerde gevşesin mi | `docs/plan-gorsel-his.md` §9 |
+| ~~K1~~ | ~~Yetenek ağacı~~ — **karar verildi ve uygulandı** (bölüme yayılan puanlar, yeni hareketler) | `docs/plan-yetenek-agaci.md` |
+| ~~K2~~ | ~~Koruyucu Mum~~ — **Eski Kalkan oldu**, fitil ve mum kalktı | `docs/plan-kalkan.md` |
+| ~~K3~~ | ~~8 FPS~~ — **gevşedi**, hızlı eylemler akıcı | `docs/plan-gorsel-his.md`, `CLAUDE.md` §6 |
 | K4 | Boşluk hem ZIPLA hem ONAY (konuşmayı geçerken zıplama). Arda: *"sonra ilgileneceğim"* | bu dosya, 23-24.09 madde 4 |
 | K5 | `docs/senaryo-oneriler.md`'deki 22 öneri | o belge |
 | K6 | `echo_alone_voice` ulaşılamıyor (sadakat en çok 1, eşik 3) | `docs/senaryo-akisi.md` Denetim 2 |
+| K7 | **Yetenek dengesi oynanarak** — Hamle beklemesi 45, Pusu ×1.5, Toparlanma %60/%50, Kalkan 60 altın. Sayılar oynanmadan seçildi | `src/config.py` YETENEK AGACI / ESKI KALKAN |
 
 ### Kararsız yapılabilecekler
 
 1. **Exe'yi yeniden derle** — yalnızca müziğin olduğu makinede (`assets/audio/music/` git'te yok; bu makinede PyInstaller da kurulu değildi). `dist/` hâlâ 19.09 sürümü.
-2. **Baştan sona oyna.** Yeni olanlar özellikle: B15'in sessiz yürüyüşü ve avı, B14'ün yeni jumpscare'i (**sesleri kulakla dinle** — başsız testte dinlenemedi), epilogun tamamı.
+2. **Baştan sona oyna.** Yeni olanlar özellikle:
+   - B15'in sessiz yürüyüşü ve avı.
+   - B14'ün yeni jumpscare'i. **Sesleri kulakla dinle** — başsız testte dinlenemedi.
+   - Epilogun tamamı.
+   - **Yetenek ağacı:** duraklat > YETENEKLER.
+   - Yeni hareketler: Hamle, Havada Asılı, Kılıç Dalgası, Yankı Darbesi / Ayı Kükremesi.
+   - Eski Kalkan.
+   - Yeni pozlar: kaçınma, zıplama, hasar, fren.
+   - Yeni üç sesi (`shield_break`, `sense_burst`, `bear_roar`) de kulakla dinle.
 3. **Gerçek bir kolla dene:** titreşim (`RUMBLE_*`) ve L3 ile sessiz yürüyüş.
 4. **Ok/bomba sanatı:** `docs/prompt-ok-bomba.md`'deki promptlarla üret, içe aktar, bağla (§5).
 5. `docs/plan-gorsel-his.md` Aşama 1 (vuruş kıvılcımı, düşman tepki eğrisi, bitirici yumruğu, öldürme anı, vurulma nabzı, temas gölgesi) — kural dışı, onay gerektirmiyor.
 6. `graphify` bu makinede kurulu değildi; kuruluysa `graphify update .`
 
-### Keşifte bulunan ama plana bırakılan hatalar
+### Keşifte bulunan ve bu turda düzeltilenler
 
-- **B3 Bekçi tezgâhı iki ölü ürün satıyor (320 altın):** Sönmez Fitil (meşaleler zaten sönmüyor) ve Koruyucu Mum (ölünce altın kaybı yok — `DEATH_GOLD_LOSS_RATIO` hiç kullanılmıyor). Çözüm `plan-koruyucu-mum.md`'de.
-- **Yetenek ağacı fiilen yok:** tek puan (B4) ve ekran yalnızca B4'te. Çözüm `plan-yetenek-agaci.md`'de.
+- ✅ **B3 Bekçi tezgâhındaki iki ölü ürün** (320 altın) kalktı. Almış eski kayıtlara para iade ediliyor.
+- ✅ **Yetenek ağacı fiilen yoktu** (tek puan, ekran yalnızca B4'te). Yeniden yazıldı.
+- ✅ **Son şans (`CLAUDE.md` §8) hiç uygulanmıyordu.** Artık uygulanıyor.
+- ✅ **Silah değişince "Akış"ın +2 karesi kayboluyordu** (`equip_weapon`).
+- ✅ `apply_skills` iki kez çağrılınca canı iki kat artırıyordu. Artık tabandan hesaplanıyor.
+- ⬜ `src/ui/hud.py :: HUD.update` içinde `self.frame += 1` **iki kez** yazılı: düşük can nabzı iki kat hızlı atıyor. Dokunulmadı. Bilerek mi, Arda'ya sorulmalı.
+
+## 25.09.2026 — Arda'nın üçüncü listesi: yetenek ağacı, kalkan, akıcı animasyon
+
+**Kaynak değişti, exe YENİDEN ÜRETİLMEDİ.**
+
+Arda'nın isteği:
+
+- *"Yetenek ağacını bölüme yayılmış puanlar olarak tekrar yap. Yeni hareketler versin."*
+- *"Sönmez fitil ve koruyucu mum'u kaldır ve zırh alalım. Koruyucu mum olmasın, kalkan veya zırh olsun."*
+- *"8 fps kuralını oyunu bozmadan dikkatlice geçebilirsin; akıcı ve güzel gözüken animasyonlar yap."*
+
+### 1. Yetenek ağacı (`docs/plan-yetenek-agaci.md`)
+
+- **Puanlar:**
+  - 9 bölüm sonundan 1'er: B3, B6, B8, B10, B12, B13, B14, B16, B17. Özet ekranında "Yetenek puanı +1".
+  - B4 kampı 1, B15 hayalet geçişi +1.
+  - Garanti 10, ağaç 27: tamamlanamıyor.
+  - Her kaynak bir kez verir (`flags["skillpt_*"]`). Eski kayıtlar geçtikleri kaynakların puanını bir kez alıyor (`skilltree.backfill`).
+- **Erişim:** duraklat menüsünde **YETENEKLER** var. Harcanmamış puan altın renkli bir satırla gösteriliyor. Açılan düğüm oyuna **hemen** biniyor.
+- **Ağaç:** karakter başına 3 dal × 5 kademe.
+  - Rey: KESKİN / YANKI / TAŞ. Ardo: KESKİN / **İZ** (yeni dal) / TAŞ.
+  - 3. kademe bir **seçim**: iki basış ister, öteki kalıcı olarak kilitlenir.
+- **On yeni hareket:**
+  - Hamle, Havada Asılı, Kılıç Dalgası.
+  - Toparlanma, Sarsılmaz.
+  - Yalan Sezgisi, Yankı Darbesi.
+  - Pusu, Sessiz Adım, Ayı Kükremesi.
+- Eski 12 anahtarın hepsi korundu.
+
+### 2. Eski Kalkan (`docs/plan-kalkan.md`)
+
+- Sırtta taşınır ve ilk darbeyi karşılayıp kırılır. En fazla 1 taşınır, fiyatı 60 altın.
+- B3'te ve gezgin Bekçi'de satılıyor.
+- Kırılınca 30 kare dokunulmazlık, yarım geri itme, talaş parçacığı ve yeni `splinter` renk yolu, yeni `shield_break` sesi.
+- Kaçınmada harcanmıyor, ölümde geri geliyor.
+- **Sönmez Fitil ve Koruyucu Mum kalktı**; almış kayda para iade ediliyor.
+- **Son şans bağlandı:** can %15'in altındayken öldürücü darbe 1 can bırakıyor. Bölüm başına bir kez, sessiz, kalkandan sonra.
+
+### 3. Akıcı animasyon (`docs/plan-gorsel-his.md` §5, `CLAUDE.md` §6)
+
+- **Poz sayıları:**
+  - Kaçınma 2 → 8, zıplama 1 → 4 (dikey hızla sürülüyor), hasar 2 → 5.
+  - Saldırılar 5 → 8, bosta 6 → 8, koşu 8 → 10.
+  - Yeni **fren** pozu: tam hızdan durunca kısa bir kayma ve toz.
+- **Zamanlama bozulmadı:**
+  - Hızlı eylemler ilerlemeyle sürülüyor.
+  - Zamanla sürülenlerin toplam süresi eskisiyle aynı (`animator.DURATIONS`).
+  - Düşmanlar saldırı ve hasarı zamanla oynatıyor. Bu yapılmasaydı savuruşları vuruşlarından geri kalırdı.
+
+### Doğrulama
+
+- **Yeni testler:**
+  - `tests/test_skill_moves.py`: 56 kontrol.
+  - `tests/test_skill_tree_ui.py`.
+  - `tests/test_animation_flow.py`.
+  - `tests/test_skilltree.py`: yeniden yazıldı.
+- **Eklemeler:** `test_merchant` (kalkan ve iade), `test_consumables`, `test_sprites`, `test_save_resume`. `test_save_resume` duraklat menüsündeki ANA MENÜ'yü sabit indeksle arıyordu; artık etiketle arıyor.
+- **Görseller:** `build/testshots/yetenek/`: ağaç, onay uyarısı, kalkan, Hamle, Kılıç Dalgası, Yankı Darbesi, bölüm sonu.
 
 ## 25.09.2026 — Arda'nın ikinci listesi
 
@@ -58,7 +130,7 @@ ayrıntısı altta ve ilgili belgede.
 9. **Epilog:** Mum Bekçisi son mumunu söndürüyor (B12'deki sorunun cevabı). Batı yolunda tabela ve "Yola çık" (kenardan kazayla çıkış kalktı). Köylülere **altı kıyafet** (`VILLAGER_VARIANTS`): epilogda rolüne göre, B1'de tohuma göre.
 10. **Kol titreşimi bağlandı** — ayar ve `InputManager.rumble` vardı, hiçbir yer çağırmıyordu. Artık `Juice.on_hit`'te, ağırlığa göre.
 11. Tuş etiketi tekilleşti ("Ctrl / Ctrl" yazıyordu).
-12. Yeni belgeler: `docs/plan-yetenek-agaci.md`, `docs/plan-koruyucu-mum.md`, `docs/plan-gorsel-his.md` (üçü de **onay bekliyor**), `docs/prompt-ok-bomba.md`.
+12. Yeni belgeler: `docs/plan-yetenek-agaci.md`, `docs/plan-koruyucu-mum.md` (sonradan `plan-kalkan.md`), `docs/plan-gorsel-his.md` (üçü de o gün **onay bekliyordu**; üçüncü listede karara bağlandı), `docs/prompt-ok-bomba.md`.
 
 **Doğrulama:** yeni testler `tests/test_voices.py`; `test_chapter09/10/11/15/combat/epilogue`'a eklemeler (B9 tepe, B10 yol, B11 sıra, klavyeyle sessiz yürüyüş, av, çığlık, Bekçi, tabela, titreşim). Görseller `build/testshots/yeni/`, `jumpscare_after.png`, `horror_face.png`.
 

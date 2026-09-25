@@ -64,6 +64,10 @@ class ChapterResult:
     # buyuklugu - kazanilmasa da gosteriliyor (asagi bkz.).
     ghost: bool | None = None
     ghost_bonus: int = 0
+    # Bolumun KENDI verdigi yetenek puani (B15'in hayalet odulu gibi).
+    # Bolum sonu puani ayrica ekranin kendisi tarafindan veriliyor
+    # (`skilltree.award_chapter`) - ikisi ayni satirda toplaniyor.
+    skill_points: int = 0
 
     @property
     def missed_secret(self) -> bool:
@@ -90,6 +94,12 @@ class ChapterEndScene(Scene):
         self.result = result
         self.on_continue = on_continue
         self.save_data = save_data
+        # **Yetenek puani BURADA.** Arda (25.09.2026): *"bolume yayilmis
+        # puanlar"*. Bolum sonu ekrani her bolumun zaten gectigi tek kapi;
+        # puani on alti bolumun her birine ayri yazmak birini unutmakti.
+        # Hangi bolumler verdigi `SKILL_POINT_CHAPTERS`te; kaynak bayragi
+        # yuzunden bolumu yeniden oynamak ikinci puani vermiyor.
+        self.skill_points = self._award_skill_point()
         # **Kayit BURADA yaziliyor.** Bir donem hicbir yerde yazilmiyordu:
         # `write_save` yalnizca yeni oyunda, olumde ve duraklat
         # menusunun "ANA MENU"sunde cagriliyordu. Yani bir bolumu
@@ -115,6 +125,15 @@ class ChapterEndScene(Scene):
 
     def update(self) -> None:
         self.frames += 1
+
+    def _award_skill_point(self) -> int:
+        """Bu bolumun puanini verir; bu ekranda gosterilecek toplami doner."""
+        extra = self.result.skill_points if self.result is not None else 0
+        if self.save_data is None:
+            return extra
+        from src.systems import skilltree
+        chapter = int(getattr(self.save_data, "chapter", 0) or 0)
+        return extra + skilltree.award_chapter(self.save_data, chapter)
 
     def _persist(self) -> None:
         """Ilerlemeyi diske yaz. Sessizce basarisiz OLMAZ - konsola yazar."""
@@ -180,6 +199,11 @@ class ChapterEndScene(Scene):
                      else f"0 / {data.ghost_bonus}")
             rows.append(("chapter_end.ghost", value,
                          "reward" if data.ghost else "ui_text"))
+        # Yetenek puani EN SONDA: goz son satira takiliyor ve bu satirin
+        # istedigi sey bir sonraki adim - "duraklat menusunden harca".
+        if getattr(self, "skill_points", 0) > 0:
+            rows.append(("chapter_end.skill_point",
+                         f"+{self.skill_points}", "reward"))
         return rows
 
     def visible_rows(self) -> int:

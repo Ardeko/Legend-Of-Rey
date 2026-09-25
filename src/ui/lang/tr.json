@@ -42,7 +42,9 @@
     "quit_saved": "İlerlemen kaydedildi ✓",
     "quit_confirm": "DÖN",
     "status": "Bölüm {chapter} · Yankı {dots} · {gold} altın",
-    "quit_failed": "Kaydedilemedi. Tekrar dene."
+    "quit_failed": "Kaydedilemedi. Tekrar dene.",
+    "skills": "YETENEKLER",
+    "skill_points": "Harcanacak yetenek puanı: {count}"
   },
   "character": {
     "heading": "KİMİ OYNAYACAKSIN?",
@@ -629,7 +631,8 @@
     "combo_health": "{count} COMBO · can yenilenir",
     "combo_echo": "{count} COMBO · Yankı iyileşir",
     "hurt": "HASAR",
-    "controls": "Yön · Boşluk zıpla · J saldır · Shift kaçın · Esc menü"
+    "controls": "Yön · Boşluk zıpla · J saldır · Shift kaçın · Esc menü",
+    "shield_broken": "KALKAN KIRILDI"
   },
   "echo": {
     "tier_up": "Yankı berraklaşıyor",
@@ -681,7 +684,8 @@
     "taken": "alındı",
     "left": "bırakıldı",
     "ghost": "Sessiz geçiş",
-    "continue": "Devam etmek için onayla"
+    "continue": "Devam etmek için onayla",
+    "skill_point": "Yetenek puanı"
   },
   "chapter02": {
     "gold_found": "{count} altın",
@@ -713,10 +717,9 @@
   },
   "trade": {
     "torch": "Meşale",
-    "wick": "Sönmez Fitil",
-    "candle": "Koruyucu Mum",
     "arrows": "Üç Ok",
-    "bomb": "Bomba"
+    "bomb": "Bomba",
+    "shield": "Eski Kalkan"
   },
   "boss": {
     "bloated_one": "ŞİŞMİŞ OLAN",
@@ -739,20 +742,24 @@
     "points": "Yetenek puanı: {count}",
     "owned": "Açıldı",
     "cost": "Bedel: {count} puan",
-    "locked": "Kilitli — önceki seviye ya da puan eksik",
-    "unavailable": "Bu dal sana kapalı."
+    "locked": "Kilitli — önceki kademe ya da puan eksik",
+    "forsaken": "Diğer yolu seçtin.",
+    "cost_choice": "Bedel: {count} puan · diğeri kilitlenir",
+    "confirm_choice": "Tekrar bas: {other} kalıcı olarak kilitlenir",
+    "new_move": "Yeni hareket",
+    "backfill_toast": "Yetenek puanı +{count} · Duraklat > Yetenekler"
   },
   "skill": {
     "blade": "KESKİN",
     "blade_desc": "Vuruşun ağırlığı.",
     "blade_edge": "BİLEME",
-    "blade_edge_desc": "Hasar %6 artar.",
+    "blade_edge_desc": "Hasar %12 artar.",
     "blade_flow": "AKIŞ",
     "blade_flow_desc": "Zincir penceresi 2 kare uzar.",
     "blade_momentum": "İVME",
-    "blade_momentum_desc": "10+ combo'da hasar %15 artar.",
-    "blade_finisher": "SON SÖZ",
-    "blade_finisher_desc": "Bitirici vuruşta hasar %25 artar.",
+    "blade_momentum_desc": "10+ combo'da hasar %20 artar.",
+    "blade_finisher": "KILIÇ DALGASI",
+    "blade_finisher_desc": "Bitirici vuruş ileri uçan bir kesik fırlatır.",
     "echo": "YANKI",
     "echo_desc": "Sesin gösterdiği yol. Yalnız Rey duyar.",
     "echo_reach": "ERİM",
@@ -766,14 +773,40 @@
     "stone": "TAŞ",
     "stone_desc": "Ayakta kalmak.",
     "stone_hide": "POST",
-    "stone_hide_desc": "Azami can +5.",
+    "stone_hide_desc": "Azami can +10.",
     "stone_guard": "KORUMA",
-    "stone_guard_desc": "Alınan hasar %6 azalır.",
+    "stone_guard_desc": "Alınan hasar %8 azalır.",
     "stone_roll": "YUVARLANMA",
     "stone_roll_desc": "Kaçınma hakkı +1.",
     "stone_will": "İRADE",
     "stone_will_desc": "Azami can +10, alınan hasar %8 azalır.",
-    "unknown": "Bilinmeyen yetenek"
+    "unknown": "Bilinmeyen yetenek",
+    "blade_dash": "HAMLE",
+    "blade_dash_desc": "Koşarken saldır: ileri atılıp ağır, sendeleten bir vuruş indirirsin.",
+    "blade_hover": "HAVADA ASILI",
+    "blade_hover_desc": "Havada vururken düşmezsin; zincir havada da akar.",
+    "echo_lie": "YALAN SEZGİSİ",
+    "echo_lie_desc": "Yankı yalan söylediğinde kolye ürperir.",
+    "echo_burst": "YANKI DARBESİ",
+    "echo_burst_desc": "Yankı'yı açınca çevrendekiler savrulup sendeler. 5 sn bekler.",
+    "trace": "İZ",
+    "trace_desc": "Geçmişin bıraktığı. Yalnız Ardo okur.",
+    "trace_eye": "KESKİN GÖZ",
+    "trace_eye_desc": "İz menzili %25 uzar.",
+    "trace_patience": "AVCI SABRI",
+    "trace_patience_desc": "İz açıkken alınan hasar %12 azalır.",
+    "trace_ambush": "PUSU",
+    "trace_ambush_desc": "Arkasından ya da seni fark etmemiş düşmana vuruşun %50 ağır.",
+    "trace_quiet": "SESSİZ ADIM",
+    "trace_quiet_desc": "Sessiz yürüyüş hızlanır, adım yarı ses çıkarır; düşman geç fark eder.",
+    "trace_read": "İZ OKUMA",
+    "trace_read_desc": "İz açıkken hasar %15 artar.",
+    "trace_roar": "AYI KÜKREMESİ",
+    "trace_roar_desc": "İz'i açınca kükrersin: çevrendekiler savrulup sendeler. 5 sn bekler.",
+    "stone_rally": "TOPARLANMA",
+    "stone_rally_desc": "Darbe yiyince hemen karşılık ver: yitirdiğin canın bir kısmı döner.",
+    "stone_poise": "SARSILMAZ",
+    "stone_poise_desc": "Saldırırken hafif darbeler zincirini bozmaz, seni geri itmez."
   },
   "chapter_card": {
     "number": "BÖLÜM {number}"
@@ -984,6 +1017,8 @@
     "title_travel": "MUM BEKÇİSİ",
     "footer": "[{buy}] al   [{leave}] çık",
     "full": "dolu",
-    "full_toast": "Çantada yer yok"
+    "full_toast": "Çantada yer yok",
+    "shield_toast": "Eski Kalkan sırtında: ilk darbeyi karşılar, sonra kırılır.",
+    "refund_toast": "Bekçi eski mallarını geri aldı: +{gold} altın"
   }
 }

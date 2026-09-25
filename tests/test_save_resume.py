@@ -95,7 +95,10 @@ def exercise_menu_route(game: Game, chapter: int, room: str, character: str,
     game.scenes._flush()
     pause = game.scenes.current
     assert isinstance(pause, PauseScene)
-    pause.menu.index = 3
+    # Sira sabit yazilmiyor: YETENEKLER eklenince (25.09.2026) ANA MENU
+    # bir asagi kaydi ve sabit 3 sessizce AYARLAR'i aciyordu.
+    pause.menu.index = next(i for i, item in enumerate(pause.menu.items)
+                            if item.label == "pause.main_menu")
     pause.menu.activate()
     assert pause.confirm_quit is not None
     pause.confirm_quit.index = 1

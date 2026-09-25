@@ -77,7 +77,9 @@ Rey'in laneti. Tutorial, ipucu ve bilgi bu sesle gelir — diegetik UI.
 
 **Dağıtım:** Her bölüm bir parça garanti eder (ana yol), bir parça saklar (bulmaca arkası). Berrak Yankı gizli olanı gösterir → üç sistem tek halkada birleşir.
 
-**İkincil:** Yetenek ağacı (3 dal × 4 seviye) · Kalıcı buluntular (+1 combo penceresi, +5 can)
+**İkincil:** Yetenek ağacı · Kalıcı buluntular (+1 combo penceresi, +5 can)
+
+> **Yetenek ağacı 25.09.2026'da yeniden yazıldı** (Arda: *"bölüme yayılmış puanlar ... yeni hareketler versin"*). Karakter başına 3 dal × 5 kademe, 3. kademe bir seçim. Rey'de YANKI, Ardo'da İZ dalı var. Puanlar 9 bölüm sonundan, B4 kampından ve B15'in hayalet geçişinden geliyor (garanti 10, ağaç 27). Ayrıntı: `docs/plan-yetenek-agaci.md`.
 
 ## 7. DÜŞMAN EKOSİSTEMİ
 

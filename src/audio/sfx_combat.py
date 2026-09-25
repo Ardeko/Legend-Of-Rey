@@ -81,6 +81,23 @@ def _dodge() -> np.ndarray:
     return synth.normalize(scrape * synth.env_exp_decay(n, rate=10.0))
 
 
+@_register("shield_break")
+def _shield_break() -> np.ndarray:
+    """Eski Kalkan kirildi: tahtanin catirdamasi + demir gobegin tinisi.
+
+    Iki katman bilerek: oyuncu hem darbeyi (tok) hem de bir seyin
+    KIRILDIGINI (kuru catirti) duymali. Tini kisa - odul degil kayip.
+    """
+    crack = synth.noise(0.16, seed=44)
+    n = len(crack)
+    crack = synth.lowpass(crack, 3400.0) * synth.env_exp_decay(n, rate=18.0)
+    body = synth.pad_or_trim(synth.thump(0.14, 150.0, 70.0, decay=12.0,
+                                         noise_amt=0.3, seed=45), n)
+    ring = synth.pad_or_trim(synth.sine(740.0, 0.12) * 0.25, n)
+    ring = ring * synth.env_exp_decay(n, rate=14.0)
+    return synth.normalize(synth.mix(crack, body * 0.9, ring))
+
+
 # --- 2. HAREKET ----------------------------------------------------------------
 @_register("step_stone")
 def _step_stone() -> np.ndarray:

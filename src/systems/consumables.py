@@ -39,16 +39,33 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from src.config import SHIELD_MAX_CARRY
+
 ARROW = "arrow"
 BOMB = "bomb"
+# **Eski Kalkan** - FIRLATILMIYOR. Tasindigi surece ilk darbeyi
+# karsilayip kiriliyor (`Player._shield_absorbs`). Sayisi ayni cantada
+# duruyor ki olumde geri yukleme (`PlayScene._restore_bag`) ve dukkanin
+# "dolu" kontrolu onu da kendiliginden kapsasin.
+SHIELD = "shield"
 
-# Envanterde ve secim dongusunde bu sirayla gorunuyor.
+# Envanterde ve secim dongusunde bu sirayla gorunuyor. Yalnizca
+# FIRLATILANLAR - kalkan secilemez, tusu yok.
 ORDER: tuple[str, ...] = (ARROW, BOMB)
+# Cantada duran ama firlatilmayan esyalar.
+PASSIVE: tuple[str, ...] = (SHIELD,)
 
 # Bir seferde tasinabilecek en fazla adet. Sinirsiz olsaydi altin
 # biriktiren oyuncu bolumu uzaktan temizlerdi ve dovus sistemi
 # anlamsizlasirdi.
 MAX_CARRY = 9
+# Esyaya ozel sinir. Iki kalkan boss dovusunu "iki hata hakki"na
+# cevirirdi - bir kalkan bir hata.
+_CARRY_LIMITS: dict[str, int] = {SHIELD: SHIELD_MAX_CARRY}
+
+
+def max_carry(key: str) -> int:
+    return _CARRY_LIMITS.get(key, MAX_CARRY)
 
 SELECTED_KEY = "consumable_selected"
 
@@ -112,13 +129,18 @@ def count(save_data, key: str) -> int:
 
 
 def add(save_data, key: str, amount: int = 1) -> int:
-    """Cantaya ekler, `MAX_CARRY`i asmaz. Yeni adedi doner."""
-    if save_data is None or key not in CONSUMABLES:
+    """Cantaya ekler, esyanin tasima sinirini asmaz. Yeni adedi doner."""
+    if save_data is None or (key not in CONSUMABLES and key not in PASSIVE):
         return 0
     bag = _bag(save_data)
-    total = min(MAX_CARRY, count(save_data, key) + max(0, amount))
+    total = min(max_carry(key), count(save_data, key) + max(0, amount))
     bag[key] = total
     return total
+
+
+def full(save_data, key: str) -> bool:
+    """Canta bu esyadan dolu mu? Dukkan satmadan once soruyor."""
+    return count(save_data, key) >= max_carry(key)
 
 
 def spend(save_data, key: str) -> bool:

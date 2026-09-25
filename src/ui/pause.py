@@ -23,9 +23,11 @@ from src.ui.i18n import t
 from src.ui.widgets import Menu, MenuItem, blur, panel
 
 PANEL_WIDTH = 168
-# Dort oge + ANA MENU oncesindeki bosluk. Kisa tutunca son satir cerceveyi
+# Bes oge + ANA MENU oncesindeki bosluk. Kisa tutunca son satir cerceveyi
 # kesiyordu - panel yuksekligi menu icerigiyle birlikte hesaplanmali.
-PANEL_HEIGHT = 128
+# YETENEKLER eklenince (25.09.2026) bir satir (18) buyudu.
+PANEL_HEIGHT = 146
+MENU_Y = INTERNAL_HEIGHT // 2 - 38
 BLUR_FACTOR = 4
 
 
@@ -44,9 +46,10 @@ class PauseScene(Scene):
         self.menu = Menu([
             MenuItem("pause.resume", self._resume),
             MenuItem("pause.equipment", self._open_equipment),
+            MenuItem("pause.skills", self._open_skills),
             MenuItem("pause.settings", self._open_settings),
             MenuItem("pause.main_menu", self._ask_quit, gap_before=True),
-        ], INTERNAL_WIDTH // 2, INTERNAL_HEIGHT // 2 - 30, width=120,
+        ], INTERNAL_WIDTH // 2, MENU_Y, width=120,
             centered=True, on_sound=self.game.play_sound)
 
     # --- Eylemler -----------------------------------------------------------
@@ -68,6 +71,19 @@ class PauseScene(Scene):
         play = self.scenes.find(PlayScene)
         self.scenes.push(EquipmentScene, save_data=self.save_data,
                          player=getattr(play, "player", None))
+
+    def _open_skills(self) -> None:
+        """Yetenek agaci - her yerden (Arda 25.09.2026).
+
+        Eskiden yalnizca B4'un kampinda aciliyordu: puan kazanilsa bile
+        baska yerde harcanamiyordu. Canli sahne veriliyor ki acilan dugum
+        (can, pencere, hareket) duraklatmadan cikinca HEMEN hissedilsin.
+        """
+        from src.scenes.play import PlayScene
+        from src.systems import skilltree
+        from src.ui.skill_tree import SkillTreeScene
+        self.scenes.push(SkillTreeScene, save_data=self.save_data,
+                         tree=skilltree, play=self.scenes.find(PlayScene))
 
     def _resume(self) -> None:
         self.scenes.pop()
@@ -162,6 +178,14 @@ class PauseScene(Scene):
         info = t("pause.status", chapter=data.chapter, dots=dots, gold=data.gold)
         text.draw(surface, info, INTERNAL_WIDTH // 2, INTERNAL_HEIGHT - 30,
                   color=palette.role("ui_text_dim"), align="center")
+        # Harcanmamis puan varsa bir satir: oyuncu YETENEKLER'e bakmasi
+        # gerektigini menuye girer girmez gorsun.
+        from src.systems import skilltree
+        points = skilltree.available_points(data)
+        if points > 0:
+            text.draw(surface, t("pause.skill_points", count=points),
+                      INTERNAL_WIDTH // 2, INTERNAL_HEIGHT - 44,
+                      color=palette.color("gold"), align="center")
 
     def _draw_quit_dialog(self, surface: pygame.Surface) -> None:
         veil = pygame.Surface((INTERNAL_WIDTH, INTERNAL_HEIGHT), pygame.SRCALPHA)

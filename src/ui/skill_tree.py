@@ -1,8 +1,13 @@
-"""Yetenek agaci ekrani - uc dal, dort seviye.
+"""Yetenek agaci ekrani - uc dal, bes kademe, 3. kademede secim.
 
-`docs/gdd.md` 6: *"Yetenek agaci (3 dal x 4 seviye)"*. `docs/yapi.md` B4:
-ilk kez **Kayit Odasi**'nda aciliyor - dovussuz bir nefes bolumunde,
-onceki maceracinin kampinda.
+Arda (25.09.2026): *"Yetenek agacini bolume yayilmis puanlar olarak
+tekrar yap. Yeni hareketler versin."* Mantik `src/systems/skilltree.py`'de;
+burasi yalnizca goruntu ve gezinme.
+
+## Nereden aciliyor
+
+Duraklat menusundeki **YETENEKLER** (her bolumde) ve B4'un kampi. Eskiden
+yalnizca kamp vardi: puan kazanilsa bile baska yerde harcanamiyordu.
 
 ## Ekran degil, BINDIRME
 
@@ -10,35 +15,31 @@ onceki maceracinin kampinda.
 kaliyor (`blocks_update=True`, `blocks_draw=False`) ve arkasi bu sahne
 tarafindan bulaniklastiriliyor.
 
-Oyuncu agaci acinca oyundan **cikmiyor**, oyunun uzerine bakiyor - kamp
-orada duruyor.
+## Uc dal yan yana, bes kademe yukaridan asagi
 
-Not: `transparent_bg` ozniteligi `chapter_end.py` ve `pause.py`'de yazili
-ama `scene.py` ONA HIC BAKMIYOR - olu bir oznitelik. Gorunuru saglayan
-sey yalnizca `blocks_draw=False`. Burada bilincli olarak yazilmadi;
-ucuncu kez kopyalamak onu "gercek" gibi gosterirdi.
+Dallar sutun, kademeler satir. 3. kademede iki dugum yan yana: biri
+alininca oteki **kalici** kilitleniyor - o yuzden iki basista aciliyor
+(ilk basis uyarir, ikincisi onaylar). `CLAUDE.md` 9: geri alinamayan
+eylemde varsayilan IPTAL.
 
-## Uc dal yan yana, dort seviye yukaridan asagi
+Gezinme satir icinde: SOL/SAG ayni kademede bir sonraki dugume (secim
+ciftinde once ciftin otekine, sonra komsu dala) gidiyor; YUKARI/ASAGI
+en yakin sutundaki dugume.
 
-Dallar sutun, seviyeler satir. Baglanti cizgileri **onkosulu** anlatiyor:
-bir dugum ancak ustundeki acikken acilabilir, ve cizgi o iliskiyi
-gosteriyor. Cizgi olmasaydi oyuncu dort ayri dugum gorurdu, bir yol
-degil.
+Oteki karakterin dali (Ardo'da YANKI, Rey'de IZ) ekranda **hic yok**.
+Eskiden soluk ciziliyordu ve "alamayacagin bir sey" diye bagiriyordu.
 
 ## Durum RENKLE DEGIL, uc kanalla anlatiliyor
 
-Renk korlugu icin (CLAUDE.md 10) her durum **renk + sekil + parlaklik**
-birlikte tasiyor:
+Renk korlugu icin (CLAUDE.md 10) her durum **renk + sekil + parlaklik**:
 
-    ACIK      dolu daire, parlak, baglanti cizgisi kalin
+    ACIK        dolu daire, parlak, baglanti cizgisi kalin
     ALINABILIR  halka + nabiz, orta parlaklik
-    KILITLI   ince halka, sonuk, cizgi noktali
+    KILITLI     ince halka, sonuk, cizgi noktali
+    SECILMEDI   ince halka + capraz (secim kademesinde oteki alindi)
 
-## Yazi yok demiyoruz
-
-Secili dugumun adi ve aciklamasi altta duruyor. Agacin kendisi ikonik,
-ama "bu ne ise yarar" sorusu metinle cevaplaniyor - `docs/menu-ui.md`
-diegetik tercih ediyor ama bir ILERLEME ekraninda belirsizlik ceza olur.
+Yeni bir HAREKET veren dugumun ustunde kucuk bir elmas var - oyuncu
+"sayi" ile "fiil" arasindaki farki agaca bakarak goruyor.
 """
 from __future__ import annotations
 
@@ -54,19 +55,23 @@ from src.ui import text, widgets
 from src.ui.font_data import GLYPH_HEIGHT
 from src.ui.i18n import t
 
-# Yerlesim. Uc sutun ekrana esit bolunuyor, dort satir yukaridan asagi.
-# TREE_TOP 52 iken dal adlari (TREE_TOP-16 = 36) baslik altindaki puan
-# sayacinin (~26-33) uzerine biniyordu - ekran goruntusunde "YANKI" ile
-# "Yetenek puani" ust uste cikmisti. 62'ye indirilince adlar 46'ya
-# geciyor, aralik temiz. ROW_STEP de 31'e cekildi ki dort satir yine
-# ayrinti paneline degmeden sigsin.
-TREE_TOP = 62
-ROW_STEP = 31
+# Yerlesim. Bes satir 28 piksel arayla; dal adlari ilk satirin 18 piksel
+# ustunde, baslik ve puan sayaci onlarin ustunde. Ayrinti paneli altta.
+HEADER_Y = 10
+TREE_TOP = 60
+ROW_STEP = 28
 NODE_RADIUS = 6
-# Secili dugumun adi/aciklamasi icin altta ayrilan serit.
-DETAIL_Y = INTERNAL_HEIGHT - 52
-# Baslik ve puan sayaci.
-HEADER_Y = 16
+# Secim ciftinin sutun ortasindan yatay uzakligi.
+PAIR_OFFSET = 20
+DETAIL_TOP = INTERNAL_HEIGHT - 62
+DETAIL_WIDTH = INTERNAL_WIDTH - 40
+# Acilis ani: dugumden genisleyen halka.
+UNLOCK_FLASH_FRAMES = 24
+
+OWNED = "acik"
+AVAILABLE = "alinabilir"
+LOCKED = "kilitli"
+FORSAKEN = "secilmedi"
 
 
 class SkillTreeScene(Scene):
@@ -75,38 +80,71 @@ class SkillTreeScene(Scene):
     blocks_update = True
     blocks_draw = False
 
-    def on_enter(self, save_data=None, tree=None, **kwargs: object) -> None:
+    def on_enter(self, save_data=None, tree=None, play=None,
+                 **kwargs: object) -> None:
         """`tree` `src/systems/skilltree.py` modulu, `save_data` kayit.
 
-        Modul olarak gecirmek (ornek degil) bilincli: agacin durumu
-        kayitta tutuluyor, modulun kendisi durumsuz. Ayni desen
-        `charms.py` ve `abilities.py`'de de var.
+        `play` canli oyun sahnesi (varsa): acilan dugum oyuncuya HEMEN
+        biniyor (`PlayScene.learn_skill`). Yoksa etki bir sonraki bolumde.
         """
         self.save_data = save_data
         self.tree = tree
-        self.branch_index = 0
-        self.level_index = 0
+        self.play = play
+        self.row = 0
+        self.column_x = self._column_x(0)
         self.frames = 0
+        self.pending = ""            # ikinci basis bekleyen secim dugumu
+        self.flash_key = ""
+        self.flash_frames = 0
         self._blurred: pygame.Surface | None = None
 
-    # --- Gezinme ------------------------------------------------------------
+    # --- Veri ---------------------------------------------------------------
+    @property
+    def character(self) -> str:
+        return "ardo" if getattr(self.save_data, "character", "rey") == "ardo" else "rey"
+
     @property
     def branches(self) -> tuple:
-        return getattr(self.tree, "BRANCHES", ()) if self.tree else ()
+        if self.tree is None:
+            return ()
+        finder = getattr(self.tree, "branches_for", None)
+        if finder is not None:
+            return finder(self.character)
+        return getattr(self.tree, "BRANCHES", ())
+
+    def _column_x(self, index: int) -> int:
+        count = max(1, len(self.branches)) if self.tree is not None else 3
+        span = INTERNAL_WIDTH // count
+        return span * index + span // 2
+
+    def _slots(self, row: int) -> list[tuple[int, object]]:
+        """Bu satirdaki dugumler, soldan saga: (x, dugum)."""
+        slots: list[tuple[int, object]] = []
+        for index, branch in enumerate(self.branches):
+            if row >= len(branch.tiers):
+                continue
+            tier = branch.tiers[row]
+            base = self._column_x(index)
+            if len(tier) == 1:
+                slots.append((base, tier[0]))
+            else:
+                for side, node in zip((-1, 1), tier):
+                    slots.append((base + side * PAIR_OFFSET, node))
+        return slots
 
     @property
-    def current_branch(self):
-        if not self.branches:
-            return None
-        return self.branches[self.branch_index % len(self.branches)]
+    def row_count(self) -> int:
+        return max((len(b.tiers) for b in self.branches), default=0)
 
     @property
-    def current_node(self):
-        branch = self.current_branch
-        if branch is None or not branch.nodes:
+    def current(self):
+        """Secili dugum - satirdaki `column_x`e en yakin olan."""
+        slots = self._slots(self.row)
+        if not slots:
             return None
-        return branch.nodes[self.level_index % len(branch.nodes)]
+        return min(slots, key=lambda slot: abs(slot[0] - self.column_x))[1]
 
+    # --- Gezinme ------------------------------------------------------------
     def handle_event(self, event: pygame.event.Event) -> None:
         if event.type != pygame.KEYDOWN:
             return
@@ -116,51 +154,84 @@ class SkillTreeScene(Scene):
             self.scenes.pop()
             return
         if inp.pressed(Action.LEFT):
-            self._move_branch(-1)
+            self._step_slot(-1)
         elif inp.pressed(Action.RIGHT):
-            self._move_branch(1)
+            self._step_slot(1)
         elif inp.pressed(Action.UP):
-            self._move_level(-1)
+            self._step_row(-1)
         elif inp.pressed(Action.DOWN):
-            self._move_level(1)
+            self._step_row(1)
         elif inp.pressed(Action.CONFIRM):
             self._try_unlock()
 
-    def _move_branch(self, direction: int) -> None:
-        if not self.branches:
+    def _step_slot(self, direction: int) -> None:
+        slots = self._slots(self.row)
+        if not slots:
             return
-        self.branch_index = (self.branch_index + direction) % len(self.branches)
-        # Seviye imleci yeni dalin sinirlari icinde kalmali - dallar ayni
-        # uzunlukta olmayabilir.
-        branch = self.current_branch
-        if branch is not None and branch.nodes:
-            self.level_index = min(self.level_index, len(branch.nodes) - 1)
+        xs = [x for x, _node in slots]
+        here = min(range(len(xs)), key=lambda i: abs(xs[i] - self.column_x))
+        self.column_x = xs[(here + direction) % len(xs)]
+        self.pending = ""
         self.game.play_sound("ui_tick")
 
-    def _move_level(self, direction: int) -> None:
-        branch = self.current_branch
-        if branch is None or not branch.nodes:
+    def _step_row(self, direction: int) -> None:
+        if not self.row_count:
             return
-        self.level_index = (self.level_index + direction) % len(branch.nodes)
+        self.row = (self.row + direction) % self.row_count
+        # Sutun hafizasi: secim ciftinden cikinca dalin ortasina dus.
+        slots = self._slots(self.row)
+        if slots:
+            nearest = min(slots, key=lambda slot: abs(slot[0] - self.column_x))
+            self.column_x = nearest[0]
+        self.pending = ""
         self.game.play_sound("ui_tick")
 
     def _try_unlock(self) -> None:
-        node = self.current_node
+        node = self.current
         if node is None or self.tree is None or self.save_data is None:
             return
-        if self._node_state(node) == "kullanilamaz":
-            self.game.play_sound("ui_deny")
-            return
-        if self.tree.unlock(self.save_data, node.key):
-            self.game.play_sound("ui_confirm")
-        else:
+        if not self.tree.can_unlock(self.save_data, node.key):
             # Reddedilen giris SESSIZ kalmamali - oyuncu tusun calismadigini
             # mi yoksa kosulun saglanmadigini mi bilmiyor.
+            self.pending = ""
             self.game.play_sound("ui_deny")
+            return
+        rival = self.tree.rival(node.key)
+        if rival is not None and self.pending != node.key:
+            # Geri alinamaz secim: ilk basis yalnizca uyariyor.
+            self.pending = node.key
+            self.game.play_sound("ui_tick")
+            return
+        self.pending = ""
+        if not self.tree.unlock(self.save_data, node.key):
+            self.game.play_sound("ui_deny")
+            return
+        self.flash_key = node.key
+        self.flash_frames = UNLOCK_FLASH_FRAMES
+        self.game.play_sound("ui_confirm")
+        self.game.play_sound("necklace_warm")
+        if self.play is not None:
+            learn = getattr(self.play, "learn_skill", None)
+            if learn is not None:
+                learn(node.key)
 
     # --- Dongu --------------------------------------------------------------
     def update(self) -> None:
         self.frames += 1
+        if self.flash_frames > 0:
+            self.flash_frames -= 1
+
+    # --- Durum --------------------------------------------------------------
+    def state_of(self, node) -> str:
+        if self.tree is None or self.save_data is None:
+            return LOCKED
+        if self.tree.unlocked(self.save_data, node.key):
+            return OWNED
+        if self.tree.rival_taken(self.save_data, node.key):
+            return FORSAKEN
+        if self.tree.can_unlock(self.save_data, node.key):
+            return AVAILABLE
+        return LOCKED
 
     # --- Cizim --------------------------------------------------------------
     def draw(self, surface: pygame.Surface) -> None:
@@ -176,7 +247,7 @@ class SkillTreeScene(Scene):
             self._blurred = widgets.blur(surface.copy())
         surface.blit(self._blurred, (0, 0))
         veil = pygame.Surface((INTERNAL_WIDTH, INTERNAL_HEIGHT), pygame.SRCALPHA)
-        veil.fill((*palette.color("void"), 170))
+        veil.fill((*palette.color("void"), 180))
         surface.blit(veil, (0, 0))
 
     def _draw_header(self, surface: pygame.Surface) -> None:
@@ -188,97 +259,75 @@ class SkillTreeScene(Scene):
             points = self.tree.available_points(self.save_data)
         text.draw(surface, t("skilltree.points", count=points),
                   INTERNAL_WIDTH // 2, HEADER_Y + GLYPH_HEIGHT + 3,
-                  align="center", color=palette.color("gold"))
-
-    def _branch_usable(self, branch) -> bool:
-        """Bu dal bu karakter icin anlamli mi?
-
-        YANKI dali Ardo'da etkisiz - Yanki Rey'in laneti (DEVIR §3.7).
-        `can_unlock` bunu bilerek sormuyor (sozlesme "puan + onkosul"),
-        ayrimi burada yapiyoruz: kullanilamaz dal SOLUK ciziliyor ve
-        acilmaya calisilinca reddediliyor. Ekran bunu gostermeseydi Ardo
-        oyuncusu puanini oraya harcamaya calisip neden olmadigini
-        anlamazdi.
-        """
-        if self.tree is None or self.save_data is None:
-            return True
-        checker = getattr(self.tree, "branch_usable", None)
-        if checker is None:
-            return True
-        return bool(checker(self.save_data, branch.key))
-
-    def _column_x(self, index: int) -> int:
-        span = INTERNAL_WIDTH // max(1, len(self.branches))
-        return span * index + span // 2
+                  align="center",
+                  color=palette.color("gold" if points else "stone_light"))
 
     def _draw_branch(self, surface: pygame.Surface, index: int,
                      branch) -> None:
         x = self._column_x(index)
-        usable = self._branch_usable(branch)
-        label_colour = (palette.role("ui_text_dim") if usable
-                        else palette.color("stone_darkest"))
-        text.draw(surface, text.tr_upper(t(branch.label_key)), x, TREE_TOP - 16,
-                  align="center", color=label_colour)
+        text.draw(surface, text.tr_upper(t(branch.label_key)), x,
+                  TREE_TOP - 18, align="center",
+                  color=palette.role("ui_text_dim"))
+        previous: list[tuple[int, object]] = []
+        for row, tier in enumerate(branch.tiers):
+            y = TREE_TOP + row * ROW_STEP
+            here = self._tier_positions(x, tier)
+            for px, _above in previous:
+                for nx, node in here:
+                    self._draw_link(surface, (px, y - ROW_STEP), (nx, y), node)
+            for nx, node in here:
+                selected = row == self.row and node is self.current
+                self._draw_node(surface, nx, y, node, selected)
+            previous = here
 
-        for level, node in enumerate(branch.nodes):
-            y = TREE_TOP + level * ROW_STEP
-            if level > 0:
-                self._draw_link(surface, x, y - ROW_STEP, y, node)
-            selected = (index == self.branch_index
-                        and level == self.level_index)
-            self._draw_node(surface, x, y, node, selected)
+    @staticmethod
+    def _tier_positions(x: int, tier) -> list[tuple[int, object]]:
+        if len(tier) == 1:
+            return [(x, tier[0])]
+        return [(x + side * PAIR_OFFSET, node)
+                for side, node in zip((-1, 1), tier)]
 
-    def _node_state(self, node) -> str:
-        """acik | alinabilir | kilitli"""
-        if self.tree is None or self.save_data is None:
-            return "kilitli"
-        branch = self.tree.branch_of(node.key) if hasattr(
-            self.tree, "branch_of") else None
-        if branch is not None and not self._branch_usable(branch):
-            return "kullanilamaz"
-        if self.tree.unlocked(self.save_data, node.key):
-            return "acik"
-        if self.tree.can_unlock(self.save_data, node.key):
-            return "alinabilir"
-        return "kilitli"
+    def _draw_link(self, surface: pygame.Surface, start: tuple[int, int],
+                   end: tuple[int, int], node) -> None:
+        """Onkosul cizgisi. Acik yol KALIN altin, kapali yol NOKTALI.
 
-    def _draw_link(self, surface: pygame.Surface, x: int, top: int,
-                   bottom: int, node) -> None:
-        """Onkosul cizgisi. Acik yol KALIN, kapali yol NOKTALI.
-
-        Cizgi olmasaydi oyuncu dort ayri dugum gorurdu, bir YOL degil.
+        Cizgi olmasaydi oyuncu on bes ayri dugum gorurdu, bir YOL degil.
         """
-        state = self._node_state(node)
-        if state == "acik":
-            surface.fill(palette.color("gold"),
-                         (x - 1, top + NODE_RADIUS, 2, ROW_STEP - NODE_RADIUS * 2))
+        state = self.state_of(node)
+        (x0, y0), (x1, y1) = start, end
+        length = math.hypot(x1 - x0, y1 - y0)
+        if length <= NODE_RADIUS * 2:
             return
-        tone = (palette.color("stone_light") if state == "alinabilir"
-                else palette.color("stone_dark"))
-        for offset in range(NODE_RADIUS, ROW_STEP - NODE_RADIUS, 3):
-            surface.fill(tone, (x, top + offset, 1, 1))
+        ux, uy = (x1 - x0) / length, (y1 - y0) / length
+        a = (x0 + ux * (NODE_RADIUS + 1), y0 + uy * (NODE_RADIUS + 1))
+        b = (x1 - ux * (NODE_RADIUS + 1), y1 - uy * (NODE_RADIUS + 1))
+        if state == OWNED:
+            pygame.draw.line(surface, palette.color("gold"), a, b, 2)
+            return
+        if state == FORSAKEN:
+            return                          # terk edilen yol cizilmiyor
+        tone = palette.color("stone_light" if state == AVAILABLE
+                             else "stone_dark")
+        steps = int(math.hypot(b[0] - a[0], b[1] - a[1]) // 3)
+        for step in range(steps + 1):
+            f = step / max(1, steps)
+            surface.fill(tone, (round(a[0] + (b[0] - a[0]) * f),
+                                round(a[1] + (b[1] - a[1]) * f), 1, 1))
 
     def _draw_node(self, surface: pygame.Surface, x: int, y: int,
                    node, selected: bool) -> None:
-        """Durum uc kanalla: sekil + parlaklik + renk (CLAUDE.md 10).
-
-        Renk gormeyen oyuncu SEKLI goruyor: dolu daire acik, halka
-        alinabilir, ince halka kilitli.
-        """
-        state = self._node_state(node)
-        if state == "acik":
+        """Durum uc kanalla: sekil + parlaklik + renk (CLAUDE.md 10)."""
+        state = self.state_of(node)
+        if state == OWNED:
             pygame.draw.circle(surface, palette.color("gold"), (x, y),
                                NODE_RADIUS)
-            surface.fill(palette.color("white_flash"), (x - 1, y - 3, 1, 1))
-        elif state == "alinabilir":
+            surface.fill(palette.color("white_flash"), (x - 2, y - 3, 1, 1))
+        elif state == AVAILABLE:
             pulse = 0.5 + 0.5 * math.sin(self.frames * 0.08)
             tone = (palette.color("gold") if pulse > 0.5
                     else palette.color("ember_light"))
             pygame.draw.circle(surface, tone, (x, y), NODE_RADIUS, 2)
-        elif state == "kullanilamaz":
-            # Kilitli DEGIL, ERISILEMEZ. Farki sekille anlatiyoruz: kilitli
-            # bir halka, erisilemez capraz. Renk gormeyen oyuncu da ayirt
-            # etsin (CLAUDE.md 10).
+        elif state == FORSAKEN:
             tone = palette.color("stone_darkest")
             pygame.draw.circle(surface, tone, (x, y), NODE_RADIUS, 1)
             r = NODE_RADIUS - 2
@@ -288,44 +337,75 @@ class SkillTreeScene(Scene):
             pygame.draw.circle(surface, palette.color("stone_dark"),
                                (x, y), NODE_RADIUS, 1)
 
+        if getattr(node, "is_move", False) and state != FORSAKEN:
+            self._draw_move_badge(surface, x + NODE_RADIUS, y - NODE_RADIUS,
+                                  state)
+        if node.key == self.flash_key and self.flash_frames > 0:
+            grow = 1.0 - self.flash_frames / UNLOCK_FLASH_FRAMES
+            radius = NODE_RADIUS + 2 + int(grow * 10)
+            pygame.draw.circle(surface, palette.color("gold"), (x, y),
+                               radius, 1)
         if selected:
             # Secim cercevesi dugumun DISINDA - uzerine binerse durum
             # okunmaz hale geliyor.
             rect = pygame.Rect(x - NODE_RADIUS - 4, y - NODE_RADIUS - 4,
                                (NODE_RADIUS + 4) * 2, (NODE_RADIUS + 4) * 2)
-            pygame.draw.rect(surface, palette.color("violet_bright"), rect, 1)
+            colour = ("danger_bright" if self.pending == node.key
+                      else "violet_bright")
+            pygame.draw.rect(surface, palette.color(colour), rect, 1)
+
+    @staticmethod
+    def _draw_move_badge(surface: pygame.Surface, x: int, y: int,
+                         state: str) -> None:
+        """Yeni hareket rozeti: kucuk bir elmas (sekil kanali)."""
+        tone = palette.color("gold" if state in (OWNED, AVAILABLE)
+                             else "stone")
+        surface.fill(tone, (x, y - 1, 1, 3))
+        surface.fill(tone, (x - 1, y, 3, 1))
 
     def _draw_detail(self, surface: pygame.Surface) -> None:
-        """Secili dugumun adi, aciklamasi ve bedeli.
+        """Secili dugumun adi, aciklamasi ve durumu.
 
         Agac ikonik ama bir ILERLEME ekraninda "bu ne ise yarar"
         belirsizligi ceza olur - metin sart.
         """
-        node = self.current_node
+        node = self.current
         if node is None:
             return
-        panel_rect = pygame.Rect(20, DETAIL_Y - 6, INTERNAL_WIDTH - 40, 46)
-        widgets.panel(surface, panel_rect)
-
-        state = self._node_state(node)
-        name_colour = (palette.color("gold") if state == "acik"
-                       else palette.role("ui_text_bright"))
-        text.draw(surface, text.tr_upper(t(node.label_key)),
-                  INTERNAL_WIDTH // 2, DETAIL_Y, align="center",
-                  color=name_colour)
-        text.draw(surface, t(node.desc_key), INTERNAL_WIDTH // 2,
-                  DETAIL_Y + GLYPH_HEIGHT + 2, align="center",
-                  color=palette.role("ui_text_dim"))
-
-        if state == "kullanilamaz":
-            footer = t("skilltree.unavailable")
-        elif state == "acik":
-            footer = t("skilltree.owned")
-        elif state == "alinabilir":
-            footer = t("skilltree.cost", count=node.cost)
-        else:
-            footer = t("skilltree.locked")
+        rect = pygame.Rect((INTERNAL_WIDTH - DETAIL_WIDTH) // 2,
+                           DETAIL_TOP - 6, DETAIL_WIDTH, 60)
+        widgets.panel(surface, rect)
+        state = self.state_of(node)
+        name = text.tr_upper(t(node.label_key))
+        if getattr(node, "is_move", False):
+            name = f"{name}  ·  {text.tr_upper(t('skilltree.new_move'))}"
+        text.draw(surface, name, INTERNAL_WIDTH // 2, DETAIL_TOP,
+                  align="center",
+                  color=palette.color("gold") if state == OWNED
+                  else palette.role("ui_text_bright"))
+        lines = text.wrap(t(node.desc_key), DETAIL_WIDTH - 16)[:2]
+        for index, line in enumerate(lines):
+            text.draw(surface, line, INTERNAL_WIDTH // 2,
+                      DETAIL_TOP + (GLYPH_HEIGHT + 2) * (index + 1),
+                      align="center", color=palette.role("ui_text_dim"))
+        footer, colour = self._footer(node, state)
         text.draw(surface, footer, INTERNAL_WIDTH // 2,
-                  DETAIL_Y + (GLYPH_HEIGHT + 2) * 2, align="center",
-                  color=palette.color("gold") if state == "alinabilir"
-                  else palette.role("ui_text_dim"))
+                  DETAIL_TOP + (GLYPH_HEIGHT + 2) * 3 + 1, align="center",
+                  color=colour)
+
+    def _footer(self, node, state: str) -> tuple[str, tuple[int, int, int]]:
+        dim = palette.role("ui_text_dim")
+        if state == OWNED:
+            return t("skilltree.owned"), dim
+        if state == FORSAKEN:
+            return t("skilltree.forsaken"), dim
+        if state == AVAILABLE:
+            rival = self.tree.rival(node.key) if self.tree else None
+            if rival is not None and self.pending == node.key:
+                return (t("skilltree.confirm_choice", other=t(rival.label_key)),
+                        palette.color("danger_bright"))
+            if rival is not None:
+                return (t("skilltree.cost_choice", count=node.cost),
+                        palette.color("gold"))
+            return t("skilltree.cost", count=node.cost), palette.color("gold")
+        return t("skilltree.locked"), dim

@@ -24,8 +24,10 @@ from src.combat.hitbox import Hitbox, HitboxManager, Team
 from src.config import (
     SENSE_BETRAYAL_DELAY, SENSE_BETRAYAL_RANGE,
     COMBO_THRESHOLD_HIGH, COMBO_THRESHOLD_MID, DEATH_SCREEN_DELAY,
-    HARD_LAND_AIR_FRAMES,
-    INTERNAL_WIDTH, NECKLACE_BEAT_MIN_WARMTH, TILE_SIZE,
+    HARD_LAND_AIR_FRAMES, LAST_CHANCE_PER_LEVEL,
+    INTERNAL_WIDTH, NECKLACE_BEAT_MIN_WARMTH, SKILL_BURST_COOLDOWN,
+    SKILL_BURST_DAMAGE, SKILL_BURST_KNOCKBACK, SKILL_BURST_POISE,
+    SKILL_BURST_SIZE, TILE_SIZE,
 )
 from src.systems.echo import COMBO_TO_RESTORE
 from src.core.camera import Camera
@@ -35,7 +37,7 @@ from src.core.scene import Scene
 from src.entities.character_stats import ARDO, REY
 from src.entities.kalachev import WOUND_FLAG as KALACHEV_WOUND_FLAG
 from src.entities.player import Player
-from src.systems import abilities, consumables, horror, loyalty
+from src.systems import abilities, consumables, horror, loyalty, skilltree
 from src.systems.compass import Compass
 from src.systems.echo import Answer, EchoState
 from src.systems.tracking import BLOOD, SCORCH, TraceField, TrackingState
@@ -70,6 +72,10 @@ class _WallTarget:
 
     def __init__(self, rect) -> None:
         self.rect = rect
+
+
+# Yanki Darbesi / Ayi Kukremesi halkasinin genisleme suresi (kare).
+BURST_RING_FRAMES = 14
 
 
 class PlayScene(Scene):
@@ -137,6 +143,12 @@ class PlayScene(Scene):
         self.tokens = AttackTokenManager()
         self.camera = Camera()
         self.save_data, _ = read_save()
+        # Sirali toast'lar - ayni karede iki bildirim birbirini ezmesin
+        # (kayit gocu + yetenek puani gibi).
+        self._toast_queue: list[tuple[str, int]] = []
+        self._migrate_save()
+        # Son sans (CLAUDE.md 8) - bolum basina. `restart()` tasiyor.
+        self.last_chance_left = LAST_CHANCE_PER_LEVEL
 
         # **Yanki'nin tersine donmesi** (`docs/yapi.md` B14). Bayrak
         # kayittan geliyor, yani B15-B18 hicbir sey yazmadan
@@ -153,6 +165,13 @@ class PlayScene(Scene):
         self.echo = (EchoState(tier=self.echo_tier)
                      if self.character != "ardo" else None)
         self._echo_was_active = False   # echo_open/close kenar tespiti icin
+        # Yanki Darbesi / Ayi Kukremesi (yetenek agaci): duyunun ACILDIGI
+        # kare ve bekleme suresi. Halka cizimi icin kalan kare.
+        self._burst_was_open = False
+        self._burst_cooldown = 0
+        self._burst_ring = 0
+        self._burst_origin = (0.0, 0.0)
+        self._burst_key = ""
 
         # IZ SURME - Ardo'nun karsi mekanigi (`src/systems/tracking.py`,
         # `docs/derinlestirme.md` 2.4). Yanki'nin tam simetrigi: Rey'de
@@ -264,6 +283,7 @@ class PlayScene(Scene):
             self._restore_abilities()
             self.player.apply_skills(getattr(self.save_data, "skills", ()))
             self._equip_saved_weapon()
+        self.refresh_skills()
 
         self.camera.set_bounds(self.tilemap.bounds)
         self.decals = DecalField(*self.tilemap.bounds.size)
@@ -512,8 +532,13 @@ class PlayScene(Scene):
         # ikinci kez gorulmezdi (docs/korku.md 5.3).
         ghosts = list(getattr(self, "ghosts", ()))
         bag = dict(getattr(self, "checkpoint_bag", {}))
+        # Son sans BOLUM basina (CLAUDE.md 8) - olup yeniden dogmak onu
+        # tazelememeli, yoksa "bolum basina bir" kurali "deneme basina"
+        # olurdu.
+        last_chance = getattr(self, "last_chance_left", LAST_CHANCE_PER_LEVEL)
         self._pending_resume = (room, x, y, entered)
         self.on_enter(character=self.character)
+        self.last_chance_left = last_chance
         self.ghosts = ghosts
         self.checkpoint_bag = bag
         self._restore_bag(bag)
@@ -854,6 +879,7 @@ class PlayScene(Scene):
             # **Ayni tus.** Rey'de Yanki, Ardo'da Iz Surme. Girdi
             # sozlesmesi ortak, duyu farkli (derinlestirme 2.4).
             self.tracking.update(self.echo_held())
+        self._update_sense_burst()
         self.compass.update(self.player)
         self._update_necklace_audio()
         self.dialogue.update(self.game)
@@ -891,6 +917,9 @@ class PlayScene(Scene):
         self.hud.set_ammo(chosen, consumables.count(self.save_data, chosen))
         if self.toast_frames > 0:
             self.toast_frames -= 1
+        elif self._toast_queue and (self.card is None or self.card.done):
+            # Bolum basi karti bitince: iki bilgi ayni anda okunmuyor.
+            self.show_toast(*self._toast_queue.pop(0))
         self.update_scene()
         self.prompts.update(self.game.input)
         # Sahne bu karede duvar cikarmis olabilir (arena muhuru).
@@ -1600,6 +1629,8 @@ class PlayScene(Scene):
         if answer is Answer.LIE:
             self.lies.record(self.player.body.feet,
                              direction=self.compass.direction_from(self.player))
+            if self.player.knows(skilltree.ECHO_LIE):
+                self._sense_lie()
 
     def _update_echo_audio(self) -> None:
         """Yanki acilirken/kapanirken kenar tespiti - `EchoState` kendisi
@@ -1650,6 +1681,7 @@ class PlayScene(Scene):
         # parcaciklarin altinda: carpma kivilcimi okun onune dussun.
         projectiles.draw(surface, offset, self.hitboxes.boxes, self.game.frame)
         self.particles.draw(surface, offset)
+        self._draw_burst(surface, offset)
         # Su aktorlerin USTUNE ama yari saydam ciziliyor: suya giren
         # oyuncu kaybolmamali, "suyun icinde" gorunmeli.
         if self.water is not None:
@@ -1838,6 +1870,7 @@ class PlayScene(Scene):
                                  muffled=self._echo_active())
             if box.is_counter:
                 self.show_toast(t("combat.counter"))
+            self._on_skill_hit(target, result)
             if result.killed:
                 # Kill cancel: recovery aninda kesilir, akis surer.
                 self.player.notify_kill()
@@ -1990,6 +2023,13 @@ class PlayScene(Scene):
         hard = air_frames >= HARD_LAND_AIR_FRAMES
         self.game.play_sound("land_hard" if hard else "land_soft")
 
+    def on_player_brake(self, player) -> None:
+        """Tam hizdan durus: on ayagin onunde kisa bir toz yelpazesi."""
+        self.particles.burst(player.body.center_x + player.facing * 5,
+                             player.body.feet[1], 5,
+                             direction=(player.facing, -0.4), path="dust",
+                             speed=(0.4, 1.3), life=(8, 16), gravity=0.05)
+
     def on_player_dodge(self, player) -> None:
         self.particles.burst(player.body.center_x, player.body.feet[1], 8,
                              direction=(-player.facing, 0.0), path="dust",
@@ -2001,6 +2041,186 @@ class PlayScene(Scene):
             self.particles.burst(player.body.center_x, player.body.center_y, 1,
                                  direction=(-player.facing, 0.0), path="echo",
                                  speed=(0.1, 0.4), life=(8, 14), gravity=0.0)
+
+    # --- Yetenek agaci: hareketlerin sahne tarafi -------------------------
+    def refresh_skills(self) -> None:
+        """Yetenekler degisti (kurulus ya da duraklat menusundeki agac).
+
+        Oyuncunun kendi bonuslarini `Player.apply_skills` kuruyor; burasi
+        SAHNEYE ait olanlari: Iz menzili `TrackingState`te duruyor.
+        """
+        if self.tracking is not None:
+            self.tracking.range_scale = skilltree.trace_range_scale(
+                self.player.skills)
+
+    def learn_skill(self, node_key: str) -> None:
+        """Agac ekrani bir dugum acti - canli oyuncu ve sahne yetissin."""
+        self.player.learn_skill(node_key)
+        self.refresh_skills()
+
+    def _migrate_save(self) -> None:
+        """ESKI KAYIT icin tek seferlik iki duzeltme, ikisi de bayrakli.
+
+          * Tezgahtan kalkan Sonmez Fitil / Koruyucu Mum'un parasi iade
+          * Yeni agacin GECILMIS kaynaklarinin puani (`skilltree.backfill`)
+
+        Degisiklik olursa kayit hemen yaziliyor: yazilmasaydi olup yeniden
+        dogan oyuncu ayni bildirimi her denemede yeniden gorurdu.
+        """
+        data = self.save_data
+        if data is None:
+            return
+        from src.systems import merchant
+        refund = merchant.refund_legacy(data)
+        points = skilltree.backfill(data, self.chapter_number or 0)
+        if not (refund or points):
+            return
+        write_save(data)
+        if refund:
+            self._toast_queue.append((t("shop.refund_toast", gold=refund), 220))
+        if points:
+            self._toast_queue.append((t("skilltree.backfill_toast",
+                                        count=points), 220))
+
+    def _update_sense_burst(self) -> None:
+        """Yanki Darbesi (Rey) / Ayi Kukremesi (Ardo): duyu ACILDIGI anda.
+
+        Tus ayni (`Action.ECHO`), yeni bir tus yok - hareketin kendisi
+        duyuyu acmak. Bedeli de ayni: Rey icin Yanki'nin karartmasi ve
+        savunma cezasi, Ardo icin dusmanlarin solmasi. Bekleme 5 saniye.
+        """
+        if self._burst_cooldown > 0:
+            self._burst_cooldown -= 1
+        if self._burst_ring > 0:
+            self._burst_ring -= 1
+        opened = self.sense_open()
+        rising = opened and not self._burst_was_open
+        self._burst_was_open = opened
+        if not rising or self._burst_cooldown > 0 or self.player.dead:
+            return
+        key = (skilltree.ECHO_BURST if self.echo is not None
+               else skilltree.TRACE_ROAR)
+        if not self.player.knows(key):
+            return
+        self._burst_cooldown = SKILL_BURST_COOLDOWN
+        self._sense_burst(key)
+
+    def _sense_burst(self, key: str) -> None:
+        """Cevreyi iten, sendeleten halka. Hasari kucuk - isi alan acmak."""
+        body = self.player.body
+        width, height = SKILL_BURST_SIZE
+        rect = pygame.Rect(0, 0, width, height)
+        rect.center = (int(body.center_x), int(body.center_y))
+        self.hitboxes.spawn(Hitbox(
+            rect=rect, damage=SKILL_BURST_DAMAGE, owner=self.player,
+            targets=Team.ENEMY, knockback=SKILL_BURST_KNOCKBACK,
+            knockback_up=1.6, active_frames=3,
+            poise_damage=SKILL_BURST_POISE, pierce=True,
+        ))
+        rey = key == skilltree.ECHO_BURST
+        self._burst_ring = BURST_RING_FRAMES
+        self._burst_origin = (body.center_x, body.center_y)
+        self._burst_key = key
+        self.particles.burst(body.center_x, body.center_y, 18,
+                             path="echo" if rey else "dust",
+                             speed=(1.2, 2.8), life=(12, 26), gravity=0.0)
+        self.juice.explosion(body.center_x, body.center_y,
+                             ImpactWeight.FINISHER)
+        self.game.play_sound("sense_burst" if rey else "bear_roar",
+                             bus="volume_echo" if rey else "volume_sfx")
+
+    def _draw_burst(self, surface: pygame.Surface, offset) -> None:
+        """Genisleyen halka - itmenin ALANI gorunsun (renk + sekil)."""
+        if self._burst_ring <= 0:
+            return
+        progress = 1.0 - self._burst_ring / BURST_RING_FRAMES
+        width, height = SKILL_BURST_SIZE
+        ox, oy = offset
+        cx = int(self._burst_origin[0]) - ox
+        cy = int(self._burst_origin[1]) - oy
+        rx = max(2, int(width * 0.5 * (0.35 + 0.65 * progress)))
+        ry = max(2, int(height * 0.5 * (0.35 + 0.65 * progress)))
+        rey = self._burst_key == skilltree.ECHO_BURST
+        outer = palette.color("echo_bright" if rey else "bone")
+        inner = palette.color("echo" if rey else "stone_light")
+        thickness = 2 if progress < 0.6 else 1
+        pygame.draw.ellipse(surface, outer,
+                            (cx - rx, cy - ry, rx * 2, ry * 2), thickness)
+        if rx > 6 and ry > 4:
+            pygame.draw.ellipse(surface, inner,
+                                (cx - rx + 3, cy - ry + 2,
+                                 (rx - 3) * 2, (ry - 2) * 2), 1)
+
+    def _sense_lie(self) -> None:
+        """Yalan Sezgisi (YANKI 3b): Yanki yalan soyleyince kolye urperiyor.
+
+        Yalan yine SOYLENIYOR ve deftere yaziliyor - yetenek onu silmiyor,
+        kulak veren oyuncuya bir supheli an veriyor. Iki kanal: ses
+        (kolyenin celiskili atisi) ve goz (boyundan dokulen is).
+        Yazi yok: "bu yalan" demek Yanki'nin yerine konusmak olurdu
+        (docs/korku.md 4.1).
+        """
+        body = self.player.body
+        self.particles.burst(body.center_x, body.y + 6, 7, path="soot",
+                             direction=(0.0, 1.0), speed=(0.2, 0.7),
+                             life=(18, 34), gravity=0.02)
+        self.game.play_sound("necklace_conflict", bus="volume_echo")
+
+    def _on_skill_hit(self, target, result) -> None:
+        """Oyuncunun vurusu degdi - yetenek agacinin vurus tarafi."""
+        healed = self.player.on_dealt_damage(result.amount)
+        if healed:
+            body = self.player.body
+            self.particles.burst(body.center_x, body.center_y, 3,
+                                 path="spark", direction=(0.0, -1.0),
+                                 speed=(0.3, 0.9), life=(10, 18))
+        if getattr(result, "ambush", False):
+            # Pusu: vurusun nereden geldigi okunsun - hedefin ustunde
+            # kisa bir kivilcim ve sesin agir hali.
+            self.particles.burst(target.body.center_x, target.body.y, 8,
+                                 path="spark", direction=(0.0, -1.0),
+                                 speed=(0.6, 1.8), life=(10, 20))
+            self.game.play_sound("hit_counter")
+
+    def on_player_dash(self, player) -> None:
+        """Hamle basladi: arkada toz, havayi yaran ses."""
+        self.particles.burst(player.body.center_x - player.facing * 4,
+                             player.body.feet[1], 10,
+                             direction=(-player.facing, -0.3), path="dust",
+                             speed=(0.8, 2.2), life=(10, 22), gravity=0.04)
+        self.game.play_sound("dodge")
+
+    def on_dash_trail(self, player) -> None:
+        if self.game.frame % 2 == 0:
+            self.particles.burst(player.body.center_x, player.body.center_y,
+                                 1, direction=(-player.facing, 0.0),
+                                 path="spark", speed=(0.1, 0.5),
+                                 life=(6, 12), gravity=0.0)
+
+    def on_player_poised(self, player) -> None:
+        """Sarsilmaz: darbe yendi ama durus bozulmadi - metalik bir tik."""
+        self.particles.burst(player.body.center_x, player.body.center_y, 5,
+                             path="spark", speed=(0.4, 1.4), life=(6, 12))
+        self.game.play_sound("enemy_blocked")
+
+    def on_shield_broken(self, player, box, direction) -> None:
+        """Eski Kalkan ilk darbeyi karsiladi ve kirildi.
+
+        Tek `on_hit` gecidi (CLAUDE.md 7 "uclu senkron"): hitstop, sarsinti
+        ve parcacik ayni cagridan. Agirlik NORMAL - baglayici 3 kare.
+        """
+        x = player.body.center_x - player.facing * 4
+        y = player.body.center_y - 2
+        self.juice.on_hit(
+            ImpactEvent(x=x, y=y, direction=direction,
+                        weight=ImpactWeight.NORMAL,
+                        particle_path="splinter", particle_count=12),
+            target_flash=player.flash, target_squash=player.squash,
+        )
+        self.decals.splatter(x, player.body.bottom, amount=3,
+                             path="splinter", spread=9.0)
+        self.game.play_sound("shield_break")
+        self.show_toast(t("combat.shield_broken"), frames=110)
 
     def on_player_step(self, player) -> None:
         """Adim - hangi ses calinacagi sahnenin `footstep_sound`'undan gelir

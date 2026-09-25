@@ -1,10 +1,10 @@
 # PLAN — Görsel gerçekçilik, akıcı animasyon, vuruş hissi
 
-**Ardeko Studios · 25.09.2026 · ONAY BEKLİYOR**
+**Ardeko Studios · 25.09.2026 · §3 KARARI VERİLDİ, AŞAMA 3 UYGULANDI**
 
 Arda: *"Hazır el atmışken görüntüleri de iyileştir ve daha gerçekçi yap. Animasyonlar da daha akıcı, vuruş hissiyatı daha iyi ve tatmin edici olsun. Tahrik edici yap."*
 
-> Bu belge bir **plan**. İki bağlayıcı kuralla çakışan öneriler var (§3); onların kararı Arda'nın. Bu oturumda **yapılan** iki iş §1.2'de.
+> Bu belge bir **plan**. §3'teki kararı Arda verdi: *"8 fps kuralını oyunu bozmadan dikkatlice geçebilirsin, akıcı ve güzel gözüken animasyonlar yap."* Aşama 3 (akıcı animasyon) uygulandı (§5). Aşama 1, 2, 4 ve 5 hâlâ öneri.
 
 ---
 
@@ -50,9 +50,9 @@ En büyük kazanç **dodge, jump, hurt ve saldırıların hazırlık/takip** poz
 
 ## 3. Bağlayıcı kurallarla çakışan öneriler — KARAR GEREKİYOR
 
-| Kural | Öneri | Neden |
-|---|---|---|
-| `CLAUDE.md` §6: **"Animasyon hissi 8 FPS"** | Hızlı eylemlerde (dodge, saldırı, hurt) **ilerlemeyle sürülen ara pozlar**. Idle/run/fall 8 FPS kalır | Saldırı ve kaçınma zaten kareye değil **dövüş zamanlamasına** bağlı (`attack_progress`). Aynı süreye daha çok poz koymak zamanlamayı değiştirmez, yalnızca akıcılaştırır |
+| Kural | Öneri | Neden | Karar |
+|---|---|---|---|
+| `CLAUDE.md` §6: **"Animasyon hissi 8 FPS"** | Hızlı eylemlerde (dodge, saldırı, hurt) **ilerlemeyle sürülen ara pozlar**. Idle/run/fall 8 FPS kalır | Saldırı ve kaçınma zaten kareye değil **dövüş zamanlamasına** bağlı (`attack_progress`). Aynı süreye daha çok poz koymak zamanlamayı değiştirmez, yalnızca akıcılaştırır | ✅ **Arda onayladı (25.09.2026)**, `CLAUDE.md` §6'ya işlendi |
 | `CLAUDE.md` §7: hitstop 3/7/12 | **Değişmiyor.** Hissi hitstop'u uzatmadan artırıyoruz (§4) | Değerler bağlayıcı |
 
 ## 4. Vuruş hissi — öneriler (çoğu kural dışı, onaysız da yapılabilir)
@@ -69,14 +69,28 @@ En büyük kazanç **dodge, jump, hurt ve saldırıların hazırlık/takip** poz
 
 ## 5. Akıcı animasyon — öneriler (§3 kararına bağlı)
 
-| # | Öneri | Kare |
-|---|---|---|
-| A1 | **Dodge**: 2 → 5 poz (çömelme, atılış, yuvarlanma, toparlanma), leke (smear) karesi | ilerlemeyle |
-| A2 | **Jump**: 1 → 3 (kalkış, yükseliş, tepe) | |
-| A3 | **Hurt**: 2 → 3 (darbe, geri savrulma, toparlanma) | |
-| A4 | **Saldırı**: her vuruşa 1 hazırlık + 1 leke pozu (5 → 7), zamanlama aynı | ilerlemeyle |
-| A5 | **Koşuya başlama / durma**: kısa bir itiş ve kayarak durma geçişi (land/turn gibi 3 kare) | |
-| A6 | Pelerin/saç sallanmasını Jet ve Kalachev'e de ver (`SWAY_CHARACTERS`) | bellek: karakter başına ×3 sprite |
+| # | Öneri | Kare | Durum |
+|---|---|---|---|
+| A1 | **Dodge**: 2 → 8 poz (itiş, atılış, toparlanma) | ilerlemeyle | ✅ |
+| A2 | **Jump**: 1 → 4 poz (kalkış, yükseliş, tepe); **dikey hızla** sürülüyor | ilerlemeyle | ✅ |
+| A3 | **Hurt**: 2 → 5 poz (darbe, savrulma, toparlanma) | hasar süresiyle | ✅ |
+| A4 | **Saldırı**: 5 → 8 poz, zamanlama aynı | ilerlemeyle | ✅ |
+| A5 | **Durma**: tam hızdan fren pozu (3 kare) ve toz | zamanla | ✅ durma · ⬜ koşuya başlama |
+| A6 | Pelerin/saç sallanmasını Jet ve Kalachev'e de ver (`SWAY_CHARACTERS`) | bellek: karakter başına ×3 sprite | ⬜ |
+
+**Bosta 6 → 8 poz, koşu 8 → 10 poz** da oldu. Bunlar zamanla sürülüyor ama
+**toplam süreleri aynı** (`src/art/animator.py :: DURATIONS`): bosta 54,
+koşu 40, düşman saldırısı 35, hasar 14 kare. Düşmanlar saldırı ve hasarı
+zamanla oynatıyor. Poz sayısı artıp bekleme aynı kalsaydı düşmanın savuruşu
+vuruşundan geri kalırdı. Bekleme artık kesirli (`hold_for`).
+
+Ölçüm: `tests/test_animation_flow.py`.
+
+- Süreler eskisiyle aynı.
+- Kaçınma 8, zıplama 4, hasar 5 farklı poz gösteriyor.
+- Fren yalnızca tam hızdan durunca çıkıyor.
+
+Kontak sayfası: `python tools/sprite_sheet.py --karakter rey_armed,ardo_armed --durum dodge,jump,hurt,brake,attack1,attack3`.
 
 Hepsi **prosedürel pozlarla** (`spritegen` / `pose_table`); yeni PNG yok. Her yeni poz siluet testinden geçer (`tools/silhouette.py`).
 
@@ -104,12 +118,12 @@ Hepsi **prosedürel pozlarla** (`spritegen` / `pose_table`); yeni PNG yok. Her y
 |---|---|---|
 | 1 | V1, V2, V3, V5, V6, G1, G4 | **gerekmiyor** (kural dışı, düşük maliyet) |
 | 2 | V4 katmanlı ses | gerekmiyor, ama kulakla dinlenmeli (başsız testte ses dinlenemiyor) |
-| 3 | A1–A5 akıcı animasyon | **§3 kararı gerekiyor** (8 FPS) |
+| 3 | A1–A5 akıcı animasyon | ✅ **uygulandı** (25.09.2026) |
 | 4 | G2 noktasal ışık, G3, G5, G6 | gerekmiyor; performans ölçülerek |
 | 5 | A6 sallanma genişletme | gerekmiyor; bellek ölçülerek |
 
 ## 9. Arda'ya sorular
 
-1. **8 FPS kuralı** hızlı eylemlerde (dodge, saldırı, hurt) ilerlemeyle sürülen ara pozlar için gevşetilsin mi? (Önerim: evet. Idle/run/fall 8 FPS kalsın.)
+1. ~~**8 FPS kuralı** hızlı eylemlerde gevşetilsin mi?~~ **Evet** (Arda, 25.09.2026). Uygulandı.
 2. **Oyuncunun vurulma nabzı** (V6) korku katmanının "azaltılmış" ayarında kapansın mı?
 3. **Kol titreşimi varsayılan açık** kalsın mı? (Bugün ayar varsayılanı açık, kol desteği varsayılan kapalı.)

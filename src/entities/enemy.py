@@ -40,10 +40,11 @@ from src.config import (
     INVESTIGATE_REACH, NOISE_RANGE,
     ENEMY_APPROACH_SPEED, ENEMY_LOSE_RANGE, ENEMY_MIN_TELL_FRAMES,
     ENEMY_ORBIT_SPEED, ENEMY_SIGHT_RANGE, ORBIT_RADIUS_MAX, ORBIT_RADIUS_MIN,
-    ORBIT_SLOT_WIDTH,
+    ORBIT_SLOT_WIDTH, SKILL_AMBUSH_SCALE,
 )
 from src.entities import enemy_navigation
 from src.entities.actor import Actor
+from src.systems import skilltree
 
 
 class EnemyState(Enum):
@@ -171,9 +172,20 @@ class Enemy(Actor):
 
     # --- Hasar --------------------------------------------------------------
     def take_damage(self, box, direction):
-        result = super().take_damage(box, direction)
+        # Pusu (IZ 3a, yalniz Ardo): arkadan ya da fark etmemisken gelen
+        # vurus agir. Carpan vurus UYGULANMADAN biniyor (oyuncunun savunma
+        # carpaniyla ayni gerekce: sonradan duzeltmek olum esigini kaydirir).
+        ambush = self._ambushed_by(box)
+        original = box.damage
+        if ambush:
+            box.damage = max(1, round(box.damage * SKILL_AMBUSH_SCALE))
+        try:
+            result = super().take_damage(box, direction)
+        finally:
+            box.damage = original
         if not result.hit:
             return result
+        result.ambush = ambush
         if result.killed:
             self._set_state(EnemyState.DEAD)
             self.scene.tokens.force_release(self)
@@ -184,6 +196,22 @@ class Enemy(Actor):
             self.on_attack_cancelled()
         self.aware = True
         return result
+
+    def _ambushed_by(self, box) -> bool:
+        """Bu vurus bir Pusu mu? Sahibi Pusu'yu bilen oyuncu olmali VE
+        dusman ya uyuyor, ya fark etmemis, ya da sirti ona donuk.
+
+        "Sirt" bakis yonunden okunuyor: dusman saldirirken donmuyor, yani
+        kacinmayla icinden gecip arkasina dusen oyuncu sirtini buluyor.
+        """
+        owner = box.owner
+        knows = getattr(owner, "knows", None)
+        if knows is None or not knows(skilltree.TRACE_AMBUSH):
+            return False
+        if self.asleep or not self.aware:
+            return True
+        dx = owner.body.center_x - self.body.center_x
+        return abs(dx) > 2 and (dx > 0) != (self.facing > 0)
 
     def on_attack_cancelled(self) -> None:
         """Saldiri yarida kesildi. Alt sinif temizlik yapabilir."""
@@ -323,8 +351,10 @@ class Enemy(Actor):
             self.aware = False
             return
         distance = self.distance_to(player)
+        # Sessiz Adim (IZ 3b) oyuncuyu daha yakindan fark ettiriyor.
+        sight = ENEMY_SIGHT_RANGE * getattr(player, "sight_scale", 1.0)
         # Histerezis: tek esik olsaydi sinirdaki dusman acip kapanirdi.
-        if not self.aware and distance <= ENEMY_SIGHT_RANGE:
+        if not self.aware and distance <= sight:
             self.aware = True
         elif self.aware and distance > self.lose_range:
             self.aware = False

@@ -26,15 +26,37 @@ from src.art.spritegen import CharSpec
 # Bosta/kosu gibi donguselerde her sanat karesi kac oyun karesi durur.
 DEFAULT_HOLD_FRAMES = 7
 HOLD_OVERRIDES: dict[str, int] = {
-    "run": 5,          # Kosu biraz daha hizli okunmali
     "fall": 6,
-    "idle": 9,         # Nefes yavas
     "death": 8,
     # Gecis kareleri kisa: uc kare x uc oyun karesi = 9 kare (~0.15 sn).
     # Varsayilan 7'de tutulsalardi inis ve donus agir cekim gorunurdu.
     "land": 3,
     "turn": 3,
+    "brake": 3,
 }
+# **Zamanla surulen durumlarin TOPLAM suresi** (oyun karesi). Poz sayisi
+# 25.09.2026'da artti (akici animasyon); bekleme bu sureden turetiliyor ki
+# dongunun temposu ve dusmanlarin savurusu eskisiyle AYNI kalsin:
+#   bosta 6x9=54, kosu 8x5=40, saldiri 5x7=35, hasar/kacinma 2x7=14.
+# Poz sayisi degisse de sure degismiyor - kare kare ayni zaman, daha cok poz.
+DURATIONS: dict[str, int] = {
+    "idle": 54,
+    "run": 40,
+    "attack1": 35,
+    "attack2": 35,
+    "attack3": 35,
+    "hurt": 14,
+    "dodge": 14,
+    "jump": 16,
+}
+
+
+def hold_for(state: str, count: int) -> float:
+    """Bu durumda bir pozun kac oyun karesi durdugu (kesirli olabilir)."""
+    total = DURATIONS.get(state)
+    if total is not None and count > 0:
+        return total / count
+    return float(HOLD_OVERRIDES.get(state, DEFAULT_HOLD_FRAMES))
 
 # Onbellek anahtari (ad, sallanma_indeksi). Kumasi olmayan karakterler
 # yalnizca notr varyanti alir - varyant uretmek bos maliyet olurdu.
@@ -164,10 +186,12 @@ class Animator:
             return
 
         self.hold += 1
-        limit = HOLD_OVERRIDES.get(self.state, DEFAULT_HOLD_FRAMES)
-        if self.hold < limit * self.hold_scale:
+        limit = hold_for(self.state, len(sequence)) * self.hold_scale
+        if self.hold < limit:
             return
-        self.hold = 0
+        # Kesirli bekleme: kalan birikiyor - 35 karelik saldiri 8 pozla
+        # yine 35 karede biter, 40'ta degil.
+        self.hold -= limit
         self.index += 1
         if self.index >= len(sequence):
             if looping:

@@ -1,47 +1,70 @@
-"""Yetenek agaci - uc dal, dort seviye.
+"""Yetenek agaci - karakter basina uc dal, bes kademe, 3. kademe bir SECIM.
 
-`docs/gdd.md` 6: *"Yetenek agaci (3 dal x 4 seviye)"*. `docs/yapi.md` B4:
-ilk agac ekrani **Kayit Odasi**'nda aciliyor - dovussuz bir nefes bolumu.
+Arda (25.09.2026): *"Yetenek agacini bolume yayilmis puanlar olarak
+tekrar yap. Yeni hareketler versin."* Plan: `docs/plan-yetenek-agaci.md`.
 
 Bu dosya agacin **mantigi**: ne var, neyin onkosulu ne, kim neyi alabilir,
-ve acilanlarin toplam etkisi ne. Cizim `src/ui/skill_tree.py`'de; modul
-durumsuz, durum kayitta (`SaveData.skills` + `SaveData.skill_points`).
+puan nereden geliyor ve acilanlarin toplam etkisi ne. Cizim
+`src/ui/skill_tree.py`'de; modul durumsuz, durum kayitta
+(`SaveData.skills` + `SaveData.skill_points` + `flags["skillpt_*"]`).
 Ayni ayrim `charms.py` ve `abilities.py`'de de var.
 
-## Agac neden tamamlanamiyor
+## Eski agac neden yeniden yazildi
 
-`docs/ekonomi-uretim.md` 1 oyun boyunca kabaca **6 yetenek puani** veriyor.
-Agacin tamami 18 puan eder. Yani oyuncu asla hepsini alamaz: ya bir dali
-dibine kadar acar (1+1+2+2 = 6), ya uc dalin ilk iki seviyesini. Ekipmanda
-oldugu gibi burada da kural ayni - *"her bolumde bir sey alabilmeli, ama
-her seyi alamamali"*.
+Oyunun tamaminda **tek** puan veriliyordu (B4 kampi) ve ekran yalnizca
+B4'te aciliyordu: agacin %94'u hic acilmiyordu. On iki dugumun on ikisi
+de bir sayiydi (hasar %6, can +5) - oyun bicimi hic degismiyordu.
 
-Bu yuzden bedeller **artan**: ust seviyeler ucuz olsaydi oyuncu uc dali da
-yariya kadar acar ve hicbir sey secmemis olurdu.
+## Dallar
 
-## Onkosul zinciri
+    KESKIN   kilic         iki karakter
+    TAS      ayakta kalmak iki karakter
+    YANKI    ses           yalniz Rey  (Ardo Yanki'yi duymuyor)
+    IZ       av            yalniz Ardo (Rey'in YANKI dalinin karsiligi)
 
-Bir dugum ancak **ustundeki seviye acikken** alinabilir. Seviye atlanamaz.
-Onkosul olmasaydi oyuncu uc dalin en guclu dugumunu toplar ve dallarin
-karakteri diye bir sey kalmazdi.
+Her karakter uc dal goruyor; oteki karakterin dali ekranda **hic yok**
+(soluk bir dal "alamayacagin bir sey" diye bagiriyordu).
+
+## Bes kademe, bedel 1+1+2+2+3
+
+3. kademede iki dugum yan yana: **biri alinir, oteki kilitlenir.** Ayni
+dali iki oyuncu farkli oynasin. 4. kademe ikisinden hangisi alinmissa
+onun ustune acilir.
+
+Dal 9 puan, agac 27. Oyun ~11 puan veriyor (`SKILL_POINT_CHAPTERS` +
+B4 kampi + B15'in hayalet odulu): bir dal dibe, bir baskasi yariya.
+*"Her bolumde bir sey alabilmeli, ama her seyi alamamali."*
+
+## Yeni hareketler (`is_move`)
+
+    Hamle          kosarken saldiri -> ileri atilan guclu vurus
+    Havada Asili   havada vururken asili kalmak, hava zinciri
+    Kilic Dalgasi  bitirici ileri ucan bir kesik firlatiyor
+    Toparlanma     yenen darbenin bir kismi karsilik vurarak geri alinir
+    Sarsilmaz      saldirirken hafif vuruslar zinciri bozmuyor
+    Yalan Sezgisi  Yanki yalan soyleyince kolye urperiyor
+    Yanki Darbesi  Yanki'yi acmak cevreyi itiyor ve sendeletiyor
+    Pusu           arkadan / fark etmemis dusmana x1.5
+    Sessiz Adim    daha hizli sessiz yuruyus, dusmanlar gec fark ediyor
+    Ayi Kukremesi  Iz'i acmak cevreyi itiyor (Yanki Darbesi'nin ikizi)
+
+Hareketlerin kendisi `player.py`/`play.py`/`enemy.py`de; burada yalnizca
+"acik mi" sorusunun cevabi ve sayilar var.
 
 ## Etkiler carpan/bonus - taban degerlere DOKUNULMAZ
 
 `docs/dovus-sistemi.md`'deki kare degerleri baglayici (CLAUDE.md 7).
 Yetenekler onlarin **ustune** biner: zincir penceresi 12/14/10 oldugu gibi
-kalir, KESKIN dalinin "Akis" dugumu uzerine +2 kare ekler. Hicbir yetenek
-bir taban sayiyi yeniden yazmiyor.
+kalir, "Akis" uzerine +2 kare ekler. Hicbir yetenek bir taban sayiyi
+yeniden yazmiyor. Carpanlar **carpilarak** birlesir (dogal azalan getiri),
+duz bonuslar toplanarak - `charms.py` deseni.
 
-Toplayicilar `charms.py` desenini birebir izliyor: carpanlar **carpilarak**
-birlesir (dogal azalan getiri), duz bonuslar toplanarak.
+## Anahtarlar kalici
 
-## Yanki dali ve Ardo
-
-Ardo Yanki'yi duymuyor - bu bir eksiklik degil karakter farki (DEVIR.md
-3.7). YANKI dalinin etkileri onda sessizce notr kalir. Dali gizlemek ya da
-soluklastirmak icin ekran `branch_usable(save, "echo")` sorar; `can_unlock`
-bilerek yalnizca **puan ve onkosul** bakiyor (sozlesme bu), yoksa "neden
-alamiyorum" sorusunun iki ayri cevabi olurdu.
+Kayda **bu dizeler** yaziliyor: yeni dugum eklemek serbest, var olani
+yeniden adlandirmak eski kayitlarin yeteneklerini yok eder. Eski on iki
+anahtarin hepsi korundu; `blade_finisher` artik "Kilic Dalgasi" ama ayni
+anahtar - eski agacta bitiriciyi guclendiriyordu, yenisinde de oyle.
 """
 from __future__ import annotations
 
@@ -49,42 +72,61 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable, Iterable
 
 from src.config import (
-    COMBO_THRESHOLD_MID, SKILL_COST_BY_LEVEL, SKILL_EDGE_DAMAGE_BONUS,
-    SKILL_FINISHER_DAMAGE_BONUS, SKILL_FLOW_CHAIN_FRAMES,
+    COMBO_THRESHOLD_MID, GHOST_SKILL_POINTS, REST_SKILL_POINTS,
+    SKILL_COST_BY_LEVEL, SKILL_EDGE_DAMAGE_BONUS, SKILL_FLOW_CHAIN_FRAMES,
     SKILL_GRIP_SIGHT_BONUS, SKILL_GUARD_DEFENCE_RELIEF,
     SKILL_HIDE_HEALTH_BONUS, SKILL_MEND_COMBO_RELIEF,
-    SKILL_MOMENTUM_DAMAGE_BONUS, SKILL_REACH_SIGHT_BONUS,
-    SKILL_ROLL_DODGE_CHARGES, SKILL_WARD_DEFENCE_RELIEF,
+    SKILL_MOMENTUM_DAMAGE_BONUS, SKILL_POINT_CHAPTERS,
+    SKILL_REACH_SIGHT_BONUS, SKILL_ROLL_DODGE_CHARGES,
+    SKILL_TRACE_PATIENCE_RELIEF, SKILL_TRACE_RANGE_BONUS,
+    SKILL_TRACE_READ_BONUS, SKILL_WARD_DEFENCE_RELIEF,
     SKILL_WILL_DEFENCE_RELIEF, SKILL_WILL_HEALTH_BONUS,
 )
-from src.entities.character_stats import ARDO, REY
 
 if TYPE_CHECKING:                      # yalnizca tip icin - dongusel import yok
     from src.systems.save import SaveData
 
 
 # --- Dugum anahtarlari ------------------------------------------------------
-# Kayit dosyasina **bu dizeler** yaziliyor (abilities.py ve charms.py ile
-# ayni kural): yeni dugum eklemek serbest, var olani yeniden adlandirmak
-# eski kayitlarin yeteneklerini yok eder.
 BLADE_EDGE = "blade_edge"
 BLADE_FLOW = "blade_flow"
+BLADE_DASH = "blade_dash"            # yeni hareket: Hamle
+BLADE_HOVER = "blade_hover"          # yeni hareket: Havada Asili
 BLADE_MOMENTUM = "blade_momentum"
-BLADE_FINISHER = "blade_finisher"
+BLADE_FINISHER = "blade_finisher"    # yeni hareket: Kilic Dalgasi
 
 ECHO_REACH = "echo_reach"
 ECHO_WARD = "echo_ward"
 ECHO_GRIP = "echo_grip"
+ECHO_LIE = "echo_lie"                # Yalan Sezgisi
 ECHO_MEND = "echo_mend"
+ECHO_BURST = "echo_burst"            # yeni hareket: Yanki Darbesi
+
+TRACE_EYE = "trace_eye"
+TRACE_PATIENCE = "trace_patience"
+TRACE_AMBUSH = "trace_ambush"        # Pusu
+TRACE_QUIET = "trace_quiet"          # Sessiz Adim
+TRACE_READ = "trace_read"
+TRACE_ROAR = "trace_roar"            # yeni hareket: Ayi Kukremesi
 
 STONE_HIDE = "stone_hide"
 STONE_GUARD = "stone_guard"
 STONE_ROLL = "stone_roll"
+STONE_RALLY = "stone_rally"          # Toparlanma
 STONE_WILL = "stone_will"
+STONE_POISE = "stone_poise"          # Sarsilmaz
 
 BRANCH_BLADE = "blade"
 BRANCH_ECHO = "echo"
+BRANCH_TRACE = "trace"
 BRANCH_STONE = "stone"
+
+# Puan kaynaklarinin kayittaki bayrak oneki. Her kaynak bir kez puan
+# veriyor: tekrar oynanan bolum ikinci puani vermiyor (B4 kampinin eski
+# kurali, simdi her kaynakta).
+POINT_FLAG_PREFIX = "skillpt_"
+SOURCE_B4_CAMP = "b4_camp"
+SOURCE_GHOST = "ch15_ghost"
 
 
 def _neutral(player: object) -> float:
@@ -119,19 +161,36 @@ class Node:
     chain_window: int = 0        # kare
     dodge_charges: int = 0
     restore_combo: int = 0       # COMBO_TO_RESTORE'dan dusulecek vurus sayisi
+    trace_range: float = 0.0     # Iz menzili orani (+0.25 = %25 uzak)
+
+    # Yeni bir FIIL mi veriyor? Ekran bu dugumlere "yeni hareket" rozeti
+    # koyuyor - oyuncu sayi ile hareket arasindaki farki gormeli.
+    is_move: bool = False
 
 
 @dataclass(frozen=True)
 class Branch:
-    """Bir dal: dort seviye, yukaridan asagi sirali."""
+    """Bir dal: bes kademe, yukaridan asagi. Bir kademe 1 ya da 2 dugum.
+
+    Iki dugumlu kademe bir SECIM: biri alininca oteki kilitlenir.
+    """
 
     key: str
     label_key: str
     desc_key: str
-    nodes: tuple[Node, ...]
-    # Yalniz Yanki tasiyan karakterde ise yarar (Rey). Ekran bunu
-    # soluklastirmak icin `branch_usable()` sorar.
-    requires_echo: bool = False
+    tiers: tuple[tuple[Node, ...], ...]
+    # "" = iki karakter de; "rey" / "ardo" = yalniz o karakter.
+    character: str = ""
+
+    @property
+    def nodes(self) -> tuple[Node, ...]:
+        """Butun dugumler, kademe sirasiyla (secimde soldaki once)."""
+        return tuple(node for tier in self.tiers for node in tier)
+
+    @property
+    def cost(self) -> int:
+        """Dalin dibine inmenin bedeli - secim kademesinden tek dugum."""
+        return sum(tier[0].cost for tier in self.tiers)
 
 
 # --- Kosullu etkiler --------------------------------------------------------
@@ -151,19 +210,18 @@ def _momentum_damage(player: object) -> float:
             else 1.0)
 
 
-def _finisher_damage(player: object) -> float:
-    """Yalniz zincirin son vurusunda. Bitiriciyi savurmak zaten bir karar."""
-    chain = getattr(player, "chain", None)
-    if chain is None or not getattr(chain, "busy", False):
-        return 1.0
-    if not getattr(chain, "is_finisher", False):
-        return 1.0
-    return 1.0 + SKILL_FINISHER_DAMAGE_BONUS
+def _scene_attr(player: object, name: str) -> object:
+    return getattr(getattr(player, "scene", None), name, None)
 
 
 def _has_echo(player: object) -> bool:
     """Sahnedeki Yanki durumu. Ardo'da `scene.echo` None (scenes/play.py)."""
-    return getattr(getattr(player, "scene", None), "echo", None) is not None
+    return _scene_attr(player, "echo") is not None
+
+
+def _sense_active(player: object, name: str) -> bool:
+    sense = _scene_attr(player, name)
+    return sense is not None and bool(getattr(sense, "active", False))
 
 
 def _reach_sight(player: object) -> float:
@@ -180,10 +238,23 @@ def _ward_defence(player: object) -> float:
     Sifirlasaydi mekanigin kalbi olurdu: Yanki'nin yardimi bedelsiz kalinca
     "acik tut, unut" haline gelirdi (systems/echo.py "Bedel").
     """
-    echo = getattr(getattr(player, "scene", None), "echo", None)
-    if echo is None or not getattr(echo, "active", False):
+    if not _sense_active(player, "echo"):
         return 1.0
     return 1.0 - SKILL_WARD_DEFENCE_RELIEF
+
+
+def _patience_defence(player: object) -> float:
+    """Avci Sabri: Iz ACIKKEN alinan hasar azalir - Yanki Kalkani'nin ikizi."""
+    if not _sense_active(player, "tracking"):
+        return 1.0
+    return 1.0 - SKILL_TRACE_PATIENCE_RELIEF
+
+
+def _read_damage(player: object) -> float:
+    """Iz Okuma: Iz acikken dusmanin nereye basacagini okuyorsun."""
+    if not _sense_active(player, "tracking"):
+        return 1.0
+    return 1.0 + SKILL_TRACE_READ_BONUS
 
 
 def _guard_defence(player: object) -> float:
@@ -194,91 +265,109 @@ def _will_defence(player: object) -> float:
     return 1.0 - SKILL_WILL_DEFENCE_RELIEF
 
 
+def _node(key: str, level: int, **effects: object) -> Node:
+    """Dugum kurucu. Dil anahtarlari **acikca** asagida yazili.
+
+    f-string ile kurulan anahtari `tests/test_lang.py` kaynak taramasinda
+    goremiyor ve "olu anahtar" sayiyor - o yuzden `label_key`/`desc_key`
+    her dugumde elle geciliyor.
+    """
+    return Node(key=key, cost=SKILL_COST_BY_LEVEL[level - 1], **effects)
+
+
 # --- Agac -------------------------------------------------------------------
-# Dil anahtarlari **acikca** yazili: f-string ile kurulan anahtari
-# tests/test_lang.py kaynak taramasinda goremiyor ve "olu anahtar" sayiyor.
 BRANCHES: tuple[Branch, ...] = (
     Branch(
         key=BRANCH_BLADE,
         label_key="skill.blade",
         desc_key="skill.blade_desc",
-        nodes=(
-            Node(key=BLADE_EDGE,
-                 label_key="skill.blade_edge",
-                 desc_key="skill.blade_edge_desc",
-                 cost=SKILL_COST_BY_LEVEL[0],
-                 damage_scale=_edge_damage),
-            Node(key=BLADE_FLOW,
-                 label_key="skill.blade_flow",
-                 desc_key="skill.blade_flow_desc",
-                 cost=SKILL_COST_BY_LEVEL[1],
-                 chain_window=SKILL_FLOW_CHAIN_FRAMES),
-            Node(key=BLADE_MOMENTUM,
-                 label_key="skill.blade_momentum",
-                 desc_key="skill.blade_momentum_desc",
-                 cost=SKILL_COST_BY_LEVEL[2],
-                 damage_scale=_momentum_damage),
-            Node(key=BLADE_FINISHER,
-                 label_key="skill.blade_finisher",
-                 desc_key="skill.blade_finisher_desc",
-                 cost=SKILL_COST_BY_LEVEL[3],
-                 damage_scale=_finisher_damage),
+        tiers=(
+            (_node(BLADE_EDGE, 1, label_key="skill.blade_edge",
+                   desc_key="skill.blade_edge_desc",
+                   damage_scale=_edge_damage),),
+            (_node(BLADE_FLOW, 2, label_key="skill.blade_flow",
+                   desc_key="skill.blade_flow_desc",
+                   chain_window=SKILL_FLOW_CHAIN_FRAMES),),
+            (_node(BLADE_DASH, 3, label_key="skill.blade_dash",
+                   desc_key="skill.blade_dash_desc", is_move=True),
+             _node(BLADE_HOVER, 3, label_key="skill.blade_hover",
+                   desc_key="skill.blade_hover_desc", is_move=True)),
+            (_node(BLADE_MOMENTUM, 4, label_key="skill.blade_momentum",
+                   desc_key="skill.blade_momentum_desc",
+                   damage_scale=_momentum_damage),),
+            (_node(BLADE_FINISHER, 5, label_key="skill.blade_finisher",
+                   desc_key="skill.blade_finisher_desc", is_move=True),),
         ),
     ),
     Branch(
         key=BRANCH_ECHO,
         label_key="skill.echo",
         desc_key="skill.echo_desc",
-        requires_echo=True,
-        nodes=(
-            Node(key=ECHO_REACH,
-                 label_key="skill.echo_reach",
-                 desc_key="skill.echo_reach_desc",
-                 cost=SKILL_COST_BY_LEVEL[0],
-                 echo_sight_scale=_reach_sight),
-            Node(key=ECHO_WARD,
-                 label_key="skill.echo_ward",
-                 desc_key="skill.echo_ward_desc",
-                 cost=SKILL_COST_BY_LEVEL[1],
-                 defence_scale=_ward_defence),
-            Node(key=ECHO_GRIP,
-                 label_key="skill.echo_grip",
-                 desc_key="skill.echo_grip_desc",
-                 cost=SKILL_COST_BY_LEVEL[2],
-                 echo_sight_scale=_grip_sight),
-            Node(key=ECHO_MEND,
-                 label_key="skill.echo_mend",
-                 desc_key="skill.echo_mend_desc",
-                 cost=SKILL_COST_BY_LEVEL[3],
-                 restore_combo=SKILL_MEND_COMBO_RELIEF),
+        character="rey",
+        tiers=(
+            (_node(ECHO_REACH, 1, label_key="skill.echo_reach",
+                   desc_key="skill.echo_reach_desc",
+                   echo_sight_scale=_reach_sight),),
+            (_node(ECHO_WARD, 2, label_key="skill.echo_ward",
+                   desc_key="skill.echo_ward_desc",
+                   defence_scale=_ward_defence),),
+            (_node(ECHO_GRIP, 3, label_key="skill.echo_grip",
+                   desc_key="skill.echo_grip_desc",
+                   echo_sight_scale=_grip_sight),
+             _node(ECHO_LIE, 3, label_key="skill.echo_lie",
+                   desc_key="skill.echo_lie_desc", is_move=True)),
+            (_node(ECHO_MEND, 4, label_key="skill.echo_mend",
+                   desc_key="skill.echo_mend_desc",
+                   restore_combo=SKILL_MEND_COMBO_RELIEF),),
+            (_node(ECHO_BURST, 5, label_key="skill.echo_burst",
+                   desc_key="skill.echo_burst_desc", is_move=True),),
+        ),
+    ),
+    Branch(
+        key=BRANCH_TRACE,
+        label_key="skill.trace",
+        desc_key="skill.trace_desc",
+        character="ardo",
+        tiers=(
+            (_node(TRACE_EYE, 1, label_key="skill.trace_eye",
+                   desc_key="skill.trace_eye_desc",
+                   trace_range=SKILL_TRACE_RANGE_BONUS),),
+            (_node(TRACE_PATIENCE, 2, label_key="skill.trace_patience",
+                   desc_key="skill.trace_patience_desc",
+                   defence_scale=_patience_defence),),
+            (_node(TRACE_AMBUSH, 3, label_key="skill.trace_ambush",
+                   desc_key="skill.trace_ambush_desc", is_move=True),
+             _node(TRACE_QUIET, 3, label_key="skill.trace_quiet",
+                   desc_key="skill.trace_quiet_desc", is_move=True)),
+            (_node(TRACE_READ, 4, label_key="skill.trace_read",
+                   desc_key="skill.trace_read_desc",
+                   damage_scale=_read_damage),),
+            (_node(TRACE_ROAR, 5, label_key="skill.trace_roar",
+                   desc_key="skill.trace_roar_desc", is_move=True),),
         ),
     ),
     Branch(
         key=BRANCH_STONE,
         label_key="skill.stone",
         desc_key="skill.stone_desc",
-        nodes=(
-            Node(key=STONE_HIDE,
-                 label_key="skill.stone_hide",
-                 desc_key="skill.stone_hide_desc",
-                 cost=SKILL_COST_BY_LEVEL[0],
-                 max_health=SKILL_HIDE_HEALTH_BONUS),
-            Node(key=STONE_GUARD,
-                 label_key="skill.stone_guard",
-                 desc_key="skill.stone_guard_desc",
-                 cost=SKILL_COST_BY_LEVEL[1],
-                 defence_scale=_guard_defence),
-            Node(key=STONE_ROLL,
-                 label_key="skill.stone_roll",
-                 desc_key="skill.stone_roll_desc",
-                 cost=SKILL_COST_BY_LEVEL[2],
-                 dodge_charges=SKILL_ROLL_DODGE_CHARGES),
-            Node(key=STONE_WILL,
-                 label_key="skill.stone_will",
-                 desc_key="skill.stone_will_desc",
-                 cost=SKILL_COST_BY_LEVEL[3],
-                 max_health=SKILL_WILL_HEALTH_BONUS,
-                 defence_scale=_will_defence),
+        tiers=(
+            (_node(STONE_HIDE, 1, label_key="skill.stone_hide",
+                   desc_key="skill.stone_hide_desc",
+                   max_health=SKILL_HIDE_HEALTH_BONUS),),
+            (_node(STONE_GUARD, 2, label_key="skill.stone_guard",
+                   desc_key="skill.stone_guard_desc",
+                   defence_scale=_guard_defence),),
+            (_node(STONE_ROLL, 3, label_key="skill.stone_roll",
+                   desc_key="skill.stone_roll_desc",
+                   dodge_charges=SKILL_ROLL_DODGE_CHARGES),
+             _node(STONE_RALLY, 3, label_key="skill.stone_rally",
+                   desc_key="skill.stone_rally_desc", is_move=True)),
+            (_node(STONE_WILL, 4, label_key="skill.stone_will",
+                   desc_key="skill.stone_will_desc",
+                   max_health=SKILL_WILL_HEALTH_BONUS,
+                   defence_scale=_will_defence),),
+            (_node(STONE_POISE, 5, label_key="skill.stone_poise",
+                   desc_key="skill.stone_poise_desc", is_move=True),),
         ),
     ),
 )
@@ -293,12 +382,22 @@ _BRANCH_OF: dict[str, Branch] = {
 _LEVEL_OF: dict[str, int] = {
     node.key: level
     for branch in BRANCHES
-    for level, node in enumerate(branch.nodes, start=1)
+    for level, tier in enumerate(branch.tiers, start=1)
+    for node in tier
 }
 
-# Agacin tamamini acmanin bedeli. Oyunun verdigi ~6 puanla kiyaslanabilsin
-# diye adlandirildi - denge tartismasi sayiyi tahmin ederek yapilmasin.
-TOTAL_COST: int = sum(node.cost for node in NODES.values())
+
+def branches_for(character: str) -> tuple[Branch, ...]:
+    """Bu karakterin gordugu dallar, ekrandaki sirayla."""
+    return tuple(b for b in BRANCHES if b.character in ("", character))
+
+
+# Bir karakterin agacinin tamami (Rey ile Ardo esit: 3 x 9). Oyunun
+# verdigi puanla kiyaslanabilsin diye adlandirildi - denge tartismasi
+# sayiyi tahmin ederek yapilmasin.
+TOTAL_COST: int = sum(b.cost for b in branches_for("rey"))
+# Garanti puan: bolum sonlari + B4 kampi. Hayalet odulu bunun ustunde.
+GUARANTEED_POINTS: int = len(SKILL_POINT_CHAPTERS) + REST_SKILL_POINTS
 
 
 # --- Sorgular ---------------------------------------------------------------
@@ -311,7 +410,7 @@ def branch_of(node_key: str) -> Branch | None:
 
 
 def level_of(node_key: str) -> int:
-    """Dugumun dalindaki seviyesi (1..4). Bilinmeyen dugum 0."""
+    """Dugumun dalindaki kademesi (1..5). Bilinmeyen dugum 0."""
     return _LEVEL_OF.get(node_key, 0)
 
 
@@ -325,33 +424,57 @@ def desc_key(node_key: str) -> str:
     return node.desc_key if node else "skill.unknown"
 
 
-def prerequisite(node_key: str) -> Node | None:
-    """Bir ust seviyedeki dugum. Ilk seviyede None."""
+def tier_of(node_key: str) -> tuple[Node, ...]:
+    """Dugumun kademesindeki butun dugumler (kendisi dahil)."""
+    branch = _BRANCH_OF.get(node_key)
+    level = _LEVEL_OF.get(node_key, 0)
+    if branch is None or level <= 0:
+        return ()
+    return branch.tiers[level - 1]
+
+
+def prerequisites(node_key: str) -> tuple[Node, ...]:
+    """Bir ust kademe. **Herhangi biri** acik olmali. Ilk kademede bos.
+
+    Secim kademesinin altinda iki dugum de onkosul sayiliyor: Hamle'yi
+    secen de Havada Asili'yi secen de 4. kademeye inebilmeli.
+    """
     branch = _BRANCH_OF.get(node_key)
     level = _LEVEL_OF.get(node_key, 0)
     if branch is None or level <= 1:
-        return None
-    return branch.nodes[level - 2]
+        return ()
+    return branch.tiers[level - 2]
+
+
+def rival(node_key: str) -> Node | None:
+    """Secim kademesindeki OTEKI dugum. Tek dugumlu kademede None."""
+    for node in tier_of(node_key):
+        if node.key != node_key:
+            return node
+    return None
 
 
 def branch_usable(save: "SaveData", branch_key: str) -> bool:
-    """Bu kayittaki karakter icin dalin bir anlami var mi?
-
-    Yalnizca **arayuz** icin: Ardo'ya YANKI dalini soluk gostermek icin.
-    `can_unlock` bunu bilerek sormuyor - bkz. dosya basi.
-    """
+    """Bu kayittaki karakter bu dali gorebiliyor mu?"""
     branch = next((b for b in BRANCHES if b.key == branch_key), None)
     if branch is None:
         return False
-    if not branch.requires_echo:
-        return True
-    stats = ARDO if getattr(save, "character", "rey") == "ardo" else REY
-    return stats.has_echo
+    return branch.character in ("", _character(save))
+
+
+def _character(save: "SaveData") -> str:
+    return "ardo" if getattr(save, "character", "rey") == "ardo" else "rey"
 
 
 # --- Puan muhasebesi --------------------------------------------------------
 def unlocked(save: "SaveData", node_key: str) -> bool:
     return node_key in (getattr(save, "skills", None) or ())
+
+
+def rival_taken(save: "SaveData", node_key: str) -> bool:
+    """Secim kademesinde oteki dugum alinmis mi? (Ekran "secilmedi" der.)"""
+    other = rival(node_key)
+    return other is not None and unlocked(save, other.key)
 
 
 def spent_points(save: "SaveData") -> int:
@@ -375,26 +498,32 @@ def available_points(save: "SaveData") -> int:
 
 
 def grant_points(save: "SaveData", count: int = 1) -> int:
-    """Puan ekler (nefes bolumu odulu, tuccar, bulmaca). Yeni toplami doner."""
+    """Puan ekler. Yeni toplami doner. Bayraksiz - `award` tercih edilir."""
     save.skill_points = available_points(save) + max(0, count)
     return save.skill_points
 
 
 def can_unlock(save: "SaveData", node_key: str) -> bool:
-    """Puan yeter mi VE bir ustteki seviye acik mi?
+    """Dugum su an alinabilir mi?
 
-    Seviye atlanamaz: yoksa oyuncu uc dalin en guclu dugumunu toplar ve
-    dallarin karakteri diye bir sey kalmaz.
+    Dort sart, hepsi birden:
+      * dal bu karakterin  - Ardo YANKI'yi, Rey IZ'i alamaz
+      * secim kademesinde oteki alinmamis
+      * bir ust kademeden biri acik (kademe atlanamaz)
+      * puan yetiyor
     """
     node = NODES.get(node_key)
     if node is None or unlocked(save, node_key):
         return False
-    if available_points(save) < node.cost:
+    branch = _BRANCH_OF[node_key]
+    if branch.character not in ("", _character(save)):
         return False
-    previous = prerequisite(node_key)
-    if previous is not None and not unlocked(save, previous.key):
+    if rival_taken(save, node_key):
         return False
-    return True
+    above = prerequisites(node_key)
+    if above and not any(unlocked(save, n.key) for n in above):
+        return False
+    return available_points(save) >= node.cost
 
 
 def unlock(save: "SaveData", node_key: str) -> bool:
@@ -418,37 +547,100 @@ def unlocked_nodes(save: "SaveData") -> tuple[Node, ...]:
     return tuple(node for node in NODES.values() if unlocked(save, node.key))
 
 
+# --- Puan kaynaklari --------------------------------------------------------
+# Arda: *"bolume yayilmis puanlar"*. Kaynak basina bir bayrak: ayni kaynak
+# ikinci kez puan vermiyor (bolumu yeniden oynamak, olup yeniden dogmak).
+def point_flag(source: str) -> str:
+    return POINT_FLAG_PREFIX + source
+
+
+def chapter_source(chapter: int) -> str:
+    return f"ch{int(chapter)}"
+
+
+def award(save: "SaveData", source: str, count: int = 1) -> int:
+    """Kaynak daha once puan vermediyse `count` puan verir. Verileni doner."""
+    if save is None or count <= 0:
+        return 0
+    flags = getattr(save, "flags", None)
+    if flags is None:
+        return 0
+    flag = point_flag(source)
+    if flags.get(flag):
+        return 0
+    flags[flag] = True
+    grant_points(save, count)
+    return count
+
+
+def award_chapter(save: "SaveData", chapter: int) -> int:
+    """Bolum sonu puani - yalniz `SKILL_POINT_CHAPTERS`teki bolumlerde."""
+    if int(chapter or 0) not in SKILL_POINT_CHAPTERS:
+        return 0
+    return award(save, chapter_source(chapter))
+
+
+def backfill(save: "SaveData", current_chapter: int = 0) -> int:
+    """ESKI KAYIT: gecilmis kaynaklarin puanini bir kez verir.
+
+    Yeni sistemden once B7'ye gelmis bir oyuncu B3 ve B6'nin puanini hic
+    almadi - yeni agaci kaybettigi puanlarla karsilamamali. Kaynak
+    bayraklari yuzunden iki kez calismak zararsiz; yeni oyunda da hicbir
+    sey vermiyor (gecilmis bolum yok).
+
+    **B4 kampi**: eski kod puani bayraksiz veriyordu. Kampta dinlenmis
+    (`ch04_rested`) bir kayit o puani ZATEN aldi - yalnizca isaretleniyor.
+    """
+    if save is None or getattr(save, "flags", None) is None:
+        return 0
+    chapter = max(int(getattr(save, "chapter", 1) or 1), int(current_chapter or 0))
+    flags = save.flags
+    granted = 0
+    camp = point_flag(SOURCE_B4_CAMP)
+    if flags.get("ch04_rested"):
+        flags.setdefault(camp, True)
+    elif chapter > 4:
+        granted += award(save, SOURCE_B4_CAMP, REST_SKILL_POINTS)
+    for number in SKILL_POINT_CHAPTERS:
+        if number < chapter:
+            granted += award_chapter(save, number)
+    if flags.get("ch15_ghost"):
+        granted += award(save, SOURCE_GHOST, GHOST_SKILL_POINTS)
+    return granted
+
+
 # --- Etki toplayicilari -----------------------------------------------------
-# `charms.py` ile ayni desen ve ayni gerekce: carpanlar **carpilarak**
-# birlesir. Toplama secilseydi yetenek sayisi artinca etki dogrusal
-# patlardi; carpma dogal bir azalan getiri sagliyor.
-def damage_scale(keys: Iterable[str], player: object) -> float:
-    """Acik yeteneklerin **verilen** hasar carpani."""
+def _product(keys: Iterable[str], player: object, channel: str) -> float:
     total = 1.0
     for key in keys:
         node = NODES.get(key)
         if node is not None:
-            total *= node.damage_scale(player)
+            total *= getattr(node, channel)(player)
     return total
+
+
+def damage_scale(keys: Iterable[str], player: object) -> float:
+    """Acik yeteneklerin **verilen** hasar carpani."""
+    return _product(keys, player, "damage_scale")
 
 
 def defence_scale(keys: Iterable[str], player: object) -> float:
     """Acik yeteneklerin **alinan** hasar carpani. 1.0'in altinda = koruma."""
-    total = 1.0
-    for key in keys:
-        node = NODES.get(key)
-        if node is not None:
-            total *= node.defence_scale(player)
-    return total
+    return _product(keys, player, "defence_scale")
 
 
 def echo_sight_scale(keys: Iterable[str], player: object) -> float:
     """Yanki gorus menzili carpani (systems/echo.py `sight_range`)."""
+    return _product(keys, player, "echo_sight_scale")
+
+
+def trace_range_scale(keys: Iterable[str]) -> float:
+    """Iz menzili carpani (`TrackingState.range_scale`). Carpilarak."""
     total = 1.0
     for key in keys:
         node = NODES.get(key)
-        if node is not None:
-            total *= node.echo_sight_scale(player)
+        if node is not None and node.trace_range:
+            total *= 1.0 + node.trace_range
     return total
 
 

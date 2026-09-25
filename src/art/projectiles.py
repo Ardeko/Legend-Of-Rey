@@ -247,7 +247,41 @@ def _draw_echo_wave(surface: pygame.Surface, box, rect: pygame.Rect,
         surface.set_at((cx + facing * 4, cy), palette.color("white_flash"))
 
 
+def _draw_blade_wave(surface: pygame.Surface, box, rect: pygame.Rect,
+                     frame: int) -> None:
+    """Kilic Dalgasi (yetenek agaci, KESKIN 5): celik bir hilal.
+
+    Fisilti'nin mor dalgasiyla ayni iskelet ama bilerek FARKLI iki
+    kanalda: renk celik/kemik (Yanki'nin moru degil - bu kilicin kendisi)
+    ve sekil daha uzun, keskin kenarli. Arkasinda uc sonuk kopya hizi
+    anlatiyor; menzilin sonuna dogru inceliyor.
+    """
+    facing = _facing(box)
+    life = max(1, box.active_frames)
+    fade = 1.0 - box.frames_alive / life
+    cx, cy = rect.center
+    glow = radial_glow(9, palette.color("bone"), peak=0.18 + 0.30 * fade)
+    surface.blit(glow, (cx - 9, cy - 9), special_flags=pygame.BLEND_RGB_ADD)
+    half = 4 + round(5 * fade)
+    trail = ((0, "white_flash"), (1, "bone"), (4, "stone_light"),
+             (8, "stone"), (12, "stone_dark"))
+    for echo, colour in trail:
+        if echo >= 8 and fade < 0.4:
+            continue                      # sonda kuyruk kisaliyor
+        x = cx - facing * echo
+        span = max(1, half - echo // 4)
+        tone = palette.color(colour)
+        for dy in range(-span, span + 1):
+            bulge = round((1.0 - (dy / (span + 0.5)) ** 2) * 4)
+            surface.set_at((x + facing * bulge, cy + dy), tone)
+    # Kenardaki parilti - 8 FPS'lik bir kivilcim, sol-ust isik kurali.
+    if (frame // 4) % 2 == 0:
+        surface.set_at((cx + facing * 5, cy - half + 1),
+                       palette.color("white_flash"))
+
+
 _DRAWERS = {
+    "blade_wave": _draw_blade_wave,
     "echo_wave": _draw_echo_wave,
     "arrow": _draw_arrow,
     "enemy_arrow": _draw_arrow,

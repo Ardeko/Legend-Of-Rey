@@ -27,9 +27,10 @@ Bu dagilim keyfi degil: her biri **kimin** eylemi oldugunu anlatiyor.
 
 ## Yetenek agaci ekrani burada degil
 
-`open_skill_tree()` bilerek bos. Ekran ayri bir iste yaziliyor; bu sahne
-yalnizca **ne zaman** acilmasi gerektigini biliyor (kampta dinlenince).
-Boylece iki is birbirini beklemeden ilerliyor ve baglanti tek satir.
+Ekran `src/ui/skill_tree.py`'de; bu sahne yalnizca **ne zaman** acilmasi
+gerektigini biliyor (kampta dinlenince) ve `open_skill_tree()` onu canli
+sahneyle aciyor. Agac artik her yerden de acilabiliyor (duraklat >
+YETENEKLER, 25.09.2026) - kamp ilk karsilasma ani olarak kaldi.
 """
 from __future__ import annotations
 
@@ -265,12 +266,13 @@ class Chapter04Scene(PlayScene):
         self.player.heal(self.player.max_health)
         if self.save_data is not None:
             self.save_data.flags[FLAG_RESTED] = True
-            # Ilk yetenek puani BURADA veriliyor. Bos bir agac acmak
-            # "kazanim" degil "menu" hissi verirdi; oyuncu agaci ilk kez
-            # gorurken harcayacak bir seyi olmali. `docs/gdd.md` 4 puan
-            # kazanimini nefes bolumlerine (B4, B8, B12) bagliyor.
+            # Kamp puani BURADA veriliyor. Bos bir agac acmak "kazanim"
+            # degil "menu" hissi verirdi; oyuncu agaci ilk kez gorurken
+            # harcayacak bir seyi olmali. `award` bayrakli: kampta ikinci
+            # kez dinlenmek (bolumu yeniden oynamak) ikinci puani vermiyor.
             from src.systems import skilltree
-            skilltree.grant_points(self.save_data, REST_SKILL_POINTS)
+            skilltree.award(self.save_data, skilltree.SOURCE_B4_CAMP,
+                            REST_SKILL_POINTS)
         x, y = self._tile_center(FIRE_TILE)
         self.juice.explosion(x, y - 8, ImpactWeight.NORMAL)
         self.particles.burst(x, y - 8, 16, path="spark", speed=(0.4, 1.8),
@@ -289,7 +291,7 @@ class Chapter04Scene(PlayScene):
         from src.systems import skilltree
         from src.ui.skill_tree import SkillTreeScene
         self.scenes.push(SkillTreeScene, save_data=self.save_data,
-                         tree=skilltree)
+                         tree=skilltree, play=self)
 
     # --- Kelimesiz gunluk ---------------------------------------------------------
     def _update_journal(self) -> None:

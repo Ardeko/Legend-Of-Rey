@@ -36,6 +36,9 @@ Kafasının içindeki sesler yüzünden lanetli sayılan Rey, kaçırılan karde
 | `docs/asset-listesi.md` | Kalem kalem asset dökümü — kaç kare, hangi boyut |
 | `docs/asset-boru-hatti.md` | Asset üretim araçları — Pillow/NumPy boru hattı, quantize, siluet testi |
 | `docs/paket-readme.md` | Tester sürümü paketleme notları |
+| `docs/plan-yetenek-agaci.md` | Yetenek ağacı — bölümlere yayılan puanlar, 3. kademe seçimi, yeni hareketler. **Uygulandı (25.09.2026)** |
+| `docs/plan-kalkan.md` | Eski Kalkan (tek kullanımlık) ve son şansın bağlanması. **Uygulandı (25.09.2026)** |
+| `docs/plan-gorsel-his.md` | Görsel/his planı — Aşama 3 (akıcı animasyon) uygulandı, diğerleri öneri |
 
 > **Tablo 08.09.2026'da onarıldı.** Devir satırı tablonun *ortasında*
 > duruyordu ve tabloyu ikiye bölüyordu — alt yarısı Markdown'da tablo
@@ -202,7 +205,18 @@ Böylece Rey, Ardo ve muhafızlar **aynı iskeletten** çıkar. Tutarlılık gar
   koridorlarından geçemez.
 - **Kafa/boy oranı ≥ 4.4.** 3.5 chibi oranıdır; Arda açıkça yasakladı.
 - **Gölge:** karakterin altında 1 elips
-- **Animasyon hissi:** 8 FPS (her sanat karesi ≈ 7-8 oyun karesi)
+- **Animasyon hissi:** ~~8 FPS~~ — **Arda 25.09.2026'da gevşetti**
+  (*"oyunu bozmadan dikkatlice geçebilirsin, akıcı ve güzel gözüken
+  animasyonlar yap"*):
+  - Döngüsel hareketler (bosta, koşu, düşüş) zamanla sürülür ve kendi
+    temposunda kalır.
+  - **Hızlı eylemler** (saldırı 8, kaçınma 8, zıplama 4, hasar 5 poz)
+    **ilerlemeyle** sürülür: poz, eylemin kendi kare bütçesindeki
+    konumundan seçilir. Poz eklemek dövüş zamanlamasını değiştirmez.
+  - Zamanla sürülen bir durumun **toplam süresi** değişmez
+    (`animator.DURATIONS`, `tests/test_animation_flow.py`).
+  - Yeni poz kodla üretilir ve 32 piksel sınırıyla siluet testinden
+    geçer.
 - **Siluet testi:** her sprite tek renk siyaha çevrildiğinde ne olduğu anlaşılmalı
 
 ### Kayıt
@@ -243,7 +257,7 @@ Bu değerleri kendi kafana göre değiştirme. Denge sorunu görüyorsan söyle,
 Bunlar oyuncuya asla söylenmez, ama her zaman aktiftir:
 - **Coyote time:** platformdan düştükten sonra 6 kare zıplama hakkı
 - **Girdi tamponu:** tuş 8 kare önceden basılırsa hafızada tutulur
-- **Son şans:** can %15 altındayken öldürücü darbede 1 canla hayatta kal (bölüm başına 1)
+- **Son şans:** can %15 altındayken öldürücü darbede 1 canla hayatta kal (bölüm başına 1) — *25.09.2026'ya kadar hiç uygulanmıyordu; şimdi `Player._spare_last_chance`. Sayaç sahnede, ölüm onu tazelemiyor. Eski Kalkan varsa önce o harcanır.*
 - **Kaçınma cömertliği:** dokunulmazlık görsel başlangıçtan 2 kare önce başlar
 
 ---

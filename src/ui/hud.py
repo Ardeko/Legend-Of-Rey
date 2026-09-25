@@ -103,6 +103,10 @@ class HUD:
             if self._last_health is not None and player.health < self._last_health:
                 self.reveal_health()
             self._last_health = player.health
+            # Toparlanma havuzu varken cubuk acik kalir: geri alinabilir
+            # can GORUNMEZSE oyuncu karsilik vermesi gerektigini bilmez.
+            if getattr(player, "rally_pool", 0) > 0:
+                self.reveal_health()
 
         if self._last_gold is not None and gold != self._last_gold:
             self.reveal_gold()
@@ -224,6 +228,8 @@ class HUD:
             layer.fill((*palette.color("blood_dark"), alpha),
                        (1, 1, ghost, rect.height))
 
+        self._draw_rally(layer, rect, player, ratio, alpha)
+
         colour = palette.color("blood_bright")
         if ratio < 0.25:
             # Az can: nabiz. Sabit kirmizi "tehlikedeyim" demiyordu,
@@ -242,6 +248,30 @@ class HUD:
             layer.fill((*palette.color("ink"), alpha), (x, 1, 1, rect.height))
 
         surface.blit(layer, (rect.x - 1, rect.y - 1))
+
+    def _draw_rally(self, layer: pygame.Surface, rect: pygame.Rect, player,
+                    ratio: float, alpha: int) -> None:
+        """Toparlanma (yetenek agaci, TAS 3b): geri alinabilir can.
+
+        Gercek canin hemen saginda, ALTIN ve CIZGILI bir bant - renk korlugu
+        icin sekil kanali cizgiler (`CLAUDE.md` 10). Sure bitmeye yakin
+        yanip soner: "simdi vur ya da kaybet".
+        """
+        pool = getattr(player, "rally_pool", 0)
+        if pool <= 0 or not player.max_health:
+            return
+        left = getattr(player, "rally_frames", 0)
+        if left < 40 and (self.frame // 6) % 2 == 0:
+            return
+        start = int(rect.width * ratio)
+        width = min(rect.width - start,
+                    max(1, int(rect.width * pool / player.max_health)))
+        tone = (*palette.color("gold"), alpha)
+        for x in range(start, start + width):
+            if x % 2 == 0:
+                layer.fill(tone, (1 + x, 1, 1, rect.height))
+            else:
+                layer.fill(tone, (1 + x, 1, 1, 1))
 
     def _draw_combo(self, surface: pygame.Surface, player) -> None:
         combo = getattr(player, "combo", None)

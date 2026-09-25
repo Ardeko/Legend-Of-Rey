@@ -154,11 +154,16 @@ class TrackingState:
     soruyor.
     """
 
-    __slots__ = ("holding", "strength")
+    __slots__ = ("holding", "strength", "range_scale")
 
     def __init__(self) -> None:
         self.holding = False
         self.strength = 0.0
+        # Yetenek agacinin menzil carpani (IZ dali: Keskin Goz). Sahne
+        # yetenekler degisince yaziyor; Yanki'da ayni is `echo_view`de
+        # yapiliyor ama iz menzilini iki ayri cizici okuyor - carpan
+        # burada olursa ikisi de kendiliginden aliyor.
+        self.range_scale = 1.0
 
     @property
     def active(self) -> bool:
@@ -167,7 +172,7 @@ class TrackingState:
     @property
     def range(self) -> float:
         """Su anki okuma menzili - egri ile olcekleniyor."""
-        return TRACKING_RANGE * self.strength
+        return TRACKING_RANGE * self.strength * self.range_scale
 
     @property
     def enemy_fade(self) -> float:

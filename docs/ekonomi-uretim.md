@@ -33,7 +33,8 @@ Aradaki fark bilerek büyük. Keşif ödüllendirilmeli — temel duygun "keşif
 | Zırh | 180–800 | |
 | Tılsım | 300–1200 | En pahalı — en çok oynanış değiştiren |
 | Can şişesi (tek kullanım) | 40 | Bölüm başına 3 taşıma limiti |
-| Yetenek puanı | 150, 250, 400, 600... | Artan maliyet |
+| ~~Yetenek puanı~~ | ~~150, 250, 400, 600...~~ | **Satılmıyor** — puanlar bölümlerden geliyor (25.09.2026, `docs/plan-yetenek-agaci.md`) |
+| Eski Kalkan (tek kullanım) | 60 | İlk darbeyi karşılar; en fazla 1 taşınır (`docs/plan-kalkan.md`) |
 | Yankı onarımı (acil) | 120 | Nefes bölümü beklemeden kademe geri al |
 
 ### Denge Kontrolü
@@ -41,7 +42,7 @@ Aradaki fark bilerek büyük. Keşif ödüllendirilmeli — temel duygun "keşif
 18 bölüm × ~250 ortalama = **~4500 altın** toplam gelir.
 Ölüm kayıpları ve sarf malzemeleri ≈ %20 → **~3600 harcanabilir**.
 
-Bu, oyuncunun oyun boyunca kabaca **4 silah, 3 zırh, 2 tılsım ve 6 yetenek puanı** almasına yeter. Yani mevcut ekipmanın belki yarısını satın alabilir — geri kalanı için seçim yapmalı, ikinci oynayışta farklı bir yol deneyebilir.
+Bu, oyuncunun oyun boyunca kabaca **4 silah, 3 zırh ve 2 tılsım** almasına yeter (yetenek puanı artık altınla alınmıyor; oyun 10-11 puanı bölümlere yayarak veriyor). Yani mevcut ekipmanın belki yarısını satın alabilir — geri kalanı için seçim yapmalı, ikinci oynayışta farklı bir yol deneyebilir.
 
 **Kritik:** Ekipman satılamaz. Satış varsa oyuncu her şeyi alır, seçim ölür.
 

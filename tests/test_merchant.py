@@ -186,6 +186,40 @@ def test_refund(game: Game) -> None:
           f"{arrows()}")
 
 
+def test_shield_offer(game: Game) -> None:
+    """Eski Kalkan her tezgahta; eski etkisiz urunlerin parasi bir kez doner.
+
+    Arda (25.09.2026): *"Sonmez fitil ve koruyucu mum u kaldir ... kalkan
+    veya zirh olsun."*
+    """
+    print("\n--- Eski Kalkan ve eski urunlerin iadesi ---")
+    check(merchant.SHIELD_OFFER in merchant.TRAVEL_OFFERS,
+          "gezgin tezgah kalkani satiyor")
+    from src.scenes.chapter03 import TRADE_OFFERS
+    check(merchant.SHIELD_OFFER in TRADE_OFFERS, "B3 tezgahi kalkani satiyor")
+    check(not any(o.key in ("eternal_wick", "death_candle") for o in TRADE_OFFERS),
+          "Sonmez Fitil ve Koruyucu Mum tezgahta YOK")
+    scene = make_scene(game, 5)
+    data = scene.save_data
+    data.gold = 200
+    data.consumables = {}
+    check(merchant.buy(scene, merchant.SHIELD_OFFER)
+          and consumables.count(data, consumables.SHIELD) == 1,
+          "kalkan satin alindi")
+    gold = data.gold
+    check(not merchant.buy(scene, merchant.SHIELD_OFFER) and data.gold == gold,
+          "ikinci kalkan satilmiyor - altin da gitmiyor")
+
+    old = SaveData(gold=10, flags={"eternal_wick": True, "death_candle": True})
+    check(merchant.refund_legacy(old) == 320 and old.gold == 330,
+          "fitil + mum almis eski kayda 320 altin iade")
+    check(merchant.refund_legacy(old) == 0 and old.gold == 330,
+          "iade bir kez")
+    clean = SaveData(gold=10)
+    check(merchant.refund_legacy(clean) == 0 and clean.gold == 10,
+          "almamis kayda iade yok")
+
+
 def test_projectiles_visible(game: Game) -> None:
     print("\n--- mermiler gorunur ---")
     scene = make_scene(game, 5)
@@ -231,6 +265,7 @@ def main() -> int:
     test_placement(game)
     test_trade(game)
     test_refund(game)
+    test_shield_offer(game)
     test_projectiles_visible(game)
     test_prompts(game)
     game.shutdown()

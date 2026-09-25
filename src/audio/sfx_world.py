@@ -112,6 +112,40 @@ def _echo_wall() -> np.ndarray:
     return synth.normalize(tone * synth.env_exp_decay(n, rate=9.0))
 
 
+@_register("sense_burst")
+def _sense_burst() -> np.ndarray:
+    """Yanki Darbesi: kafadaki ses bir anda DISARI tasiyor.
+
+    Yanki'nin uc notasi (`_ECHO_FREQS`) ayni anda ve alcalarak - acilis
+    sesinin sikistirilmis, darbeli hali. Altinda bir bas vurusu: itme
+    bir kuvvet, bir tini degil.
+    """
+    seconds = 0.42
+    chord = synth.mix(*(synth.sweep(f * 1.5, f, seconds)
+                        for f in _ECHO_FREQS)) / len(_ECHO_FREQS)
+    n = len(chord)
+    chord = chord * synth.env_ad(n, attack=0.02, decay=0.98)
+    push = synth.pad_or_trim(synth.thump(0.2, 120.0, 38.0, decay=9.0,
+                                         noise_amt=0.1, seed=91), n)
+    return synth.normalize(synth.mix(chord, push * 0.8))
+
+
+@_register("bear_roar")
+def _bear_roar() -> np.ndarray:
+    """Ayi Kukremesi: Ardo'nun gogsunden gelen alcak, hirildayan bir ses.
+
+    Dusuk testere (60-90 Hz) + gurultulu nefes; kisa bir yukselis ve uzun
+    bir sonme. Bir canavar degil bir ADAM kukruyor - o yuzden kisa.
+    """
+    seconds = 0.5
+    growl = synth.sweep(92.0, 58.0, seconds)
+    rough = synth.square(71.0, seconds, duty=0.3) * 0.35
+    breath = synth.lowpass(synth.noise(seconds, seed=92), 900.0) * 0.6
+    body = synth.mix(growl, rough, breath)
+    n = len(body)
+    return synth.normalize(body * synth.env_ad(n, attack=0.12, decay=0.88))
+
+
 @_register("echo_sonar")
 def _echo_sonar() -> np.ndarray:
     """Tek can tinisi ve yayilan dalga (docs/bolum-03.md)."""

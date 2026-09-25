@@ -29,7 +29,6 @@ import pygame
 from src.art import lighting, palette
 from src.config import (
     CANDLE_KEEPER_PRICE_ARROWS, CANDLE_KEEPER_PRICE_BOMB,
-    CANDLE_KEEPER_PRICE_DEATH_CANDLE, CANDLE_KEEPER_PRICE_ETERNAL_WICK,
     CANDLE_KEEPER_PRICE_TORCH, CHAPTER3_BOSS_GOLD, CHAPTER3_CHEST_GOLD_ROOM2,
     CHAPTER3_CHEST_GOLD_SECRET, DARK_WAVE_BLACKOUT_FRAMES, INTERNAL_WIDTH,
     PURPLE_FLAME_LIGHT_RADIUS, TILE_SIZE, TORCH_LIGHT_RADIUS,
@@ -67,13 +66,15 @@ ENEMY_CLASSES: dict[str, str] = {
 # Firlatilan mesale bir yuvaya bu kadar yakin duserse onu yakar.
 SOCKET_CATCH_RANGE = TILE_SIZE * 1.4
 
-# Mum Bekcisi'nin uc sabit teklifi (docs/bolum-03.md Oda 3-A).
+# Mum Bekcisi'nin tabagi (docs/bolum-03.md Oda 3-A).
+#
+# Sonmez Fitil ve Koruyucu Mum 25.09.2026'da KALKTI (Arda: *"kalkan veya
+# zirh olsun"*): ikisinin de oyunda hicbir etkisi yoktu. Yerine Eski
+# Kalkan - gezgin tabagiyla ayni nesne (`merchant.SHIELD_OFFER`).
 TRADE_OFFERS = (
     TradeOffer("candle_keeper_torch", CANDLE_KEEPER_PRICE_TORCH, "trade.torch"),
-    TradeOffer("eternal_wick", CANDLE_KEEPER_PRICE_ETERNAL_WICK, "trade.wick"),
-    TradeOffer("death_candle", CANDLE_KEEPER_PRICE_DEATH_CANDLE, "trade.candle"),
     # **Sarf malzemeleri** - uzaktan dovus (docs: Arda 08.09.2026).
-    # Tekrar alinabiliyor; otekiler tekil.
+    # Tekrar alinabiliyor; mesale tekil.
     #
     # Ok demet halinde (3 adet) satiliyor: tek tek almak dukkan
     # ekraninda anlamsiz bir tekrar olurdu. Bomba tek, cunku pahali ve
@@ -82,6 +83,7 @@ TRADE_OFFERS = (
                repeatable=True, item=consumables.ARROW, amount=3),
     TradeOffer("buy_bomb", CANDLE_KEEPER_PRICE_BOMB, "trade.bomb",
                repeatable=True, item=consumables.BOMB, amount=1),
+    merchant.SHIELD_OFFER,
 )
 
 

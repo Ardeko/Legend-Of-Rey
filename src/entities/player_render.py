@@ -18,6 +18,25 @@ from src.combat.hitbox import melee_rect
 IFRAME_BLINK_ALPHA = 140
 IFRAME_BLINK_PERIOD = 3
 
+# Eski Kalkan - sirtta tasinan yuvarlak tahta kalkan (7x7).
+#   o kontur  E isik (sol-ust)  e tahta  d golge (sag-alt)  B demir gobek
+#   b gobegin parlamasi
+_SHIELD_ROWS = (
+    "..ooo..",
+    ".oEEeo.",
+    "oEeeeeo",
+    "oeebBdo",
+    "oeeBBdo",
+    ".oeddo.",
+    "..ooo..",
+)
+_SHIELD_COLOURS = {"E": "flesh_light", "e": "earth", "d": "earth_dark",
+                   "B": "stone_light", "b": "bone"}
+_shield_cache: dict[int, pygame.Surface] = {}
+# Kalkanin govde merkezinden sirta uzakligi ve omuzdan asagi inisi (piksel).
+SHIELD_BACK_OFFSET = 6
+SHIELD_SHOULDER_DROP = 2
+
 
 def draw_player(player, surface: pygame.Surface,
                 offset: tuple[int, int]) -> None:
@@ -54,9 +73,53 @@ def draw_player(player, surface: pygame.Surface,
     # Derinde golge kenarina ortamin rengi (`src/art/rimlight.py`).
     rimlight.draw(surface, image, (x, y), getattr(player.scene, "rim_light", None),
                   foot_row=int(foot))
+    # Kalkan SIRTTA ama sprite'in USTUNDE: arkasina cizilen ilk surumde
+    # govde ve pelerin onu tamamen yutuyordu (ekran goruntusunde yoktu).
+    # Sirtin dis kenarinda, omuz hizasinda duruyor - elde degil, o yuzden
+    # "kalkanla savunuyor" diye okunmuyor; tusu yok, kendiliginden
+    # karsiliyor (`Player._shield_absorbs`).
+    _draw_shield(player, surface, offset)
 
     if player.dodge.counter_ready:
         _draw_counter_hint(player, surface, offset)
+
+
+def _shield_image(facing: int) -> pygame.Surface:
+    """Kalkan sprite'i - bir kez uretilir, yon basina onbellekte."""
+    image = _shield_cache.get(facing)
+    if image is not None:
+        return image
+    image = pygame.Surface((7, 7), pygame.SRCALPHA)
+    outline = palette.outline()
+    for y, row in enumerate(_SHIELD_ROWS):
+        for x, char in enumerate(row):
+            if char == ".":
+                continue
+            colour = outline if char == "o" else palette.color(_SHIELD_COLOURS[char])
+            image.set_at((x, y), colour)
+    if pygame.display.get_surface() is not None:
+        image = image.convert_alpha()
+    # Isik HEP sol-ustten (CLAUDE.md 6) - sola bakarken aynalanmiyor,
+    # yalnizca sirt tarafi degisiyor.
+    _shield_cache[facing] = image
+    return image
+
+
+def _draw_shield(player, surface: pygame.Surface,
+                 offset: tuple[int, int]) -> None:
+    """Canta'da Eski Kalkan varsa sirtta gorunur (diegetik gosterge)."""
+    if player.dead:
+        return
+    from src.systems import consumables
+    data = getattr(player.scene, "save_data", None)
+    if consumables.count(data, consumables.SHIELD) <= 0:
+        return
+    image = _shield_image(player.facing)
+    ox, oy = offset
+    lift = int(player.body.height * (1.0 - player.squash.current[1]))
+    x = int(player.body.center_x - player.facing * SHIELD_BACK_OFFSET) - 3 - ox
+    y = int(player.body.y + SHIELD_SHOULDER_DROP + lift) - oy
+    surface.blit(image, (x, y))
 
 
 def _alpha(player) -> int:

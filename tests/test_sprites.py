@@ -206,7 +206,7 @@ def main() -> int:
     for state in ("attack1", "attack2", "attack3"):
         rey_fn, rey_n, _ = pose_table("rey_armed")[state]
         ardo_fn, ardo_n, _ = pose_table("ardo_armed")[state]
-        check(rey_n == ardo_n == 5,
+        check(rey_n == ardo_n >= 5,
               f"{state} kare sayisi ayni (dovus tablosu bozulmasin)",
               f"rey {rey_n} ardo {ardo_n}")
         mid_r, mid_a = rey_fn(0.7), ardo_fn(0.7)

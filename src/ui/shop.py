@@ -8,7 +8,7 @@ yeri burasi.
 ## Ne degisti (UX)
 
     Ikon      her satirin solunda cizilmis bir nesne (ok demeti, bomba,
-              mesale, fitil, mum). Yazi okumadan "ne" anlasiliyor.
+              mesale, kalkan). Yazi okumadan "ne" anlasiliyor.
     Altin     panelin ustunde oyuncunun altini, sikke ikonuyla.
               Onceden fiyat vardi ama "param yetiyor mu" icin HUD'a
               bakmak gerekiyordu.
@@ -94,8 +94,8 @@ def _label(input_state, action: Action) -> str:
 def _draw_row(surface: pygame.Surface, rect: pygame.Rect, y: int, offer,
               selected: bool, save_data, frame: int) -> None:
     bought = economy.already_bought(save_data, offer)
-    full = (offer.repeatable and offer.item
-            and consumables.count(save_data, offer.item) >= consumables.MAX_CARRY)
+    full = bool(offer.repeatable and offer.item
+                and consumables.full(save_data, offer.item))
     affordable = economy.can_afford(save_data, offer.cost)
     if selected:
         surface.fill(palette.color("ink_soft"),
@@ -110,7 +110,8 @@ def _draw_row(surface: pygame.Surface, rect: pygame.Rect, y: int, offer,
 
     if offer.repeatable and offer.item:
         have = consumables.count(save_data, offer.item)
-        text.draw(surface, f"{have}/{consumables.MAX_CARRY}", rect.right - 58, y,
+        text.draw(surface, f"{have}/{consumables.max_carry(offer.item)}",
+                  rect.right - 58, y,
                   color=palette.role("ui_text_dim"), align="right")
 
     if bought:
@@ -135,8 +136,9 @@ def _icon_for(offer) -> str:
         return "arrow"
     if offer.item == consumables.BOMB:
         return "bomb"
-    return {"candle_keeper_torch": "torch", "eternal_wick": "wick",
-            "death_candle": "candle"}.get(offer.key, "torch")
+    if offer.item == consumables.SHIELD:
+        return "shield"
+    return "torch"
 
 
 def _draw_coin(surface: pygame.Surface, cx: int, cy: int) -> None:
@@ -171,11 +173,13 @@ def _draw_icon(surface: pygame.Surface, cx: int, cy: int, kind: str,
         surface.fill(fire, (cx - 1, cy - 4, 3, 3))
         surface.fill(palette.color("gold" if not dim else "stone"),
                      (cx, cy - 4 + flicker, 1, 1))
-    elif kind == "wick":
-        surface.fill(palette.color("violet" if not dim else "stone"),
-                     (cx - 1, cy - 4 + flicker, 3, 3))
-        surface.fill(metal, (cx - 2, cy, 5, 4))
-    else:  # candle
-        surface.fill(metal, (cx - 1, cy - 1, 3, 5))
-        surface.fill(palette.color("blood_bright" if not dim else "stone"),
-                     (cx, cy - 4 + flicker, 1, 2))
+    else:  # shield - yuvarlak tahta kalkan, demir gobek, sol-ust isik
+        rim = palette.color("stone_dark" if dim else "earth_dark")
+        face = palette.color("stone" if dim else "earth")
+        pygame.draw.circle(surface, rim, (cx, cy), 4)
+        pygame.draw.circle(surface, face, (cx, cy), 3)
+        surface.fill(palette.color("stone_dark" if dim else "earth_dark"),
+                     (cx - 3, cy, 7, 1))                          # tahta derz
+        surface.fill(metal, (cx - 1, cy - 1, 2, 2))               # gobek
+        surface.fill(palette.color("stone_light" if dim else "flesh_light"),
+                     (cx - 2, cy - 3, 2, 1))                      # isik

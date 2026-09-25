@@ -261,13 +261,16 @@ class Chapter15Scene(PlayScene):
         speed = abs(player.body.vx) / max(0.1, top)
         quiet = getattr(player, "sneaking", False) or speed <= RUN_THRESHOLD
         loud = NOISE_WALK if quiet else NOISE_RUN
+        # Sessiz Adim (yetenek agaci, IZ 3b) adim ve inis sesini yariliyor.
+        loud *= getattr(player, "noise_scale", 1.0)
         self._emit(player.body.center_x, player.body.center_y, loud)
 
     def on_player_land(self, player, air_frames: int) -> None:
         super().on_player_land(player, air_frames)
         # Kisa bir dususun sesi yok - platformdan inmek ceza olmamali.
         if air_frames > 12:
-            self._emit(player.body.center_x, player.body.center_y, NOISE_LAND)
+            self._emit(player.body.center_x, player.body.center_y,
+                       NOISE_LAND * getattr(player, "noise_scale", 1.0))
 
     def on_player_dodge(self, player) -> None:
         super().on_player_dodge(player)
@@ -484,6 +487,15 @@ class Chapter15Scene(PlayScene):
         # altin sayisina eklenseydi kazanan neden kazandigini,
         # kazanamayan boyle bir sey oldugunu ogrenemezdi. Kacirilan
         # satir da odulun buyuklugunu yaziyor.
+        # Hayalet gecis bir YETENEK PUANI da veriyor (Arda 25.09.2026:
+        # "bolume yayilmis puanlar"). Bayrakli: bolumu yeniden hayalet
+        # gecmek ikinci puani vermiyor.
+        points = 0
+        if ghost and self.save_data is not None:
+            from src.config import GHOST_SKILL_POINTS
+            from src.systems import skilltree
+            points = skilltree.award(self.save_data, skilltree.SOURCE_GHOST,
+                                     GHOST_SKILL_POINTS)
         result = ChapterResult(
             chapter_key="chapter.silence",
             frames=self.frames,
@@ -493,6 +505,7 @@ class Chapter15Scene(PlayScene):
             secrets_total=SECRETS_TOTAL,
             ghost=ghost,
             ghost_bonus=GHOST_BONUS,
+            skill_points=points,
         )
         data = self.save_data
         if data is not None:

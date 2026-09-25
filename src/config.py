@@ -504,8 +504,25 @@ SONAR_MAX_RADIUS: Final[float] = 140.0
 
 # Mum Bekcisi ticareti - sabit uc teklif (docs/bolum-03.md Oda 3-A).
 CANDLE_KEEPER_PRICE_TORCH: Final[int] = 40
-CANDLE_KEEPER_PRICE_ETERNAL_WICK: Final[int] = 120     # "Sonmez Fitil"
-CANDLE_KEEPER_PRICE_DEATH_CANDLE: Final[int] = 200     # Olum korumasi
+# Sonmez Fitil (120) ve Koruyucu Mum (200) tezgahtan KALKTI (Arda,
+# 25.09.2026: *"Sonmez fitil ve koruyucu mum u kaldir ... kalkan veya
+# zirh olsun"*). Ikisinin de oyunda hicbir etkisi yoktu: mesaleler zaten
+# sonmuyordu, olumde altin kaybi da yoktu. Bu sayilar yalnizca eski
+# kayitlara IADE icin duruyor (`merchant.refund_legacy`).
+LEGACY_WICK_REFUND: Final[int] = 120
+LEGACY_CANDLE_REFUND: Final[int] = 200
+
+# --- ESKI KALKAN (tek kullanimlik, docs/plan-kalkan.md) ------------------------
+# Uzerindeyken seni vuracak ILK darbeyi karsilayip kiriliyor. Tusu yok;
+# almak bir karar, harcamak kendiliginden.
+SHIELD_PRICE: Final[int] = 60           # bir bolum gelirinin ~dortte biri
+SHIELD_MAX_CARRY: Final[int] = 1        # iki kalkan = boss'ta iki hata hakki
+# Kirildiktan sonraki dokunulmazlik. Cok vuruslu saldirida (zincir,
+# suru) kalkan ilkini karsilar; ikincisi hemen gelseydi satin alma bosa
+# giderdi. Bir kacinmanin toplamindan (18) uzun.
+SHIELD_IFRAMES: Final[int] = 30
+# Hasar yok ama darbe var - oyuncu bir seyin oldugunu HISSETMELI.
+SHIELD_KNOCKBACK_SCALE: Final[float] = 0.5
 # Sarf malzemeleri - tekrar alinabilir (src/systems/consumables.py).
 # Ok demeti mesaleden (40) ucuz: uzaktan dovus bir luks degil bir arac.
 # Bomba pahali cunku alan hasari veriyor ve kalabaligi dagitiyor.
@@ -570,46 +587,99 @@ NECKLACE_RESTORE_AT: Final[int] = 150
 
 
 # =============================================================================
-# YETENEK AGACI   (docs/gdd.md 6 - "3 dal x 4 seviye", docs/yapi.md B4)
+# YETENEK AGACI   (docs/plan-yetenek-agaci.md - 25.09.2026, Arda onayladi)
 # =============================================================================
 # **Hicbir deger asagidaki baglayici tabanlari degistirmiyor.** Yetenekler
 # CHAIN, DODGE_*, CHAIN_WINDOW_FRAMES gibi belgelenmis kare degerlerinin
 # USTUNE biner (carpan ya da bonus); taban sayilar oldugu gibi kalir.
-SKILL_BRANCH_LEVELS: Final[int] = 4     # docs/gdd.md 6: dal basina dort seviye
+#
+# Eski agac 3 dal x 4 seviyeydi ve oyun boyunca **tek** puan veriyordu
+# (B4 kampi); ekran da yalnizca B4'te aciliyordu. Arda (25.09.2026):
+# *"Yetenek agacini bolume yayilmis puanlar olarak tekrar yap. Yeni
+# hareketler versin."*
+SKILL_BRANCH_LEVELS: Final[int] = 5     # dal basina bes kademe
 
-# Seviye basina bedel (yetenek puani). Bir dalin tamami 1+1+2+2 = 6 puan.
-# `docs/ekonomi-uretim.md` 1 oyun boyunca kabaca **6 yetenek puani**
-# ongoruyor: yani butun butce ya tek bir dali dibine kadar acar, ya da uc
-# dalin ilk iki seviyesini. Secim gercek bir secim - agacin tamami 18 puan
-# eder ve asla toplanamaz.
-SKILL_COST_BY_LEVEL: Final[tuple[int, ...]] = (1, 1, 2, 2)
+# Kademe basina bedel. Dal = 1+1+2+2+3 = 9 puan, agac 27. Oyun ~11 puan
+# veriyor (asagida): bir dal dibe, bir baskasi yariya - tamamlanamiyor.
+# 3. kademe bir SECIM: iki dugumden biri alinir, oteki kilitlenir.
+SKILL_COST_BY_LEVEL: Final[tuple[int, ...]] = (1, 1, 2, 2, 3)
 
-# --- Dal 1: KESKIN (dovus) ---------------------------------------------------
-SKILL_EDGE_DAMAGE_BONUS: Final[float] = 0.06     # Kosulsuz hasar
+# --- Puan kaynaklari ---------------------------------------------------------
+# Bolum SONU puani veren bolumler (bolum sonu ekraninda "+1"). B4'unki
+# kampta, bolumun ortasinda. B15'i hayalet gecene bir puan daha.
+SKILL_POINT_CHAPTERS: Final[tuple[int, ...]] = (3, 6, 8, 10, 12, 13, 14, 16, 17)
+
+# --- Dal 1: KESKIN (dovus, iki karakter) --------------------------------------
+SKILL_EDGE_DAMAGE_BONUS: Final[float] = 0.12     # Kosulsuz hasar (eskiden 0.06)
 SKILL_FLOW_CHAIN_FRAMES: Final[int] = 2          # Zincir penceresine EK kare
-SKILL_MOMENTUM_DAMAGE_BONUS: Final[float] = 0.15  # COMBO_THRESHOLD_MID ustunde
-SKILL_FINISHER_DAMAGE_BONUS: Final[float] = 0.25  # Yalniz bitirici vurusta
+SKILL_MOMENTUM_DAMAGE_BONUS: Final[float] = 0.20  # COMBO_THRESHOLD_MID ustunde
+# Hamle (3a): kosarken saldiri ileri atilarak vuruyor. Atilis vurusun
+# hazirlik+aktif karelerinde (4+3) sabit, toparlanmada surtunmeyle
+# duruyor: toplam ~45 piksel, yani uc karo - kosan oyuncunun mesafeyi
+# tek hamlede kapatmasi. Kacinmanin (~75 px) altinda kaliyor ki kacinmanin
+# yerine gecmesin.
+SKILL_DASH_MIN_SPEED: Final[float] = 0.8         # tam hizin bu orani ustunde
+SKILL_DASH_LUNGE: Final[float] = 3.6             # atilis hizi (piksel/kare)
+SKILL_DASH_REACH: Final[int] = 10                # hitbox'a EK menzil
+SKILL_DASH_DAMAGE_SCALE: Final[float] = 1.3
+SKILL_DASH_COOLDOWN: Final[int] = 45
+# Havada Asili (3b): havada vururken dusus bu hizi gecmiyor.
+SKILL_HOVER_FALL_SPEED: Final[float] = 0.5
+SKILL_HOVER_FRAMES: Final[int] = 40              # tek bir havada kalista en fazla
+# Her yeni hava vurusunun basinda dusus bu kadar yukari cevriliyor -
+# "asili kalma" hissi. Yercekimi 0.22 iken ~1 piksel yukselip duruyor.
+SKILL_HOVER_LIFT: Final[float] = 0.6
+# Kilic Dalgasi (5): bitirici ileri ucan bir kesik firlatiyor.
+SKILL_WAVE_DAMAGE_RATIO: Final[float] = 0.6      # bitiricinin hasarina oran
+SKILL_WAVE_SPEED: Final[float] = 4.0
+SKILL_WAVE_LIFE: Final[int] = 18                 # ~72 piksel
 
-# --- Dal 2: YANKI (Rey'in laneti) --------------------------------------------
-# Ardo bu dali oynamaz - Yanki'yi duymuyor (DEVIR.md 3.7). Etkiler onda
-# sessizce 1.0 doner; `branch_usable()` ekranin bunu gostermesini sagliyor.
+# --- Dal 2a: YANKI (yalniz Rey) -----------------------------------------------
 SKILL_REACH_SIGHT_BONUS: Final[float] = 0.25     # Gorus menzili
 SKILL_WARD_DEFENCE_RELIEF: Final[float] = 0.12   # Yanki ACIKKEN alinan hasar
 SKILL_GRIP_SIGHT_BONUS: Final[float] = 0.30      # Gorus menzili (ikinci kat)
 SKILL_MEND_COMBO_RELIEF: Final[int] = 6          # COMBO_TO_RESTORE'dan dusulur
+# Yanki Darbesi (5) / Ayi Kukremesi (Ardo 5): duyuyu acinca cevreyi itmek.
+SKILL_BURST_COOLDOWN: Final[int] = 300           # 5 saniye
+SKILL_BURST_DAMAGE: Final[int] = 2
+SKILL_BURST_KNOCKBACK: Final[float] = 3.2
+SKILL_BURST_SIZE: Final[tuple[int, int]] = (72, 36)
+# Poise hasari 3: siradan dusmani (poise 3) tek darbede sendeletiyor.
+# Itmenin anlami bu - geri cekilip nefes almak.
+SKILL_BURST_POISE: Final[int] = 3
 
-# --- Dal 3: TAS (dayaniklilik) -----------------------------------------------
-SKILL_HIDE_HEALTH_BONUS: Final[int] = 5          # docs/gdd.md 6: "+5 can"
-SKILL_GUARD_DEFENCE_RELIEF: Final[float] = 0.06  # Kosulsuz alinan hasar
+# --- Dal 2b: IZ (yalniz Ardo) ---------------------------------------------------
+SKILL_TRACE_RANGE_BONUS: Final[float] = 0.25     # Iz menzili
+SKILL_TRACE_PATIENCE_RELIEF: Final[float] = 0.12  # Iz ACIKKEN alinan hasar
+# Pusu: ARKASINDAN ya da fark etmemis dusmana vurus. x2 degil x1.5:
+# kacinmayla dusmanin icinden gecip sirtina vurmak zaten kolay (govdeler
+# carpismiyor) ve karsi vurus bonusu da ustune biniyor.
+SKILL_AMBUSH_SCALE: Final[float] = 1.5
+SKILL_QUIET_NOISE_SCALE: Final[float] = 0.5      # Sessiz Adim: adim sesi
+SKILL_QUIET_SNEAK_RATIO: Final[float] = 0.50     # sessiz yuruyus hizi (0.40 yerine)
+# Sessiz Adim: uyanik dusmanlar da seni daha yakindan fark ediyor
+# (ENEMY_SIGHT_RANGE 170 -> ~110). B15 disinda da bir anlami olsun.
+SKILL_QUIET_SIGHT_SCALE: Final[float] = 0.65
+SKILL_TRACE_READ_BONUS: Final[float] = 0.15      # Iz acikken hasar
+
+# --- Dal 3: TAS (dayaniklilik, iki karakter) ------------------------------------
+SKILL_HIDE_HEALTH_BONUS: Final[int] = 10         # eskiden 5 - hissedilmiyordu
+SKILL_GUARD_DEFENCE_RELIEF: Final[float] = 0.08  # Kosulsuz alinan hasar
 SKILL_ROLL_DODGE_CHARGES: Final[int] = 1         # Kacinma sarji
 SKILL_WILL_HEALTH_BONUS: Final[int] = 10
 SKILL_WILL_DEFENCE_RELIEF: Final[float] = 0.08
+# Toparlanma (3b): alinan hasarin bu kadari "geri alinabilir"; karsilik
+# vurdukca, vurusun hasarinin bu orani kadar can geri geliyor.
+SKILL_RALLY_POOL_RATIO: Final[float] = 0.6
+SKILL_RALLY_FRAMES: Final[int] = 180
+SKILL_RALLY_HEAL_RATIO: Final[float] = 0.5
+# Sarsilmaz (5): saldirirken bu hasara kadar olan vuruslar zinciri bozmuyor.
+SKILL_POISE_MAX_DAMAGE: Final[int] = 12
 
-# Bolum 4'te kampta dinlenince verilen yetenek puani. Bir tane: oyuncu
-# agaci ilk kez gorurken harcayacak bir seyi olsun ama secim ANLAMLI
-# kalsin - uc dalin ilk dugumu de 1 puan, yani ilk karar "hangi dal"
-# sorusunun kendisi.
+# Bolum 4'te kampta dinlenince verilen yetenek puani.
 REST_SKILL_POINTS: Final[int] = 1
+# B15'i kimseyi uyandirmadan gecene ek puan (altin odulunun yaninda).
+GHOST_SKILL_POINTS: Final[int] = 1
 
 
 # --- SU SEVIYESI (Bolum 5, src/world/water.py) ------------------------------

@@ -14,8 +14,14 @@ from src.art.animation import CHARACTERS, pose_table
 from src.art.spritegen import weapon_tip
 from src.combat.combo import AttackPhase
 from src.config import (
-    DODGE_TOTAL_FRAMES, PLAYER_RUN_SPEED, SNEAK_ANIM_HOLD_SCALE, SNEAK_CROUCH,
+    DODGE_TOTAL_FRAMES, PLAYER_JUMP_SPEED, PLAYER_RUN_SPEED,
+    SNEAK_ANIM_HOLD_SCALE, SNEAK_CROUCH,
 )
+
+# Yere serilen oyuncunun (anlatimin kontrolu aldigi an, B1) hasar pozu:
+# savrulmanin en geri noktasi. Ilerleme toparlanmaya kaysaydi yerde yatan
+# karakter ayakta gibi gorunurdu.
+KNOCKED_DOWN_PROGRESS = 0.3
 
 
 def update_animation(player) -> None:
@@ -48,15 +54,31 @@ def update_animation(player) -> None:
         return
     player.trail.clear()
 
+    # Hizli eylemler ILERLEMEYLE: poz, eylemin kendi suresindeki konumdan.
+    # Poz sayisi artsa da (8 FPS kurali gevsedi, 25.09.2026) zamanlama
+    # eylemin kendisinde - animasyon onu kaydiramaz.
     if player.hurt_frames > 0:
         player.animator.play("hurt")
-    elif player.dodge.active:
+        if getattr(player, "control_locked", 0) > 0:
+            progress = KNOCKED_DOWN_PROGRESS
+        else:
+            total = max(1, getattr(player, "hurt_animation_frames", 14))
+            progress = 1.0 - player.hurt_frames / total
+        player.animator.set_progress(progress)
+        return
+    if player.dodge.active:
         player.animator.play("dodge")
         player.animator.set_progress(
             1.0 - player.dodge.frames_left / max(1, DODGE_TOTAL_FRAMES))
         return
-    elif not player.body.grounded:
-        player.animator.play("jump" if player.body.vy < -0.3 else "fall")
+    if not player.body.grounded and player.body.vy < -0.3:
+        # Ziplama dikey hizla suruluyor: kalkista gerilme, tepede toplanma.
+        player.animator.play("jump")
+        player.animator.set_progress(
+            1.0 + player.body.vy / max(0.1, PLAYER_JUMP_SPEED))
+        return
+    if not player.body.grounded:
+        player.animator.play("fall")
     # Gecis kareleri kosu/duruştan ONCE bakiliyor: ikisi de kisa surer ve
     # bittiginde normal duruma kendiliginden donulur. Sonra bakilsaydi
     # kosan bir karakter inis/pivot karesini hic gostermezdi.
@@ -64,6 +86,8 @@ def update_animation(player) -> None:
         player.animator.play("land")
     elif player.turn_frames > 0:
         player.animator.play("turn")
+    elif getattr(player, "brake_frames", 0) > 0:
+        player.animator.play("brake")
     elif abs(player.body.vx) > 0.25:
         player.animator.play("run")
     else:

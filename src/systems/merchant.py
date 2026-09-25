@@ -19,9 +19,11 @@ sekli goruyor ve "bu nasil buraya indi?" diye soruyor. Korku katmaninin
 istedigi tekinsizlik (`docs/korku.md` - "dusman olmayan varliklar
 yalnizligi derinlestirir") bedavaya geliyor.
 
-Tabagi kucuk: yalnizca sarf malzemeleri. Tekil esyalar (Sonmez Fitil,
-Olum Mumu) B3'e ait kaliyor - her dukkanda ayni seyleri satmak B3'un
-kararini sulandirirdi.
+Tabagi kucuk: yalnizca sarf malzemeleri - ok, bomba ve **Eski Kalkan**
+(ilk darbeyi karsilayip kirilan tek kullanimlik; Arda 25.09.2026:
+*"koruyucu mum olmasin, kalkan veya zirh olsun"*). Sonmez Fitil ve
+Koruyucu Mum tezgahtan kalkti: ikisinin de oyunda hicbir etkisi yoktu.
+Onlari almis eski kayitlar parasini geri aliyor (`refund_legacy`).
 
 ## Sahneye nasil baglanir
 
@@ -39,7 +41,8 @@ from __future__ import annotations
 import pygame
 
 from src.config import (CANDLE_KEEPER_PRICE_ARROWS, CANDLE_KEEPER_PRICE_BOMB,
-                        TILE_SIZE)
+                        LEGACY_CANDLE_REFUND, LEGACY_WICK_REFUND,
+                        SHIELD_PRICE, TILE_SIZE)
 from src.core.input import Action
 from src.entities.candle_keeper import DEFAULT_CANDLES, CandleKeeper
 from src.systems import consumables, economy
@@ -49,12 +52,42 @@ from src.ui.i18n import t
 
 # Gezgin tabagi - B3'un sarf teklifleriyle **ayni anahtar ve fiyat**.
 # Fiyat farkli olsaydi oyuncu B3'te "ucuzmus" diye stok yapmayi ogrenirdi.
+# Kalkan teklifi B3 ile gezgin tabaginin ORTAK nesnesi - fiyat ve adet
+# tek yerde. Tabagin sonunda: once saldiri, sonra korunma.
+SHIELD_OFFER = TradeOffer("buy_shield", SHIELD_PRICE, "trade.shield",
+                          repeatable=True, item=consumables.SHIELD, amount=1)
 TRAVEL_OFFERS: tuple[TradeOffer, ...] = (
     TradeOffer("buy_arrows", CANDLE_KEEPER_PRICE_ARROWS, "trade.arrows",
                repeatable=True, item=consumables.ARROW, amount=3),
     TradeOffer("buy_bomb", CANDLE_KEEPER_PRICE_BOMB, "trade.bomb",
                repeatable=True, item=consumables.BOMB, amount=1),
+    SHIELD_OFFER,
 )
+
+# Eski tezgahin etkisiz iki tekil urunu: bayrak -> iade edilecek altin.
+_LEGACY_OFFERS: dict[str, int] = {
+    "eternal_wick": LEGACY_WICK_REFUND,
+    "death_candle": LEGACY_CANDLE_REFUND,
+}
+REFUND_FLAG = "shop_refund_v1"
+
+
+def refund_legacy(save_data) -> int:
+    """Sonmez Fitil / Koruyucu Mum almis ESKI KAYDA altinini bir kez iade eder.
+
+    Iki urunun de oyunda karsiligi yoktu (mesale zaten sonmuyordu,
+    olumde altin da kaybolmuyordu) - oyuncu 320 altini bosa odemisti.
+    Iade edilen toplami doner; ikinci cagri hicbir sey yapmaz.
+    """
+    if save_data is None or save_data.flags.get(REFUND_FLAG):
+        return 0
+    save_data.flags[REFUND_FLAG] = True
+    total = 0
+    for flag, amount in _LEGACY_OFFERS.items():
+        if save_data.flags.get(flag):
+            total += amount
+    save_data.gold += total
+    return total
 
 # Oyuncu bu kadar yakinsa tus gostergesi cikiyor ve INTERACT tabagi aciyor.
 REACH_X = 20
@@ -79,7 +112,7 @@ def buy(scene, offer: TradeOffer) -> bool:
         scene.game.play_sound("ui_deny")
         return False
     if (offer.repeatable and offer.item
-            and consumables.count(data, offer.item) >= consumables.MAX_CARRY):
+            and consumables.full(data, offer.item)):
         scene.show_toast(t("shop.full_toast"))
         scene.game.play_sound("ui_deny")
         return False
@@ -89,6 +122,11 @@ def buy(scene, offer: TradeOffer) -> bool:
         return False
     if offer.repeatable:
         total = consumables.add(data, offer.item, offer.amount)
+        if offer.item in consumables.PASSIVE:
+            # Kalkanin tusu yok - ne yaptigini bir kez soyle.
+            scene.show_toast(t("shop.shield_toast"), frames=200)
+            scene.game.play_sound("chest_open")
+            return True
         if total == offer.amount:
             # Ilk kez alindi - firlatma tusunu ogret.
             scene.hint_once("hint_throw", "hint.throw", Action.THROW,

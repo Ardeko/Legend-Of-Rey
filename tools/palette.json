@@ -299,6 +299,12 @@
       "stone_dark",
       "ink_soft",
       "ink"
+    ],
+    "splinter": [
+      "flesh_light",
+      "earth",
+      "earth_dark",
+      "ink_soft"
     ]
   },
   "_anlamsal": "Oyun kodunun renk yerine anlam ile konusmasi icin. Rol degisirse tek yerden degisir.",

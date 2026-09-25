@@ -141,6 +141,9 @@ class DamageResult:
     staggered: bool = False
     blocked: bool = False
     amount: int = 0
+    # Pusu (yetenek agaci, IZ dali): arkadan / fark etmemis dusmana
+    # vuruldu. Sahne bunu okuyup farkli bir geri bildirim veriyor.
+    ambush: bool = False
 
 
 class HitboxManager:

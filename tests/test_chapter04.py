@@ -191,11 +191,26 @@ def main() -> int:
           "kayit bayragi yazildi", FLAG_RESTED)
     check(opened == [True], "yetenek agaci kancasi tam bir kez cagrildi",
           str(len(opened)))
+    # Kamp puani BIR kez (25.09.2026, `skilltree.award`): kampta ikinci
+    # kez dinlenmek ya da bolumu yeniden oynamak ikinci puani vermiyor.
+    from src.systems import skilltree
+    points = scene.save_data.skill_points
+    check(scene.save_data.flags.get(skilltree.point_flag(
+        skilltree.SOURCE_B4_CAMP)) is True, "kamp puani kaynak bayragiyla verildi")
+    scene._rest()
+    check(scene.save_data.skill_points == points,
+          "ikinci dinlenme ikinci puani VERMIYOR", str(scene.save_data.skill_points))
 
-    # Kanca **bos** olmali - ekran ayri bir iste yaziliyor.
+    # Kanca agaci CANLI sahneyle aciyor: acilan dugum oyuncuya hemen biner.
+    from src.ui.skill_tree import SkillTreeScene
     fresh = make_scene(game)
-    check(fresh.open_skill_tree() is None,
-          "open_skill_tree() bos kanca (henuz ekran acmiyor)")
+    fresh.open_skill_tree()
+    game.scenes._flush()
+    top = game.scenes.current
+    check(isinstance(top, SkillTreeScene) and top.play is fresh,
+          "open_skill_tree() agaci canli sahneyle aciyor")
+    game.scenes.pop()
+    game.scenes._flush()
 
     # --- 5. Kelimesiz gunluk --------------------------------------------------
     print("\n--- kelimesiz gunluk ---")

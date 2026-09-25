@@ -4,9 +4,23 @@ Bir animasyon, **poz ureten bir fonksiyondur**: `t` (0..1) alir, `Pose` doner.
 Kare listesi bu fonksiyonun orneklenmesiyle olusur. Elle kare cizmek yerine
 matematikle uretmek, yeni bir karakterin tum animasyonlarini bedava yapar.
 
-Hiz: animasyon hissi 8 FPS (her sanat karesi ~7 oyun karesi). Saldirilar
-istisna - onlar dovus belgesindeki kare butcesine (`4/3/8` gibi) yayilir,
-yani ilerleme oranina gore ornerklenir.
+Hiz: dongusel hareketler (bosta, kosu, dusus) zamanla surulur ve kendi
+tempolarinda kalir. **Hizli eylemler** - saldiri, kacinma, ziplama, hasar -
+ilerlemeyle surulur: kare, eylemin kendi kare butcesindeki konumundan
+seciliyor. Onlara daha cok poz vermek zamanlamayi DEGISTIRMIYOR, yalnizca
+akicilastiriyor.
+
+## 8 FPS kurali neden gevsedi (Arda, 25.09.2026)
+
+*"8 fps kuralini oyunu bozmadan dikkatlice gecebilirsin, akici ve guzel
+gozuken animasyonlar yap."* Olculen: kacinma 18 karelik bir eylemi iki
+pozla anlatiyordu, ziplama tek pozdu, hasar iki. Simdi kacinma 8, ziplama 4,
+hasar 5, saldirilar 8 poz; bosta 8, kosu 10.
+
+**Zaman bozulmuyor:** zamanla surulen bir durumun TOPLAM suresi eskisiyle
+ayni (`animator.DURATIONS`). Dusmanlar saldiri ve hasari zamanla
+oynatiyor; kare sayisi artip bekleme ayni kalsaydi dusmanin savurusu
+vurusundan geri kalirdi.
 """
 from __future__ import annotations
 
@@ -19,8 +33,53 @@ from src.art.spritegen import CharSpec, Pose, draw_humanoid
 
 TAU = math.tau
 
-# Her sanat karesi kac oyun karesi durur (8 FPS hissi).
+# Her sanat karesi kac oyun karesi durur (8 FPS hissi) - zamanla surulen
+# durumlarin varsayilani. Hizli eylemler ilerlemeyle surulur (yukari bkz.).
 FRAMES_PER_ART_FRAME = 7
+
+
+def _mix(a: float, b: float, k: float) -> float:
+    return a + (b - a) * k
+
+
+def _ease(k: float) -> float:
+    """Yumusak gecis (smoothstep): anahtar pozlar arasinda hiz 0'dan baslar,
+    0'da biter - pozlar birbirine "carpmiyor", akiyor."""
+    k = max(0.0, min(1.0, k))
+    return k * k * (3.0 - 2.0 * k)
+
+
+def _blend(a: Pose, b: Pose, k: float) -> Pose:
+    """Iki anahtar poz arasinda ara poz. Silah eli `a`dan."""
+    k = _ease(k)
+    return Pose(
+        dx=_mix(a.dx, b.dx, k), dy=_mix(a.dy, b.dy, k),
+        lean=_mix(a.lean, b.lean, k),
+        head_dx=_mix(a.head_dx, b.head_dx, k),
+        head_dy=_mix(a.head_dy, b.head_dy, k),
+        squash=_mix(a.squash, b.squash, k),
+        leg_back=(_mix(a.leg_back[0], b.leg_back[0], k),
+                  _mix(a.leg_back[1], b.leg_back[1], k)),
+        leg_front=(_mix(a.leg_front[0], b.leg_front[0], k),
+                   _mix(a.leg_front[1], b.leg_front[1], k)),
+        arm_back=(_mix(a.arm_back[0], b.arm_back[0], k),
+                  _mix(a.arm_back[1], b.arm_back[1], k)),
+        arm_front=(_mix(a.arm_front[0], b.arm_front[0], k),
+                   _mix(a.arm_front[1], b.arm_front[1], k)),
+        weapon_angle=_mix(a.weapon_angle, b.weapon_angle, k),
+        weapon_hand=a.weapon_hand,
+        cape_sway=_mix(a.cape_sway, b.cape_sway, k),
+    )
+
+
+def _keyframes(keys: tuple[tuple[float, Pose], ...], t: float) -> Pose:
+    """(zaman, poz) anahtarlari arasinda `t` anindaki poz."""
+    if t <= keys[0][0]:
+        return keys[0][1]
+    for (t0, a), (t1, b) in zip(keys, keys[1:]):
+        if t <= t1:
+            return _blend(a, b, (t - t0) / max(1e-6, t1 - t0))
+    return keys[-1][1]
 
 
 # --- Poz ureticileri --------------------------------------------------------
@@ -64,16 +123,38 @@ def _run(t: float) -> Pose:
     )
 
 
-def _jump(t: float) -> Pose:
-    return Pose(
+# Ziplama: kalkis -> yukselis -> tepe. Oyuncuda DIKEY HIZLA suruluyor
+# (`player_anim`): t=0 ayak yerden kesildigi an, t=1 tepe noktasi.
+_JUMP_KEYS: tuple[tuple[float, Pose], ...] = (
+    (0.0, Pose(                           # kalkis: govde gerilir, kollar savrulur
+        dy=-1.4, lean=0.15, squash=1.10,
+        leg_front=(math.pi / 2 + 0.12, 0.05),
+        leg_back=(math.pi / 2 + 0.30, 0.10),
+        arm_front=(math.pi / 2 - 1.55, 0.20),
+        arm_back=(math.pi / 2 - 1.20, 0.25),
+        weapon_angle=math.pi / 2 + 1.1,
+        cape_sway=0.8)),
+    (0.5, Pose(                           # yukselis: on diz yukarida
         dy=-1.0, lean=0.3, squash=1.06,
         leg_front=(math.pi / 2 - 0.55, 0.85),
         leg_back=(math.pi / 2 + 0.30, 0.35),
         arm_front=(math.pi / 2 - 0.95, 0.25),
         arm_back=(math.pi / 2 - 0.55, 0.30),
         weapon_angle=math.pi / 2 + 0.9,
-        cape_sway=1.8,
-    )
+        cape_sway=1.8)),
+    (1.0, Pose(                           # tepe: dizler toplanir, kollar acilir
+        dy=-0.8, lean=0.12, squash=1.0,
+        leg_front=(math.pi / 2 - 0.40, 0.95),
+        leg_back=(math.pi / 2 + 0.05, 0.85),
+        arm_front=(math.pi / 2 - 0.60, 0.35),
+        arm_back=(math.pi / 2 - 0.25, 0.35),
+        weapon_angle=math.pi / 2 + 1.0,
+        cape_sway=2.2)),
+)
+
+
+def _jump(t: float) -> Pose:
+    return _keyframes(_JUMP_KEYS, t)
 
 
 def _fall(t: float) -> Pose:
@@ -89,28 +170,75 @@ def _fall(t: float) -> Pose:
     )
 
 
+# Kacinma: itis -> atilis -> toparlanma. Eskiden iki sabit pozdu; 18
+# karelik bir eylem "isinlaniyor" gibi okunuyordu. Ilerlemeyle surulur
+# (`player_anim`), yani 6/18'lik baglayici zamanlama aynen duruyor.
+_DODGE_LUNGE = Pose(
+    dy=-1.0, lean=1.5, squash=0.92, head_dx=1.5,
+    leg_front=(math.pi / 2 + 0.95, 0.25),
+    leg_back=(math.pi / 2 - 0.75, 0.95),
+    arm_front=(math.pi / 2 + 1.15, 0.15),
+    arm_back=(math.pi / 2 - 1.15, 0.25),
+    weapon_angle=0.15,
+    cape_sway=3.2,
+)
+_DODGE_KEYS: tuple[tuple[float, Pose], ...] = (
+    (0.0, Pose(                           # itis: comelip one yuklenir
+        dy=1.2, lean=0.9, squash=0.86, head_dx=0.8,
+        leg_front=(math.pi / 2 - 0.30, 0.65),
+        leg_back=(math.pi / 2 + 0.45, 0.25),
+        arm_front=(math.pi / 2 + 0.60, 0.35),
+        arm_back=(math.pi / 2 - 0.50, 0.30),
+        weapon_angle=0.4,
+        cape_sway=1.8)),
+    (0.18, _DODGE_LUNGE),                 # atilis: govde yere paralel
+    (0.58, replace(_DODGE_LUNGE, dy=-0.6, cape_sway=3.4)),
+    (1.0, Pose(                           # toparlanma: ayaklar govdenin altinda
+        dy=0.2, lean=0.35, squash=1.0, head_dx=0.3,
+        leg_front=(math.pi / 2 + 0.25, 0.35),
+        leg_back=(math.pi / 2 - 0.20, 0.40),
+        arm_front=(math.pi / 2 + 0.20, 0.25),
+        arm_back=(math.pi / 2 - 0.25, 0.25),
+        weapon_angle=math.pi / 2 + 0.5,
+        cape_sway=1.6)),
+)
+
+
 def _dodge(t: float) -> Pose:
-    return Pose(
-        dy=-1.0, lean=1.5, squash=0.92, head_dx=1.5,
-        leg_front=(math.pi / 2 + 0.95, 0.25),
-        leg_back=(math.pi / 2 - 0.75, 0.95),
-        arm_front=(math.pi / 2 + 1.15, 0.15),
-        arm_back=(math.pi / 2 - 1.15, 0.25),
-        weapon_angle=0.15,
-        cape_sway=3.2,
-    )
+    return _keyframes(_DODGE_KEYS, t)
 
 
-def _hurt(t: float) -> Pose:
-    return Pose(
+# Hasar: darbe -> savrulma -> toparlanma. Oyuncuda hasar suresiyle suruluyor.
+_HURT_KEYS: tuple[tuple[float, Pose], ...] = (
+    (0.0, Pose(                           # darbe: sikisma, kollar korunmaya
+        dy=0.4, lean=-0.5, head_dx=-0.6, squash=0.92,
+        leg_front=(math.pi / 2 - 0.15, 0.40),
+        leg_back=(math.pi / 2 + 0.25, 0.35),
+        arm_front=(math.pi / 2 - 1.25, 0.65),
+        arm_back=(math.pi / 2 - 0.95, 0.60),
+        weapon_angle=math.pi / 2 + 1.4,
+        cape_sway=-0.6)),
+    (0.3, Pose(                           # savrulma: govde geri, kafa geride
         dy=-0.8, lean=-1.3, head_dx=-1.4, head_dy=-0.5, squash=1.05,
         leg_front=(math.pi / 2 - 0.35, 0.45),
         leg_back=(math.pi / 2 + 0.55, 0.30),
         arm_front=(math.pi / 2 - 1.7, 0.5),
         arm_back=(math.pi / 2 - 1.3, 0.6),
         weapon_angle=math.pi + 0.5,
-        cape_sway=-2.0,
-    )
+        cape_sway=-2.0)),
+    (1.0, Pose(                           # toparlanma: ayaga geri oturur
+        dy=0.0, lean=-0.25, head_dx=-0.3, squash=0.98,
+        leg_front=(math.pi / 2 - 0.12, 0.20),
+        leg_back=(math.pi / 2 + 0.15, 0.20),
+        arm_front=(math.pi / 2 - 0.35, 0.30),
+        arm_back=(math.pi / 2 + 0.10, 0.30),
+        weapon_angle=math.pi / 2 + 0.6,
+        cape_sway=-0.4)),
+)
+
+
+def _hurt(t: float) -> Pose:
+    return _keyframes(_HURT_KEYS, t)
 
 
 def _death(t: float) -> Pose:
@@ -295,6 +423,25 @@ def _land(t: float) -> Pose:
     )
 
 
+def _brake(t: float) -> Pose:
+    """Fren - tam hizda kosarken durmak: on ayak yere cakilir, govde geri.
+
+    Eskiden kosu bir karede bosta durusuna donuyordu ve hiz surtunmeyle
+    eriyip giderken ayaklar hic kaymiyordu - "buz ustunde" gibi. Bu poz
+    durusun AGIRLIGINI tasiyor. `land`/`turn` gibi kisa bir gecis.
+    """
+    k = 1.0 - t                           # once sert, sonra duzelir
+    return Pose(
+        dy=0.6 * k, lean=-0.75 * k, head_dx=-0.5 * k, squash=1.0 - 0.06 * k,
+        leg_front=(math.pi / 2 - 0.55 * k, 0.10),
+        leg_back=(math.pi / 2 + 0.35 * k, 0.55 * k),
+        arm_front=(math.pi / 2 - 0.85 * k, 0.30),
+        arm_back=(math.pi / 2 - 0.45 * k, 0.35),
+        weapon_angle=math.pi / 2 + 0.7,
+        cape_sway=-1.2 * k + 0.6 * t,     # kumas one savrulur, sonra oturur
+    )
+
+
 def _turn(t: float) -> Pose:
     """Donus - hizli yon degistirirken ayak kaydirma (pivot).
 
@@ -314,29 +461,35 @@ def _turn(t: float) -> Pose:
     )
 
 
+# Hizli eylemlerin poz sayisi. Saldirilar ILERLEMEYLE surulur (dovus kare
+# butcesi degismez); 8 poz 15 karelik bir vurusa ~2 oyun karesinde bir
+# yeni poz demek - zincirin yayi akiyor.
+ATTACK_POSES = 8
+
 # state -> (poz fonksiyonu, kare sayisi, dongusel mu)
 ANIMATIONS: dict[str, tuple] = {
     "land": (_land, 3, False),
     "turn": (_turn, 3, False),
-    "idle": (_idle, 6, True),
-    "run": (_run, 8, True),
-    "jump": (_jump, 1, False),
+    "brake": (_brake, 3, False),
+    "idle": (_idle, 8, True),
+    "run": (_run, 10, True),
+    "jump": (_jump, 4, False),
     "fall": (_fall, 4, True),
-    "dodge": (_dodge, 2, False),
-    "hurt": (_hurt, 2, False),
+    "dodge": (_dodge, 8, False),
+    "hurt": (_hurt, 5, False),
     "death": (_death, 6, False),
-    "attack1": (_attack_swing, 5, False),
-    "attack2": (_attack_overhead, 5, False),
-    "attack3": (_attack_thrust, 5, False),
+    "attack1": (_attack_swing, ATTACK_POSES, False),
+    "attack2": (_attack_overhead, ATTACK_POSES, False),
+    "attack3": (_attack_thrust, ATTACK_POSES, False),
 }
 
 # Ardo'nun vurusu Rey'inki degil: ayni zincir kareleri, baska siluet.
 # Tablolar `pose_table` ile secilir; kare sayisi degismez (CLAUDE.md 7).
 ARDO_ANIMATIONS: dict[str, tuple] = {
     **ANIMATIONS,
-    "attack1": (_ardo_attack_rise, 5, False),
-    "attack2": (_ardo_attack_cleave, 5, False),
-    "attack3": (_ardo_attack_crash, 5, False),
+    "attack1": (_ardo_attack_rise, ATTACK_POSES, False),
+    "attack2": (_ardo_attack_cleave, ATTACK_POSES, False),
+    "attack3": (_ardo_attack_crash, ATTACK_POSES, False),
 }
 
 

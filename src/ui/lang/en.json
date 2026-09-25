@@ -42,7 +42,9 @@
     "quit_saved": "Your progress is saved ✓",
     "quit_confirm": "RETURN",
     "status": "Chapter {chapter} · Echo {dots} · {gold} gold",
-    "quit_failed": "Save failed. Please retry."
+    "quit_failed": "Save failed. Please retry.",
+    "skills": "SKILLS",
+    "skill_points": "Unspent skill points: {count}"
   },
   "character": {
     "heading": "WHO WILL YOU PLAY?",
@@ -629,7 +631,8 @@
     "combo_health": "{count} COMBO · health restored",
     "combo_echo": "{count} COMBO · Echo recovers",
     "hurt": "HIT",
-    "controls": "Arrows · Space jump · J attack · Shift dodge · Esc menu"
+    "controls": "Arrows · Space jump · J attack · Shift dodge · Esc menu",
+    "shield_broken": "BUCKLER BROKEN"
   },
   "echo": {
     "tier_up": "The Echo clears",
@@ -681,7 +684,8 @@
     "taken": "taken",
     "left": "left behind",
     "ghost": "Silent run",
-    "continue": "Confirm to continue"
+    "continue": "Confirm to continue",
+    "skill_point": "Skill point"
   },
   "chapter02": {
     "gold_found": "{count} gold",
@@ -713,10 +717,9 @@
   },
   "trade": {
     "torch": "Torch",
-    "wick": "Eternal Wick",
-    "candle": "Guardian Candle",
     "arrows": "Three Arrows",
-    "bomb": "Bomb"
+    "bomb": "Bomb",
+    "shield": "Old Buckler"
   },
   "boss": {
     "bloated_one": "THE BLOATED ONE",
@@ -739,20 +742,24 @@
     "points": "Skill points: {count}",
     "owned": "Unlocked",
     "cost": "Cost: {count}",
-    "locked": "Locked — needs the level above, or points",
-    "unavailable": "This branch is closed to you."
+    "locked": "Locked — needs the tier above, or points",
+    "forsaken": "You took the other path.",
+    "cost_choice": "Cost: {count} · locks the other",
+    "confirm_choice": "Press again: {other} will be locked for good",
+    "new_move": "New move",
+    "backfill_toast": "Skill points +{count} · Pause > Skills"
   },
   "skill": {
     "blade": "BLADE",
     "blade_desc": "The weight of the blow.",
     "blade_edge": "WHETSTONE",
-    "blade_edge_desc": "Damage +6%.",
+    "blade_edge_desc": "Damage +12%.",
     "blade_flow": "FLOW",
     "blade_flow_desc": "Chain window +2 frames.",
     "blade_momentum": "MOMENTUM",
-    "blade_momentum_desc": "Damage +15% at 10+ combo.",
-    "blade_finisher": "LAST WORD",
-    "blade_finisher_desc": "Damage +25% on the finisher.",
+    "blade_momentum_desc": "Damage +20% at 10+ combo.",
+    "blade_finisher": "BLADE WAVE",
+    "blade_finisher_desc": "Your finisher throws a cut that flies forward.",
     "echo": "ECHO",
     "echo_desc": "The path the voice shows. Only Rey hears it.",
     "echo_reach": "REACH",
@@ -766,14 +773,40 @@
     "stone": "STONE",
     "stone_desc": "Staying on your feet.",
     "stone_hide": "HIDE",
-    "stone_hide_desc": "Max health +5.",
+    "stone_hide_desc": "Max health +10.",
     "stone_guard": "GUARD",
-    "stone_guard_desc": "Damage taken -6%.",
+    "stone_guard_desc": "Damage taken -8%.",
     "stone_roll": "ROLL",
     "stone_roll_desc": "Dodge charge +1.",
     "stone_will": "WILL",
     "stone_will_desc": "Max health +10, damage taken -8%.",
-    "unknown": "Unknown skill"
+    "unknown": "Unknown skill",
+    "blade_dash": "LUNGE",
+    "blade_dash_desc": "Attack while running: you surge forward with a heavy, staggering blow.",
+    "blade_hover": "HANG TIME",
+    "blade_hover_desc": "Attacking in mid-air holds you up; the chain flows in the air too.",
+    "echo_lie": "LIE SENSE",
+    "echo_lie_desc": "When the Echo lies, the necklace shivers.",
+    "echo_burst": "ECHO BURST",
+    "echo_burst_desc": "Opening the Echo throws back and staggers all near you. 5 s cooldown.",
+    "trace": "TRAIL",
+    "trace_desc": "What the past leaves behind. Only Ardo reads it.",
+    "trace_eye": "SHARP EYE",
+    "trace_eye_desc": "Trail reach +25%.",
+    "trace_patience": "HUNTER'S PATIENCE",
+    "trace_patience_desc": "Damage taken -12% while tracking.",
+    "trace_ambush": "AMBUSH",
+    "trace_ambush_desc": "Hits from behind, or on a foe that hasn't noticed you, deal +50%.",
+    "trace_quiet": "SOFT STEP",
+    "trace_quiet_desc": "You sneak faster, your steps are half as loud; foes notice you later.",
+    "trace_read": "READING SIGN",
+    "trace_read_desc": "Damage +15% while tracking.",
+    "trace_roar": "BEAR'S ROAR",
+    "trace_roar_desc": "Opening the trail, you roar: all near you reel back. 5 s cooldown.",
+    "stone_rally": "RALLY",
+    "stone_rally_desc": "Hit back right after a blow to win back part of the health you lost.",
+    "stone_poise": "UNSHAKEN",
+    "stone_poise_desc": "While attacking, light hits don't break your chain or push you back."
   },
   "chapter_card": {
     "number": "CHAPTER {number}"
@@ -984,6 +1017,8 @@
     "title_travel": "CANDLE KEEPER",
     "footer": "[{buy}] buy   [{leave}] leave",
     "full": "full",
-    "full_toast": "No room in the bag"
+    "full_toast": "No room in the bag",
+    "shield_toast": "The Old Buckler is on your back: it takes the first blow, then breaks.",
+    "refund_toast": "The Keeper took back his old wares: +{gold} gold"
   }
 }
