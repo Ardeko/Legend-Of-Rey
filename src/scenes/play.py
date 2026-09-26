@@ -687,7 +687,8 @@ class PlayScene(Scene):
         Bolum 1'e yazsaydik ikinci bolumde konusan ilk karakterde
         oyuncu yine ayni soruyu sorardi.
         """
-        if not self.dialogue.active or not self.dialogue.complete:
+        if (not self.dialogue.active or not self.dialogue.complete
+                or self.dialogue.auto_advance):
             return
         self.hint_once("hint_dialogue", "hint.dialogue", Action.CONFIRM)
 
@@ -1033,7 +1034,10 @@ class PlayScene(Scene):
         kontrolu icin zaten vardi: girdi NOTR ama yer cekimi, animasyon
         ve sayaclar isliyor.
         """
-        if not self.modal_active:
+        # Koy prologu onay beklerken Space ziplatmamali; sahneleme
+        # (kolye, Cemo, yarik) surer, oyuncunun komutlari bekler.
+        dialogue_waits = self.dialogue.active and not self.dialogue.auto_advance
+        if not self.modal_active and not dialogue_waits:
             self.player.update()
             return
         was = self.player.controlled
@@ -1577,27 +1581,33 @@ class PlayScene(Scene):
             return False
         self.game.play_sound("lie_caught", bus="volume_echo")
         # Suren repligi de kes: yakalanan ses cumlesini bitirmiyor.
-        if not self.dialogue.done and self.dialogue.current is not None:
-            if self.dialogue.current.speaker == ECHO:
-                self.dialogue.stop()
+        self.dialogue.silence(ECHO)
         return True
 
-    def say(self, *lines, auto_advance: bool = False) -> None:
+    def say(self, *lines: Line, auto_advance: bool = True,
+            timed: bool = False) -> None:
         """Replik dizisi baslatir. `lines` `Line` nesneleri.
 
         **Yanki susturulmussa Yanki repligi yutuluyor** (docs/korku.md
         4.1): yalani yakalanan ses uc saniye konusmuyor. Diger
         konusmacilar etkilenmiyor - susan Yanki, sahne degil.
 
-        `auto_advance=True` yalnizca bir sahne-zamanlayicisiyla yarisan
-        (orn. Bolum 1'in prolog beat'leri) dizilerde kullanilir - normal
-        kesif/dovus repligi oyuncu onaylayana kadar ekranda kalir.
+        Oynanis replikleri siraya girer ve okuma suresi sonunda kapanir.
+        Space/E onlari gecmez: bu tuslar ziplamak ve etkilesim icindir.
+        `auto_advance=False` koy prologunun onay bekleyen konusmalaridir.
+        `timed=True` finaldeki gibi hareketle eszamanli kisa repliklerdir;
+        o anin sozunu hemen gosterir, onceki ortamin kuyrugunu tasimaz.
         """
         if self.lies.silenced:
             lines = tuple(line for line in lines if line.speaker != ECHO)
             if not lines:
                 return
-        self.dialogue.start(tuple(lines), auto_advance=auto_advance)
+        if timed:
+            self.dialogue.start(tuple(lines), auto_advance=True)
+        elif auto_advance:
+            self.dialogue.enqueue(tuple(lines))
+        else:
+            self.dialogue.start(tuple(lines))
 
     # --- Yanki --------------------------------------------------------------
     def on_echo_ask(self) -> None:

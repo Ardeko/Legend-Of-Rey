@@ -272,8 +272,34 @@ def _wall(theme: Theme, variant: int, lit_top: bool, exposed_sides: int,
     surface = pygame.Surface((TILE_SIZE, TILE_SIZE)).convert()
     _pattern(surface, theme, variant, depth)
     if depth <= 0:
+        _surface_finish(surface, theme, variant)
         _wall_edges(surface, variant, lit_top, exposed_sides)
     return surface
+
+
+def _surface_finish(surface: pygame.Surface, theme: Theme, variant: int) -> None:
+    """Yuzey malzemesi: nemli kaya, kirec izi ve obsidyen yansimasi.
+
+    Yalnizca dis yuzde ve onbellekte uretilir. Ust basma cizgisi daha
+    sonra cizilir; sus carpisma kenarini degistirmez ve gizli duvarla
+    normal duvar arasinda fark olusturmaz.
+    """
+    x = 3 + variant * 3
+    if theme.name == "cavern":
+        # Nem, kayaya uzun parlak cizgi degil kisa kirik yansima birakir.
+        surface.fill(palette.color("abyss"), (x, 4, 2, 4))
+        surface.fill(palette.color("stone"), (x, 4, 1, 2))
+        surface.fill(palette.color("stone_darkest"), (x + 1, 8, 1, 3))
+        surface.fill(palette.color("moss_dark"), (max(1, x - 2), 12, 3, 1))
+    elif theme.name == "core":
+        # Obsidyenin genis, sakin yuzunde keskin fakat kucuk isik izi.
+        surface.fill(palette.color("stone_dark"), (x - 1, 5, 3, 1))
+        surface.fill(palette.color("stone"), (x, 5, 1, 1))
+        surface.fill(palette.color("ink"), (x + 1, 6, 1, 4))
+    elif theme.name == "dungeon" and variant % 2 == 0:
+        # Harcin sizdigi kirec: iki tas arasinda dusuk kontrastli akinti.
+        surface.fill(palette.color("stone_darkest"), (x, 8, 2, 4))
+        surface.fill(palette.color("stone_dark"), (x, 8, 1, 3))
 
 
 # --- Susler ------------------------------------------------------------------

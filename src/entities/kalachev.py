@@ -400,7 +400,8 @@ class Kalachev(Actor):
         self.animator.update()
 
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]) -> None:
-        image = self.animator.render(self.facing, flash=self.flash.active)
+        image = self.animator.render(self.facing, flash=self.flash.active,
+                                     shadow=False)
         if image is None:
             return
         ox, oy = offset
@@ -413,6 +414,8 @@ class Kalachev(Actor):
             image.set_alpha(int(255 * alpha))
         position = (int(self.body.center_x - image.get_width() * 0.5) - ox,
                     int(self.body.bottom - self.sprite_foot_y) - oy)
+        from src.art import contact_shadow
+        contact_shadow.draw(surface, self, offset, alpha)
         surface.blit(image, position)
         from src.art import rimlight
         rimlight.draw(surface, image, position, getattr(self.scene, "rim_light", None),

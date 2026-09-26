@@ -5,6 +5,13 @@
 
 Ana menü, oyunun **ilk 10 saniyesi**. Steam demosunda oyuncunun gördüğü ilk kare. Ciddiye alınmalı.
 
+**26.09.2026 başlık güncellemesi:** Marka iki dilde de `LEGEND OF` üst
+satırı ve özel serif `REY` harfleriyle gösterilir; alt ad Türkçede
+`YANKILAR`, İngilizcede `ECHOES`. Metal kabartma ve seyrek yansıma
+`src/ui/title_art.py` içinde, dil/palet başına önbelleklidir. Parlama
+sınırı hareketli yansımayı kapatır. Sağ alt köşede güncel paket kimliği
+yer alır; menü butonlarının konumu ve tıklama alanı korunur.
+
 ---
 
 # 0. AÇILIŞ AKIŞI — INTRO VE KESİNTİSİZ GEÇİŞ ★★★

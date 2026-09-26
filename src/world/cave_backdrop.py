@@ -147,7 +147,8 @@ def _slab_edges(x: int, band: int, seed: int, base: int, amp: int,
 
 
 def _draw_layer(surface: pygame.Surface, shift: tuple[int, int], colour,
-                seed: int, base: int, amp: int, stride: int, depth: int) -> None:
+                seed: int, base: int, amp: int, stride: int, depth: int,
+                edge_colour=None) -> None:
     """Kayanin alt kenari da var; dikey yolculukta yeni dilimler gorulur."""
     sx, sy = shift
     width, height = surface.get_size()
@@ -160,10 +161,17 @@ def _draw_layer(surface: pygame.Surface, shift: tuple[int, int], colour,
         for world_x in range((sx // STEP) * STEP, sx + width, STEP):
             top, bottom = _slab_edges(world_x, band, seed, base, amp,
                                       stride, depth)
+            edge_y = top - sy
             top = max(0, top - sy)
             bottom = min(height, bottom - sy)
             if bottom > top:
                 surface.fill(colour, (world_x - sx, top, STEP, bottom - top))
+                # Kirik, kisa keski yuzleri kayanin kalinligini gosterir.
+                # Dunya koordinatina bagli: kamera hareketinde parlamaz;
+                # kesintisiz kenar yok, gecilebilir platform sanilmaz.
+                facet = ((world_x // 18) * 31 + band * 17 + seed) % 7
+                if edge_colour is not None and facet in (1, 2) and edge_y >= 0:
+                    surface.fill(edge_colour, (world_x - sx, edge_y + 2, STEP, 1))
 
 
 def draw(surface: pygame.Surface, offset: tuple[int, int],
@@ -186,12 +194,14 @@ def draw(surface: pygame.Surface, offset: tuple[int, int],
         # ortuyor, isik kenarin ardindan tasiyor.
         _draw_lava_falls(surface, far, mid, frame, depth)
     _draw_layer(surface, mid, palette.color("ink"), 311,
-                MID_BASE, MID_AMP, MID_STRIDE, MID_DEPTH)
+                MID_BASE, MID_AMP, MID_STRIDE, MID_DEPTH,
+                palette.color("violet_dark" if depth >= 0.55 else "abyss_dark"))
     _draw_cracks(surface, mid)
     if depth >= VEIN_START:
         _draw_magma_veins(surface, mid, frame, depth)
     _draw_layer(surface, near, palette.color("void"), 977,
-                NEAR_BASE, NEAR_AMP, NEAR_STRIDE, NEAR_DEPTH)
+                NEAR_BASE, NEAR_AMP, NEAR_STRIDE, NEAR_DEPTH,
+                palette.color("ink"))
     _draw_stalactites(surface, near)
     _draw_fog(surface, (ox, oy), frame, depth)
     _draw_haze(surface, frame, depth)
@@ -571,23 +581,41 @@ def draw_torches(surface: pygame.Surface, offset: tuple[int, int],
     for tile_x, tile_y, lit in torches:
         x = tile_x * TILE_SIZE + TILE_SIZE // 2 - ox
         y = tile_y * TILE_SIZE - oy
-        if x < -40 or x > INTERNAL_WIDTH + 40:
+        if (x < -64 or x > surface.get_width() + 64
+                or y < -64 or y > surface.get_height() + 64):
             continue                     # Gorunmeyeni cizme
 
+        # Tavana tutunan demir baglanti ve altindaki koyu kurum izi.
+        surface.fill(palette.color("stone_darkest"), (x - 3, y - 1, 8, 3))
+        surface.fill(palette.color("stone"), (x - 2, y - 1, 6, 1))
         # Sap: tavandan asagi sarkiyor. Tepesi tile sinirinin bir piksel
         # ustunde - tavana **girmis** gorunsun.
         surface.fill(palette.color("earth_dark"), (x, y - 1, 2, 8))
         surface.fill(palette.color("ink"), (x + 2, y - 1, 1, 8))
+        surface.fill(palette.color("stone_dark"), (x - 1, y + 5, 4, 2))
 
         if not lit:
             surface.fill(palette.color("ink"), (x - 1, y + 7, 4, 3))
             continue
 
-        # Alev sapin **ucunda**, uc kareli bir dongude oynuyor.
+        # Genis, sonuk isik duvara geri vurur; dar cekirdek sicak kalir.
+        # Ikisi onbellekli. Halelerden SONRA cizilen alev beyaza yikanmaz.
+        pulse = math.sin(frame * 0.07 + tile_x * 1.7)
+        halo = radial_glow(56, palette.color("ember"), peak=0.14 + 0.015 * pulse)
+        surface.blit(halo, (x - 55, y - 48), special_flags=pygame.BLEND_RGB_ADD)
+        glow = radial_glow(24, palette.color("ember"), peak=0.37 + 0.04 * pulse)
+        surface.blit(glow, (x - 23, y - 16), special_flags=pygame.BLEND_RGB_ADD)
+
+        # Alev sapin **ucunda**: koyu dis yuz, kayan dil ve sicak cekirdek.
         flicker = (frame // 6 + tile_x) % 3
+        surface.fill(palette.color("ember_dark"), (x - 2, y + 7, 6, 5))
         surface.fill(palette.color("ember"), (x - 1, y + 7, 4, 5 - flicker))
+        surface.fill(palette.color("ember"), (x - 1 + flicker, y + 5, 1, 3))
         surface.fill(palette.color("gold"), (x, y + 8, 2, 3 - flicker))
-        glow = radial_glow(30, palette.color("ember"),
-                           peak=0.46 + 0.05 * math.sin(frame * 0.09 + tile_x))
-        surface.blit(glow, (x - 29, y - 21),
-                     special_flags=pygame.BLEND_RGB_ADD)
+        surface.fill(palette.color("ember_light"), (x, y + 8, 1, 1))
+        # Her mesalenin fazi farkli; kivilcim yukselirken soner.
+        ember_age = (frame // 4 + tile_x * 11) % 32
+        if ember_age < 16:
+            drift = round(math.sin(ember_age * 0.23 + tile_x) * 2)
+            colour = palette.color("ember" if ember_age < 7 else "ember_dark")
+            surface.fill(colour, (x + drift, y + 5 - ember_age, 1, 1))

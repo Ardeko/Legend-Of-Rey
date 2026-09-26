@@ -598,7 +598,7 @@ def _draw_eyes(canvas: Canvas, cx: float, cy: float, spec: CharSpec) -> None:
 
 
 # --- Ana cizici -------------------------------------------------------------
-def draw_humanoid(spec: CharSpec, pose: Pose) -> Canvas:
+def draw_humanoid(spec: CharSpec, pose: Pose, *, shadow: bool = True) -> Canvas:
     """Bir pozu tam sprite'a cevirir."""
     canvas = Canvas(spec.cell_width, spec.cell_height)
 
@@ -620,7 +620,8 @@ def draw_humanoid(spec: CharSpec, pose: Pose) -> Canvas:
     # omuz uc ayri form olarak okunuyor.
     head_y = shoulder_y - spec.head_radius - spec.neck + pose.head_dy
 
-    _draw_shadow(canvas, spec.cell_width * 0.5, spec.foot_y, spec.torso_width)
+    if shadow:
+        _draw_shadow(canvas, spec.cell_width * 0.5, spec.foot_y, spec.torso_width)
 
     if spec.cape:
         sway = pose.cape_sway

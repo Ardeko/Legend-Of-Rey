@@ -555,7 +555,8 @@ SWAY_NEUTRAL = 1                      # SWAY_BIASES icindeki notr indeks
 
 
 def build_animation(spec: CharSpec, state: str,
-                    sway_bias: float = 0.0) -> list[pygame.Surface]:
+                    sway_bias: float = 0.0, *,
+                    shadow: bool = True) -> list[pygame.Surface]:
     """Bir durumun tum karelerini uretir (saga bakar halde)."""
     pose_fn, count, looping = pose_table(spec.name).get(state, ANIMATIONS["idle"])
     frames: list[pygame.Surface] = []
@@ -566,14 +567,15 @@ def build_animation(spec: CharSpec, state: str,
         pose = pose_fn(t)
         if sway_bias:
             pose = replace(pose, cape_sway=pose.cape_sway + sway_bias)
-        frames.append(draw_humanoid(spec, pose).resolve())
+        frames.append(draw_humanoid(spec, pose, shadow=shadow).resolve())
     return frames
 
 
 def build_sprite_set(spec: CharSpec,
-                     sway_bias: float = 0.0) -> dict[str, list[pygame.Surface]]:
+                     sway_bias: float = 0.0, *,
+                     shadow: bool = True) -> dict[str, list[pygame.Surface]]:
     """Bir karakterin tum animasyonlari. Baslangicta bir kez uretilir."""
-    return {state: build_animation(spec, state, sway_bias)
+    return {state: build_animation(spec, state, sway_bias, shadow=shadow)
             for state in ANIMATIONS}
 
 

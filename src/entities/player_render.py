@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pygame
 
-from src.art import palette, rimlight
+from src.art import contact_shadow, palette, rimlight
 from src.combat.combo import AttackPhase
 from src.combat.hitbox import melee_rect
 
@@ -52,6 +52,7 @@ def draw_player(player, surface: pygame.Surface,
         squash=player.squash.current,
         silhouette_mode=player.scene.game.silhouette_mode,
         alpha=_alpha(player),
+        shadow=False,
     )
     if image is None:
         _draw_box(player, surface, offset)
@@ -62,6 +63,7 @@ def draw_player(player, surface: pygame.Surface,
     # Sonra cizilseydi karakterin uzerine binerdi ve "efekt" gibi
     # okunurdu; altta kalinca "hava yarilmis" gibi okunuyor.
     player.trail.draw(surface, offset)
+    contact_shadow.draw(surface, player, offset, _alpha(player) / 255.0)
     # Sprite hucresi govdeden buyuk: yatayda merkezle, dikeyde sprite'in
     # **taban cizgisini** govdenin altina hizala. Hucrenin altini hizalamak
     # karakteri havada birakir. Squash yuksekligi degistirdigi icin taban

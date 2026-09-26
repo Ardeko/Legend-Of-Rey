@@ -2,8 +2,7 @@
   "_note": "English. Keys must match tr.json exactly - tests/test_lang.py enforces this. A missing key falls back to Turkish and is reported, never silently blank.",
   "_style": "Strings are stored AS DISPLAYED. Headings are written in capitals here rather than uppercased at runtime (see i18n.py).",
   "title": {
-    "full": "LEGEND OF REY: ECHOES",
-    "acronym": "LORE"
+    "subtitle": "ECHOES"
   },
   "common": {
     "on": "On",

@@ -68,7 +68,6 @@ class HUD:
         self.echo_frames = 0
         self.toast = ""
         self.toast_frames = 0
-        self.frame = 0
 
         self._last_health: int | None = None
         self._last_gold: int | None = None
@@ -91,7 +90,6 @@ class HUD:
 
     # --- Dongu --------------------------------------------------------------
     def update(self, player=None, gold: int = 0, echo_tier: int = 2) -> None:
-        self.frame += 1
         self.frame += 1
         self._update_ghost(player)
         self.health_frames = max(0, self.health_frames - 1)

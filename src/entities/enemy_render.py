@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pygame
 
-from src.art import palette, rimlight
+from src.art import contact_shadow, palette, rimlight
 from src.entities.enemy import EnemyState
 
 # Tell parlamasi nabiz atar - sabit renk "acik/kapali" gibi okunur,
@@ -63,6 +63,7 @@ def draw_enemy(enemy, surface: pygame.Surface,
         # Ikisi CARPILIYOR: biri otekinin yerine gecmemeli.
         alpha=max(0, min(255, int(255 * (1.0 - fade)
                                   * getattr(enemy, "render_alpha", 1.0)))),
+        shadow=False,
     )
     if image is None:
         _draw_box(enemy, surface, rect)
@@ -71,6 +72,8 @@ def draw_enemy(enemy, surface: pygame.Surface,
     foot = enemy.sprite_foot_y * squash[1]
     position = (int(enemy.body.center_x - image.get_width() * 0.5) - ox,
                 int(enemy.body.bottom - foot) - oy)
+    contact_shadow.draw(surface, enemy, offset,
+                        (1.0 - fade) * getattr(enemy, "render_alpha", 1.0))
     surface.blit(image, position)
     # Derinde golge kenarina ortamin rengi (`src/art/rimlight.py`).
     rimlight.draw(surface, image, position, getattr(enemy.scene, "rim_light", None),

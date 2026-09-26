@@ -207,8 +207,10 @@ def test_lie() -> None:
         # birincinin yerine koyuyordu: supheli oyuncu yalani hic gormeden
         # "Gecen sefer de boyle soylemistin" okuyordu.
         keys = [line.key for line in scene.dialogue.lines]
-        check(keys == ["line.ch11_echo_lie", "line.ch11_rey_doubt"],
-              "yalan ve cevabi SIRAYLA - cevap yalani silmiyor", str(keys))
+        check(keys == ["line.ch11_rey_hall", "line.ch11_echo_lie",
+                       "line.ch11_rey_doubt"],
+              "salon, yalan ve cevabi SIRAYLA - onceki replikler silinmiyor",
+              str(keys))
     finally:
         game.shutdown()
 

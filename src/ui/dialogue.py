@@ -49,23 +49,13 @@ from src.ui.widgets import panel
 TYPE_SPEED = 2.0
 ADVANCE_LOCK_FRAMES = 8          # Yanlislikla iki repligi birden gecme
 
-# Tamamlanmis bir replik onaylanmadan bu kadar kare beklerse **kendiliginden**
-# ilerler/kapanir - ama yalnizca `start(..., auto_advance=True)` ile
-# baslatilmis dizilerde (bkz. asagidaki `auto_advance` parametresi).
-# Sinematik beatler zamanlayiciyla ilerliyor ve oyuncu "onayla" tusunun
-# repligi ilerlettigini bilmeyebilir (ilk oturum, ilk dakika) - onaysiz
-# kalan bir cok-replikli dizinin ikinci satiri (`ch01_gift` beatindeki
-# Rey'in tesekkuru gibi) boylece hicbir zaman ekrana gelmeden bir sonraki
-# `say()` cagrisiyla sessizce kayboluyordu. Arda'nin "bunlar cok anlamsiz
-# cumleler" geri bildirimi bunun sonucuydu. Basili tutmak/onaylamak hala
-# daha hizli gecisi saglar - bu yalnizca bir alt sinir.
-#
-# Bilerek **varsayilan degil**: bir zamanlayicinin yarisamadigi normal
-# kesif/dovus repligi (orn. chapter02'nin boss karsilasma satiri) oyuncu
-# onaylamadan kendiliginden kapanirsa, meskul oyuncunun hic okumadigi
-# metin sessizce kaybolur - `AUTO_ADVANCE_HOLD_FRAMES` o senaryo icin
-# tasarlanmadi, yalnizca beat-zamanlayicisiyla yarisan diyaloglar icin.
+# Sureli sinematiklerin mevcut ritmi. Oynanis replikleri daha uzun,
+# metne bagli okuma suresi kullanir; onemli sinematikler onay bekler.
 AUTO_ADVANCE_HOLD_FRAMES = 50
+READ_MIN_FRAMES = 180
+READ_MAX_FRAMES = 600
+READ_BASE_FRAMES = 60
+READ_FRAMES_PER_CHAR = 3
 
 BOX_X = 24
 BOX_WIDTH = INTERNAL_WIDTH - 48
@@ -151,9 +141,9 @@ class Dialogue:
     """Bir replik dizisini oynatir.
 
     Sahne `start()` ile baslatir, `update()` her karede cagrilir, `done`
-    olunca sahne devam eder. Oynanisi **durdurmuyor**: oyuncu konusma
-    surerken yuruyebilir. Durdursaydik her replik bir kesinti olurdu ve
-    oyuncu okumak yerine gecmeye calisirdi.
+    olunca sahne devam eder. Oynanis metni otomatik, sinematik metni
+    sahnenin secimine gore onayli veya surelidir. Dunyayi durdurmak
+    diyalog kutusunun degil, sahne yigininin sorumlulugudur.
     """
 
     def __init__(self) -> None:
@@ -165,15 +155,13 @@ class Dialogue:
         self.lock = 0
         self.hold = 0
         self.auto_advance = False
+        self.gameplay = False
         self.active = False
 
     # --- Denetim ------------------------------------------------------------
-    def start(self, lines: tuple[Line, ...], auto_advance: bool = False) -> None:
-        """`auto_advance=True` yalnizca bir sahne-zamanlayicisiyla yarisan
-        dizilerde kullanilir (bkz. `AUTO_ADVANCE_HOLD_FRAMES`). Normal
-        kesif/dovus repligi varsayilanla oynar: oyuncu onaylayana kadar
-        ekranda kalir, sessizce kaybolmaz.
-        """
+    def start(self, lines: tuple[Line, ...], auto_advance: bool = False,
+              *, gameplay: bool = False) -> None:
+        """Sinematik varsayilani onay bekler; oynanis kendi suresinde akar."""
         if not lines:
             return
         self.lines = lines
@@ -181,8 +169,33 @@ class Dialogue:
         self.revealed = 0.0
         self.lock = ADVANCE_LOCK_FRAMES
         self.hold = 0
-        self.auto_advance = auto_advance
+        self.auto_advance = auto_advance or gameplay
+        self.gameplay = gameplay
         self.active = True
+
+    def enqueue(self, lines: tuple[Line, ...]) -> None:
+        """Yeni oynanis replikleri okunani ezmez; soruyu spamlamak biriktirmez."""
+        if not lines:
+            return
+        if self.done:
+            self.start(lines, gameplay=True)
+            return
+        pending = self.lines[self.index:]
+        if any(pending[i:i + len(lines)] == lines
+               for i in range(len(pending))):
+            return
+        self.lines += lines
+
+    def silence(self, speaker: str) -> None:
+        """Susturulan sesin bekleyen sozleri de silinir; digerleri korunur."""
+        remaining = tuple(line for line in self.lines[self.index:]
+                          if line.speaker != speaker)
+        if not remaining:
+            self.stop()
+        elif self.current is not None and self.current.speaker == speaker:
+            self.start(remaining, self.auto_advance, gameplay=self.gameplay)
+        else:
+            self.lines = self.lines[:self.index] + remaining
 
     def stop(self) -> None:
         self.active = False
@@ -210,6 +223,14 @@ class Dialogue:
         """Replik tamamen yazildi mi?"""
         return self.revealed >= len(self.full_text)
 
+    @property
+    def hold_frames(self) -> int:
+        """Tam metin gorundukten sonra okuma suresi: oynanista 3-10 saniye."""
+        if not self.gameplay:
+            return AUTO_ADVANCE_HOLD_FRAMES
+        return max(READ_MIN_FRAMES, min(READ_MAX_FRAMES,
+                   READ_BASE_FRAMES + len(self.full_text) * READ_FRAMES_PER_CHAR))
+
     # --- Dongu --------------------------------------------------------------
     def update(self, game) -> None:
         if not self.active:
@@ -217,14 +238,16 @@ class Dialogue:
         if self.lock > 0:
             self.lock -= 1
 
-        pressed = game.input.pressed(Action.CONFIRM) or \
-            game.input.pressed(Action.INTERACT)
+        pressed = not self.gameplay and (
+            game.input.pressed(Action.CONFIRM)
+            or game.input.pressed(Action.INTERACT))
 
         if not self.complete:
             # Basili tutmak yazimi hizlandirir; **atlamaz**. Ayni kural
             # sinematiklerde de gecerli (src/scenes/cinematic.py).
-            fast = game.input.held(Action.CONFIRM) or \
-                game.input.held(Action.INTERACT)
+            fast = not self.gameplay and (
+                game.input.held(Action.CONFIRM)
+                or game.input.held(Action.INTERACT))
             self.revealed += TYPE_SPEED * (4.0 if fast else 1.0)
             return
 
@@ -232,7 +255,7 @@ class Dialogue:
         # sure sonra kendiliginden de ilerler (bkz. AUTO_ADVANCE_HOLD_FRAMES).
         self.hold += 1
         if (pressed and self.lock <= 0) or (
-                self.auto_advance and self.hold >= AUTO_ADVANCE_HOLD_FRAMES):
+                self.auto_advance and self.hold >= self.hold_frames):
             self._advance()
 
     def _advance(self) -> None:
@@ -371,6 +394,15 @@ class Dialogue:
         ipucunda, ve orada tus tablosundan okunuyor (tuslar yeniden
         atanabiliyor - sabit yazmak yalan olurdu).
         """
+        if self.gameplay:
+            # Bekleyen tus oku yerine sessiz bir sure cizgisi.
+            width = 20
+            x, y = box.right - width - 8, box.bottom - 4
+            surface.fill(palette.role("ui_text_dim"), (x, y, width, 1))
+            left = max(0, round(width * (1 - self.hold / self.hold_frames)))
+            if left:
+                surface.fill(palette.role("ui_text"), (x, y, left, 1))
+            return
         if (pygame.time.get_ticks() // 400) % 2 == 0:
             return
         x = box.right - 12

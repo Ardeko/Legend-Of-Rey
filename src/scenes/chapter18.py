@@ -229,8 +229,8 @@ class Chapter18Scene(PlayScene):
             #
             # Once yaratik konusuyor, sonra Rey tepki veriyor: sira
             # onemli, cunku oyuncunun once TANIMASI gerekiyor.
-            # `say()` kuyrugu DEGISTIRIYOR, eklemiyor: iki ayri cagri
-            # birincisini dusururdu. Tek cagrida veriliyor.
+            # Bu ani kesen ses onceki ortam repligini susturur. Normal
+            # `say()` kuyruga ekler; burada sokla AYNI ANDA duyulmali.
             # --- SOK 4 (`docs/korku.md` §6, son satir) ------------------
             # *"Cemo'nun sesi ILK duyuldugunda."*
             #
@@ -246,6 +246,7 @@ class Chapter18Scene(PlayScene):
             # Kontrol ALINMIYOR (kural 1): hitstop 14 kare, bir
             # kacinma suresinden kisa.
             self._voice_shock()
+            self.dialogue.stop()
             if self.character == "ardo":
                 self.say(Line("ardo", "line.ch18_ardo_voice"))
             else:
@@ -528,7 +529,9 @@ class Chapter18Scene(PlayScene):
         # baslar ve yeme yetisemezdi.
         if self.kalachev is not None:
             self.kalachev.silent = True
-        self.say(Line("cemo", "line.ch18_cemo_call"))
+        # Bu sozler kare cetvelindeki eyleme ait: onceki kesif replikleri
+        # bittikten sonra kuyruktan gelirse kosu ve olumle baglari kopar.
+        self.say(Line("cemo", "line.ch18_cemo_call"), timed=True)
 
     def _taken_open_gate(self) -> None:
         """Muhur aciliyor. **Yaratik onlari ayirmayi seciyor.**"""
@@ -546,7 +549,7 @@ class Chapter18Scene(PlayScene):
         """Kosuyor. Oyuncu bagiriyor ve **duyulmuyor.**"""
         if self.kalachev is not None:
             self.kalachev.chase(self._lure_x())
-        self.say_player("line.ch18_rey_stop", "line.ch18_ardo_stop")
+        self.say_player("line.ch18_rey_stop", "line.ch18_ardo_stop", timed=True)
 
     def _check_kalachev_reached(self) -> None:
         """Yere varinca oluyor - cetveldeki kareyi beklemeden.
@@ -570,7 +573,7 @@ class Chapter18Scene(PlayScene):
         ally = self.kalachev
         if ally is None or ally.dead:
             return
-        self.say(Line("kalachev", "line.ch18_kalachev_last"))
+        self.say(Line("kalachev", "line.ch18_kalachev_last"), timed=True)
         ally.perish()
         self.game.hitstop(20)
         self.camera.linger(50)
@@ -585,7 +588,7 @@ class Chapter18Scene(PlayScene):
         if self.companion is None:
             return
         self.companion.hold(self._lure_x())
-        self.say(Line(self.companion_key, "line.ch18_ally_after"))
+        self.say(Line(self.companion_key, "line.ch18_ally_after"), timed=True)
 
     def _taken_slam(self) -> None:
         """Kapi iniyor. Yoldas disarida kaliyor.
@@ -622,7 +625,7 @@ class Chapter18Scene(PlayScene):
         self.player.control_locked = 0
         if self.save_data is not None:
             self.save_data.flags[KALACHEV_DEATH_FLAG] = True
-        self.say_player("line.ch18_rey_alone", "line.ch18_ardo_alone")
+        self.say_player("line.ch18_rey_alone", "line.ch18_ardo_alone", timed=True)
         if not self.silence.unlocked:
             self._unlock_silence()
 

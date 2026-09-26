@@ -380,8 +380,8 @@ def test_keeper_last_candle() -> None:
 
 
 def test_closing_press_does_not_call() -> None:
-    """Cemo'nun repligini kapatan E ayni karede Jet'e seslenmiyor."""
-    print("\n--- konusmayi kapatan E seslenmiyor ---")
+    """E otomatik repligi gecmez; bitince seslenmek icin yeni basis gerekir."""
+    print("\n--- oynanis repligi ve etkilesim ayri ---")
     game = Game()
     try:
         seed_save("rey")
@@ -394,11 +394,12 @@ def test_closing_press_does_not_call() -> None:
         check(scene.dialogue.current is not None,
               "Cemo isigi gordu, replik acik ve oyuncu ipin dibinde")
         tap(game, pygame.K_e)
-        check(scene.dialogue.done and not scene.called,
-              "E replik kapatti ama seslenmedi")
+        check(not scene.dialogue.done and not scene.called,
+              "E repligi atlamadi ve seslenmedi")
+        finish_dialogue(game, scene)
         run(game, 2)
         tap(game, pygame.K_e)
-        check(scene.called, "ikinci E seslendi")
+        check(scene.called, "otomatik replik bittikten sonraki E seslendi")
     finally:
         game.quit()
 

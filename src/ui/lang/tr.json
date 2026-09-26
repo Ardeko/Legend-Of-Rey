@@ -2,8 +2,7 @@
   "_aciklama": "Turkce - kanonik dil. Dizeler once burada yazilir, sonra cevrilir. Eksik ceviri bu tabloya duser.",
   "_kural": "Metinler GOSTERILECEK halleriyle durur. Baslikar buyuk harfli yazilir; calisma zamaninda buyuk harfe cevrilmez (bkz. i18n.py).",
   "title": {
-    "full": "REY EFSANESİ: YANKILAR",
-    "acronym": "REY"
+    "subtitle": "YANKILAR"
   },
   "common": {
     "on": "Açık",

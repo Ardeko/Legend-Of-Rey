@@ -78,7 +78,7 @@ from src.config import (  # noqa: E402
 from src.core.game import Game  # noqa: E402
 from src.scenes import chapter18_cinematics as cine  # noqa: E402
 from src.scenes.chapter18 import (
-    PHASE_ALONE, PHASE_TAKEN, PHASE_TOGETHER, TAKEN_END,
+    PHASE_ALONE, PHASE_TAKEN, PHASE_TOGETHER, TAKEN_ALLY, TAKEN_END, TAKEN_RUN,
     Chapter18Scene,
 )
 from src.scenes.ending import ALLY_DISTANCE, DawnCinematic  # noqa: E402
@@ -645,6 +645,62 @@ def test_phase_two_takes_no_skill() -> None:
         game.quit()
 
 
+def test_taken_dialogue_matches_actions() -> None:
+    """Kuyruktaki kesif sozleri finalin eyleme bagli repliklerini geciktirmez."""
+    print("\n--- faz 2 sozleri eylemlerle ayni anda ---")
+    for character in ("rey", "ardo"):
+        game = Game()
+        try:
+            scene = start(game, character)
+            walk_to_arena(game, scene)
+            scene.dialogue.stop()
+            scene.say_player("line.ch18_rey_bottom", "line.ch18_ardo_bottom")
+            scene.say_player("line.ch18_rey_alone", "line.ch18_ardo_alone")
+            check(len(scene.dialogue.lines) == 2,
+                  f"{character}: fazdan once kesif replikleri kuyrukta")
+            boss = scene.boss
+            boss.rise_frames = 0
+            boss.health = 0
+            boss.die()
+
+            observed: dict[str, str | None] = {}
+            was_dead = False
+            for _ in range(TAKEN_END + 1):
+                scene.update()
+                current = scene.dialogue.current
+                key = current.key if current is not None else None
+                if scene.taken_frames == 1:
+                    observed["call"] = key
+                if scene.taken_frames == TAKEN_RUN:
+                    observed["run"] = key
+                if scene.kalachev.dead and not was_dead:
+                    observed["death"] = key
+                was_dead = scene.kalachev.dead
+                if scene.taken_frames == TAKEN_ALLY:
+                    observed["ally"] = key
+                if scene.phase == PHASE_ALONE:
+                    observed["alone"] = key
+                    break
+
+            expected = {
+                "call": "line.ch18_cemo_call",
+                "run": ("line.ch18_ardo_stop" if character == "ardo"
+                        else "line.ch18_rey_stop"),
+                "death": "line.ch18_kalachev_last",
+                "ally": "line.ch18_ally_after",
+                "alone": ("line.ch18_ardo_alone" if character == "ardo"
+                          else "line.ch18_rey_alone"),
+            }
+            for moment, key in expected.items():
+                check(observed.get(moment) == key,
+                      f"{character}: {moment} repligi eylemle ayni karede",
+                      str(observed.get(moment)))
+            check(scene.phase == PHASE_ALONE,
+                  f"{character}: konusmalar onay beklemeden fazi tamamladi")
+        finally:
+            game.quit()
+
+
 def main() -> int:
     test_caller_cannot_die_while_echo_is_open()
     test_player_and_boss_share_the_arena()
@@ -652,6 +708,7 @@ def main() -> int:
     test_both_death_paths_are_refused()
     test_three_phases()
     test_phase_two_takes_no_skill()
+    test_taken_dialogue_matches_actions()
     test_silence_unlocks_on_first_kneel()
     test_silencing_works_and_costs()
     test_silence_is_irreversible()

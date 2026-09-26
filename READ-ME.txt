@@ -1,5 +1,9 @@
 LEGEND OF REY
-Ardeko Studios · v1.0 · Build 2026-09-19 · Windows x64
+Ardeko Studios · v1.0 · Build 2026-09-26-r2 · Windows x64
+
+Current package: LegendOfRey-Windows-x64-2026-09-26-r2.zip
+The main menu shows 2026.09.26-r2 in its bottom-right corner.
+This revision includes the custom LEGEND OF REY wordmark and prior updates.
 
 (Türkçesi: OKU-BENI.txt)
 
@@ -45,7 +49,9 @@ CONTROLS
   Space / W / Z          jump
   J or X                 attack
   Shift / L / C          dodge
+  Ctrl (hold)            sneak (gamepad: L3)
   E                      interact (levers, chests, people)
+                         hold to revive your companion in chapter 16
   Q / K (hold)           Echo - Rey sees, Ardo reads traces
   F                      ask the Echo a question
   G                      resonance (after chapter 8)
@@ -53,10 +59,21 @@ CONTROLS
   R                      throw the selected item
   Y                      switch character (chapter 17)
   Tab                    inventory / weapon
+  Down / S (hold)        descend faster in chapter 12; release to slow
   Esc                    pause
+  F11                    fullscreen / window
 
 Gamepad is OFF by default - turn it on in Settings.
 Every key can be rebound in Settings -> Controls (Turkish: Tuslar).
+Gamepad players should bind resonance and throwing in that menu.
+
+In the inventory, Up/Down and Enter equip a weapon; Left/Right selects
+the throwable item. Spend skill points through Esc -> Skills.
+
+Short gameplay lines appear in order and close automatically after a
+reading time based on their length. Space/E do not skip these lines.
+Important cinematics and the opening village conversation wait for
+confirmation. Pausing the game also pauses the reading timer.
 
 
 ===============================================================

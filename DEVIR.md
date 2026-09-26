@@ -7,7 +7,79 @@ Okuma sırası: **1) `CLAUDE.md`** (bağlayıcı kurallar — anayasa) → **2) 
 dosya** (nerede kaldık) → 3) gerekirse `docs/` altındaki ilgili tasarım
 belgesi.
 
-Son güncelleme: **25.09.2026** (yetenek ağacı yeniden: bölüme yayılan puanlar ve on yeni hareket · Eski Kalkan, fitil/mum kalktı · son şans bağlandı · akıcı animasyon, 8 FPS gevşedi) · Ardeko Studios · Arda Güner
+Son güncelleme: **26.09.2026-r2** (özel menü başlığı ve yeniden derlenen güncel Windows paketi) · Ardeko Studios · Arda Güner
+
+## 26.09.2026-r2 — Menü başlığı ve doğrulanan yeni exe
+
+- Arda menüdeki oyun adını güzelleştirmeyi ve eski build yerine güncel exe
+  istedi. `src/ui/title_art.py`: özel çizilmiş serif **REY**, üstte
+  **LEGEND OF**, altta yerelleştirilmiş YANKILAR/ECHOES. Oyulmuş metal
+  kenarları, bronz tonları, elmas süsler ve seyrek hafif ışık yansıması.
+  Parlama sınırı açıkken yansıma durur. Pikseller tam sayı ölçeklenir.
+- Menünün sağ altında **2026.09.26-r2** görünür (`src/version.py`);
+  eski exe'yle karışması önlenir. Logo dil/palet değişiminde yeniden
+  hazırlanır; her kare yeniden oluşturulmaz.
+- Güncel dosyalar: `dist/Legend of Rey.exe` ve
+  **`dist/LegendOfRey-Windows-x64-2026-09-26-r2.zip`** (85.362.732 bayt).
+  Önceki tarihsiz-revizyonlu ZIP adı da aynı paketle yenilendi; eskiler
+  `build/release-backup/` altında korundu.
+- `test_menu.py`, `test_lang.py`, `test_build.py` geçti. İki dilde beş
+  menü aşaması görüntülendi. Paket içindeki **237 Python modülünün kodu
+  güncel kaynakla birebir karşılaştırıldı**; yeni başlık ve sürüm dahildir.
+  26 medya/dil dosyası da eşleşiyor. ZIP proje dışında açılıp intro,
+  ana menü ve B3 altışar saniye çalıştırıldı.
+- Görseller, SHA-256 ve doğrulama: `build/verification/2026-09-26-r2/`.
+  Aşağıdaki önceki sürüm notları tarihçedir; en güncel paket **r2**.
+
+## 26.09.2026 — Oynanış yazıları ve görsel cila
+
+Arda karma diyalog düzeninin kararını uygulayıcıya bıraktı; grafiklerin
+geliştirilmesini ve ardından exe paketini istedi. Önce güncel kaynak
+tarandı: Kalachev fiziği, ölümde eşya iadesi, ek dükkânlar, etkileşim
+ipuçları, silahlar, derinlik/lav ve senaryo belgeleri zaten günceldi.
+`senaryo-akisi.md` içindeki 630 blok ve `diyaloglar.md` içindeki 462 blok
+dil dosyalarıyla eşleşiyordu. Kullanıcının replikleri değiştirilmedi.
+
+- **Kısa oynanış replikleri otomatik:** metin tamamen göründükten sonra
+  uzunluğa göre 3–10 saniye kalır. Aynı anda gelen konuşmalar sıraya girer;
+  tekrar tekrar aynı soruyu sormak kuyruğu şişirmez. Space/E/Enter bu
+  replikleri hızlandırmaz veya atlamaz. İnce bir süre çizgisi gösterilir.
+- **Önemli sinematikler onay bekler:** alttaki oyun sahnesi durur.
+  Köy açılışının onay bekleyen konuşmaları da korundu; onay verirken
+  oyuncu zıplamaz. Cemo/kolye gibi sahneleme animasyonları sürer.
+- **Özel zamanlama:** B18'in zorunlu gösterisinde `say(..., timed=True)`
+  kullanılır; eski ortam yazısı bir aksiyon repliğini geciktiremez. Cemo'nun
+  ilk duyulan sesi de şok anında başlar. Yakalanan Yankı sustuğunda bekleyen
+  Yankı replikleri temizlenir, diğer konuşmacılar korunur.
+- **Görsel cila:** meşalelerde geniş yumuşak ışık, daha belirgin bağlantı
+  parçaları ve yükselen kıvılcım; kayalarda kırık yüzey ışıkları, nem/kireç
+  izleri ve obsidyen yansımaları. Çarpışma ve mekanik ışık menzili değişmedi.
+- **Temas gölgeleri:** oyuncu, düşmanlar, yoldaş ve Kalachev'in gölgesi
+  gerçek zeminde kalır; zıplarken solar, kenarda kırpılır, çukurda görünmez.
+  Sprite'a çizilmiş eski elips kaldırılırken bot ve silah pikselleri
+  korunur. Sinematik/NPC atlaslarının varsayılanı değişmedi. B12'nin
+  hareketli kafesi ayrı bir çizim katmanı olduğu için yeni gölge almaz.
+  12 gölge için ölçülen ek çizim 0,039 ms/kare; dört ek atlas 2,42 MB.
+- **HUD:** iki kez artan kare sayacı düzeltildi; can ve combo nabızları
+  normal hızda. Kontrol: 60 güncelleme → 60 kare.
+- Taşınabilir paketin Türkçe/İngilizce açıklamaları yeni kontroller,
+  yetenekler ve diyalog düzenine göre güncellendi.
+
+Doğrulama ve paket bilgisi: `build/verification/2026-09-26/`.
+- **66/66 test betiği geçti:** `.venv/Scripts/python.exe build/verification/verify_current.py`;
+  ayrıntılar `suite.json` ve test günlüklerinde. Kayıtlar geçici dizinlerde.
+- **Paket hazır:** `dist/Legend of Rey.exe` ve
+  `dist/LegendOfRey-Windows-x64-2026-09-26.zip` (85.357.413 bayt).
+  ZIP yalnızca exe + `OKU-BENI.txt` + `READ-ME.txt` içerir.
+- Windows x64 mimarisi, yeni modüller ve 26 ses/müzik/portre/dil dosyası
+  kaynaklarla karşılaştırıldı. ZIP proje dışına çıkarılarak intro, menü,
+  B3/B11/B18 ve iki oynanabilir epilog sahnesi altışar saniye açıldı.
+  Bu kontroller başsızdır; baştan sona elle oynama veya fiziksel gamepad
+  testi yapıldığı anlamına gelmez. SHA-256 ve sonuçlar `release.json` içinde.
+- `graphify update .` tamamlandı: 8.530 düğüm, 18.209 ilişki.
+
+Aşağıdaki 25 Eylül notları geçmiş durumu anlatır; güncel paket bilgisi
+bu bölümde tutulur.
 
 ## ▶ BAŞKA BİLGİSAYARDAN DEVRALAN: ÖNCE BURASI (25.09.2026)
 
@@ -22,14 +94,14 @@ ilgili belgede.
 | ~~K1~~ | ~~Yetenek ağacı~~ — **karar verildi ve uygulandı** (bölüme yayılan puanlar, yeni hareketler) | `docs/plan-yetenek-agaci.md` |
 | ~~K2~~ | ~~Koruyucu Mum~~ — **Eski Kalkan oldu**, fitil ve mum kalktı | `docs/plan-kalkan.md` |
 | ~~K3~~ | ~~8 FPS~~ — **gevşedi**, hızlı eylemler akıcı | `docs/plan-gorsel-his.md`, `CLAUDE.md` §6 |
-| K4 | Boşluk hem ZIPLA hem ONAY (konuşmayı geçerken zıplama). Arda: *"sonra ilgileneceğim"* | bu dosya, 23-24.09 madde 4 |
+| ~~K4~~ | **Tamamlandı:** oynanış yazıları otomatik, Space/E atlamıyor; önemli konuşmalar onaylı | 26.09 bölümü |
 | K5 | `docs/senaryo-oneriler.md`'deki 22 öneri | o belge |
 | K6 | `echo_alone_voice` ulaşılamıyor (sadakat en çok 1, eşik 3) | `docs/senaryo-akisi.md` Denetim 2 |
 | K7 | **Yetenek dengesi oynanarak** — Hamle beklemesi 45, Pusu ×1.5, Toparlanma %60/%50, Kalkan 60 altın. Sayılar oynanmadan seçildi | `src/config.py` YETENEK AGACI / ESKI KALKAN |
 
 ### Kararsız yapılabilecekler
 
-1. **Exe'yi yeniden derle** — yalnızca müziğin olduğu makinede (`assets/audio/music/` git'te yok; bu makinede PyInstaller da kurulu değildi). `dist/` hâlâ 19.09 sürümü.
+1. **Exe 26.09'da yeniden derlendi.** Bu makinedeki dokuz müzik dosyası pakete dahil; yeni kaynak değişikliklerinden sonra yeniden derlenmeli.
 2. **Baştan sona oyna.** Yeni olanlar özellikle:
    - B15'in sessiz yürüyüşü ve avı.
    - B14'ün yeni jumpscare'i. **Sesleri kulakla dinle** — başsız testte dinlenemedi.
@@ -42,7 +114,7 @@ ilgili belgede.
 3. **Gerçek bir kolla dene:** titreşim (`RUMBLE_*`) ve L3 ile sessiz yürüyüş.
 4. **Ok/bomba sanatı:** `docs/prompt-ok-bomba.md`'deki promptlarla üret, içe aktar, bağla (§5).
 5. `docs/plan-gorsel-his.md` Aşama 1 (vuruş kıvılcımı, düşman tepki eğrisi, bitirici yumruğu, öldürme anı, vurulma nabzı, temas gölgesi) — kural dışı, onay gerektirmiyor.
-6. `graphify` bu makinede kurulu değildi; kuruluysa `graphify update .`
+6. `graphify update .` 26.09'da çalıştırıldı; sonraki kod değişikliğinde yenilenmeli.
 
 ### Keşifte bulunan ve bu turda düzeltilenler
 
@@ -51,7 +123,7 @@ ilgili belgede.
 - ✅ **Son şans (`CLAUDE.md` §8) hiç uygulanmıyordu.** Artık uygulanıyor.
 - ✅ **Silah değişince "Akış"ın +2 karesi kayboluyordu** (`equip_weapon`).
 - ✅ `apply_skills` iki kez çağrılınca canı iki kat artırıyordu. Artık tabandan hesaplanıyor.
-- ⬜ `src/ui/hud.py :: HUD.update` içinde `self.frame += 1` **iki kez** yazılı: düşük can nabzı iki kat hızlı atıyor. Dokunulmadı. Bilerek mi, Arda'ya sorulmalı.
+- ✅ `src/ui/hud.py :: HUD.update` içindeki çift kare artışı 26.09'da düzeltildi; düşük can nabzı normal hızda.
 
 ## 25.09.2026 — B3 "Mor" sahnesi ve B6'nın adı
 

@@ -58,9 +58,9 @@ def hold_for(state: str, count: int) -> float:
         return total / count
     return float(HOLD_OVERRIDES.get(state, DEFAULT_HOLD_FRAMES))
 
-# Onbellek anahtari (ad, sallanma_indeksi). Kumasi olmayan karakterler
+# Onbellek anahtari (ad, sallanma_indeksi, sprite_golgesi). Kumasi olmayan karakterler
 # yalnizca notr varyanti alir - varyant uretmek bos maliyet olurdu.
-_sprite_cache: dict[tuple[str, int], dict[str, list[pygame.Surface]]] = {}
+_sprite_cache: dict[tuple[str, int, bool], dict[str, list[pygame.Surface]]] = {}
 
 # Sallanma varyanti YALNIZCA bu karakterlere uretiliyor. Oyuncu her karede
 # ekranda ve kontrol edilen sey o; dusman/NPC icin ek 2x sprite bellegi
@@ -81,16 +81,16 @@ def sway_levels(name: str) -> int:
     return len(SWAY_BIASES)
 
 
-def sprite_set(name: str, sway: int = SWAY_NEUTRAL
+def sprite_set(name: str, sway: int = SWAY_NEUTRAL, *, shadow: bool = True
                ) -> dict[str, list[pygame.Surface]]:
     """Karakterin tum animasyonlari - ilk cagirmada uretilir, sonra onbellek."""
     if sway_levels(name) == 1:
         sway = SWAY_NEUTRAL
-    key = (name, sway)
+    key = (name, sway, shadow)
     cached = _sprite_cache.get(key)
     if cached is None:
         spec: CharSpec = CHARACTERS[name]
-        cached = build_sprite_set(spec, SWAY_BIASES[sway])
+        cached = build_sprite_set(spec, SWAY_BIASES[sway], shadow=shadow)
         _sprite_cache[key] = cached
     return cached
 
@@ -256,9 +256,16 @@ class Animator:
                silhouette_mode: bool = False,
                tint_colour: palette.RGB | None = None,
                tint_strength: float = 1.0,
-               alpha: int = 255) -> pygame.Surface | None:
+               alpha: int = 255, shadow: bool = True) -> pygame.Surface | None:
         """Cizime hazir yuzey: yon, flas, deformasyon ve siluet uygulanmis."""
-        image = self.image
+        if shadow:
+            image = self.image
+        else:
+            # Oynanista golge haritanin zeminine cizilir. Ayak veya silah
+            # piksellerini kirpmak yerine golgesiz atlas bir kez uretilir.
+            sequence = sprite_set(self.character, self.sway_index,
+                                  shadow=False).get(self.state)
+            image = sequence[min(self.index, len(sequence) - 1)] if sequence else None
         if image is None:
             return None
         if facing < 0:

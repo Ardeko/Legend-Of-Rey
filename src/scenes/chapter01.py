@@ -295,7 +295,7 @@ class Chapter01Scene(PlayScene):
         # Rey'in kafasinda bir rehber var, Ardo'nun yok.
         if self.beat == "wake" and self.has_echo:
             # Sesin ilk kelimesi. Tek kelime - Rey uyanirken.
-            self.say(Line("echo", "line.ch01_echo_first"))
+            self.say(Line("echo", "line.ch01_echo_first"), auto_advance=False)
         elif self.beat == "gift":
             # **Raze.mp3** - Arda: "cok nadir duygusal kisimlar icin Raze".
             # Oyunun butun hikayesi bu kolyeye asili ve bu, Cemo'yu diri
@@ -307,16 +307,16 @@ class Chapter01Scene(PlayScene):
             # Tesekkur OYNANAN karaktere ait. Sabit "rey" yaziliydi ve
             # Ardo oynarken replik "REY" etiketiyle cikiyordu.
             self.say(Line("cemo", "line.ch01_cemo_gift"),
-                     Line(self.character, self._thanks_key()))
+                     Line(self.character, self._thanks_key()), auto_advance=False)
         elif self.beat == "alone":
             if self.has_echo:
-                self.say(Line("echo", "line.ch01_echo_alone"))
+                self.say(Line("echo", "line.ch01_echo_alone"), auto_advance=False)
             else:
                 # Ardo'nun kendi gerekcesi. `docs/yapi.md` onu "egitimli
                 # yabanci" diye tanitiyor - asagida ne oldugunu BILIYOR,
                 # inme sebebi bu. Bu satir DEVIR'de acik duran "Ardo'nun
                 # motivasyonu hic yazilmadi" maddesini kapatiyor.
-                self.say(Line("ardo", "line.ch01_ardo_alone"))
+                self.say(Line("ardo", "line.ch01_ardo_alone"), auto_advance=False)
 
         if self.beat == "taken":
             # Yer sarsilir. Radyal - yarilmanin yonu yok.
@@ -335,9 +335,9 @@ class Chapter01Scene(PlayScene):
             # Ses ilk kez burada duyuluyor: yarik acilirken. Iki kelime.
             # Ardo'da ses yok - onun yerine kendi tanimasi geliyor.
             if self.has_echo:
-                self.say(Line("echo", "line.ch01_echo_rift"))
+                self.say(Line("echo", "line.ch01_echo_rift"), auto_advance=False)
             else:
-                self.say(Line("ardo", "line.ch01_ardo_rift"))
+                self.say(Line("ardo", "line.ch01_ardo_rift"), auto_advance=False)
         elif self.beat == "alone":
             # `self.necklace` burada DEGIL, kolye ucusu varinca ayarlaniyor
             # (bkz. _update_gift). Eskiden burada sessizce True oluyordu ve

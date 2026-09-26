@@ -26,10 +26,12 @@ from src.systems.save import (
 from src.ui import text
 from src.ui.i18n import t, t_or_raw
 from src.ui.menu_scene import MenuBackdrop, stage_for
-from src.ui.font_data import GLYPH_HEIGHT, GLYPH_WIDTH
+from src.ui.font_data import GLYPH_HEIGHT
+from src.ui.title_art import TitleArt
 from src.ui.widgets import Menu, MenuItem, panel
+from src.version import BUILD_ID
 
-TITLE_Y = 32
+TITLE_Y = 20
 MENU_X = 46
 MENU_Y = 116
 CARD_X = 250
@@ -203,51 +205,13 @@ class MainMenuScene(Scene):
 
     # --- Cizim yardimcilari -------------------------------------------------
     def _draw_title(self, surface: pygame.Surface) -> None:
-        """Baslik + kisaltma.
-
-        Isim her iki dilde de kelimelerin bas harflerinden anlamli bir sozcuk
-        cikaracak sekilde secildi:
-            LEGEND OF REY: ECHOES  -> LORE
-            REY EFSANESI: YANKILAR -> REY
-        Bas harfleri vurgulayarak ciziyoruz ki bu tesadüf gibi degil, tasarim
-        gibi okunsun - kisaltma basligin kendi icinden cikiyor.
-        """
-        self._draw_initial_caps(surface, t("title.full"), MENU_X, TITLE_Y)
-        # Logo dili degisince yeniden hazirlanir; her kare olcekleme yok.
-        logo_key = (t("title.acronym"), palette.active_mode())
+        """Ozel harfli metal amblem; dil/palet degisince yeniden hazirlanir."""
+        logo_key = (t("title.subtitle"), palette.active_mode())
         if getattr(self, "_logo_key", None) != logo_key:
-            base = text.font().render(logo_key[0], palette.role("ui_text_bright"),
-                                      tracking=3)
-            self._logo = pygame.transform.scale(
-                base, (base.get_width() * 3, base.get_height() * 3)).convert_alpha()
+            self._logo = TitleArt(logo_key[0])
             self._logo_key = logo_key
-        surface.blit(self._logo, (MENU_X, TITLE_Y + 19))
-        line_y = TITLE_Y + 61
-        pygame.draw.line(surface, palette.color("stone_darkest"),
-                         (MENU_X, line_y), (MENU_X + 139, line_y))
-        pygame.draw.line(surface, palette.color("violet"),
-                         (MENU_X, line_y), (MENU_X + 38, line_y))
-        pygame.draw.polygon(surface, palette.color("violet_bright"),
-                            [(MENU_X + 42, line_y - 2), (MENU_X + 44, line_y),
-                             (MENU_X + 42, line_y + 2), (MENU_X + 40, line_y)])
-
-    def _draw_initial_caps(self, surface: pygame.Surface, value: str,
-                           x: int, y: int) -> None:
-        """Her kelimenin ilk harfini vurgulu, gerisini soluk cizer."""
-        bright = palette.role("ui_text")
-        dim = palette.role("ui_text_dim")
-        tracking = 1
-        advance = GLYPH_WIDTH + tracking
-        for word in value.split(" "):
-            if not word:
-                x += advance
-                continue
-            text.draw(surface, word[0], x, y, color=bright, tracking=tracking)
-            if len(word) > 1:
-                text.draw(surface, word[1:], x + advance, y, color=dim,
-                          tracking=tracking)
-            # Kelime + tek bosluk kadar ilerle.
-            x += (len(word) + 1) * advance
+        self._logo.draw(surface, (MENU_X - 4, TITLE_Y), self.frame,
+                        animate=not self.game.settings.get("flash_limit", False))
 
     def _draw_save_card(self, surface: pygame.Surface) -> None:
         """DEVAM ET kartı: uc hafta sonra donen oyuncu nerede kaldigini
@@ -327,6 +291,8 @@ class MainMenuScene(Scene):
                       align="center")
         text.draw(surface, "Ardeko Studios", 6, INTERNAL_HEIGHT - 12,
                   color=palette.color("stone_dark"))
+        text.draw(surface, BUILD_ID, INTERNAL_WIDTH - 6, INTERNAL_HEIGHT - 12,
+                  color=palette.color("stone_light"), align="right")
 
     def debug_lines(self) -> list[str]:
         return [f"kayıt: {self.save_status}  "

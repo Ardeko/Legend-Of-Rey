@@ -38,7 +38,7 @@ def invalidate_all() -> None:
     kalkarsa patlar. Ayrica cagri seyrek (yalnizca ayar degisiminde),
     yani import maliyeti onemsiz.
     """
-    from src.art import (animator, bloom, brightness, glow, lighting,
+    from src.art import (animator, bloom, brightness, contact_shadow, glow, lighting,
                          portrait, postfx, projectiles, rimlight, tileset)
     from src.entities import candle_keeper
     from src.scenes import staging
@@ -57,6 +57,7 @@ def invalidate_all() -> None:
     glow.clear_cache()
     bloom.clear_cache()
     rimlight.clear_cache()
+    contact_shadow.clear_cache()
     projectiles.clear_cache()
     cave_backdrop.clear_cache()
     weapon_shrine.clear_cache()

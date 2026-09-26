@@ -1,5 +1,9 @@
 LEGEND OF REY — test sürümü
-Ardeko Studios · 19.09.2026 · Windows x64
+Ardeko Studios · 26.09.2026-r2 · Windows x64
+
+Güncel paket: LegendOfRey-Windows-x64-2026-09-26-r2.zip
+Ana menünün sağ altındaki sürüm: 2026.09.26-r2.
+Bu sürüm özel çizilmiş LEGEND OF REY başlığını ve önceki güncellemeleri içerir.
 
 ═══════════════════════════════════════════════════════════════
 NASIL ÇALIŞTIRILIR
@@ -58,6 +62,7 @@ KONTROLLER
   Boşluk / W / Z         zıpla
   J veya X               saldır
   Shift / L / C          kaçınma (yuvarlanma)
+  Ctrl (basılı tut)      sessiz yürü (gamepad: L3)
   E                      etkileşim (kol, sandık, NPC)
                          + Bölüm 16'da: basılı tut → yoldaşı kaldır
   Q / K (basılı tut)     Yankı — Rey'de görüş, Ardo'da iz sürme
@@ -68,13 +73,24 @@ KONTROLLER
   R                      seçili malzemeyi fırlat
   Y                      karakter değiştir (Bölüm 17)
   Tab                    envanter / silah değiştir
-  Aşağı (basılı tut)     Bölüm 12'de kafesin freni
+  Aşağı / S (basılı)     Bölüm 12'de hızlı in; bırakınca yavaşla
   ESC                    duraklat
+  F11                    tam ekran / pencere
 
   F3                     hata ayıklama bilgisi (istersen aç)
 
 Gamepad **kapalı** geliyor. Kullanacaksan Ayarlar'dan aç.
 Tuşların hepsi Ayarlar → Tuşlar'dan değiştirilebilir.
+Gamepad kullanırken rezonans ve fırlatma için bu menüden tuş ata.
+
+Tab ile envanterde: yukarı/aşağı ve Enter ile silah kuşan;
+sol/sağ ile fırlatılacak malzemeyi seç. Yetenek puanlarını harcamak
+için ESC → YETENEKLER menüsünü aç.
+
+Oynanış sırasındaki kısa konuşmalar sırayla gösterilir ve metnin
+uzunluğuna göre kendiliğinden kapanır. Space/E yazıları atlamaz.
+Önemli sinematikler ve köydeki açılış konuşması onayını bekler;
+ekrandaki devam tuşunu kullan. Duraklatınca okuma süresi de durur.
 
 
 ═══════════════════════════════════════════════════════════════
@@ -82,13 +98,10 @@ NE KADARI HAZIR
 ═══════════════════════════════════════════════════════════════
 
 ★ 18 BÖLÜMÜN 18'İ OYNANABİLİR. Oyun baştan sona bitiyor: son
-  bölümden sonra kapanış sahnesi ve jenerik geliyor.
+  bölümden sonra kapanış, oynanabilir Eve Dönüş epilogu ve jenerik gelir.
 
-Yeni gelenler (bu sürümde ilk kez):
-  B15 Sessizlik   — uyuyan sürü, koşarsan uyanırlar
-  B16 Sırt Sırta  — yoldaş kendi kalkmıyor, sen kaldırıyorsun
-  B17 İkili Kule  — iki karakter, Y ile geçiş, biri kapıyı tutar
-  B18 Son         — final. Yankı açıkken yaratık ölmüyor.
+Bu pakette: güncel diyaloglar, yeni silahlar, yetenek ağacı, Eski Kalkan,
+geliştirilmiş animasyonlar, ek dükkânlar ve otomatik oynanış yazıları var.
 
 
 ═══════════════════════════════════════════════════════════════
